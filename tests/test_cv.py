@@ -1,0 +1,85 @@
+"""CV measures against brute-force reference code (agreement to 1e-6)."""
+import numpy as np
+import pytest
+
+from chaord.cv import CVS, measure
+from chaord.cv.local import cn_mean, number_density
+from chaord.dialects import load_dialect
+from chaord.io.frames import Frame
+from chaord.lang.errors import ChaordError
+
+
+@pytest.fixture
+def frame():
+    rng = np.random.default_rng(5)
+    L = np.array([6.0, 6.0, 6.0])
+    return Frame(pos=rng.uniform(0, 6, (40, 3)), cell=np.diag(L),
+                 symbols=["X"] * 40)
+
+
+@pytest.fixture
+def dialect():
+    return load_dialect(("core", "lj"))
+
+
+def _brute_cn(pos, L, rc):
+    n = 0
+    for i in range(len(pos)):
+        for j in range(len(pos)):
+            if i == j:
+                continue
+            d = pos[j] - pos[i]
+            d -= L * np.round(d / L)
+            if np.linalg.norm(d) < rc:
+                n += 1
+    return n / len(pos)
+
+
+def test_cn_matches_brute_force(frame, dialect):
+    rc = dialect.threshold("cn_cutoff")
+    assert cn_mean(frame, dialect) == pytest.approx(_brute_cn(frame.pos, frame.cell_diag, rc), abs=1e-6)
+
+
+def test_density(frame, dialect):
+    assert number_density(frame, dialect) == pytest.approx(40 / 216, abs=1e-12)
+
+
+def test_registry_measure_dispatch(frame, dialect):
+    assert measure("cn", frame, dialect) == pytest.approx(
+        cn_mean(frame, dialect), abs=1e-12)
+
+
+def test_registry_unknown_cv():
+    with pytest.raises(ChaordError, match="unknown CV"):
+        measure("nope", None, None)
+
+
+def test_registry_unmeasurable_cv():
+    with pytest.raises(ChaordError, match="no measure yet"):
+        measure("gr_peak", None, None)
+
+
+def test_one_definition_per_quantity():
+    from chaord.cv.registry import register
+    with pytest.raises(ChaordError, match="already registered"):
+        register("cn", None, "duplicate")
+
+
+def test_key_cvs_registered():
+    for name in ("cn", "density", "angle_mean", "q6", "gr_peak", "sites_matched",
+                 "solid_clusters", "sro_alpha1", "coverage", "pairing",
+                 "compressibility", "solid_like"):
+        assert name in CVS
+
+
+def test_angle_mean_tetrahedral(dialect):
+    # four atoms around a centre at perfect tetrahedral angles
+    import itertools
+    centre = np.zeros(3)
+    v = np.array([[1, 1, 1], [1, -1, -1], [-1, 1, -1], [-1, -1, 1]], float)
+    v = v / np.sqrt(3)
+    pos = np.vstack([centre, v])
+    frame = Frame(pos=pos, cell=np.diag([10.0] * 3), symbols=["X"] * 5)
+    # tetrahedral angle = 109.47 deg; the centre sees 6 pairs at that angle
+    assert measure("angle_mean", frame, dialect, cutoff=1.2) == pytest.approx(
+        np.degrees(np.arccos(-1 / 3)), abs=1e-6)
