@@ -10,3 +10,14 @@ keys:
 thresholds:
   adsorbate_site_tolerance: 0.5   # distance for assigning an adsorbate to a site, A
   layer_tolerance: 0.5            # vertical tolerance defining the surface layer, A
+  adsorbate_height: 2.0            # adsorbate height above the top layer, A
+  surface_default_layers: 4        # slab thickness in oriented z periods
+  surface_default_vacuum: 12.0     # vacuum added above the slab, A
+  vacuum_density_max: 0.005        # atoms/A^3 above which a region is not vacuum
+  adsorbate_site_tol: 0.8          # lateral tolerance for site classification, A
+  vacuum_gap_min: 6.0              # empty z-span above which a vacuum is declared, A
+  adsorbate_detect_height: 2.5     # above the top layer: adsorbate, below: slab
+  vacuum_interface_width: 2.0      # width printed for the slab|vacuum interface
+  slab_cn_factor: 1.15              # interior coordination cutoff as fraction of d_NN
+  fcc_cn_min: 10.0                  # interior CN above which the slab is fcc-like
+  bcc_cn_min: 6.5                   # ... and bcc-like

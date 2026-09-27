@@ -48,3 +48,6 @@ thresholds:
   canonical_cell_decimals: 3
   length_unit: A
   fluid_solid_fraction_max: 0.20    # a fluid lift requires this little solid
+  segment_vote_cutoff: 1.45         # neighbour radius for label smoothing, A or sigma
+  segment_vote_factor: 1.15         # label-smoothing radius as fraction of d_NN
+  segment_flip_fraction: 0.75       # neighbourhood majority needed to flip a label

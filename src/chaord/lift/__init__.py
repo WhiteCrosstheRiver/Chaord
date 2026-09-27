@@ -31,6 +31,12 @@ def lift_frame(frame, dialect, T=None, mode="auto"):
             except Exception:
                 if mode == "defects":
                     raise
+    if mode in ("auto", "surface"):
+        from .surface import has_vacuum, lift_surface
+        if has_vacuum(frame, dialect):
+            return lift_surface(frame, dialect)
+        if mode == "surface":
+            raise ChaordError("no vacuum gap found: not a surface frame")
     if mode in ("auto", "fluid"):
         from .fluid import is_single_phase
         if is_single_phase(frame, dialect):

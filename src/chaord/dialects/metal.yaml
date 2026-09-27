@@ -35,3 +35,5 @@ thresholds:
   lattice_refine_passes: 3         # successive grid refinements for the constant
   sro_bootstrap_samples: 8        # null reshuffles sizing the SRO emission band
   sro_bootstrap_seed: 20260927
+  q6_cutoff: 3.0                    # phase-indicator neighbour cutoff for metals, A
+  q6_solid: 0.32
