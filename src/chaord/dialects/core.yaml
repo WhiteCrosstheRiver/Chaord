@@ -47,3 +47,4 @@ thresholds:
   canonical_c_decimals: 3
   canonical_cell_decimals: 3
   length_unit: A
+  fluid_solid_fraction_max: 0.20    # a fluid lift requires this little solid

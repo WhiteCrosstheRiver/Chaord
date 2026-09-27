@@ -9,6 +9,7 @@ from chaord.lift.crystal import lift_crystal  # noqa: F401
 from chaord.lift.passes import otsu, pairs_within, qbar  # noqa: F401
 from chaord.lift.slab import decompile, program_from_result  # noqa: F401
 from chaord.lift.defect_program import lift_crystal_defects  # noqa: F401
+from chaord.lift.fluid import lift_fluid  # noqa: F401
 
 
 def lift_frame(frame, dialect, T=None, mode="auto"):
@@ -16,6 +17,7 @@ def lift_frame(frame, dialect, T=None, mode="auto"):
 
     T is metadata (stated in the program, never measured); when omitted it is
     read from the dialect's md_reference_T."""
+    from ..lang.errors import ChaordError
     if mode in ("auto", "crystal", "defects"):
         try:
             return lift_crystal(frame, dialect)
@@ -29,9 +31,27 @@ def lift_frame(frame, dialect, T=None, mode="auto"):
             except Exception:
                 if mode == "defects":
                     raise
+    if mode in ("auto", "fluid"):
+        from .fluid import is_single_phase
+        if is_single_phase(frame, dialect):
+            if T is None:
+                try:
+                    T = float(dialect.threshold("md_reference_T"))
+                except Exception:
+                    T = None
+            return lift_fluid(frame, dialect, T=T)
+        if mode == "fluid":
+            raise ChaordError("frame is not a single-phase fluid "
+                              "(solid-like fraction too high)")
     if mode in ("auto", "slab"):
         if T is None:
             T = float(dialect.threshold("md_reference_T"))
-        res = decompile(frame.pos, frame.cell_diag, T, dialect)
-        return program_from_result(res, dialect)
+        try:
+            res = decompile(frame.pos, frame.cell_diag, T, dialect)
+            return program_from_result(res, dialect)
+        except Exception:
+            if mode == "slab":
+                raise
+            # no interfaces found: a single-phase fluid after all
+            return lift_fluid(frame, dialect, T=T)
     raise ValueError(f"unknown lift mode {mode!r}")

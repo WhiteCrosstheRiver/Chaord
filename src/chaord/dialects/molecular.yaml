@@ -11,3 +11,13 @@ keys:
 thresholds:
   bond_tolerance: 1.25            # bond length in units of covalent radii sums
   packing_tolerance: 0.2          # Packmol tolerance, A
+  packing_gap: 0.6                  # added to contact radii during packing, A
+  packing_max_tries: 400            # per-molecule placement attempts budget (x n)
+  cn_cutoff_fluid: 3.10             # O-O first shell in water-like liquids, A
+  gr_rmax_fluid: 6.0                # g(r) range for fluid asserts, A
+  gr_bins_fluid: 60
+  fluid_rsa_dmin: 2.8               # hard-core placement for atomic species, A
+  density_match_tolerance: 0.05     # stated vs geometric density mismatch (A12)
+  q6_cutoff: 3.2                    # phase-indicator neighbour cutoff for molecular fluids, A
+  q6_solid: 0.32                    # solid-like threshold on averaged q6
+  q6_centers_cutoff: 3.6            # molecule-centre q6 cutoff (O-O shell), A

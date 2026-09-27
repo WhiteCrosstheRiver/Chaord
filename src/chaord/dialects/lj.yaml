@@ -32,3 +32,8 @@ thresholds:
   printed_strain_tolerance: 0.2  # tolerance printed on the strain constrain line
   default_cutoff: 2.5            # build-side default when physics.cutoff is absent
   md_reference_T: 0.65           # metadata temperature stated when the caller gives none
+  cn_cutoff_fluid: 1.50             # first shell in LJ units
+  gr_rmax_fluid: 2.5
+  gr_bins_fluid: 60
+  fluid_rsa_dmin: 0.90
+  fluid_solid_fraction_max: 0.20    # above this solid fraction it is not one phase
