@@ -1,0 +1,12 @@
+# surface dialect — surfaces, terminations, adsorbates (M4+).
+name: surface
+version: "0.1.0"
+
+units: []
+
+keys:
+  region_crystal: [surface, termination]
+
+thresholds:
+  adsorbate_site_tolerance: 0.5   # distance for assigning an adsorbate to a site, A
+  layer_tolerance: 0.5            # vertical tolerance defining the surface layer, A

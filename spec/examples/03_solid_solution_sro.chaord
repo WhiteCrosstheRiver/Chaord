@@ -18,7 +18,7 @@ crystal mea : all {
   lattice fcc
   a 3.56 A
   occupancy Cr 1/3 Co 1/3 Ni 1/3
-  constrain sro alpha1 Cr-Cr +0.10 +- 0.02     # Warren-Cowley, first shell
+  constrain sro alpha1 Cr-Cr +0.10 +- 0.02  # Warren-Cowley, first shell
 }
 
 residual none

@@ -1,0 +1,11 @@
+# ionic dialect — ceramics, oxides, salts (M1+/M6+).
+name: ionic
+version: "0.1.0"
+
+units: []
+
+keys:
+  region_crystal: [prototype, composition, a, c, orient]
+
+thresholds:
+  cn_cutoff: 3.2                  # coordination cutoff, A

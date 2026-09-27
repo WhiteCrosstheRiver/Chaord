@@ -1,0 +1,13 @@
+# metal dialect — metals and ordered intermetallics (M1+).
+name: metal
+version: "0.1.0"
+
+units: []
+
+keys:
+  region_crystal: [prototype, composition, a, c, orient, lattice]
+  region_crystal_defect: [defect]
+
+thresholds:
+  cn_cutoff: 3.5                  # first-shell coordination cutoff for close-packed metals, A
+  defocus_tolerance: 0.3          # displacement below which an atom still occupies its site, A

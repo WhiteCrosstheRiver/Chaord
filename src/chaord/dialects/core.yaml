@@ -1,0 +1,41 @@
+# core dialect — structure, algorithm parameters shared by all systems.
+name: core
+version: "0.1.0"
+
+units: [A, nm, m, K, bar, Pa, GPa, g/cm3, ML, "%", deg, rad, ps, fs, ns, K/ps, eV, meV, e, C]
+
+keys:
+  system: [units, cell, pbc, seed]
+  physics: [backend, potential, model, forcefield, epsilon, sigma, cutoff]
+  provenance: [source, dialects, lift_version, note]
+  interface: [at, width, dissociate]
+  residual: [atom]
+
+thresholds:
+  # --- phase profile and interface fitting (pass 1) ---
+  profile_bin_size: 0.25          # z-bin width for the solid-fraction profile
+  profile_smooth_wide: 5          # circular smoothing width for the phase call
+  profile_smooth_narrow: 3        # smoothing width for the tanh fit
+  phase_solid_fraction: 0.5       # solid if the smoothed local solid fraction exceeds this
+  interface_fit_window: 4.5       # half-width of data included in the tanh profile fit
+  interface_fit_offset_bounds: [-3.0, 3.0]
+  interface_fit_width_bounds: [0.05, 6.0]
+  interface_width_factor: 2.197   # tanh sigma -> 10-90 width factor
+  # --- lattice fitting (pass 2) ---
+  lattice_harmonics_min: 8        # range of candidate repetition counts per axis
+  lattice_harmonics_max: 30
+  lattice_spacing_scan: [0.6, 1.1, 0.0005]   # (lo, hi, step) of spacing candidates
+  site_match_tolerance: 0.45      # atom farther than this from every site = off-lattice
+  site_zone_pad: 1.0              # extra half-width when assigning atoms to sites
+  # --- structure identification ---
+  bond_angle_bins: [0.0, 0.25, 0.6, 0.9, 1.0001]   # |cos| histogram for orientation
+  orientation_ideals:
+    "[001]": [0.3333333333333333, 0.0, 0.6666666666666666, 0.0]
+    "[110]": [0.16666666666666666, 0.6666666666666666, 0.0, 0.16666666666666666]
+    "[111]": [0.5, 0.0, 0.5, 0.0]
+  chi0_sample_stride: 3           # subsample stride for the 3-body lattice check
+  chi0_antiparallel_cos: -0.945   # bond pair counts as antiparallel below this cos
+  chi0_fcc_min: 4.5               # mean antiparallel neighbour pairs for fcc
+  chi0_hcp_min: 2.0               # ... and for hcp
+  # --- static checks ---
+  overlap_tolerance: 0.5          # minimum allowed pair distance (units of the system)

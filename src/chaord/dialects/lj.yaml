@@ -1,0 +1,29 @@
+# lj dialect — Lennard-Jones reduced units (m = kB = 1).
+name: lj
+version: "0.1.0"
+
+units: []   # dimensionless; core units still parse but are unused here
+
+keys:
+  system: [cell, pbc, seed]
+
+thresholds:
+  q6_solid: 0.32                  # Lechner-Dellago averaged q6 above this = solid-like
+  q6_cutoff: 1.45                 # neighbour cutoff for q6 (in sigma)
+  bulk_margin: 2.5                # distance kept from interface centres for bulk statistics
+  cn_cutoff: 1.50                 # coordination cutoff (first-shell, ~first g(r) minimum)
+  gr_rmax: 2.5                    # g(r) range
+  gr_bins: 100
+  angle_hist_bin: 5               # bond-angle histogram bin width, degrees
+  defect_cluster_rc: 1.3          # linking distance for empty-site/off-lattice complexes
+  rsa_dmin: 0.90                  # hard-core distance for random sequential packing
+  liquid_margin_shrink: 0.3       # shrink of the liquid half-slab used for packing
+  overlap_tolerance: 0.70         # static overlap check, in sigma
+  md:
+    relax_steps_fast: 400
+    relax_dt_fast: 0.001
+    relax_gamma_fast: 5.0
+    fcap: 30.0
+    relax_steps: 2000
+    relax_dt: 0.005
+    relax_gamma: 0.5

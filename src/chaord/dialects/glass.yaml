@@ -1,0 +1,12 @@
+# glass dialect — amorphous solids, melt-quench protocols (M5+).
+name: glass
+version: "0.1.0"
+
+units: []
+
+keys:
+  region_amorphous: [composition, state, history]
+
+thresholds:
+  cn_cutoff: 2.85                 # Si-Si first shell, A
+  ring_search_max: 12             # largest ring size searched

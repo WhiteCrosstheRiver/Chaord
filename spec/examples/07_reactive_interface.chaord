@@ -21,7 +21,7 @@ crystal rutile : slab z 0 .. 18 A {
   orient x [001] y [1-10] z [110]
   surface (110) top
   termination bridging_O
-  defect V_O^.. count 2 layer surface          # bridging-oxygen vacancies
+  defect V_O^.. count 2 layer surface  # bridging-oxygen vacancies
 }
 
 liquid water : slab z 18 .. 45 A {

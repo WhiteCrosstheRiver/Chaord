@@ -1,0 +1,13 @@
+# molecular dialect — molecules, solutions, gases (M3+).
+name: molecular
+version: "0.1.0"
+
+units: []
+
+keys:
+  region_liquid: [molecules, state]
+  region_gas: [molecules]
+
+thresholds:
+  bond_tolerance: 1.25            # bond length in units of covalent radii sums
+  packing_tolerance: 0.2          # Packmol tolerance, A

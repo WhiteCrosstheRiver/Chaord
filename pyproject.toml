@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chaord"
+version = "0.1.0"
+description = "Chaord: describe the macrostate, sample the microstate"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = ["numpy", "scipy", "ase", "lark", "pydantic>=2", "pyyaml"]
+
+[project.optional-dependencies]
+test = ["pytest", "hypothesis"]
+dev = ["pytest", "hypothesis"]
+
+[project.scripts]
+chaord = "chaord.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"chaord.lang" = ["*.lark"]
+"chaord.dialects" = ["*.yaml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "slow: long-running statistical tests (nightly)",
+]

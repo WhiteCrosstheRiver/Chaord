@@ -22,9 +22,9 @@ species {
 }
 
 liquid electrolyte : all {
-  molecules EC 600 Li+ 45 PF6- 45                # about 1 M
+  molecules EC 600 Li+ 45 PF6- 45  # about 1 M
   assert cn Li-O 4.0 +- 0.3 cutoff 2.6 A
-  assert pairing CIP 0.3 +- 0.1                  # contact-ion-pair fraction
+  assert pairing CIP 0.3 +- 0.1  # contact-ion-pair fraction
 }
 
 residual none

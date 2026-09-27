@@ -1,0 +1,101 @@
+// Chaord v0.1 — structural grammar (Lark, LALR).
+// Vocabulary (which keys exist, their arguments and units) comes from dialect files;
+// this grammar defines structure only. Newlines are significant: one statement per
+// line, ";" may join two statements. Comments (# ...) are extracted before lexing
+// and re-attached by the parser, so they do not appear here.
+// Anonymous keyword literals are filtered from the parse tree, so every rule whose
+// keyword we need to recover (phase, species kind, residual-none) is aliased.
+
+start: NL* header _blanks (block _blanks)*
+
+_blanks: NL*
+
+header: "chaord" NUMBER NL+ dialect_line?
+dialect_line: "dialect" WORD ("+" WORD)* NL+
+
+block: system_block
+     | physics_block
+     | provenance_block
+     | species_block
+     | region_block
+     | interface_block
+     | residual_block
+
+system_block: "system" body
+physics_block: "physics" body
+provenance_block: "provenance" body
+
+species_block: "species" "{" _spitems "}"
+_spitems: (_spsep | specdef)*
+_spsep: NL+
+specdef: "molecule" WORD [EQ (SMILES | FILE) STRING] _sterm -> mol_def
+       | "ion" WORD [EQ (SMILES | FILE) STRING] _sterm -> ion_def
+       | "atom" WORD [EQ (SMILES | FILE) STRING] _sterm -> atom_def
+
+region_block: "crystal" WORD ":" geometry body -> crystal_region
+            | "amorphous" WORD ":" geometry body -> amorphous_region
+            | "liquid" WORD ":" geometry body -> liquid_region
+            | "gas" WORD ":" geometry body -> gas_region
+            | "fluid" WORD ":" geometry body -> fluid_region
+            | "cluster" WORD ":" geometry body -> cluster_region
+            | "vacuum" WORD ":" geometry body -> vacuum_region
+
+interface_block: "interface" WORD "|" WORD body
+
+residual_block: "residual" "none" _sterm -> residual_none
+              | "residual" body -> residual_body
+
+body: "{" _bitems "}"
+_bitems: (statement | NL)*
+statement: KIND? _key _raw_value* _sterm
+_sterm: (NL | ";")+
+_key: WORD | KV
+_raw_value: NUMBER
+         | WORD
+         | STRING
+         | DIRECTION
+         | FAMILY
+         | PLANE
+         | WOOD
+         | KV
+         | ARROW
+         | AT
+         | PLUS
+         | EQ
+         | PM
+         | DOTS
+
+geometry: shape ((AND | OR | MINUS) shape)*
+shape: "all" -> all_shape
+     | "rest" -> rest_shape
+     | "slab" AXIS range -> slab_shape
+     | "box" range range range -> box_shape
+     | "sphere" "center" NUMBER NUMBER NUMBER "radius" quantity -> sphere_shape
+     | "cylinder" "axis" AXIS "center" NUMBER NUMBER "radius" quantity -> cylinder_shape
+range: quantity DOTS quantity
+quantity: NUMBER [WORD]
+
+KIND.2: "state" | "constrain" | "assert" | "history" | "conserve"
+AND.2: "and"
+OR.2: "or"
+MINUS.2: "minus"
+AXIS.2: "x" | "y" | "z"
+SMILES.2: "smiles"
+FILE.2: "file"
+ARROW: "->"
+DOTS: ".."
+PM: /\+-/
+AT: "@"
+PLUS: "+"
+EQ: "="
+NUMBER: /[+-]?(\d+\/\d+|(\d+\.\d*|\.\d+|\d+)([eE][+-]?\d+)?)(?![A-Za-z_])/
+STRING: /"(?:[^"\\]|\\.)*"/
+DIRECTION: /\[\s*-?\d(?:\s*-?\d){2,3}\s*\]/
+FAMILY: /<\s*-?\d(?:\s*-?\d){2,3}\s*>/
+WOOD: /[pc]?\(\s*\w+\s*x\s*\w+\s*\)(?:R\d+)?/
+PLANE: /\(\s*-?\d(?:\s*-?\d){2,3}\s*\)/
+KV: /(?:V|[A-Z][a-z]?)_(?:[A-Z][a-z]?|i)(?:\^(?:x|\.+|'+))?(?![A-Za-z0-9_])/
+WORD: /[A-Za-z_%][A-Za-z0-9_+\-\/%^.]*/
+NL: /\r?\n/
+
+%ignore /[ \t\r]+/

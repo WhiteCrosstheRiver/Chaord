@@ -1,0 +1,11 @@
+# carbon dialect — graphene, nanotubes, fullerenes (post-v1.0).
+name: carbon
+version: "0.1.0"
+
+units: []
+
+keys:
+  region_crystal: [nanotube, stacking, chirality]
+
+thresholds:
+  cn_cutoff: 1.85                 # C-C first shell, A
