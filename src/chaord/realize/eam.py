@@ -29,11 +29,6 @@ from .lj import mic, wrap  # noqa: F401  (wrap re-exported for callers)
 _PAIR_KEYS = ("c", "c0", "c1", "c2", "d")
 
 
-def _mix(a, b):
-    """Arithmetic-mean mixing of two elements' pair/density coefficients."""
-    return 0.5 * (a + b)
-
-
 class EAM:
     """Analytic Finnis-Sinclair potential with a Verlet-style skin neighbour list."""
 
@@ -48,11 +43,12 @@ class EAM:
             if missing:
                 raise ValueError(f"EAM species {s!r} lacks parameters {missing}")
         self.names = names
-        # per-species vectors
-        self.A = np.array([float(self.params[s]["A"]) for s in names])
-        # pair-mixing matrices [si, sj] (arithmetic mean across species)
-        self._mix = {k: np.array([[float(self.params[a][k]) for b in names]
-                                  for a in names]) for k in _PAIR_KEYS}
+        # per-species vectors; pair/density functions enter as arithmetic-mean
+        # mixing matrices M[si, sj] = (value_si + value_sj) / 2 (exact for pure pairs)
+        vec = {k: np.array([float(self.params[s][k]) for s in names])
+               for k in ("A",) + _PAIR_KEYS}
+        self.A = vec["A"]
+        self._mix = {k: 0.5 * (vec[k][:, None] + vec[k][None, :]) for k in _PAIR_KEYS}
         self.rc = float(rc) if rc is not None else float(
             max(m.max() for m in self._mix.values()))
         self.skin = float(skin) if skin is not None else 0.3  # fallback; callers read the dialect

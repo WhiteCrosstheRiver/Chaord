@@ -22,8 +22,8 @@ def test_example_parses_and_round_trips(path):
 
 
 def test_all_seven_examples():
-    # the original seven plus 08_deposit (the deposit protocol example)
-    assert len(EXAMPLES) == 8
+    # the original seven plus deposit (08) and rutile surface (09) examples
+    assert len(EXAMPLES) == 9
 
 
 def test_sketch_check_still_passes():

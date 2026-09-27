@@ -238,6 +238,8 @@ def _wood_statement(top_net, sub_net, dialect):
     theta = int(round(float(np.degrees(np.arccos(cosg)))))
     sym = _net_symmetry_deg(v_sub)  # dialect-exempt: see crystallographic cases below
     theta = min(theta % sym, sym - theta % sym)
+    if theta <= a_tol:  # within the rounding tolerance: no measurable rotation
+        theta = 0
     if t1 == t2:
         return f"({t1}x{t2})R{theta}" if theta else f"({t1}x{t2})"
     return f"p({t1}x{t2})R{theta}" if theta else f"p({t1}x{t2})"

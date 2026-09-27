@@ -1,0 +1,31 @@
+chaord 0.1
+dialect core + ionic + surface
+
+system {
+  cell 12.0 7.6 30.0 A
+  pbc xyz
+  seed 9
+  state T 330 K
+  conserve atoms Ti 24 O 48
+}
+
+physics {
+  backend mlp
+  model "mace-mp-0"
+}
+
+crystal rutile : slab z 0 .. 14 A {
+  prototype rutile
+  composition TiO2
+  a 4.594 A
+  c 2.959 A
+  orient x [001] y [1-10] z [110]
+  surface (110) top
+  termination bridging_O
+  defect V_O^.. count 2 layer surface
+}
+
+vacuum gap : slab z 14 .. 30 A {
+}
+
+residual none

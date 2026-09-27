@@ -70,8 +70,13 @@ def build_fluid(program: Program, dialect, rng, physics=True, md_steps=None) -> 
                 counts[vals[i].text] = int(_num(vals[i + 1]))
             i += 2
 
+    cell_vals = []
     if "cell" in system:
-        L = np.array([_num(v) for v in system["cell"].values if v.t == "q"], float)
+        cell_vals = [v for v in system["cell"].values if v.t == "q"]
+        if any(v.t == "n" and v.text == "auto" for v in system["cell"].values):
+            cell_vals = []  # `cell auto cubic`: derive from the density
+    if len(cell_vals) == 3:
+        L = np.array([_num(v) for v in cell_vals], float)
     else:
         dens = next((s for s in region.statements
                      if s.kind == "state" and s.key == "density"), None)

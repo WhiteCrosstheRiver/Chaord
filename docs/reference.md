@@ -63,7 +63,8 @@ statement carries a kind: **build** (no keyword), **state**, **constrain**,
 | `defect` | `defect V_Ni count 1` | Kröger-Vink: `V_X` vacancy, `A_B` antisite, `A_i` interstitial, `frenkel_pair` |
 | | `defect V_Ni count 2 depth 6.1` | depth targets the M0 slab builder |
 | `surface` | `surface (111) top` | Miller cut + side (surface dialect) |
-| `termination` | `termination bridging_O` | top-layer element |
+| `termination` | `termination bridging_O` | top-layer element (compound names resolve the cut) |
+| `reconstruction` | `reconstruction p(2x1)` | Wood notation: p(nx m), c(nx m), (rkxrk)R30 |
 | `adsorb` | `adsorb O count 4 site top coverage 0.25 ML` | top / bridge / hollow |
 | `molecules` | `molecules H2O 620` | molecular counts |
 | `dislocation` | `dislocation edge` | Volterra construction |
