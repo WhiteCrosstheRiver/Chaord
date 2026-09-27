@@ -1,0 +1,27 @@
+{
+  "schema": "chaord-bench/1",
+  "case": "fcc_cu",
+  "category": "crystals",
+  "description": "fcc Cu, conventional 2x2x2 supercell built exactly from the prototype table",
+  "seed": null,
+  "lift_mode": "crystal",
+  "expected": {
+    "prototype": "fcc",
+    "a": 3.615,
+    "composition": null,
+    "reps": [
+      2,
+      2,
+      2
+    ],
+    "cell": [
+      7.23,
+      7.23,
+      7.23
+    ],
+    "counts": {
+      "Cu": 32
+    },
+    "n_atoms": 32
+  }
+}

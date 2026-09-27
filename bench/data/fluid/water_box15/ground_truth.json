@@ -1,0 +1,29 @@
+{
+  "schema": "chaord-bench/1",
+  "case": "water_box15",
+  "category": "fluid",
+  "description": "60 water molecules packed into a 15 A cubic box (seeded random-sequential packing)",
+  "seed": 13,
+  "lift_mode": "fluid",
+  "molecules": {
+    "H2O": 60
+  },
+  "box": [
+    15.0,
+    15.0,
+    15.0
+  ],
+  "expected": {
+    "molecules": {
+      "H2O": 60
+    },
+    "census": {
+      "H2O": 60
+    },
+    "counts": {
+      "H": 120,
+      "O": 60
+    },
+    "n_atoms": 180
+  }
+}

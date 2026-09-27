@@ -1,0 +1,49 @@
+{
+  "schema": "chaord-bench/1",
+  "generator": "bench/generate.py",
+  "n_cases": 7,
+  "cases": [
+    {
+      "id": "crystals/fcc_cu",
+      "category": "crystals",
+      "npz": "crystals\\fcc_cu\\frame.npz",
+      "ground_truth": "crystals\\fcc_cu\\ground_truth.json"
+    },
+    {
+      "id": "crystals/bcc_fe",
+      "category": "crystals",
+      "npz": "crystals\\bcc_fe\\frame.npz",
+      "ground_truth": "crystals\\bcc_fe\\ground_truth.json"
+    },
+    {
+      "id": "crystals/rocksalt_nacl",
+      "category": "crystals",
+      "npz": "crystals\\rocksalt_nacl\\frame.npz",
+      "ground_truth": "crystals\\rocksalt_nacl\\ground_truth.json"
+    },
+    {
+      "id": "crystals/l12_ni3al",
+      "category": "crystals",
+      "npz": "crystals\\l12_ni3al\\frame.npz",
+      "ground_truth": "crystals\\l12_ni3al\\ground_truth.json"
+    },
+    {
+      "id": "defects/fcc_cu_vacancies",
+      "category": "defects",
+      "npz": "defects\\fcc_cu_vacancies\\frame.npz",
+      "ground_truth": "defects\\fcc_cu_vacancies\\ground_truth.json"
+    },
+    {
+      "id": "fluid/water_box15",
+      "category": "fluid",
+      "npz": "fluid\\water_box15\\frame.npz",
+      "ground_truth": "fluid\\water_box15\\ground_truth.json"
+    },
+    {
+      "id": "reactive/water_oh_h_box20",
+      "category": "reactive",
+      "npz": "reactive\\water_oh_h_box20\\frame.npz",
+      "ground_truth": "reactive\\water_oh_h_box20\\ground_truth.json"
+    }
+  ]
+}

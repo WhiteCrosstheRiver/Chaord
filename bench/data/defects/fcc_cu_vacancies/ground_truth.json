@@ -1,0 +1,29 @@
+{
+  "schema": "chaord-bench/1",
+  "case": "fcc_cu_vacancies",
+  "category": "defects",
+  "description": "fcc Cu 3x3x3 host with 3 random Cu vacancies (Kr\u00f6ger-Vink V_Cu)",
+  "seed": 11,
+  "lift_mode": "defects",
+  "host": {
+    "prototype": "fcc",
+    "a": 3.615,
+    "reps": [
+      3,
+      3,
+      3
+    ],
+    "counts": {
+      "Cu": 108
+    }
+  },
+  "expected": {
+    "defects": {
+      "V_Cu": 3
+    },
+    "counts": {
+      "Cu": 105
+    },
+    "n_atoms": 105
+  }
+}

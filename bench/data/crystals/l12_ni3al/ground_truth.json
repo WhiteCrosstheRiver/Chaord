@@ -1,0 +1,28 @@
+{
+  "schema": "chaord-bench/1",
+  "case": "l12_ni3al",
+  "category": "crystals",
+  "description": "L1_2 Ni3Al, conventional 2x2x2 supercell built exactly from the prototype table",
+  "seed": null,
+  "lift_mode": "crystal",
+  "expected": {
+    "prototype": "L1_2",
+    "a": 3.572,
+    "composition": "Ni3Al",
+    "reps": [
+      2,
+      2,
+      2
+    ],
+    "cell": [
+      7.144,
+      7.144,
+      7.144
+    ],
+    "counts": {
+      "Al": 8,
+      "Ni": 24
+    },
+    "n_atoms": 32
+  }
+}

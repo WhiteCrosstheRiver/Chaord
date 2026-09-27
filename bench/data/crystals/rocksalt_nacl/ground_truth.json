@@ -1,0 +1,28 @@
+{
+  "schema": "chaord-bench/1",
+  "case": "rocksalt_nacl",
+  "category": "crystals",
+  "description": "rocksalt NaCl, conventional 2x2x2 supercell built exactly from the prototype table",
+  "seed": null,
+  "lift_mode": "crystal",
+  "expected": {
+    "prototype": "rocksalt",
+    "a": 5.64,
+    "composition": "NaCl",
+    "reps": [
+      2,
+      2,
+      2
+    ],
+    "cell": [
+      11.28,
+      11.28,
+      11.28
+    ],
+    "counts": {
+      "Cl": 32,
+      "Na": 32
+    },
+    "n_atoms": 64
+  }
+}

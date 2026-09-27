@@ -1,0 +1,34 @@
+{
+  "schema": "chaord-bench/1",
+  "case": "water_oh_h_box20",
+  "category": "reactive",
+  "description": "dissociation fragment mixture (water, hydroxide, atomic hydrogen) in a 20 A box; species census must be recovered exactly from the bond graph",
+  "seed": 3,
+  "molecules": {
+    "H2O": 50,
+    "OH": 9,
+    "H": 9
+  },
+  "box": [
+    20.0,
+    20.0,
+    20.0
+  ],
+  "expected": {
+    "molecules": {
+      "H2O": 50,
+      "OH": 9,
+      "H": 9
+    },
+    "census": {
+      "H": 9,
+      "H2O": 50,
+      "HO": 9
+    },
+    "counts": {
+      "H": 118,
+      "O": 59
+    },
+    "n_atoms": 177
+  }
+}

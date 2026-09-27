@@ -85,8 +85,8 @@ def system(*statements, cell=None, pbc="xyz", seed=None, conserve=None) -> Syste
 def physics(backend="lj", **params) -> PhysicsBlock:
     stmts = [Statement(kind="build", key="backend", values=[Name(text=backend)])]
     for k, v in params.items():
-        stmts.append(Statement(kind="build", key=k,
-                               values=[Quantity(num=str(v))]))
+        value = StrVal(text=str(v)) if isinstance(v, str) else Quantity(num=str(v))
+        stmts.append(Statement(kind="build", key=k, values=[value]))
     return PhysicsBlock(statements=stmts)
 
 
