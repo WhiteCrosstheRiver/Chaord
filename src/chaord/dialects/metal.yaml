@@ -11,3 +11,27 @@ keys:
 thresholds:
   cn_cutoff: 3.5                  # first-shell coordination cutoff for close-packed metals, A
   defocus_tolerance: 0.3          # displacement below which an atom still occupies its site, A
+  # --- M2 defect and solid-solution passes (fractions of the NN distance) ---
+  site_match_tol_fraction: 0.35   # atom counts as on-site below this fraction of d_NN
+  interstitial_distance_fraction: 0.60
+  defect_cluster_rc_fraction: 0.60
+  sro_shell1_factor: 1.20         # first-shell cutoff for Warren-Cowley alpha1
+  sro_emit_threshold: 0.05        # lift states sro only outside this band
+  sro_print_tolerance: 0.02
+  sro_mc_steps: 4000              # SQS-lite swap moves
+  defect_stoichiometry_slack: 0.10   # counts may deviate from slot ratio by this fraction
+  stoichiometric_preference_min: 0.90 # species-aware fit score to prefer a stoichiometric host
+  thermal_test_amplitude: 0.06      # displacement amplitude as fraction of d_NN (0.8 Tm-ish)
+  lattice_scan_factor_lo: 0.70
+  lattice_scan_factor_hi: 2.40
+  lattice_scan_steps: 29
+  sro_emit_min: 0.05
+  sro_emit_noise_factor: 2.5
+  sqs_converge_tol: 0.005
+  lattice_fit_tol_fraction: 0.15   # tight gate used to rank lattice-constant candidates
+  lattice_fit_gate_min: 0.85       # candidate must match at least this fraction of sites
+  lattice_refine_half: 0.05        # half-width of the fine lattice-constant search, A
+  lattice_refine_steps: 18
+  lattice_refine_passes: 3         # successive grid refinements for the constant
+  sro_bootstrap_samples: 8        # null reshuffles sizing the SRO emission band
+  sro_bootstrap_seed: 20260927
