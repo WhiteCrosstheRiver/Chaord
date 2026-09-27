@@ -37,3 +37,5 @@ thresholds:
   gr_bins_fluid: 60
   fluid_rsa_dmin: 0.90
   fluid_solid_fraction_max: 0.20    # above this solid fraction it is not one phase
+  restrain_max_iter: 20            # density-restraint box-relaxation iterations
+  quench_max_steps: 20000          # cap on quench integration steps

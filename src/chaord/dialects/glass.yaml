@@ -10,3 +10,14 @@ keys:
 thresholds:
   cn_cutoff: 2.85                 # Si-Si first shell, A
   ring_search_max: 12             # largest ring size searched
+  bond_tolerance: 1.25              # bond length in units of covalent radii sums
+  q6_cutoff: 3.0                    # phase-indicator cutoff for networks, A
+  q6_solid: 0.32
+  amorphous_solid_frac_max: 0.30   # q6-solid fraction allowed in an amorphous frame
+  amorphous_network_min: 0.60      # fraction of 3-6 coordinated atoms required
+  amorphous_bond_factor: 1.35      # geometric bond cutoff as fraction of d_NN (X species)
+  fluid_rsa_dmin: 0.90              # RSA hard-core distance for protocol starts (sigma)
+  # statistical round-trip observables (noise-floor library, sigma units)
+  gr_rmax_fluid: 2.5
+  gr_bins_fluid: 60
+  cn_cutoff_fluid: 1.50

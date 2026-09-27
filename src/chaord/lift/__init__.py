@@ -31,6 +31,15 @@ def lift_frame(frame, dialect, T=None, mode="auto"):
             except Exception:
                 if mode == "defects":
                     raise
+    if mode in ("auto", "amorphous"):
+        from .amorphous import is_amorphous, lift_amorphous
+        # a glass and a liquid are both disordered in one frame: the DIALECT
+        # decides which macrostate a program describes (glass -> amorphous)
+        if ("glass" in dialect.names or mode == "amorphous") and is_amorphous(frame, dialect):
+            return lift_amorphous(frame, dialect)
+        if mode == "amorphous":
+            from ..lang.errors import ChaordError
+            raise ChaordError("frame is not a bonded disordered network")
     if mode in ("auto", "surface"):
         from .surface import has_vacuum, lift_surface
         if has_vacuum(frame, dialect):
