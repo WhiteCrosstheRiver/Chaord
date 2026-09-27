@@ -35,17 +35,14 @@ def _cmd_fmt(args) -> int:
 
 
 def _cmd_lift(args) -> int:
+    from .check.statics import run_checks
     from .dialects import load_dialect
     from .io.frames import read_frame
     from .lang.fmt import format_program
-    from .lang.parser import parse_text
-    from .lift.slab import decompile, program_from_result
-    from .check.statics import run_checks
+    from .lift import lift_frame
     dialect = load_dialect(args.dialect.split("+"))
     frame = read_frame(args.infile, index=args.frame)
-    T = args.T
-    res = decompile(frame.pos, frame.cell_diag, T, dialect)
-    program = program_from_result(res, dialect)
+    program = lift_frame(frame, dialect, T=args.T, mode=args.mode)
     text = format_program(program)
     checks = run_checks(program, frame, dialect)
     for c in checks:
@@ -60,15 +57,15 @@ def _cmd_lift(args) -> int:
 
 
 def _cmd_build(args) -> int:
-    from .build.slab import build_slab
-    from .dialects import dialect_from_program, load_dialect
+    from .build import build_program
+    from .dialects import dialect_from_program
     from .io.frames import write_frame
     from .lang.api import load
     program = load(args.infile)
     dialect = dialect_from_program(program)
     rng = np.random.default_rng(args.seed)
-    frame = build_slab(program, dialect, rng, physics=not args.no_physics,
-                       md_steps=args.md_steps)
+    frame = build_program(program, dialect, rng, physics=not args.no_physics,
+                          md_steps=args.md_steps)
     write_frame(args.outfile, frame)
     print(f"built {len(frame)} atoms -> {args.outfile}")
     return 0
@@ -109,24 +106,23 @@ def _cmd_diff(args) -> int:
 
 
 def _cmd_roundtrip(args) -> int:
-    from .build.slab import build_slab
+    from .build import build_program
     from .dialects import load_dialect
     from .io.frames import read_frame
     from .lang.api import load, save
-    from .lang.fmt import format_program
-    from .lang.parser import parse_text
-    from .lift.slab import decompile, program_from_result
+    from .lift import lift_frame
+    from .lift.slab import decompile
     import tempfile, pathlib
     dialect = load_dialect(args.dialect.split("+"))
     frame = read_frame(args.infile)
     rng = np.random.default_rng(args.seed)
+    prog0 = lift_frame(frame, dialect, T=args.T, mode=args.mode)
     p0 = decompile(frame.pos, frame.cell_diag, args.T, dialect)
-    prog0 = program_from_result(p0, dialect)
     with tempfile.TemporaryDirectory() as td:
         prog_path = pathlib.Path(td) / "p.chaord"
         save(prog0, prog_path)
         rebuilt = load(prog_path)
-        frame1 = build_slab(rebuilt, dialect, rng, physics=not args.no_physics)
+        frame1 = build_program(rebuilt, dialect, rng, physics=not args.no_physics)
         p1 = decompile(frame1.pos, frame1.cell_diag, args.T, dialect)
 
         def row(name, f):
@@ -161,6 +157,7 @@ def main(argv=None) -> int:
     p.add_argument("--dialect", default="core+lj")
     p.add_argument("--T", type=float, default=0.65,
                    help="temperature is metadata: stated in the program, not measured")
+    p.add_argument("--mode", default="auto", choices=["auto", "crystal", "slab"])
     p.set_defaults(fn=_cmd_lift)
 
     p = sub.add_parser("build", help="program -> coordinates")
@@ -186,6 +183,7 @@ def main(argv=None) -> int:
     p.add_argument("--seed", type=int, default=3)
     p.add_argument("--dialect", default="core+lj")
     p.add_argument("--T", type=float, default=0.65)
+    p.add_argument("--mode", default="auto", choices=["auto", "crystal", "slab"])
     p.add_argument("--no-physics", action="store_true")
     p.set_defaults(fn=_cmd_roundtrip)
 

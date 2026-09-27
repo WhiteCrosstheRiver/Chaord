@@ -39,3 +39,11 @@ thresholds:
   chi0_hcp_min: 2.0               # ... and for hcp
   # --- static checks ---
   overlap_tolerance: 0.5          # minimum allowed pair distance (units of the system)
+  # --- crystal lifting and canonicalisation (M1) ---
+  lift_symprec: 1.0e-4            # spglib symmetry search tolerance, A
+  prototype_match_tol: 0.05       # fractional-basis matching tolerance for ID, A cart
+  lattice_match_tolerance: 0.01   # cell/rep integer-multiple mismatch (static check A12)
+  canonical_a_decimals: 3
+  canonical_c_decimals: 3
+  canonical_cell_decimals: 3
+  length_unit: A

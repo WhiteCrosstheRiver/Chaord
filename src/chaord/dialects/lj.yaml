@@ -31,3 +31,4 @@ thresholds:
   printed_cutoff: "2.5"          # cutoff the lifter states in physics (metadata)
   printed_strain_tolerance: 0.2  # tolerance printed on the strain constrain line
   default_cutoff: 2.5            # build-side default when physics.cutoff is absent
+  md_reference_T: 0.65           # metadata temperature stated when the caller gives none

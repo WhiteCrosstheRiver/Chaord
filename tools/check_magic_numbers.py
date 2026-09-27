@@ -1,7 +1,9 @@
 """CI check: no bare float literals in pass or builder code.
 
 AGENTS.md rule: thresholds live in dialect YAML files, read by name. Exceptions
-need a trailing comment `# dialect-exempt: <reason>`. Integers are allowed.
+need a `# dialect-exempt: <reason>` tag on the line, or a
+`# dialect-exempt-begin: <reason>` ... `# dialect-exempt-end` block (for exact
+geometry data tables such as the prototype registry). Integers are allowed.
 """
 from __future__ import annotations
 
@@ -25,8 +27,18 @@ EXEMPT = "# dialect-exempt:"
 
 def scan(path: Path):
     bad = []
+    in_block = False
     for lineno, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
-        code = line.split("#")[0] if EXEMPT not in line else ""
+        stripped = line.strip()
+        if stripped.startswith("# dialect-exempt-begin:"):
+            in_block = True
+            continue
+        if stripped.startswith("# dialect-exempt-end"):
+            in_block = False
+            continue
+        if in_block or EXEMPT in line:
+            continue
+        code = line.split("#")[0]
         if not code.strip():
             continue
         for m in FLOAT_RE.finditer(line):
