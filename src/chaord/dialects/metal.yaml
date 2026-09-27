@@ -37,3 +37,11 @@ thresholds:
   sro_bootstrap_seed: 20260927
   q6_cutoff: 3.0                    # phase-indicator neighbour cutoff for metals, A
   q6_solid: 0.32
+  dislocation_core_radius: 1.2     # inside this the Volterra field is unset, A
+  burgers_tol: 0.25                # lattice-step tolerance for the circuit closure
+  csl_angle_tol: 2.0               # degrees: misorientation to CSL match
+  circuit_inset_x: 0.15            # Burgers loop inset from the box x faces
+  circuit_inset_y: 0.15            # ... and y faces
+  slab_cn_factor: 1.15              # coordination cutoff for family detection, x d_NN
+  fcc_cn_min: 10.0                  # interior CN above which the lattice is fcc-like
+  burgers_detect_min: 0.30          # |b| detection floor as fraction of a
