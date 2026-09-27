@@ -1,0 +1,30 @@
+chaord 0.1
+dialect core + molecular
+
+system {
+  cell auto cubic
+  pbc xyz
+  seed 11
+  state T 300 K
+  state P 1 bar
+  conserve charge 0
+}
+
+physics {
+  backend mlp
+  model "mace-mp-0"
+}
+
+species {
+  molecule EC = smiles "C1COC(=O)O1"
+  ion Li+ = smiles "[Li+]"
+  ion PF6- = smiles "F[P-](F)(F)(F)(F)F"
+}
+
+liquid electrolyte : all {
+  molecules EC 600 Li+ 45 PF6- 45                # about 1 M
+  assert cn Li-O 4.0 +- 0.3 cutoff 2.6 A
+  assert pairing CIP 0.3 +- 0.1                  # contact-ion-pair fraction
+}
+
+residual none

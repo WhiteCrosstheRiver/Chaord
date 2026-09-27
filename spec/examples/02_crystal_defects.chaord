@@ -1,0 +1,26 @@
+chaord 0.1
+dialect core + metal
+
+system {
+  cell 21.432 21.432 21.432 A
+  pbc xyz
+  seed 7
+  state T 900 K
+  conserve atoms Ni 646 Al 217
+}
+
+physics {
+  backend eam
+  potential "NiAl.eam.alloy"
+}
+
+crystal matrix : all {
+  prototype L1_2
+  composition Ni3Al
+  a 3.572 A
+  orient x [100] y [010] z [001]
+  defect V_Ni count 1
+  defect Al_Ni count 1          # antisite: Al on a Ni site
+}
+
+residual none

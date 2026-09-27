@@ -1,0 +1,46 @@
+chaord 0.1
+dialect core + lj
+
+system {
+  units lj
+  cell 9.65 9.65 27.50
+  pbc xyz
+  state T 0.65
+  conserve atoms X 2301
+}
+
+physics {
+  backend lj
+  epsilon 1
+  sigma 1
+  cutoff 2.5
+}
+
+crystal A : slab z 26.1 .. 12.3 {        # wraps through z = 0
+  lattice fcc
+  a 1.609
+  orient x <100> z <001>
+  constrain strain zz +0.9 % +- 0.2
+  defect divacancy count 1 depth 5.2 form split          # 4 empty sites, 2 displaced atoms
+  defect vacancy count 1 depth 6.1
+  assert sites_matched 99.2 %
+}
+
+liquid B : slab z 12.3 .. 26.1 {
+  state density 0.854
+  assert cn 12.0 +- 1.1 cutoff 1.50
+  assert gr_peak 1.06 height 3.07
+  assert solid_clusters 0
+}
+
+interface A | B {
+  at z 12.3
+  width 1.1
+}
+
+interface B | A {
+  at z 26.1
+  width 1.9
+}
+
+residual none

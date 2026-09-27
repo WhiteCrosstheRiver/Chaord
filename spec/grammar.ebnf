@@ -1,0 +1,38 @@
+(* Chaord v0.1 grammar sketch. One statement per line; ";" may join two.
+   Comments start with "#". Keywords are case-sensitive.
+   Structural grammar only: which KEYs exist, their arguments and units come from dialect files. *)
+
+program     = header , { block } ;
+header      = "chaord" , VERSION , NL , [ "dialect" , NAME , { "+" , NAME } , NL ] ;
+block       = system | physics | provenance | species | region | interface | residual ;
+system      = "system" , body ;
+physics     = "physics" , body ;
+provenance  = "provenance" , body ;
+species     = "species" , "{" , { specdef | NL } , "}" ;
+specdef     = ( "molecule" | "ion" | "atom" ) , NAME , [ "=" , ( "smiles" | "file" ) , STRING ] , NL ;
+region      = phase , NAME , ":" , geometry , body ;
+phase       = "crystal" | "amorphous" | "liquid" | "gas" | "fluid" | "cluster" | "vacuum" ;
+geometry    = shape , { ( "and" | "or" | "minus" ) , shape } ;
+shape       = "all" | "rest"
+            | "slab" , AXIS , range
+            | "box" , range , range , range
+            | "sphere" , "center" , NUMBER , NUMBER , NUMBER , "radius" , quantity
+            | "cylinder" , "axis" , AXIS , "center" , NUMBER , NUMBER , "radius" , quantity ;
+interface   = "interface" , NAME , "|" , NAME , body ;
+residual    = "residual" , ( "none" | body ) ;
+body        = "{" , { statement | NL } , "}" ;
+statement   = [ KIND ] , KEY , { value } , [ "+-" , quantity ] , ( NL | ";" ) ;
+KIND        = "state" | "constrain" | "assert" | "history" | "conserve" ;   (* no KIND = build *)
+value       = quantity | range | NAME | STRING | DIRECTION | FAMILY | PLANE | WOOD | KROGER_VINK
+            | "->" | "@" | "+" | "=" ;
+quantity    = NUMBER , [ UNIT ] ;
+range       = quantity , ".." , quantity ;       (* a slab may wrap: 26.1 .. 12.3 in a periodic cell *)
+
+(* Tokens
+   NUMBER       3.572  -0.5  +0.9  1e12  1/3
+   UNIT         A nm K bar GPa g/cm3 ML % deg ps fs K/ps (dialect list)
+   DIRECTION    [001]  [1-10]            FAMILY  <110>
+   PLANE        (110)  (1-11)            WOOD    p(2x1)  c(4x2)  (r3xr3)R30
+   KROGER_VINK  V_O^..  Al_Ni  Ni_i  V_Ni^''
+   STRING       "C1COC(=O)O1"  "NiAl.eam.alloy"
+   NAME / KEY   Ni3Al  Li+  PF6-  Cr-Cr  Ti_5c  bridging_O *)

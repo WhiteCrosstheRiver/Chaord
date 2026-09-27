@@ -1,0 +1,22 @@
+chaord 0.1
+dialect core + molecular
+
+system {
+  cell auto cubic
+  pbc xyz
+  seed 2
+  state T 300 K
+  state P 1 bar
+}
+
+physics {
+  backend classical
+  forcefield "trappe-ua"
+}
+
+gas air : all {
+  molecules N2 790 O2 210
+  assert compressibility 1.00 +- 0.01
+}
+
+residual none

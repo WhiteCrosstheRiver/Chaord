@@ -1,0 +1,40 @@
+chaord 0.1
+dialect core + ionic + surface + molecular
+
+system {
+  cell 26.63 25.99 60.0 A
+  pbc xyz
+  seed 9
+  state T 330 K
+}
+
+physics {
+  backend mlp
+  model "mace-mp-0"
+}
+
+crystal rutile : slab z 0 .. 18 A {
+  prototype rutile
+  composition TiO2
+  a 4.594 A
+  c 2.959 A
+  orient x [001] y [1-10] z [110]
+  surface (110) top
+  termination bridging_O
+  defect V_O^.. count 2 layer surface          # bridging-oxygen vacancies
+}
+
+liquid water : slab z 18 .. 45 A {
+  molecules H2O 620
+  state density 1.0 g/cm3
+}
+
+vacuum gap : slab z 45 .. 60 A {
+}
+
+interface rutile | water {
+  dissociate H2O -> OH @ Ti_5c + H @ O_br count 9
+  assert coverage OH 0.25 ML +- 0.05
+}
+
+residual none

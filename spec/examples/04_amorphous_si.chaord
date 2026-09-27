@@ -1,0 +1,24 @@
+chaord 0.1
+dialect core + glass
+
+system {
+  cell auto cubic
+  pbc xyz
+  seed 5
+  conserve atoms Si 512
+}
+
+physics {
+  backend mlp
+  model "mace-mp-0"
+}
+
+amorphous aSi : all {
+  composition Si
+  state density 2.28 g/cm3
+  history melt 3000 K for 20 ps -> quench to 300 K at 1 K/ps -> anneal 300 K for 50 ps
+  assert cn 4.0 +- 0.1 cutoff 2.85 A
+  assert angle_mean 109.0 +- 1.5 deg
+}
+
+residual none
