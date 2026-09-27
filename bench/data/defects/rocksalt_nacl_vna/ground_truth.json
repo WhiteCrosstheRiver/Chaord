@@ -1,0 +1,98 @@
+{
+  "schema": "chaord-bench/2",
+  "case": "rocksalt_nacl_vna",
+  "category": "defects",
+  "description": "rocksalt ('Na', 'Cl') 3x3x3 host with random 6 V_Na (Kr\u00f6ger-Vink); defect sites are re-drawn every frame, counts fixed",
+  "seed": 149,
+  "n_frames": 5,
+  "frames": [
+    {
+      "file": "frame_0.npz",
+      "seed": 149,
+      "n_atoms": 210,
+      "counts": {
+        "Cl": 108,
+        "Na": 102
+      },
+      "defects": {
+        "V_Na": 6
+      }
+    },
+    {
+      "file": "frame_1.npz",
+      "seed": 150,
+      "n_atoms": 210,
+      "counts": {
+        "Cl": 108,
+        "Na": 102
+      },
+      "defects": {
+        "V_Na": 6
+      }
+    },
+    {
+      "file": "frame_2.npz",
+      "seed": 151,
+      "n_atoms": 210,
+      "counts": {
+        "Cl": 108,
+        "Na": 102
+      },
+      "defects": {
+        "V_Na": 6
+      }
+    },
+    {
+      "file": "frame_3.npz",
+      "seed": 152,
+      "n_atoms": 210,
+      "counts": {
+        "Cl": 108,
+        "Na": 102
+      },
+      "defects": {
+        "V_Na": 6
+      }
+    },
+    {
+      "file": "frame_4.npz",
+      "seed": 153,
+      "n_atoms": 210,
+      "counts": {
+        "Cl": 108,
+        "Na": 102
+      },
+      "defects": {
+        "V_Na": 6
+      }
+    }
+  ],
+  "lift_mode": "defects",
+  "lift_dialect": [
+    "core",
+    "metal"
+  ],
+  "host": {
+    "prototype": "rocksalt",
+    "a": 5.64,
+    "reps": [
+      3,
+      3,
+      3
+    ],
+    "counts": {
+      "Cl": 108,
+      "Na": 108
+    }
+  },
+  "expected": {
+    "defects": {
+      "V_Na": 6
+    },
+    "counts": {
+      "Cl": 108,
+      "Na": 102
+    },
+    "n_atoms": 210
+  }
+}

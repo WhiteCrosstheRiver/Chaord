@@ -1,10 +1,63 @@
 {
-  "schema": "chaord-bench/1",
+  "schema": "chaord-bench/2",
   "case": "rocksalt_nacl",
   "category": "crystals",
-  "description": "rocksalt NaCl, conventional 2x2x2 supercell built exactly from the prototype table",
-  "seed": null,
+  "description": "rocksalt NaCl, 2x2x2 supercell built exactly from the prototype table",
+  "seed": 107,
+  "n_frames": 5,
+  "frames": [
+    {
+      "file": "frame_0.npz",
+      "seed": 107,
+      "n_atoms": 64,
+      "counts": {
+        "Cl": 32,
+        "Na": 32
+      }
+    },
+    {
+      "file": "frame_1.npz",
+      "seed": 108,
+      "n_atoms": 64,
+      "counts": {
+        "Cl": 32,
+        "Na": 32
+      }
+    },
+    {
+      "file": "frame_2.npz",
+      "seed": 109,
+      "n_atoms": 64,
+      "counts": {
+        "Cl": 32,
+        "Na": 32
+      }
+    },
+    {
+      "file": "frame_3.npz",
+      "seed": 110,
+      "n_atoms": 64,
+      "counts": {
+        "Cl": 32,
+        "Na": 32
+      }
+    },
+    {
+      "file": "frame_4.npz",
+      "seed": 111,
+      "n_atoms": 64,
+      "counts": {
+        "Cl": 32,
+        "Na": 32
+      }
+    }
+  ],
   "lift_mode": "crystal",
+  "lift_dialect": [
+    "core",
+    "metal"
+  ],
+  "thermal_amplitude_fraction": 0.06,
   "expected": {
     "prototype": "rocksalt",
     "a": 5.64,

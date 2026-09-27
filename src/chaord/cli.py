@@ -107,6 +107,7 @@ def _cmd_diff(args) -> int:
 
 def _cmd_roundtrip(args) -> int:
     from .build import build_program
+    from .cv.noise import observables, distance
     from .dialects import load_dialect
     from .io.frames import read_frame
     from .lang.api import load, save
@@ -115,26 +116,47 @@ def _cmd_roundtrip(args) -> int:
     import tempfile, pathlib
     dialect = load_dialect(args.dialect.split("+"))
     frame = read_frame(args.infile)
-    rng = np.random.default_rng(args.seed)
+    n = max(1, int(args.samples))
     prog0 = lift_frame(frame, dialect, T=args.T, mode=args.mode)
-    p0 = decompile(frame.pos, frame.cell_diag, args.T, dialect)
     with tempfile.TemporaryDirectory() as td:
         prog_path = pathlib.Path(td) / "p.chaord"
         save(prog0, prog_path)
         rebuilt = load(prog_path)
-        frame1 = build_program(rebuilt, dialect, rng, physics=not args.no_physics)
-        p1 = decompile(frame1.pos, frame1.cell_diag, args.T, dialect)
+        frames = [build_program(rebuilt, dialect, np.random.default_rng(args.seed + i),
+                                physics=not args.no_physics)
+                  for i in range(n)]
+        if n == 1:
+            p0 = decompile(frame.pos, frame.cell_diag, args.T, dialect)
+            p1 = decompile(frames[0].pos, frames[0].cell_diag, args.T, dialect)
 
-        def row(name, f):
-            return f"{name:<32}" + "".join(f"{f(x):>14}" for x in (p0, p1))
-        print(row("atoms", lambda Q: f"{Q['N']}"))
-        print(row("net vacancies", lambda Q: f"{sum(c['net'] for c in Q['defects'])}"))
-        print(row("lattice a", lambda Q: f"{Q['a_x']:.3f}"))
-        print(row("strain zz %", lambda Q: f"{100*(Q['a_z']/Q['a_x']-1):+.1f}"))
-        print(row("liquid density", lambda Q: f"{Q['rho']:.3f}"))
-        m = lambda Q: (Q["rm"] > 0.8)
-        print(row("g(r) RMS dist", lambda Q: f"{np.sqrt(np.mean((Q['gr'][m(Q)]-p0['gr'][m(p0)])**2)):.3f}"))
-        print(row("angle distr. TV", lambda Q: f"{0.5*np.abs(Q['bad']-p0['bad']).sum():.3f}"))
+            def row(name, f):
+                return f"{name:<32}" + "".join(f"{f(x):>14}" for x in (p0, p1))
+            print(row("atoms", lambda Q: f"{Q['N']}"))
+            print(row("net vacancies", lambda Q: f"{sum(c['net'] for c in Q['defects'])}"))
+            print(row("lattice a", lambda Q: f"{Q['a_x']:.3f}"))
+            print(row("strain zz %", lambda Q: f"{100*(Q['a_z']/Q['a_x']-1):+.1f}"))
+            print(row("liquid density", lambda Q: f"{Q['rho']:.3f}"))
+            m = lambda Q: (Q["rm"] > 0.8)
+            print(row("g(r) RMS dist", lambda Q: f"{np.sqrt(np.mean((Q['gr'][m(Q)]-p0['gr'][m(p0)])**2)):.3f}"))
+            print(row("angle distr. TV", lambda Q: f"{0.5*np.abs(Q['bad']-p0['bad']).sum():.3f}"))
+            return 0
+        # several independent rebuilds (one seed each): per-sample observable
+        # distance, then mean +- std against the rebuild-to-rebuild noise floor
+        o0 = observables(frame, dialect)
+        obs = [observables(f, dialect) for f in frames]
+        ds = [distance(o0, o) for o in obs]
+        floors = [distance(obs[i], obs[j])
+                  for i in range(n) for j in range(i + 1, n)]
+        print(f"roundtrip: {n} samples (seeds {args.seed}..{args.seed + n - 1})")
+        for i, (f, d) in enumerate(zip(frames, ds)):
+            print(f"sample {i + 1}: seed {args.seed + i}  atoms {len(f)}  "
+                  f"gr_rms {d['gr_rms']:.3f}  cn_tv {d['cn_tv']:.3f}")
+        for k in ds[0]:
+            vals = np.array([d[k] for d in ds])
+            fl = float(np.mean([m[k] for m in floors]))
+            print(f"mean {k}: {vals.mean():.3f} +- {vals.std():.3f} over {n} samples"
+                  f"  |  noise floor {fl:.3f}"
+                  f"  |  ratio x{vals.mean() / max(fl, 1e-9):.1f}")  # dialect-exempt: degenerate floor
     return 0
 
 
@@ -181,6 +203,9 @@ def main(argv=None) -> int:
     p = sub.add_parser("roundtrip", help="lift -> build -> lift and compare")
     p.add_argument("infile")
     p.add_argument("--seed", type=int, default=3)
+    p.add_argument("--samples", type=int, default=5,
+                   help="independent rebuilds (seed, seed+1, ...); "
+                        "1 prints the classic two-column table")
     p.add_argument("--dialect", default="core+lj")
     p.add_argument("--T", type=float, default=0.65)
     p.add_argument("--mode", default="auto", choices=["auto", "crystal", "slab"])

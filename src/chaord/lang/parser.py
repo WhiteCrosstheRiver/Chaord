@@ -316,11 +316,13 @@ def _block(inner: Tree, comments: dict[int, str], units: frozenset):
             if isinstance(t, Tree) and t.data in ("mol_def", "ion_def", "atom_def"):
                 toks = [c for c in t.children if isinstance(c, Token)]
                 k = {"mol_def": "molecule", "ion_def": "ion", "atom_def": "atom"}[t.data]
-                name = toks[0]
+                # toks[0] is the keyword terminal (named terminals stay in the
+                # tree, unlike anonymous literals); toks[1] is the species name
+                name = toks[1]
                 source = ref = None
-                if len(toks) >= 3 and toks[1].type == "EQ":
-                    source = "smiles" if toks[2].type == "SMILES" else "file"
-                    ref = _unquote(toks[3].value)
+                if len(toks) >= 5 and toks[2].type == "EQ":
+                    source = "smiles" if toks[3].type == "SMILES" else "file"
+                    ref = _unquote(toks[4].value)
                 line = _tok_line(name)
                 defs.append(SpecDef(
                     k=k, name=name.value, source=source, ref=ref,

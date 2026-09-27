@@ -1,10 +1,72 @@
 {
-  "schema": "chaord-bench/1",
+  "schema": "chaord-bench/2",
   "case": "fcc_cu_vacancies",
   "category": "defects",
-  "description": "fcc Cu 3x3x3 host with 3 random Cu vacancies (Kr\u00f6ger-Vink V_Cu)",
+  "description": "fcc ('Cu',) 3x3x3 host with random 3 V_Cu (Kr\u00f6ger-Vink); defect sites are re-drawn every frame, counts fixed",
   "seed": 11,
+  "n_frames": 5,
+  "frames": [
+    {
+      "file": "frame_0.npz",
+      "seed": 11,
+      "n_atoms": 105,
+      "counts": {
+        "Cu": 105
+      },
+      "defects": {
+        "V_Cu": 3
+      }
+    },
+    {
+      "file": "frame_1.npz",
+      "seed": 12,
+      "n_atoms": 105,
+      "counts": {
+        "Cu": 105
+      },
+      "defects": {
+        "V_Cu": 3
+      }
+    },
+    {
+      "file": "frame_2.npz",
+      "seed": 13,
+      "n_atoms": 105,
+      "counts": {
+        "Cu": 105
+      },
+      "defects": {
+        "V_Cu": 3
+      }
+    },
+    {
+      "file": "frame_3.npz",
+      "seed": 14,
+      "n_atoms": 105,
+      "counts": {
+        "Cu": 105
+      },
+      "defects": {
+        "V_Cu": 3
+      }
+    },
+    {
+      "file": "frame_4.npz",
+      "seed": 15,
+      "n_atoms": 105,
+      "counts": {
+        "Cu": 105
+      },
+      "defects": {
+        "V_Cu": 3
+      }
+    }
+  ],
   "lift_mode": "defects",
+  "lift_dialect": [
+    "core",
+    "metal"
+  ],
   "host": {
     "prototype": "fcc",
     "a": 3.615,

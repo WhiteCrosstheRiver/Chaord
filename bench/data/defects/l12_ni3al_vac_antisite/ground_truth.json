@@ -1,0 +1,104 @@
+{
+  "schema": "chaord-bench/2",
+  "case": "l12_ni3al_vac_antisite",
+  "category": "defects",
+  "description": "L1_2 ('Ni', 'Al') 4x4x4 host with random 3 V_Ni, 4 Al_Ni (Kr\u00f6ger-Vink); defect sites are re-drawn every frame, counts fixed",
+  "seed": 139,
+  "n_frames": 5,
+  "frames": [
+    {
+      "file": "frame_0.npz",
+      "seed": 139,
+      "n_atoms": 253,
+      "counts": {
+        "Al": 68,
+        "Ni": 185
+      },
+      "defects": {
+        "V_Ni": 3,
+        "Al_Ni": 4
+      }
+    },
+    {
+      "file": "frame_1.npz",
+      "seed": 140,
+      "n_atoms": 253,
+      "counts": {
+        "Al": 68,
+        "Ni": 185
+      },
+      "defects": {
+        "V_Ni": 3,
+        "Al_Ni": 4
+      }
+    },
+    {
+      "file": "frame_2.npz",
+      "seed": 141,
+      "n_atoms": 253,
+      "counts": {
+        "Al": 68,
+        "Ni": 185
+      },
+      "defects": {
+        "V_Ni": 3,
+        "Al_Ni": 4
+      }
+    },
+    {
+      "file": "frame_3.npz",
+      "seed": 142,
+      "n_atoms": 253,
+      "counts": {
+        "Al": 68,
+        "Ni": 185
+      },
+      "defects": {
+        "V_Ni": 3,
+        "Al_Ni": 4
+      }
+    },
+    {
+      "file": "frame_4.npz",
+      "seed": 143,
+      "n_atoms": 253,
+      "counts": {
+        "Al": 68,
+        "Ni": 185
+      },
+      "defects": {
+        "V_Ni": 3,
+        "Al_Ni": 4
+      }
+    }
+  ],
+  "lift_mode": "defects",
+  "lift_dialect": [
+    "core",
+    "metal"
+  ],
+  "host": {
+    "prototype": "L1_2",
+    "a": 3.572,
+    "reps": [
+      4,
+      4,
+      4
+    ],
+    "counts": {
+      "Al": 64,
+      "Ni": 192
+    }
+  },
+  "expected": {
+    "defects": {
+      "V_Ni": 3,
+      "Al_Ni": 4
+    },
+    "counts": {
+      "Al": 68,
+      "Ni": 185
+    },
+    "n_atoms": 253
+  }
+}

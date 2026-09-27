@@ -1,0 +1,75 @@
+{
+  "schema": "chaord-bench/2",
+  "case": "diamond_si",
+  "category": "crystals",
+  "description": "diamond Si, 2x2x2 supercell built exactly from the prototype table",
+  "seed": 127,
+  "n_frames": 5,
+  "frames": [
+    {
+      "file": "frame_0.npz",
+      "seed": 127,
+      "n_atoms": 64,
+      "counts": {
+        "Si": 64
+      }
+    },
+    {
+      "file": "frame_1.npz",
+      "seed": 128,
+      "n_atoms": 64,
+      "counts": {
+        "Si": 64
+      }
+    },
+    {
+      "file": "frame_2.npz",
+      "seed": 129,
+      "n_atoms": 64,
+      "counts": {
+        "Si": 64
+      }
+    },
+    {
+      "file": "frame_3.npz",
+      "seed": 130,
+      "n_atoms": 64,
+      "counts": {
+        "Si": 64
+      }
+    },
+    {
+      "file": "frame_4.npz",
+      "seed": 131,
+      "n_atoms": 64,
+      "counts": {
+        "Si": 64
+      }
+    }
+  ],
+  "lift_mode": "crystal",
+  "lift_dialect": [
+    "core",
+    "metal"
+  ],
+  "thermal_amplitude_fraction": 0.06,
+  "expected": {
+    "prototype": "diamond",
+    "a": 5.43,
+    "composition": null,
+    "reps": [
+      2,
+      2,
+      2
+    ],
+    "cell": [
+      10.86,
+      10.86,
+      10.86
+    ],
+    "counts": {
+      "Si": 64
+    },
+    "n_atoms": 64
+  }
+}

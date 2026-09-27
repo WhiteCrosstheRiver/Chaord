@@ -39,3 +39,7 @@ thresholds:
   fluid_solid_fraction_max: 0.20    # above this solid fraction it is not one phase
   restrain_max_iter: 20            # density-restraint box-relaxation iterations
   quench_max_steps: 20000          # cap on quench integration steps
+  lj_tmelting: 0.69                # fcc LJ melting temperature, reduced units (A4 anchor)
+  lattice_scan_steps: 57           # thermal LJ frames bias d_NN (nearest of 12 neighbours) low by
+                                   # ~10%, halving the scan step keeps a grid point inside the
+                                   # site-match gate peak around the true lattice constant

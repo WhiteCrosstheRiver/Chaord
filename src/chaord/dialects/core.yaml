@@ -51,4 +51,9 @@ thresholds:
   segment_vote_cutoff: 1.45         # neighbour radius for label smoothing, A or sigma
   segment_vote_factor: 1.15         # label-smoothing radius as fraction of d_NN
   segment_flip_fraction: 0.75       # neighbourhood majority needed to flip a label
+  # --- 3-D phase segmentation and interface meshes (M4) ---
+  segment3d_band_lo_factor: 0.9     # flood band lower edge as a fraction of q6_solid
+  segment3d_band_hi_factor: 1.1     # flood band upper edge as a fraction of q6_solid
+  segment3d_majority: 0.5           # labelled-neighbour fraction that calls solid in the residual vote
+  segment3d_normal_factor: 2.0      # interface-normal centroid radius as a multiple of d_NN
   restrain_max_iter: 20            # density-restraint box-relaxation iterations

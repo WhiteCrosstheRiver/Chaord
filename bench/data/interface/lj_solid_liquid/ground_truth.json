@@ -1,0 +1,77 @@
+{
+  "schema": "chaord-bench/2",
+  "case": "lj_solid_liquid",
+  "category": "interface",
+  "description": "LJ solid-liquid slab: perfect fcc (4x4x8, rho_solid = 1.0/sigma^3) below z = 6.3496, re-randomised liquid above; the two-phase label boundary is the mid-plane of the box",
+  "seed": 167,
+  "n_frames": 5,
+  "frames": [
+    {
+      "file": "frame_0.npz",
+      "seed": 167,
+      "n_atoms": 512,
+      "counts": {
+        "X": 512
+      },
+      "boundary_z": 6.3496042078727974
+    },
+    {
+      "file": "frame_1.npz",
+      "seed": 168,
+      "n_atoms": 512,
+      "counts": {
+        "X": 512
+      },
+      "boundary_z": 6.3496042078727974
+    },
+    {
+      "file": "frame_2.npz",
+      "seed": 169,
+      "n_atoms": 512,
+      "counts": {
+        "X": 512
+      },
+      "boundary_z": 6.3496042078727974
+    },
+    {
+      "file": "frame_3.npz",
+      "seed": 170,
+      "n_atoms": 512,
+      "counts": {
+        "X": 512
+      },
+      "boundary_z": 6.3496042078727974
+    },
+    {
+      "file": "frame_4.npz",
+      "seed": 171,
+      "n_atoms": 512,
+      "counts": {
+        "X": 512
+      },
+      "boundary_z": 6.3496042078727974
+    }
+  ],
+  "lift_mode": "interface",
+  "lift_dialect": [
+    "core",
+    "lj"
+  ],
+  "expected": {
+    "axis": "z",
+    "boundary_z": 6.3496042078727974,
+    "phases": {
+      "solid": "below",
+      "liquid": "above"
+    },
+    "counts": {
+      "X": 512
+    },
+    "n_atoms": 512,
+    "cell": [
+      6.3496042078727974,
+      6.3496042078727974,
+      12.699208415745595
+    ]
+  }
+}

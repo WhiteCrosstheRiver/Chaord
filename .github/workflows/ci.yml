@@ -1,0 +1,50 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  pr:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install
+        run: python -m pip install -e .[test]
+      - name: Grammar sketch check
+        run: python tools/sketch_check.py spec/examples/*.chaord
+      - name: Magic-number gate (thresholds live in dialects only)
+        run: python tools/check_magic_numbers.py
+      - name: Fast test suite
+        run: python -m pytest tests -m "not slow"
+
+  nightly:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install
+        run: python -m pip install -e .[test]
+      - name: Statistical round-trip suite (slow)
+        run: python -m pytest tests -m "slow"
+      - name: Acceptance A1-A14
+        run: python tools/acceptance.py -o reports/acceptance.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: acceptance-report
+          path: reports/
+
+# The nightly schedule itself (kept here so the job definition stays with CI):
+# add to the `on:` block when the repository lives on a scheduler:
+#   schedule:
+#     - cron: "0 3 * * *"

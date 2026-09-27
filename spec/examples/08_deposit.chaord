@@ -1,0 +1,25 @@
+chaord 0.1
+dialect core + glass
+
+system {
+  cell auto cubic
+  pbc xyz
+  seed 4
+  conserve atoms X 150
+}
+
+physics {
+  backend lj
+  epsilon 1
+  sigma 1
+  cutoff 2.5
+}
+
+amorphous film : all {
+  composition X
+  state density 0.85
+  history melt 1.2 for 300 -> deposit X 20 for 400 -> anneal 0.01 for 200
+  assert cn 10.8 +- 0.8
+}
+
+residual none

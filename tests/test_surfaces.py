@@ -172,3 +172,180 @@ def test_surface_program_round_trip_stable(surf111, dialect):
                 "adsorb O count 4 site top"):
         assert any(key in l for l in text2.splitlines()), f"lost: {key}"
     assert len(diff) <= 6  # only cosmetic/coverage digits may move
+
+
+# ---------------------------------------------------------------------------
+# Wood reconstruction statements + compound (rutile) terminations
+# ---------------------------------------------------------------------------
+
+RECON_PROGRAM = """chaord 0.1
+dialect core + metal + surface
+
+system {{
+  cell {lx:.3f} {ly:.3f} {lz:.3f}
+  pbc xyz
+  conserve atoms Ni {n}
+}}
+
+physics {{
+  backend eam
+}}
+
+crystal slab : slab z 0 .. {ztop:.1f} {{
+  lattice fcc
+  a 3.615 A
+  surface ({hkl}) top
+  termination Ni
+{recon}
+}}
+
+vacuum gap : slab z {ztop:.1f} .. {lz:.1f} {{
+}}
+"""
+
+RUTILE_110_PROGRAM = """chaord 0.1
+dialect core + metal + surface
+
+system {
+  cell 6.497 2.959 23.727
+  pbc xyz
+  conserve atoms Ti 8 O 16
+}
+
+physics {
+  backend eam
+}
+
+crystal slab : slab z 0 .. 11.7 {
+  prototype rutile
+  composition TiO2
+  a 4.594 A
+  c 2.959 A
+  surface (110) top
+  termination bridging_O
+}
+
+vacuum gap : slab z 11.7 .. 23.7 {
+}
+"""
+
+
+def _missing_row_frame(a=3.615):
+    """fcc(100) 4x4x4 slab with every other atom row of the top layer deleted.
+
+    An independent construction of the p(2x1) missing-row reconstruction:
+    the deletion works on sorted unique x columns, not on any chaord helper."""
+    from ase.build import fcc100
+    slab = fcc100("Ni", size=(4, 4, 4), a=a, vacuum=6.0)
+    pos = slab.get_positions()
+    z = pos[:, 2]
+    top = np.where(z > z.max() - 0.5)[0]
+    xs = np.sort(np.unique(np.round(pos[top][:, 0], 3)))
+    step = xs[1] - xs[0]
+    drop = {int(i) for i in top
+            if int(round((pos[i, 0] - xs[0]) / step)) % 2 == 1}
+    keep = [i for i in range(len(pos)) if i not in drop]
+    assert len(top) - len(drop) == len(top) // 2  # half the top layer survives
+    return Frame(pos=pos[keep], cell=np.array(slab.cell),
+                 symbols=[slab.symbols[i] for i in keep])
+
+
+def _top_of(frame, tol=0.5):
+    z = frame.pos[:, 2]
+    return np.where(z > z.max() - tol)[0]
+
+
+def _net_lengths(frame, idx):
+    from chaord.lift.surface import _net_vectors
+    net = _net_vectors(frame.pos[idx][:, :2], frame.cell[:2, :2])
+    assert net is not None, "top layer is not a lattice net"
+    return sorted(np.linalg.norm(net, axis=1))
+
+
+def test_wood_lift_missing_row(dialect):
+    """A planted fcc(100) missing-row top layer lifts as reconstruction p(2x1)."""
+    f = _missing_row_frame()
+    text = format_program(lift_frame(f, dialect, mode="surface"))
+    assert "surface (001) top" in text
+    assert "reconstruction p(2x1)" in text
+    assert "conserve atoms Ni 56" in text
+
+
+def test_wood_no_false_positive(dialect):
+    """The unreconstructed fcc(100) slab lifts without a reconstruction line."""
+    from ase.build import fcc100
+    slab = fcc100("Ni", size=(4, 4, 4), a=3.615, vacuum=6.0)
+    f = Frame(pos=slab.get_positions(), cell=np.array(slab.cell),
+              symbols=list(slab.symbols))
+    text = format_program(lift_frame(f, dialect, mode="surface"))
+    assert "reconstruction" not in text
+
+
+def test_wood_round_trip_missing_row(dialect, tmp_path):
+    """build(lift(planted 2x1 slab)) rebuilds an equivalent top layer."""
+    f = _missing_row_frame()
+    text = format_program(lift_frame(f, dialect, mode="surface"))
+    path = tmp_path / "recon.chaord"
+    path.write_text(text)
+    f2 = build_program(load(path), dialect, rng=np.random.default_rng(5))
+    assert len(f2) == 56
+    top1, top2 = _top_of(f), _top_of(f2)
+    assert len(top1) == len(top2) == 8
+    # equivalent nets: same primitive vector lengths (up to the 90 deg basis choice)
+    assert np.allclose(_net_lengths(f, top1), _net_lengths(f2, top2), atol=0.05)
+    # and the rebuilt slab re-lifts to the same statement
+    text2 = format_program(lift_frame(f2, dialect, mode="surface"))
+    assert "reconstruction p(2x1)" in text2
+
+
+@pytest.mark.parametrize("wood,n_atoms,hkl,lx,ly", [
+    ("p(2x1)", 56, "001", 10.225, 10.225),
+    ("p(2x2)", 52, "001", 10.225, 10.225),
+    ("c(2x2)", 56, "001", 10.225, 10.225),
+    ("(r3xr3)R30", 30, "111", 7.669, 6.641),
+])
+def test_reconstruction_build_lift_round_trip(wood, n_atoms, hkl, lx, ly,
+                                              dialect, tmp_path):
+    """Every buildable Wood statement survives build -> lift unchanged."""
+    text = RECON_PROGRAM.format(lx=lx, ly=ly, lz=17.422, n=n_atoms, hkl=hkl,
+                                ztop=6.0, recon=f"  reconstruction {wood}")
+    path = tmp_path / f"recon_{wood.replace('/', '-')}.chaord"
+    path.write_text(text)
+    f = build_program(load(path), dialect, rng=np.random.default_rng(9))
+    assert len(f) == n_atoms
+    lifted = format_program(lift_frame(f, dialect, mode="surface"))
+    assert f"reconstruction {wood}" in lifted
+
+
+def test_rutile_110_bridging_oxygen(dialect, tmp_path):
+    """rutile (110): generic cut picks an O-terminated top layer; lift names it."""
+    path = tmp_path / "rutile110.chaord"
+    path.write_text(RUTILE_110_PROGRAM)
+    f = build_program(load(path), dialect, rng=np.random.default_rng(2))
+    assert len(f) == 24  # four Ti2O4 stacking units
+    top = _top_of(f)
+    assert "O" in {f.symbols[i] for i in top}  # top layer contains O
+    text = format_program(lift_frame(f, dialect, mode="surface"))
+    assert "prototype rutile" in text
+    assert "composition TiO2" in text
+    assert "a 4.594 A" in text
+    assert "c 2.959 A" in text
+    assert "surface (110) top" in text
+    assert "termination bridging_O" in text
+    assert "conserve atoms O 16 Ti 8" in text  # lift sorts species names
+
+
+def test_rutile_110_round_trip_stable(dialect, tmp_path):
+    """lift -> build reproduces the rutile slab and lifts to the same text."""
+    path = tmp_path / "rutile110.chaord"
+    path.write_text(RUTILE_110_PROGRAM)
+    f1 = build_program(load(path), dialect, rng=np.random.default_rng(3))
+    text1 = format_program(lift_frame(f1, dialect, mode="surface"))
+    p2 = tmp_path / "rutile110_lifted.chaord"
+    p2.write_text(text1)
+    f2 = build_program(load(p2), dialect, rng=np.random.default_rng(4))
+    assert len(f1) == len(f2) == 24
+    text2 = format_program(lift_frame(f2, dialect, mode="surface"))
+    assert "surface (110) top" in text2
+    assert "termination bridging_O" in text2
+    assert "reconstruction" not in text2

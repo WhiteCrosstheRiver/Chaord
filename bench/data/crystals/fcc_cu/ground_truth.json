@@ -1,10 +1,58 @@
 {
-  "schema": "chaord-bench/1",
+  "schema": "chaord-bench/2",
   "case": "fcc_cu",
   "category": "crystals",
-  "description": "fcc Cu, conventional 2x2x2 supercell built exactly from the prototype table",
-  "seed": null,
+  "description": "fcc Cu, 2x2x2 supercell built exactly from the prototype table",
+  "seed": 101,
+  "n_frames": 5,
+  "frames": [
+    {
+      "file": "frame_0.npz",
+      "seed": 101,
+      "n_atoms": 32,
+      "counts": {
+        "Cu": 32
+      }
+    },
+    {
+      "file": "frame_1.npz",
+      "seed": 102,
+      "n_atoms": 32,
+      "counts": {
+        "Cu": 32
+      }
+    },
+    {
+      "file": "frame_2.npz",
+      "seed": 103,
+      "n_atoms": 32,
+      "counts": {
+        "Cu": 32
+      }
+    },
+    {
+      "file": "frame_3.npz",
+      "seed": 104,
+      "n_atoms": 32,
+      "counts": {
+        "Cu": 32
+      }
+    },
+    {
+      "file": "frame_4.npz",
+      "seed": 105,
+      "n_atoms": 32,
+      "counts": {
+        "Cu": 32
+      }
+    }
+  ],
   "lift_mode": "crystal",
+  "lift_dialect": [
+    "core",
+    "metal"
+  ],
+  "thermal_amplitude_fraction": 0.06,
   "expected": {
     "prototype": "fcc",
     "a": 3.615,

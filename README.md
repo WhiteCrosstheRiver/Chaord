@@ -65,3 +65,5 @@ re-ordering and re-imaging; fluids and glasses are judged against the floor.
 | M8 | LLM schema, scripting layer, Laya state encoder |
 
 See `PLAN.md` for the full design and `AGENTS.md` for the binding rules.
+
+Licence: MIT (see LICENSE); third-party audit in docs/licenses.md.

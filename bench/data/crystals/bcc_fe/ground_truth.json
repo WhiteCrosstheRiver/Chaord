@@ -1,10 +1,58 @@
 {
-  "schema": "chaord-bench/1",
+  "schema": "chaord-bench/2",
   "case": "bcc_fe",
   "category": "crystals",
-  "description": "bcc Fe, conventional 2x2x2 supercell built exactly from the prototype table",
-  "seed": null,
+  "description": "bcc Fe, 2x2x2 supercell built exactly from the prototype table",
+  "seed": 103,
+  "n_frames": 5,
+  "frames": [
+    {
+      "file": "frame_0.npz",
+      "seed": 103,
+      "n_atoms": 16,
+      "counts": {
+        "Fe": 16
+      }
+    },
+    {
+      "file": "frame_1.npz",
+      "seed": 104,
+      "n_atoms": 16,
+      "counts": {
+        "Fe": 16
+      }
+    },
+    {
+      "file": "frame_2.npz",
+      "seed": 105,
+      "n_atoms": 16,
+      "counts": {
+        "Fe": 16
+      }
+    },
+    {
+      "file": "frame_3.npz",
+      "seed": 106,
+      "n_atoms": 16,
+      "counts": {
+        "Fe": 16
+      }
+    },
+    {
+      "file": "frame_4.npz",
+      "seed": 107,
+      "n_atoms": 16,
+      "counts": {
+        "Fe": 16
+      }
+    }
+  ],
   "lift_mode": "crystal",
+  "lift_dialect": [
+    "core",
+    "metal"
+  ],
+  "thermal_amplitude_fraction": 0.06,
   "expected": {
     "prototype": "bcc",
     "a": 2.87,

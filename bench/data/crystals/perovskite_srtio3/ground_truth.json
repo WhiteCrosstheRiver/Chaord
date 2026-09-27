@@ -1,0 +1,87 @@
+{
+  "schema": "chaord-bench/2",
+  "case": "perovskite_srtio3",
+  "category": "crystals",
+  "description": "perovskite SrTiO3, 2x2x2 supercell built exactly from the prototype table",
+  "seed": 131,
+  "n_frames": 5,
+  "frames": [
+    {
+      "file": "frame_0.npz",
+      "seed": 131,
+      "n_atoms": 40,
+      "counts": {
+        "O": 24,
+        "Sr": 8,
+        "Ti": 8
+      }
+    },
+    {
+      "file": "frame_1.npz",
+      "seed": 132,
+      "n_atoms": 40,
+      "counts": {
+        "O": 24,
+        "Sr": 8,
+        "Ti": 8
+      }
+    },
+    {
+      "file": "frame_2.npz",
+      "seed": 133,
+      "n_atoms": 40,
+      "counts": {
+        "O": 24,
+        "Sr": 8,
+        "Ti": 8
+      }
+    },
+    {
+      "file": "frame_3.npz",
+      "seed": 134,
+      "n_atoms": 40,
+      "counts": {
+        "O": 24,
+        "Sr": 8,
+        "Ti": 8
+      }
+    },
+    {
+      "file": "frame_4.npz",
+      "seed": 135,
+      "n_atoms": 40,
+      "counts": {
+        "O": 24,
+        "Sr": 8,
+        "Ti": 8
+      }
+    }
+  ],
+  "lift_mode": "crystal",
+  "lift_dialect": [
+    "core",
+    "metal"
+  ],
+  "thermal_amplitude_fraction": 0.06,
+  "expected": {
+    "prototype": "perovskite",
+    "a": 3.905,
+    "composition": "SrTiO3",
+    "reps": [
+      2,
+      2,
+      2
+    ],
+    "cell": [
+      7.81,
+      7.81,
+      7.81
+    ],
+    "counts": {
+      "O": 24,
+      "Sr": 8,
+      "Ti": 8
+    },
+    "n_atoms": 40
+  }
+}

@@ -1,6 +1,6 @@
 # metal dialect — metals and ordered intermetallics (M1+).
 name: metal
-version: "0.1.0"
+version: "0.2.0"
 
 units: []
 
@@ -11,6 +11,71 @@ keys:
 thresholds:
   cn_cutoff: 3.5                  # first-shell coordination cutoff for close-packed metals, A
   defocus_tolerance: 0.3          # displacement below which an atom still occupies its site, A
+  # --- EAM physics backend (analytic Finnis-Sinclair form, eV / A) ---
+  # V(r) = (r-c)^2 (c0 + c1 r + c2 r^2) for r < c; phi(r) = (r-d)^2 for r < d;
+  # E = sum_i [ 1/2 sum_j V(r_ij) - A sqrt(sum_j phi(r_ij)) ]  (Finnis & Sinclair 1984 form).
+  # Parameter sets are calibrated in that form to the experimental lattice constant,
+  # cohesive energy and bulk modulus (targets in each entry). Cu/Ni are fcc
+  # (a = 3.6149 / 3.5241 A, Ecoh = 3.49 / 4.44 eV, B = 137 / 186 GPa), Fe is bcc
+  # (a = 2.8664 A, Ecoh = 4.28 eV, B = 168 GPa). Cu/Ni cutoffs keep the neighbour
+  # list inside half the smallest cell of a 2x2x4 fcc repeat (64 atoms); Fe keeps
+  # third-neighbour pair contributions for bcc shear stability.
+  eam_potentials:
+    Cu:
+      A: 2.613504
+      c: 3.25
+      d: 3.25
+      c0: -2.08679261
+      c1: 2.73721320
+      c2: -0.60353801
+      lattice: fcc
+      a_ref: 3.6149             # calibration target, A
+      ecoh_ref: 3.49            # calibration target, eV
+      bulk_modulus_ref_GPa: 137
+    Fe:
+      A: 1.765597
+      c: 4.4
+      d: 3.6
+      c0: 1.86699210
+      c1: -1.23545947
+      c2: 0.21106901
+      lattice: bcc
+      a_ref: 2.8664
+      ecoh_ref: 4.28
+      bulk_modulus_ref_GPa: 168
+    Ni:
+      A: 3.505766
+      c: 3.15
+      d: 3.15
+      c0: -4.74120293
+      c1: 5.42168644
+      c2: -1.19205176
+      lattice: fcc
+      a_ref: 3.5241
+      ecoh_ref: 4.44
+      bulk_modulus_ref_GPa: 186
+  # MD for the eam backend: energy in eV, length in A, run_md uses m = kB = 1,
+  # so time is in sqrt(u A^2 / eV) ~ 10.18 fs and T is passed in eV (kB T).
+  eam_md:
+    skin: 0.3                    # neighbour-list skin, A
+    relax_steps_fast: 400        # capped-force stage from the packed start
+    relax_dt_fast: 0.002
+    relax_gamma_fast: 5.0
+    fcap: 10.0                   # force cap for close RSA contacts, eV/A
+    relax_steps: 600             # default relaxation when the caller gives none
+    relax_dt: 0.002
+    relax_gamma: 2.0
+    reference_T_K: 300           # stated when the program has no state T
+    kB_eV_per_K: 8.617333262e-5  # Boltzmann constant, eV/K
+  eam_force_symmetry_tol: 1.0e-9 # perfect-lattice residual force, eV/A
+  eam_scan_lo: 0.95              # uniform-scale energy scan window (fraction)
+  eam_scan_hi: 1.05
+  eam_scan_steps: 21
+  eam_temperature_band: 0.30     # MD test band around the target temperature
+  fluid_rsa_dmin: 2.0            # RSA hard-core placement for metal atoms, A (near-solid
+                                 # densities jam above this; close contacts are capped by
+                                 # eam_md.fcap during the fast relaxation stage)
+  density_match_tolerance: 0.05  # stated vs geometric density mismatch (A12)
   # --- M2 defect and solid-solution passes (fractions of the NN distance) ---
   site_match_tol_fraction: 0.35   # atom counts as on-site below this fraction of d_NN
   interstitial_distance_fraction: 0.60
@@ -45,3 +110,6 @@ thresholds:
   slab_cn_factor: 1.15              # coordination cutoff for family detection, x d_NN
   fcc_cn_min: 10.0                  # interior CN above which the lattice is fcc-like
   burgers_detect_min: 0.30          # |b| detection floor as fraction of a
+  burgers_row_link_fraction: 0.5    # row-chain link tolerance, fraction of d_NN
+  burgers_row_angle_tol: 5.0        # degrees: lattice-repeat parallelism for row chains
+  burgers_step_band: 0.25           # accepted row-step magnitudes, fraction around family |b|

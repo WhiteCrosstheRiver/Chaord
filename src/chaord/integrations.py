@@ -11,6 +11,7 @@ import difflib
 import json
 
 from .lang.api import format_program, from_json, parse_text, to_json
+from .lang.errors import ChaordError
 from .lang.ir import (
     At, Arrow, Direction, Eq, Family, GeoChain, InterfaceBlock, KVDefect, Name,
     Plane, Plus, Program, ProvenanceBlock, Quantity, RegionBlock, ResidualBlock,
@@ -126,58 +127,135 @@ def program(*blocks, version="0.1", dialects=("core", "metal")) -> Program:
 
 
 # ------------------------------------------------------------- Laya encoder --
+#
+# Patch format (v2, exact): a patch is a sequence of difflib opcodes over the
+# state-carrying lines of the two texts. Every hunk starts with a control line
+#
+#     <op>@ <i1> <i2> <j1> <j2>
+#
+# where <op> is "-" when the hunk removes old lines (delete/replace) and "+"
+# when it only adds them (insert), i1:i2 is the old-line range [i1, i2), and
+# j1:j2 the new-line range. Control lines are followed by the removed lines
+# verbatim, each prefixed "-", then the added lines, each prefixed "+". Line
+# numbers are indices into the provenance-free line list, so decode is exact:
+# decode(old, encode(old, new)) reproduces `new` line for line except inside
+# provenance blocks (dialect / lift versions never describe state). The no-op
+# is the single token "=0". Canonical program lines never start with "@", so a
+# "+"/"-" line whose second character is "@" is unambiguously a control line.
+#
+# The 320-token Laya state budget is enforced through fits_budget().
 
-# compact field codes for the diff codec (stable vocabulary)
-_CODES = {
-    "chaord": "v", "dialect": "d", "system": "S", "physics": "P",
-    "provenance": "N", "species": "Y", "interface": "I", "residual": "R",
-    "crystal": "C", "amorphous": "A", "liquid": "L", "gas": "G",
-    "fluid": "F", "cluster": "K", "vacuum": "V",
-}
+LAYA_NOOP = "=0"
+LAYA_BUDGET = 320
+
+
+def _laya_lines(text: str | None) -> list[str]:
+    """State-carrying lines of a program text: everything except the provenance
+    block (from `provenance {` to its matching `}`) and the blank separator
+    line directly above it — provenance never describes state."""
+    if text is None:
+        return []
+    out: list[str] = []
+    in_prov = False
+    for line in text.splitlines():
+        stripped = line.strip()
+        if in_prov:
+            if stripped == "}":
+                in_prov = False
+            continue
+        if stripped.startswith("provenance {"):
+            if out and not out[-1].strip():
+                out.pop()
+            in_prov = True
+            continue
+        out.append(line)
+    return out
 
 
 def laya_encode(old_text: str | None, new_text: str) -> str:
-    """Encode a program transition as a compact line diff (Laya state token).
+    """Encode a program transition as an exact line patch (Laya state token).
 
-    Line-level unified-diff hunks with short op codes: `+line`, `-line`;
-    context-free. Provenance lines are dropped: they never describe state."""
-    def lines(text):
-        if text is None:
-            return []
-        return [l for l in text.splitlines()
-                if l.strip() and "provenance" not in l and not l.strip().startswith("dialects ")
-                and not l.strip().startswith("lift_version")]
-
-    a, b = lines(old_text), lines(new_text)
+    Hunks carry old/new line ranges from difflib opcodes; the removed and added
+    lines follow verbatim. Provenance blocks are dropped on both sides: they
+    never describe state, so a transition that only touches provenance encodes
+    to the no-op token."""
+    a = _laya_lines(old_text)
+    b = _laya_lines(new_text)
     if a == b:
-        return "=0"
+        return LAYA_NOOP
     sm = difflib.SequenceMatcher(a=a, b=b, autojunk=False)
-    out = []
+    out: list[str] = []
     for tag, i1, i2, j1, j2 in sm.get_opcodes():
-        if tag in ("delete", "replace"):
-            out.extend("-" + a[i] for i in range(i1, i2))
-        if tag in ("insert", "replace"):
-            out.extend("+" + b[j] for j in range(j1, j2))
-    return "\n".join(out) if out else "=0"
+        if tag == "equal":
+            continue
+        op = "-" if i2 > i1 else "+"
+        out.append(f"{op}@ {i1} {i2} {j1} {j2}")
+        out.extend("-" + a[i] for i in range(i1, i2))
+        out.extend("+" + b[j] for j in range(j1, j2))
+    return "\n".join(out) if out else LAYA_NOOP
+
+
+def _laya_hunks(patch: str) -> list[tuple[int, int, list[str], list[str]]]:
+    """Parse a patch into (i1, i2, removed, added) hunks, validating shape."""
+    lines = patch.splitlines()
+    hunks: list[tuple[int, int, list[str], list[str]]] = []
+    i = 0
+    while i < len(lines):
+        head = lines[i]
+        if len(head) < 2 or head[0] not in "+-" or head[1] != "@":
+            raise ChaordError(
+                f"laya patch line {i + 1}: expected a '<op>@ i1 i2 j1 j2' header")
+        try:
+            i1, i2, _j1, _j2 = (int(x) for x in head[2:].split())
+        except ValueError:
+            raise ChaordError(
+                f"laya patch line {i + 1}: header needs four integers") from None
+        removed: list[str] = []
+        added: list[str] = []
+        i += 1
+        while i < len(lines) and not (len(lines[i]) >= 2 and lines[i][1] == "@"):
+            line = lines[i]
+            if not line or line[0] not in "+-":
+                raise ChaordError(
+                    f"laya patch line {i + 1}: every diff line must start with + or -")
+            (removed if line[0] == "-" else added).append(line[1:])
+            i += 1
+        hunks.append((i1, i2, removed, added))
+    return hunks
 
 
 def laya_decode(old_text: str | None, patch: str) -> str:
-    """Apply a Laya patch to a previous canonical text."""
-    if patch == "=0":
-        return old_text or ""
-    a = [l for l in (old_text or "").splitlines()
-         if l.strip() and "provenance" not in l]
-    out = []
-    for line in patch.splitlines():
-        op, content = line[0], line[1:]
-        if op == "-":
-            if content in a:
-                a.remove(content)
-        elif op == "+":
-            out.append(content)
-    return "\n".join(a + out) + "\n"
+    """Apply a Laya patch to a previous canonical text.
+
+    Reconstructs the new text exactly (outside provenance blocks, which the
+    codec never encodes). Raises ChaordError when the patch is malformed or was
+    computed against a different old text (stale state token)."""
+    a = _laya_lines(old_text)
+    if patch == LAYA_NOOP:
+        return "\n".join(a) + "\n" if a else ""
+    out: list[str] = []
+    consumed = 0
+    for i1, i2, removed, added in _laya_hunks(patch):
+        if i1 < consumed or i2 < i1 or i2 > len(a):
+            raise ChaordError(
+                "laya patch does not apply: hunk ranges overlap or run past "
+                "the old text (stale state token?)")
+        if removed != a[i1:i2]:
+            raise ChaordError(
+                f"laya patch does not apply: lines {i1}..{i2} of the old text "
+                "differ from the hunk (stale state token?)")
+        out.extend(a[consumed:i1])
+        out.extend(added)
+        consumed = i2
+    out.extend(a[consumed:])
+    return "\n".join(out) + "\n" if out else ""
 
 
 def laya_tokens(patch: str) -> int:
     """Approximate token count of a patch (whitespace-split, conservative)."""
     return max(len(patch.split()), 1)
+
+
+def fits_budget(patch: str, budget: int = LAYA_BUDGET) -> bool:
+    """True when a Laya patch fits the state-token budget (default 320)."""
+    return laya_tokens(patch) <= budget

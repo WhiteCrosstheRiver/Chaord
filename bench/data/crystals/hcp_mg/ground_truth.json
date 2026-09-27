@@ -1,0 +1,76 @@
+{
+  "schema": "chaord-bench/2",
+  "case": "hcp_mg",
+  "category": "crystals",
+  "description": "hcp Mg, 2x2x2 supercell built exactly from the prototype table; orthohexagonal supercell (orient x [100], y [1 2 0], z [001]); reps count the rectangular cell",
+  "seed": 113,
+  "n_frames": 5,
+  "frames": [
+    {
+      "file": "frame_0.npz",
+      "seed": 113,
+      "n_atoms": 32,
+      "counts": {
+        "Mg": 32
+      }
+    },
+    {
+      "file": "frame_1.npz",
+      "seed": 114,
+      "n_atoms": 32,
+      "counts": {
+        "Mg": 32
+      }
+    },
+    {
+      "file": "frame_2.npz",
+      "seed": 115,
+      "n_atoms": 32,
+      "counts": {
+        "Mg": 32
+      }
+    },
+    {
+      "file": "frame_3.npz",
+      "seed": 116,
+      "n_atoms": 32,
+      "counts": {
+        "Mg": 32
+      }
+    },
+    {
+      "file": "frame_4.npz",
+      "seed": 117,
+      "n_atoms": 32,
+      "counts": {
+        "Mg": 32
+      }
+    }
+  ],
+  "lift_mode": "crystal",
+  "lift_dialect": [
+    "core",
+    "metal"
+  ],
+  "thermal_amplitude_fraction": 0.06,
+  "expected": {
+    "prototype": "hcp",
+    "a": 3.21,
+    "composition": null,
+    "reps": [
+      2,
+      2,
+      2
+    ],
+    "cell": [
+      6.42,
+      11.11976618459219,
+      10.42
+    ],
+    "counts": {
+      "Mg": 32
+    },
+    "n_atoms": 32,
+    "c": 5.21
+  }
+}

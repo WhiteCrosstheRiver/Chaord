@@ -28,9 +28,9 @@ provenance_block: "provenance" body
 species_block: "species" "{" _spitems "}"
 _spitems: (_spsep | specdef)*
 _spsep: NL+
-specdef: "molecule" WORD [EQ (SMILES | FILE) STRING] _sterm -> mol_def
-       | "ion" WORD [EQ (SMILES | FILE) STRING] _sterm -> ion_def
-       | "atom" WORD [EQ (SMILES | FILE) STRING] _sterm -> atom_def
+specdef: MOLECULE_KW WORD [EQ (SMILES | FILE) STRING] _sterm -> mol_def
+       | ION_KW WORD [EQ (SMILES | FILE) STRING] _sterm -> ion_def
+       | ATOM_KW WORD [EQ (SMILES | FILE) STRING] _sterm -> atom_def
 
 region_block: "crystal" WORD ":" geometry body -> crystal_region
             | "amorphous" WORD ":" geometry body -> amorphous_region
@@ -49,7 +49,7 @@ body: "{" _bitems "}"
 _bitems: (statement | NL)*
 statement: KIND? _key _raw_value* _sterm
 _sterm: (NL | ";")+
-_key: WORD | KV
+_key: WORD | KV | MOLECULE_KW | ION_KW | ATOM_KW
 _raw_value: NUMBER
          | WORD
          | STRING
@@ -80,6 +80,9 @@ AND.2: "and"
 OR.2: "or"
 MINUS.2: "minus"
 AXIS.2: "x" | "y" | "z"
+MOLECULE_KW: "molecule"
+ION_KW: "ion"
+ATOM_KW: "atom"
 SMILES.2: "smiles"
 FILE.2: "file"
 ARROW: "->"

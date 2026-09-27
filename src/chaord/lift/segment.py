@@ -140,3 +140,119 @@ def slab_interfaces(labels: np.ndarray, frame: Frame, dialect, axis=2) -> list[d
 def label_accuracy(labels: np.ndarray, truth: np.ndarray) -> float:
     """Fraction of atoms whose phase label matches planted ground truth."""
     return float((labels == truth).mean())
+
+
+# ---------------------------------------------------- 3-D segmentation (M4) ----
+
+
+def _robust_neighbor_distance(frame: Frame) -> float:
+    """Upper-quartile nearest-neighbour distance.
+
+    In a two-phase frame the median that ``typical_neighbor_distance`` uses is
+    dragged down by the close contacts of the disordered phase, which starves
+    the neighbour graph on the ordered side (a planted solid-liquid frame
+    disconnects its lattice this way). The upper quartile tracks the phase
+    that carries the spatial order instead, and stays sensible for a single
+    phase as well."""
+    from scipy.spatial import cKDTree
+    L = frame.cell_diag
+    pos = np.mod(frame.pos, L)
+    pos = np.minimum(pos, L * (1 - 1e-9))  # dialect-exempt: strict upper edge for KD trees
+    d, _ = cKDTree(pos, boxsize=L).query(pos, k=2)
+    return float(np.percentile(d[:, 1], 75))  # dialect-exempt: robust quartile, not a threshold
+
+
+def phase_labels_3d(frame: Frame, dialect) -> np.ndarray:
+    """True 3-D phase segmentation: seeded region growing on the bond graph.
+
+    (a) seeds: the solid mask (the dialect q6 rule) marks where the solid
+    phase is beyond doubt; (b) the solid phase floods across the geometric
+    neighbour graph (radius = segment_vote_factor x typical nearest-neighbour
+    distance, as in ``smooth_labels``) into atoms whose order parameter lies
+    in the intermediate band segment3d_band_lo_factor..segment3d_band_hi_factor
+    (fractions of q6_solid); (c) atoms still unlabelled (order parameter below
+    the band) are called by a neighbourhood majority over the flooded labels
+    (segment3d_majority); (d) the boolean solid labels are returned. Because
+    the phase grows along bonds, the interface may run along any direction --
+    no box axis is special, unlike the 1-D z-profile phase call of the slab
+    lifter, which needs the interface perpendicular to z."""
+    from collections import deque
+    from scipy.spatial import cKDTree
+
+    rc = float(dialect.threshold("q6_cutoff"))
+    thr = float(dialect.threshold("q6_solid"))
+    lo = float(dialect.threshold("segment3d_band_lo_factor")) * thr
+    hi = float(dialect.threshold("segment3d_band_hi_factor")) * thr
+    L = frame.cell_diag
+    pos = np.mod(frame.pos, L)
+    pos = np.minimum(pos, L * (1 - 1e-9))  # dialect-exempt: strict upper edge for KD trees
+    q6, _, _ = qbar(pos, L, rc=rc)
+    factor = float(dialect.threshold("segment_vote_factor"))
+    rc_vote = factor * _robust_neighbor_distance(frame)
+    nbrs = cKDTree(pos, boxsize=L).query_ball_point(pos, rc_vote)
+
+    labels = np.zeros(len(pos), bool)
+    seeds = q6 > thr
+    labels[seeds] = True
+    queue = deque(np.where(seeds)[0].tolist())
+    grow = (q6 > lo) & (q6 <= hi)      # the intermediate band the solid may absorb
+    while queue:
+        for j in nbrs[queue.popleft()]:
+            if not labels[j] and grow[j]:
+                labels[j] = True
+                queue.append(j)
+    # (c) residual vote, decided on the flooded labels only: order-independent
+    majority = float(dialect.threshold("segment3d_majority"))
+    flooded = labels.copy()
+    for i in np.where(~flooded)[0]:
+        nb = [j for j in nbrs[i] if j != i]
+        if nb and flooded[nb].mean() >= majority:
+            labels[i] = True
+    return labels
+
+
+def interface_mesh(labels: np.ndarray, frame: Frame, dialect) -> dict:
+    """Interface object for M4: boundary atoms and their normals.
+
+    Interface atoms are the union of every unlike adjacent pair on the same
+    neighbour graph the segmentation floods across. The normal of an
+    interface atom points from its liquid neighbourhood towards its solid
+    neighbourhood: centroid of the solid neighbours minus centroid of the
+    liquid neighbours, on minimum-image displacements, normalised. Atoms
+    whose normal cannot be oriented (one side empty, or a degenerate centroid
+    difference) keep a zero normal. Returns a dict with the interface atom
+    ``indices``, their ``normals`` (unit vectors, sign towards the solid),
+    and the two radii (``radius`` of the contact graph, ``normal_radius`` of
+    the centroid neighbourhoods)."""
+    from scipy.spatial import cKDTree
+
+    L = frame.cell_diag
+    pos = np.mod(frame.pos, L)
+    pos = np.minimum(pos, L * (1 - 1e-9))  # dialect-exempt: strict upper edge for KD trees
+    d = _robust_neighbor_distance(frame)
+    radius = float(dialect.threshold("segment_vote_factor")) * d
+    normal_radius = float(dialect.threshold("segment3d_normal_factor")) * d
+    tree = cKDTree(pos, boxsize=L)
+    nbr_mesh = tree.query_ball_point(pos, radius)
+    nbr_norm = tree.query_ball_point(pos, normal_radius)
+
+    indices, normals = [], []
+    for i in range(len(pos)):
+        contacts = [j for j in nbr_mesh[i] if j != i]
+        if not any(labels[j] != labels[i] for j in contacts):
+            continue                      # bulk atom: not on the phase boundary
+        indices.append(i)
+        nb = [j for j in nbr_norm[i] if j != i]
+        disp = pos[nb] - pos[i]
+        disp -= L * np.round(disp / L)    # minimum image
+        solid = labels[nb]
+        normal = np.zeros(3)
+        if solid.any() and not solid.all():
+            v = disp[solid].mean(axis=0) - disp[~solid].mean(axis=0)
+            norm = np.linalg.norm(v)
+            if norm > 1e-9:               # dialect-exempt: degenerate-normal guard
+                normal = v / norm
+        normals.append(normal)
+    return dict(indices=np.array(indices, int),
+                normals=np.array(normals, float).reshape(len(indices), 3),
+                radius=radius, normal_radius=normal_radius)

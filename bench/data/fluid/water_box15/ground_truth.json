@@ -1,10 +1,77 @@
 {
-  "schema": "chaord-bench/1",
+  "schema": "chaord-bench/2",
   "case": "water_box15",
   "category": "fluid",
-  "description": "60 water molecules packed into a 15 A cubic box (seeded random-sequential packing)",
+  "description": "60 H2O packed into a 15 A cubic box (seeded random-sequential packing, re-packed per frame)",
   "seed": 13,
+  "n_frames": 5,
+  "frames": [
+    {
+      "file": "frame_0.npz",
+      "seed": 13,
+      "n_atoms": 180,
+      "counts": {
+        "H": 120,
+        "O": 60
+      },
+      "census": {
+        "H2O": 60
+      }
+    },
+    {
+      "file": "frame_1.npz",
+      "seed": 14,
+      "n_atoms": 180,
+      "counts": {
+        "H": 120,
+        "O": 60
+      },
+      "census": {
+        "H2O": 60
+      }
+    },
+    {
+      "file": "frame_2.npz",
+      "seed": 15,
+      "n_atoms": 180,
+      "counts": {
+        "H": 120,
+        "O": 60
+      },
+      "census": {
+        "H2O": 60
+      }
+    },
+    {
+      "file": "frame_3.npz",
+      "seed": 16,
+      "n_atoms": 180,
+      "counts": {
+        "H": 120,
+        "O": 60
+      },
+      "census": {
+        "H2O": 60
+      }
+    },
+    {
+      "file": "frame_4.npz",
+      "seed": 17,
+      "n_atoms": 180,
+      "counts": {
+        "H": 120,
+        "O": 60
+      },
+      "census": {
+        "H2O": 60
+      }
+    }
+  ],
   "lift_mode": "fluid",
+  "lift_dialect": [
+    "core",
+    "molecular"
+  ],
   "molecules": {
     "H2O": 60
   },

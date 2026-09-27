@@ -21,3 +21,23 @@ thresholds:
   gr_rmax_fluid: 2.5
   gr_bins_fluid: 60
   cn_cutoff_fluid: 1.50
+  # LJ-backend protocol parameters (reduced units; mirrors the lj dialect)
+  md:
+    skin: 0.3
+    fcap: 30.0
+    relax_dt: 0.005
+    relax_gamma: 0.5
+    relax_rc: 2.5
+    quench_max_steps: 20000
+  md_reference_T: 0.65            # starting Langevin temperature for protocol/restraint runs
+  # deposit protocol (sigma units)
+  deposit_T: 0.65                 # Langevin temperature while depositing (liquid branch:
+                                 # cold deposition collapses the voids a 0.9-sigma gap needs)
+  deposit_min_gap: 0.90           # min-image distance an inserted atom keeps from all others
+  deposit_max_attempts: 10000     # rejection-sampling attempts before declaring no free site
+  # cn core restraint (temperature / relaxation loop)
+  restrain_cn_steps: 250          # short-MD block per restraint iteration
+  restrain_cn_gain: 0.5           # proportional gain: T *= exp(gain * (cn - target))
+  restrain_cn_T_lo: 0.05          # coldest trial temperature
+  restrain_cn_T_hi: 4.00          # hottest trial temperature (cn at fixed box is a weak,
+                                  # saturating function of T; the loop needs the full range)

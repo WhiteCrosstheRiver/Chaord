@@ -1,0 +1,90 @@
+{
+  "schema": "chaord-bench/2",
+  "case": "ar_gas_box25",
+  "category": "fluid",
+  "description": "50 Ar packed into a 25 A cubic box (seeded random-sequential packing, re-packed per frame)",
+  "seed": 151,
+  "n_frames": 5,
+  "frames": [
+    {
+      "file": "frame_0.npz",
+      "seed": 151,
+      "n_atoms": 50,
+      "counts": {
+        "Ar": 50
+      },
+      "census": {
+        "Ar": 50
+      }
+    },
+    {
+      "file": "frame_1.npz",
+      "seed": 152,
+      "n_atoms": 50,
+      "counts": {
+        "Ar": 50
+      },
+      "census": {
+        "Ar": 50
+      }
+    },
+    {
+      "file": "frame_2.npz",
+      "seed": 153,
+      "n_atoms": 50,
+      "counts": {
+        "Ar": 50
+      },
+      "census": {
+        "Ar": 50
+      }
+    },
+    {
+      "file": "frame_3.npz",
+      "seed": 154,
+      "n_atoms": 50,
+      "counts": {
+        "Ar": 50
+      },
+      "census": {
+        "Ar": 50
+      }
+    },
+    {
+      "file": "frame_4.npz",
+      "seed": 155,
+      "n_atoms": 50,
+      "counts": {
+        "Ar": 50
+      },
+      "census": {
+        "Ar": 50
+      }
+    }
+  ],
+  "lift_mode": "fluid",
+  "lift_dialect": [
+    "core",
+    "molecular"
+  ],
+  "molecules": {
+    "Ar": 50
+  },
+  "box": [
+    25.0,
+    25.0,
+    25.0
+  ],
+  "expected": {
+    "molecules": {
+      "Ar": 50
+    },
+    "census": {
+      "Ar": 50
+    },
+    "counts": {
+      "Ar": 50
+    },
+    "n_atoms": 50
+  }
+}

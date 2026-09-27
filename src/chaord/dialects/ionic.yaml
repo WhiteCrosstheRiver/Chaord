@@ -9,3 +9,19 @@ keys:
 
 thresholds:
   cn_cutoff: 3.2                  # coordination cutoff, A
+
+# Formal charges of common monovalent ions (species name -> charge in e), the
+# fallback when a program has no species block for them. A program's
+# `ion NAME` definitions override this table. Variable-valence elements
+# (O, Fe, Mn, ...) are deliberately absent: their charge is decided by the
+# program (species block + conserve charge), not by a fixed table.
+formal_charges:
+  "Na+": 1
+  "K+": 1
+  "Rb+": 1
+  "Cs+": 1
+  "Ag+": 1
+  "F-": -1
+  "Cl-": -1
+  "Br-": -1
+  "I-": -1

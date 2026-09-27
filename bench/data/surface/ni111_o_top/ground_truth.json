@@ -1,0 +1,85 @@
+{
+  "schema": "chaord-bench/2",
+  "case": "ni111_o_top",
+  "category": "surface",
+  "description": "Ni(111) slab with O adsorbates on top sites; built by the surface builder, stored in its rectangular supercell so the diagonal npz format round-trips exactly (adsorbate sites re-drawn per frame)",
+  "seed": 173,
+  "n_frames": 5,
+  "frames": [
+    {
+      "file": "frame_0.npz",
+      "seed": 173,
+      "n_atoms": 80,
+      "counts": {
+        "Ni": 72,
+        "O": 8
+      },
+      "adsorb_o_count": 8
+    },
+    {
+      "file": "frame_1.npz",
+      "seed": 174,
+      "n_atoms": 80,
+      "counts": {
+        "Ni": 72,
+        "O": 8
+      },
+      "adsorb_o_count": 8
+    },
+    {
+      "file": "frame_2.npz",
+      "seed": 175,
+      "n_atoms": 80,
+      "counts": {
+        "Ni": 72,
+        "O": 8
+      },
+      "adsorb_o_count": 8
+    },
+    {
+      "file": "frame_3.npz",
+      "seed": 176,
+      "n_atoms": 80,
+      "counts": {
+        "Ni": 72,
+        "O": 8
+      },
+      "adsorb_o_count": 8
+    },
+    {
+      "file": "frame_4.npz",
+      "seed": 177,
+      "n_atoms": 80,
+      "counts": {
+        "Ni": 72,
+        "O": 8
+      },
+      "adsorb_o_count": 8
+    }
+  ],
+  "lift_mode": "surface",
+  "lift_dialect": [
+    "core",
+    "metal",
+    "surface"
+  ],
+  "expected": {
+    "surface": "(111)",
+    "termination": "Ni",
+    "adsorb": {
+      "species": "O",
+      "count": 8,
+      "site": "top"
+    },
+    "counts": {
+      "Ni": 72,
+      "O": 8
+    },
+    "n_atoms": 80,
+    "cell": [
+      7.668573041968109,
+      13.282358130241782,
+      18.261363669361494
+    ]
+  }
+}

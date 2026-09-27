@@ -22,7 +22,8 @@ def test_example_parses_and_round_trips(path):
 
 
 def test_all_seven_examples():
-    assert len(EXAMPLES) == 7
+    # the original seven plus 08_deposit (the deposit protocol example)
+    assert len(EXAMPLES) == 8
 
 
 def test_sketch_check_still_passes():
@@ -53,4 +54,29 @@ def test_hash_inside_string_is_not_a_comment():
     text = 'chaord 0.1\n\nsystem {\n  note "a # b"\n}\n'
     program = parse_text(text)
     assert program.blocks[0].statements[0].values[0].text == "a # b"
+    assert format_program(program) == text
+
+
+def test_residual_multiple_atom_statements():
+    """Regression: consecutive `atom` statements in a residual body must
+    re-parse (the lifter writes one line per unexplained atom)."""
+    NL = chr(10)
+    text = (f"chaord 0.1{NL}{NL}system {{{NL}  pbc xyz{NL}}}{NL}{NL}residual {{{NL}"
+            f"  atom X 1.0 2.0 3.0{NL}  atom X 4.0 5.0 6.0{NL}}}{NL}")
+    program = parse_text(text)
+    residual = next(b for b in program.blocks if b.t == "residual")
+    assert len(residual.statements) == 2
+    assert all(s.key == "atom" for s in residual.statements)
+    assert format_program(program) == text
+
+
+def test_species_block_round_trip():
+    NL = chr(10)
+    text = (f"chaord 0.1{NL}{NL}species {{{NL}"
+            "  molecule EC = smiles \"C1COC(=O)O1\""
+            f"{NL}  ion Li+{NL}  atom Ni{NL}}}{NL}")
+    program = parse_text(text)
+    defs = next(b for b in program.blocks if b.t == "species").defs
+    assert [(d.k, d.name, d.source) for d in defs] == [
+        ("molecule", "EC", "smiles"), ("ion", "Li+", None), ("atom", "Ni", None)]
     assert format_program(program) == text

@@ -9,8 +9,17 @@ from ..lang.errors import ChaordError
 from ..lang.ir import (
     GeoChain, InterfaceBlock, Name, PhysicsBlock, Plane, Program,
     ProvenanceBlock, Quantity, RangeVal, RegionBlock, ResidualBlock, ShSlab,
-    Statement, StrVal, SystemBlock,
+    Statement, StrVal, SystemBlock, Wood,
 )
+from ..build.prototypes import PROTOTYPES
+
+
+def _termination_names(dialect):
+    """dialect vocabulary: element -> compound termination name (or {})."""
+    try:
+        return dict(dialect.threshold("surface_termination_names"))
+    except ChaordError:
+        return {}
 
 
 def has_vacuum(frame: Frame, dialect) -> bool:
@@ -57,24 +66,36 @@ def _layers(frame: Frame, dialect):
 def _top_layer(frame: Frame, dialect):
     """Slab top layer: the highest layer carrying a substantial atom count.
 
-    Adsorbate layers sit above it with only a few atoms; the surface layer has
-    at least half the median layer size."""
+    Adsorbate layers sit above it with only a few atoms of a foreign species;
+    the surface layer has at least half the median layer size — or carries
+    only species present in the dense (bulk) layers, which keeps sparse
+    reconstructions (missing-row p(2x1), (r3xr3)R30) recognisable as the
+    surface layer rather than adsorbates."""
     layers = _layers(frame, dialect)
     sizes = [len(l) for l in layers if len(l) >= 2] or [len(layers[-1])]
     median = float(np.median(sizes))
+    syms = np.array(frame.symbols)
+    biggest = max((len(l) for l in layers), default=0)
+    bulk_species = set()
+    for layer in layers:
+        if len(layer) >= 0.5 * biggest:  # dialect-exempt: dense-layer floor
+            bulk_species |= set(syms[layer])
     for layer in reversed(layers):
-        if len(layer) >= 0.5 * median and len(layer) >= 2:  # dialect-exempt: layer size floor
+        if len(layer) < 2:
+            continue
+        if len(layer) >= 0.5 * median or set(syms[layer]) <= bulk_species:  # dialect-exempt: layer size floor
             return layer, float(frame.pos[layer, 2].max())
     return layers[-1], float(frame.pos[layers[-1], 2].max())
 
 
-def _surface_net(frame: Frame, top_idx, dialect):
-    """Primitive in-plane lattice vectors of the top layer.
+def _net_vectors(pts2d, cell2d):
+    """Two shortest independent primitive vectors of a 2D point set, or None.
 
     v1 is the shortest inter-atom vector; v2 is the shortest independent
-    vector whose cell area matches the point density (rejecting 2x cells)."""
-    pts = frame.pos[top_idx][:, :2]
-    A2 = frame.cell[:2, :2]                 # true in-plane lattice (may be hex)
+    vector whose cell area matches the point density (rejecting 2x cells).
+    Returns None when the points do not form a lattice with that v1."""
+    pts = np.asarray(pts2d, float)
+    A2 = np.asarray(cell2d, float)
     pts = np.mod(pts @ np.linalg.inv(A2), 1.0) @ A2  # dialect-exempt: fractional wrap
     p0 = pts[0]
     cand = []
@@ -94,11 +115,147 @@ def _surface_net(frame: Frame, top_idx, dialect):
             continue  # dialect-exempt: collinearity tolerance
         area = abs(v1[0] * w[1] - v1[1] * w[0])  # 2D cross product
         if abs(area - area_per_point) <= 0.2 * area_per_point:  # dialect-exempt: cell-area tolerance
-            v2 = w
-            return (float(np.linalg.norm(v1)), float(n),
-                    float(np.degrees(np.arccos(np.clip(
-                        np.dot(v1, w) / (np.linalg.norm(v1) * n), -1, 1)))))
-    return float(np.linalg.norm(v1)), 0.0, 90.0  # dialect-exempt: degenerate net
+            return np.array(v1, float), np.array(w, float)
+    return None
+
+
+def _surface_net(frame: Frame, top_idx, dialect):
+    """(l1, l2, angle) of the primitive in-plane lattice of a layer."""
+    net = _net_vectors(frame.pos[top_idx][:, :2], frame.cell[:2, :2])
+    if net is None:
+        return 0.0, 0.0, 90.0  # dialect-exempt: degenerate net report
+    v1, v2 = net
+    cosg = np.clip(np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2)), -1, 1)
+    return (float(np.linalg.norm(v1)), float(np.linalg.norm(v2)),
+            float(np.degrees(np.arccos(cosg))))
+
+
+def _sub_layer(layers, top_idx):
+    """Index array of the layer below the surface layer carrying >= 2 atoms.
+
+    This is the substrate the top layer is compared against for Wood
+    reconstruction; falls back to the top layer when no such layer exists."""
+    top_set = {int(i) for i in top_idx}
+    seen = False
+    for layer in reversed(layers):
+        if seen and len(layer) >= 2:
+            return layer
+        if {int(i) for i in layer} == top_set:
+            seen = True
+    return top_idx
+
+
+# dialect-exempt-begin: integer lattice reduction (Hermite normal form, 2x2)
+def _xgcd(a: int, b: int):
+    """(g, x, y) with g = gcd(a, b) >= 0 and g = x*a + y*b."""
+    if a < 0:
+        g, x, y = _xgcd(-a, b)
+        return g, -x, y
+    if b < 0:
+        g, x, y = _xgcd(a, -b)
+        return g, x, -y
+    if b == 0:
+        return a, 1, 0
+    g, x, y = _xgcd(b, a % b)
+    return g, y, x - (a // b) * y
+
+
+def _hnf2(M):
+    """Row Hermite normal form [[h11, h12], [0, h22]] of a 2x2 integer matrix."""
+    r1 = np.array(M[0], dtype=object)
+    r2 = np.array(M[1], dtype=object)
+    g, x, y = _xgcd(int(r1[0]), int(r2[0]))
+    n1 = x * r1 + y * r2
+    n2 = (int(r2[0]) // g) * r1 - (int(r1[0]) // g) * r2
+    r1, r2 = n1, n2
+    if r2[1] < 0:
+        r2 = -r2
+    if r1[0] < 0:
+        r1 = -r1
+    if r2[1] != 0:
+        k = int(r1[1]) // int(r2[1])
+        r1 = r1 - k * r2
+        if r1[1] < 0:
+            r1 = r1 + r2
+    return np.array([[int(r1[0]), int(r1[1])], [0, int(r2[1])]])
+# dialect-exempt-end
+
+
+def _wood_ratio_text(r, tol, sqrt_ks=(2, 3, 5, 7)):
+    """Format a length ratio as a Wood token component: integer or r<sqrt k>."""
+    if abs(r - round(r)) <= tol:
+        return str(int(round(r)))
+    for k in sqrt_ks:  # dialect-exempt: crystallographic sqrt ratios
+        if abs(r - np.sqrt(k)) <= tol:
+            return f"r{k}"
+    return None
+
+
+def _wood_statement(top_net, sub_net, dialect):
+    """Wood notation for the top net relative to the substrate net, or None.
+
+    The integer superstructure matrix M expresses the top-layer primitive
+    vectors in substrate-net coordinates; |det M| = the density loss of the
+    reconstructed layer. Identity/unimodular (|det| <= 1) nets are not
+    reconstructions; incommensurate overlays get no Wood statement."""
+    if top_net is None or sub_net is None:
+        return None
+    v_top = np.array(top_net, float)
+    v_sub = np.array(sub_net, float)
+    F = v_top @ np.linalg.inv(v_sub)
+    if not np.isfinite(F).all():  # pragma: no cover - degenerate net guard
+        return None
+    M = np.round(F)
+    if np.abs(F - M).max() > float(dialect.threshold("wood_commensurate_tol")):
+        return None
+    M = M.astype(int)
+    det = int(round(np.linalg.det(M.astype(float))))
+    if abs(det) <= 1:
+        return None  # same lattice as the substrate: no reconstruction
+    H = _hnf2(M)
+    if H[0][1] == 0 and H[1][0] == 0:
+        n, m = sorted((int(H[0][0]), int(H[1][1])), reverse=True)
+        if n >= 1 and m >= 1 and (n, m) != (1, 1):
+            return f"p({n}x{m})"
+    # centered overlay: b1 + b2 and b1 - b2 along the substrate axes
+    s1, s2 = M[0] + M[1], M[0] - M[1]
+    for (u, w) in ((s1, s2), (s2, s1)):
+        if u[1] == 0 and w[0] == 0 and abs(u[0]) >= 2 and abs(w[1]) >= 2:
+            n, m = sorted((abs(int(u[0])), abs(int(w[1]))), reverse=True)
+            return f"c({n}x{m})"
+    # rotated overlay: report ratios (integers or sqrt k) and the rotation
+    # angle reduced modulo the substrate net's own rotational symmetry
+    tol = float(dialect.threshold("wood_ratio_tolerance"))
+    a_tol = float(dialect.threshold("wood_angle_tolerance"))
+    r1 = np.linalg.norm(v_top[0]) / np.linalg.norm(v_sub[0])
+    r2 = np.linalg.norm(v_top[1]) / np.linalg.norm(v_sub[1])
+    t1 = _wood_ratio_text(r1, tol)
+    t2 = _wood_ratio_text(r2, tol)
+    if t1 is None or t2 is None:
+        return None  # not expressible with the Wood token vocabulary
+    cosg = np.clip(np.dot(v_sub[0], v_top[0])
+                   / (np.linalg.norm(v_sub[0]) * np.linalg.norm(v_top[0])), -1, 1)
+    theta = int(round(float(np.degrees(np.arccos(cosg)))))
+    sym = _net_symmetry_deg(v_sub)  # dialect-exempt: see crystallographic cases below
+    theta = min(theta % sym, sym - theta % sym)
+    if t1 == t2:
+        return f"({t1}x{t2})R{theta}" if theta else f"({t1}x{t2})"
+    return f"p({t1}x{t2})R{theta}" if theta else f"p({t1}x{t2})"
+
+
+# dialect-exempt-begin: net rotational symmetries (crystallographic)
+def _net_symmetry_deg(v_sub):
+    """Smallest rotation mapping the substrate net onto itself (degrees)."""
+    l1, l2 = np.linalg.norm(v_sub[0]), np.linalg.norm(v_sub[1])
+    cosg = np.clip(np.dot(v_sub[0], v_sub[1]) / (l1 * l2), -1, 1)
+    gamma = float(np.degrees(np.arccos(cosg)))
+    equi = abs(l1 - l2) / max(l1, l2) < 0.12
+    if equi and abs(min(gamma, 180 - gamma) - 60) < 8:
+        return 60   # hexagonal net
+    if equi and abs(gamma - 90) < 8:
+        return 90   # square net
+    return 180      # rectangular / oblique: only +/- counts
+# dialect-exempt-end
 
 
 # dialect-exempt-begin: surface-net classification levels (crystallographic)
@@ -114,6 +271,146 @@ def _identify_hkl(l1, l2, gamma, a_bulk):
         return "(111)"
     return "(001)"
 # dialect-exempt-end
+
+
+def _prototype_bulk_atoms(name, params, slot_species):
+    """ASE Atoms of one conventional prototype cell (build registry geometry)."""
+    from ase import Atoms
+    from ..build.prototypes import basis as proto_basis, cell_matrix
+    frac, slots = proto_basis(name, params)
+    return Atoms(symbols=[slot_species[s] for s in slots],
+                 scaled_positions=frac, cell=cell_matrix(name, params), pbc=True)
+
+
+def _frac_wrap(P, cell):
+    inv = np.linalg.inv(cell)
+    f = P @ inv
+    return (f - np.floor(f + 1e-9)) @ cell  # dialect-exempt: strict wrap below 1
+
+
+def _inplane_primitive(P, syms, cell, dialect):
+    """(v1, v2): the shortest in-plane translations mapping the atom set onto
+    itself species-by-species (the primitive surface mesh of the slab)."""
+    tol = float(dialect.threshold("site_match_tolerance"))
+    sym = np.asarray(syms)
+    W = _frac_wrap(np.asarray(P, float), cell)
+    tree = cKDTree(W)
+    cands = [cell[0][:2].copy(), cell[1][:2].copy(),
+             (cell[0] + cell[1])[:2].copy(), (cell[0] - cell[1])[:2].copy()]
+    z = np.asarray(P, float)[:, 2]
+    for i in range(len(P)):
+        for j in range(i + 1, len(P)):
+            if sym[i] != sym[j] or abs(z[i] - z[j]) > tol:
+                continue
+            cands.append(np.asarray(P, float)[j, :2] - np.asarray(P, float)[i, :2])
+
+    def is_translation(t2):
+        shift = np.array([t2[0], t2[1], float(0)])
+        d, k = tree.query(_frac_wrap(np.asarray(P, float) + shift, cell))
+        return bool(d.max() < tol and (sym[k] == sym).all())
+
+    span = float(np.linalg.norm(cell[0])) + float(np.linalg.norm(cell[1]))
+    valid, seen = [], set()
+    for t in cands:
+        n = float(np.linalg.norm(t))
+        if n < tol or n > span:
+            continue
+        key = (int(round(t[0] / tol)), int(round(t[1] / tol)))
+        if key in seen:
+            continue
+        seen.add(key)
+        if is_translation(t):
+            valid.append((n, key, t))
+    if not valid:
+        return None
+    valid.sort()
+    v1 = valid[0][2]
+    for n, _key, t in valid[1:]:
+        area = abs(v1[0] * t[1] - v1[1] * t[0])
+        if area > 0.2 * np.linalg.norm(v1) * n:  # dialect-exempt: collinearity tolerance
+            return v1, t
+    return None
+
+
+def _net_shape(v1, v2):
+    """Scale-free surface-mesh shape: (long/short length ratio, mesh angle)."""
+    l1, l2 = float(np.linalg.norm(v1)), float(np.linalg.norm(v2))
+    lo, hi = min(l1, l2), max(l1, l2)
+    cosg = np.clip(np.dot(v1, v2) / (l1 * l2), -1, 1)
+    ang = float(np.degrees(np.arccos(cosg)))
+    return hi / max(lo, 1e-9), min(ang, 180.0 - ang)  # dialect-exempt: degenerate length guard
+
+
+def _identify_prototype_slab(frame: Frame, dialect):
+    """(name, params, slot_species) of the bulk prototype under a compound slab.
+
+    One stacking period of the slab (cell = surface mesh x stack height) is a
+    periodic crystal; standardise + prototype-match identifies it. The stack
+    may need an integer number of interplanar steps per period."""
+    from .crystal import match_prototype, standardize
+    layers = _layers(frame, dialect)
+    sizes = [len(l) for l in layers]
+    dense = [i for i, s in enumerate(sizes) if s == max(sizes)]
+    if len(dense) < 2:
+        raise ChaordError("no stacking period found for the compound slab")
+    tol = float(dialect.threshold("layer_tolerance"))
+    d = (frame.pos[layers[dense[1]]][:, 2].mean()
+         - frame.pos[layers[dense[0]]][:, 2].mean())
+    z0 = frame.pos[layers[dense[0]]][:, 2].mean() - tol / 4
+    z = frame.pos[:, 2]
+    wrapped = _frac_wrap(frame.pos, frame.cell)
+    for k in (1, 2, 3):
+        period = k * d
+        idx = np.where((z >= z0) & (z < z0 + period))[0]
+        if len(idx) == 0:
+            continue
+        cell_w = frame.cell.copy()
+        cell_w[2] = [0, 0, period]
+        pos_w = wrapped[idx].copy()
+        pos_w[:, 2] -= z0
+        try:
+            sc, sp, sn = standardize(
+                Frame(pos=pos_w, cell=cell_w,
+                      symbols=[frame.symbols[i] for i in idx]), dialect)
+            matched = match_prototype(sc, sp, sn, dialect)
+        except Exception:
+            continue
+        if matched is not None:
+            name, params, slot_species = matched[0], matched[1], matched[2]
+            return name, dict(params), tuple(slot_species)
+    raise ChaordError("cannot identify the bulk prototype of the compound slab")
+
+
+def _prototype_hkl(P, syms, cell, name, params, slot_species, dialect):
+    """Miller index of a prototype slab: its primitive surface mesh shape is
+    compared against the meshes of the dialect's candidate cuts."""
+    meas = _inplane_primitive(P, syms, cell, dialect)
+    if meas is None:
+        return None
+    r_m, a_m = _net_shape(*meas)
+    tol_r = float(dialect.threshold("surface_net_ratio_tolerance"))
+    tol_a = float(dialect.threshold("surface_net_angle_tolerance"))
+    bulk = _prototype_bulk_atoms(name, params, slot_species)
+    from ase.build import surface as ase_surface
+    vac = float(dialect.threshold("surface_default_vacuum")) / 2
+    best = None
+    for hkl in dialect.threshold("surface_miller_candidates"):
+        plane = tuple(int(x) for x in hkl)
+        try:
+            th = ase_surface(bulk, plane, layers=2, vacuum=vac)
+        except Exception:
+            continue
+        net = _inplane_primitive(th.get_positions(), th.get_chemical_symbols(),
+                                 np.array(th.cell), dialect)
+        if net is None:
+            continue
+        r_t, a_t = _net_shape(*net)
+        if abs(r_m - r_t) > tol_r or abs(a_m - a_t) > tol_a:
+            continue
+        score = abs(r_m - r_t) / tol_r + abs(a_m - a_t) / tol_a
+        if best is None or score < best[0]:
+            best = (score, plane)
+    return None if best is None else best[1]
 
 
 def _classify_sites(frame: Frame, ads_idx, top_idx, dialect):
@@ -163,38 +460,62 @@ def lift_surface(frame: Frame, dialect, backend="eam") -> Program:
         dialect.threshold("layer_tolerance")))[0]
     ads_idx = np.setdiff1d(np.arange(len(frame.pos)), slab_idx)
 
-    # bulk lattice from orientation-invariant quantities: interior coordination
-    # fixes the cubic family, the typical NN distance fixes a (no box alignment
-    # is assumed: the slab is rotated so the surface normal is +z)
-    from ..build.defects import typical_neighbor_distance
-    from .defects import _A_FROM_DNN
-    L = frame.cell_diag
-    wrapped = frame.pos - L * np.floor(frame.pos / L)
-    wrapped = np.minimum(wrapped, L * (1 - 1e-9))  # dialect-exempt: strict upper edge for KD trees
-    slab_pos = wrapped[slab_idx]
-    dnn = typical_neighbor_distance(Frame(pos=slab_pos, cell=frame.cell,
-                                          symbols=list(syms[slab_idx]), pbc=frame.pbc))
-    from scipy.spatial import cKDTree
-    tree = cKDTree(slab_pos, boxsize=L)
-    cn_cut = float(dialect.threshold("slab_cn_factor")) * dnn
-    mid_layer = _layers(frame, dialect)[max(len(_layers(frame, dialect)) // 2 - 1, 0)]
-    interior = wrapped[mid_layer]
-    cn = float(np.mean([len(x) - 1 for x in tree.query_ball_point(interior, cn_cut)]))
-    fcc_min = float(dialect.threshold("fcc_cn_min"))
-    bcc_min = float(dialect.threshold("bcc_cn_min"))
-    if cn >= fcc_min:
-        name, slot_species = "fcc", None
-    elif cn >= bcc_min:
-        name, slot_species = "bcc", None
+    # bulk identification: a compound slab is matched against the prototype
+    # registry through one stacking period; a unary slab keeps the M4 route
+    # (interior coordination fixes the cubic family, NN distance fixes a)
+    layers = _layers(frame, dialect)
+    sub_idx = _sub_layer(layers, top_layer_idx)
+    if len(set(syms[slab_idx])) > 1:
+        name, params, slot_species = _identify_prototype_slab(frame, dialect)
+        plane = _prototype_hkl(frame.pos[slab_idx], syms[slab_idx], frame.cell,
+                               name, params, slot_species, dialect)
+        if plane is None:
+            raise ChaordError("cannot identify the Miller plane of the compound slab")
+        hkl = f"({plane[0]}{plane[1]}{plane[2]})"
     else:
-        raise ChaordError(f"slab interior coordination {cn:.1f} is neither fcc-like nor bcc-like")
-    a = _A_FROM_DNN[name] * dnn
+        from ..build.defects import typical_neighbor_distance
+        from .defects import _A_FROM_DNN
+        L = frame.cell_diag
+        wrapped = frame.pos - L * np.floor(frame.pos / L)
+        wrapped = np.minimum(wrapped, L * (1 - 1e-9))  # dialect-exempt: strict upper edge for KD trees
+        slab_pos = wrapped[slab_idx]
+        dnn = typical_neighbor_distance(Frame(pos=slab_pos, cell=frame.cell,
+                                              symbols=list(syms[slab_idx]), pbc=frame.pbc))
+        from scipy.spatial import cKDTree
+        tree = cKDTree(slab_pos, boxsize=L)
+        cn_cut = float(dialect.threshold("slab_cn_factor")) * dnn
+        mid_layer = layers[max(len(layers) // 2 - 1, 0)]
+        interior = wrapped[mid_layer]
+        cn = float(np.mean([len(x) - 1 for x in tree.query_ball_point(interior, cn_cut)]))
+        fcc_min = float(dialect.threshold("fcc_cn_min"))
+        bcc_min = float(dialect.threshold("bcc_cn_min"))
+        if cn >= fcc_min:
+            name, slot_species = "fcc", None
+        elif cn >= bcc_min:
+            name, slot_species = "bcc", None
+        else:
+            raise ChaordError(f"slab interior coordination {cn:.1f} is neither fcc-like nor bcc-like")
+        params = {"a": _A_FROM_DNN[name] * dnn}
+        # orientation from the substrate net (the layer below the surface:
+        # still bulk-terminated when the top layer is reconstructed)
+        l1, l2, gamma = _surface_net(frame, sub_idx, dialect)
+        if l2 == 0:  # degenerate substrate net: fall back to the surface layer
+            l1, l2, gamma = _surface_net(frame, top_layer_idx, dialect)
+        hkl = _identify_hkl(l1, l2, gamma, params["a"])
 
-    l1, l2, gamma = _surface_net(frame, top_layer_idx, dialect)
-    hkl = _identify_hkl(l1, l2, gamma, a)
+    # Wood reconstruction: the surface net against the substrate net
+    wood = _wood_statement(
+        _net_vectors(frame.pos[top_layer_idx][:, :2], frame.cell[:2, :2]),
+        _net_vectors(frame.pos[sub_idx][:, :2], frame.cell[:2, :2]),
+        dialect)
 
-    # termination: the element of the top layer
+    # termination: the element of the top layer; compound slabs map it through
+    # the dialect vocabulary (an O-terminated compound surface is bridging_O)
     termination = syms[top_layer_idx][0]
+    for s in sorted(set(syms[top_layer_idx])):
+        if s in _termination_names(dialect):
+            termination = _termination_names(dialect)[s]
+            break
 
     counts: dict[str, int] = {}
     for s in list(syms[slab_idx]):
@@ -207,12 +528,19 @@ def lift_surface(frame: Frame, dialect, backend="eam") -> Program:
     region_stmts = [
         Statement(kind="build", key="lattice", values=[_n2(name)]) if slot_species is None
         else Statement(kind="build", key="prototype", values=[_n2(name)]),
-        Statement(kind="build", key="a", values=[
-            Quantity(num=f"{a:.3f}", unit="A")]),
+    ]
+    for pname in PROTOTYPES[name].params:
+        region_stmts.append(Statement(
+            kind="build", key=pname,
+            values=[Quantity(num=f"{params[pname]:.3f}", unit="A")]))
+    region_stmts += [
         Statement(kind="build", key="surface", values=[
             Plane(text=hkl), _n2("top")]),
         Statement(kind="build", key="termination", values=[_n2(termination)]),
     ]
+    if wood is not None:
+        region_stmts.append(Statement(
+            kind="build", key="reconstruction", values=[Wood(text=wood)]))
     if slot_species is not None and len(slot_species) > 1:
         from ..build.crystal import SLOT_COUNTS
         from ..lift.crystal import formula_from_slots

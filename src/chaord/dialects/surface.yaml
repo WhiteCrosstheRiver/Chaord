@@ -5,7 +5,7 @@ version: "0.1.0"
 units: []
 
 keys:
-  region_crystal: [surface, termination]
+  region_crystal: [surface, termination, reconstruction]
 
 thresholds:
   adsorbate_site_tolerance: 0.5   # distance for assigning an adsorbate to a site, A
@@ -21,3 +21,18 @@ thresholds:
   slab_cn_factor: 1.15              # interior coordination cutoff as fraction of d_NN
   fcc_cn_min: 10.0                  # interior CN above which the slab is fcc-like
   bcc_cn_min: 6.5                   # ... and bcc-like
+  # --- Wood reconstruction recognition ---
+  wood_commensurate_tol: 0.15      # max |coeff - integer| for a commensurate overlayer net
+  wood_ratio_tolerance: 0.05       # relative tolerance for sqrt(n) length ratios in Wood text
+  wood_angle_tolerance: 2.0        # degrees: rotation-angle rounding for Wood text, deg
+  # --- prototype (compound-terminated) slabs ---
+  surface_miller_candidates:       # Miller planes tried when identifying a prototype slab
+    - [0, 0, 1]
+    - [1, 0, 0]
+    - [1, 1, 0]
+    - [1, 0, 1]
+  surface_net_ratio_tolerance: 0.12   # relative length-ratio match for the surface net
+  surface_net_angle_tolerance: 8.0    # degrees: net-angle match for the surface net, deg
+  termination_scan_steps: 20          # cut-origin scan steps over one interplanar spacing
+  surface_termination_names:          # element -> compound termination name
+    O: bridging_O

@@ -1,9 +1,87 @@
 {
-  "schema": "chaord-bench/1",
+  "schema": "chaord-bench/2",
   "case": "water_oh_h_box20",
   "category": "reactive",
-  "description": "dissociation fragment mixture (water, hydroxide, atomic hydrogen) in a 20 A box; species census must be recovered exactly from the bond graph",
+  "description": "dissociation fragment mixture (water, hydroxide, atomic hydrogen) in a 20 A box; the species census must be recovered exactly from the bond graph of every frame",
   "seed": 3,
+  "n_frames": 5,
+  "frames": [
+    {
+      "file": "frame_0.npz",
+      "seed": 3,
+      "n_atoms": 177,
+      "counts": {
+        "H": 118,
+        "O": 59
+      },
+      "census": {
+        "H": 9,
+        "H2O": 50,
+        "HO": 9
+      }
+    },
+    {
+      "file": "frame_1.npz",
+      "seed": 4,
+      "n_atoms": 177,
+      "counts": {
+        "H": 118,
+        "O": 59
+      },
+      "census": {
+        "H": 9,
+        "H2O": 50,
+        "HO": 9
+      }
+    },
+    {
+      "file": "frame_2.npz",
+      "seed": 5,
+      "n_atoms": 177,
+      "counts": {
+        "H": 118,
+        "O": 59
+      },
+      "census": {
+        "H": 9,
+        "H2O": 50,
+        "HO": 9
+      }
+    },
+    {
+      "file": "frame_3.npz",
+      "seed": 6,
+      "n_atoms": 177,
+      "counts": {
+        "H": 118,
+        "O": 59
+      },
+      "census": {
+        "H": 9,
+        "H2O": 50,
+        "HO": 9
+      }
+    },
+    {
+      "file": "frame_4.npz",
+      "seed": 7,
+      "n_atoms": 177,
+      "counts": {
+        "H": 118,
+        "O": 59
+      },
+      "census": {
+        "H": 9,
+        "H2O": 50,
+        "HO": 9
+      }
+    }
+  ],
+  "lift_mode": "reactive",
+  "lift_dialect": [
+    "core",
+    "molecular"
+  ],
   "molecules": {
     "H2O": 50,
     "OH": 9,

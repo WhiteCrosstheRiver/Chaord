@@ -73,6 +73,7 @@ statement carries a kind: **build** (no keyword), **state**, **constrain**,
 | `constrain strain` | `constrain strain zz +0.9 % +- 0.2` | held deformation |
 | `constrain sro` | `constrain sro alpha1 Cr-Cr +0.10 +- 0.02` | Warren-Cowley first shell |
 | `history` | `history melt 1.2 for 500 -> quench to 0.01 at 0.002 -> anneal 0.01 for 300` | protocol = shortest description |
+| | `history ... -> deposit X 20 for 400` | growth: insert atoms during the run |
 | `assert cn` | `assert cn 4.0 +- 0.1 cutoff 2.85 A` | measured, never enforced |
 | `assert gr_peak` | `assert gr_peak 1.06 height 3.07` | first rdf peak |
 | `assert sites_matched` | `assert sites_matched 99.2 %` | site-lattice coverage |
@@ -81,7 +82,7 @@ statement carries a kind: **build** (no keyword), **state**, **constrain**,
 | `assert coverage` | `assert coverage OH 0.25 ML +- 0.05` | adsorbate coverage |
 | `assert solid_clusters` | `assert solid_clusters 0` | fluid purity |
 | `conserve atoms` | `conserve atoms Ni 646 Al 217` | exact per-species counts |
-| `conserve charge` | `conserve charge 0` | total charge |
+| `conserve charge` | `conserve charge 0` | total charge (checked against the frame's ionic census) |
 
 ## interface / residual
 

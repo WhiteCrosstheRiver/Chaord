@@ -1,0 +1,92 @@
+{
+  "schema": "chaord-bench/2",
+  "case": "fcc_crconi",
+  "category": "crystals",
+  "description": "fcc Cr, 3x3x3 supercell built exactly from the prototype table, Cr/Co/Ni assigned to fcc sites with unit fractions",
+  "seed": 137,
+  "n_frames": 5,
+  "frames": [
+    {
+      "file": "frame_0.npz",
+      "seed": 137,
+      "n_atoms": 108,
+      "counts": {
+        "Co": 36,
+        "Cr": 36,
+        "Ni": 36
+      }
+    },
+    {
+      "file": "frame_1.npz",
+      "seed": 138,
+      "n_atoms": 108,
+      "counts": {
+        "Co": 36,
+        "Cr": 36,
+        "Ni": 36
+      }
+    },
+    {
+      "file": "frame_2.npz",
+      "seed": 139,
+      "n_atoms": 108,
+      "counts": {
+        "Co": 36,
+        "Cr": 36,
+        "Ni": 36
+      }
+    },
+    {
+      "file": "frame_3.npz",
+      "seed": 140,
+      "n_atoms": 108,
+      "counts": {
+        "Co": 36,
+        "Cr": 36,
+        "Ni": 36
+      }
+    },
+    {
+      "file": "frame_4.npz",
+      "seed": 141,
+      "n_atoms": 108,
+      "counts": {
+        "Co": 36,
+        "Cr": 36,
+        "Ni": 36
+      }
+    }
+  ],
+  "lift_mode": "crystal",
+  "lift_dialect": [
+    "core",
+    "metal"
+  ],
+  "thermal_amplitude_fraction": 0.06,
+  "expected": {
+    "prototype": "fcc",
+    "a": 3.56,
+    "composition": null,
+    "reps": [
+      3,
+      3,
+      3
+    ],
+    "cell": [
+      10.68,
+      10.68,
+      10.68
+    ],
+    "counts": {
+      "Co": 36,
+      "Cr": 36,
+      "Ni": 36
+    },
+    "n_atoms": 108,
+    "occupancy": {
+      "Cr": "1/3",
+      "Co": "1/3",
+      "Ni": "1/3"
+    }
+  }
+}
