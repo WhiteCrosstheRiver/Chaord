@@ -1,28 +1,67 @@
-# Chaord starter kit
+# Chaord — describe the macrostate, sample the microstate
 
-Everything an agent team needs to start the Chaord project (a language, compiler and decompiler for
-atomic systems). The plan itself is `PLAN.md` (same content as the shared plan document).
+A language for atomic systems with a compiler (`chaord build`: program →
+coordinates) and a decompiler (`chaord lift`: coordinates → program). A
+program describes a **macrostate** — a family of configurations; a coordinate
+file is one **microstate** of it. Order is written exactly where a system has
+it, statistics where it does not: from crystals to gases.
 
-| Path | What it is |
+Status: **v1.0 candidate** — M0-M8 complete; acceptance A1-A14 executed by
+`tools/acceptance.py` (report in `reports/acceptance.json`).
+
+## Install (from this repository)
+
+```bash
+python -m venv .venv
+.venv/Scripts/python -m pip install -e .[test]
+.venv/Scripts/python -m pytest tests -m "not slow"     # fast suite
+.venv/Scripts/python -m pytest tests -m "slow"         # statistical round trips
+```
+
+Core runs on numpy, scipy, ASE, Lark, Pydantic and PyYAML only; heavy tools
+(OVITO, LAMMPS, PLUMED, MACE, icet, RDKit) are optional extras with core
+fallbacks (own Wigner-Seitz, SQS-lite, ring statistics, geometric bonds).
+
+## Layout
+
+```
+src/chaord/
+  lang/        grammar (Lark), parser, Pydantic IR, canonical formatter
+  dialects/    versioned YAML: every threshold lives here (CI-enforced)
+  cv/          collective variables: measure / restrain / check one definition
+  build/       lattices, defects, SQS, packing, interfaces, surfaces, extended
+  realize/     LJ MD, protocols (melt/quench/anneal), restraints
+  lift/        decompiler passes: crystal, defects, fluid, surface, amorphous...
+  check/       static checks, shortest-program controller
+  io/          Frame I/O (extxyz, LAMMPS, POSCAR, CIF, npz)
+  cli.py       fmt / build / lift / check / diff / roundtrip
+  integrations.py  LLM JSON schema, scripting layer, Laya state encoder
+bench/         Chaord-Bench generators and ground truth
+docs/          reference.md, tutorials.md
+prototype/     the original Lennard-Jones demo (reference, not extended)
+spec/          grammar sketch and the seven canonical example programs
+PLAN.md        the full plan; AGENTS.md the binding rules
+```
+
+## The round trip is the correctness test
+
+Lift, build, lift again: held-out observables must match within the noise
+between two frames of the same simulation (1.5x, measured — never guessed).
+Crystals round trip **byte-identically** under rotation, translation,
+re-ordering and re-imaging; fluids and glasses are judged against the floor.
+
+## Milestones
+
+| done | milestone |
 | --- | --- |
-| `PLAN.md` | The implementation plan: name, design rules, language, architecture, milestones, tests, acceptance criteria |
-| `AGENTS.md` | Binding rules for AI agents; read first |
-| `spec/grammar.ebnf` | Grammar sketch (structure only) for Chaord v0.1 |
-| `spec/examples/*.chaord` | Seven example programs: solid–liquid (real decompiler output), crystal with defects, solid solution with SRO, amorphous Si, electrolyte, gas, reactive interface |
-| `tools/sketch_check.py` | Structural checker for the grammar sketch (no vocabulary checks) |
-| `tools/test_sketch_check.py` | Positive and negative tests for the checker (seed tests for WP01) |
-| `prototype/` | Working Lennard-Jones demo: MD snapshot generator, decompiler, compiler, round-trip test |
+| M0 | grammar, IR, fmt, dialects, CV registry, CLI, prototype port |
+| M1 | 13 crystal prototypes, exact round trip + invariance suite |
+| M2 | Kröger-Vink defects, SRO/SQS, planted-defect acceptance |
+| M3 | molecules, packing, fluids, noise-floor library, statistical round trip |
+| M4 | segmentation, interface objects, Miller slabs, adsorbates |
+| M5 | history protocols, restraints, ring/Voronoi statistics, shortest program |
+| M6 | Burgers family detection, CSL Sigma bicrystals, reactive census |
+| M7 | acceptance runner A1-A14, reference manual, tutorials |
+| M8 | LLM schema, scripting layer, Laya state encoder |
 
-## Quick start (Python 3.10+, numpy, scipy)
-
-    python tools/sketch_check.py spec/examples/*.chaord
-    python tools/test_sketch_check.py
-    cd prototype && python roundtrip.py
-
-## What the prototype already shows
-On a 2,301-atom Lennard-Jones solid–liquid snapshot with three planted vacancies:
-- The decompiled program is 607 characters versus 54,411 for the coordinate file (1.1%).
-- It finds the vacancies as one split divacancy plus one vacancy: net 3, exactly as planted.
-- Rebuilding from the program with MD reproduces held-out liquid structure close to the frame-to-frame
-  noise (g(r) RMS distance 0.15 vs 0.12; bond-angle distance 0.021 vs 0.015); without MD it is 4–6× worse.
-- Strain was not preserved without a restraint, which is why `constrain` exists.
+See `PLAN.md` for the full design and `AGENTS.md` for the binding rules.

@@ -1,0 +1,91 @@
+{
+  "criteria": [
+    {
+      "id": "A1",
+      "name": "parse and format",
+      "passed": true,
+      "evidence": "7/7 examples parse; 200/200 generated idempotent"
+    },
+    {
+      "id": "A2",
+      "name": "canonical invariance",
+      "passed": true,
+      "evidence": "12 transforms of 6 crystals -> byte-identical text"
+    },
+    {
+      "id": "A3",
+      "name": "exact round trip (ordered)",
+      "passed": true,
+      "evidence": "6/6 crystal cases byte-identical"
+    },
+    {
+      "id": "A4",
+      "name": "defect recovery",
+      "passed": true,
+      "evidence": "2/2 hosts: planted vacancies recalled >= 0.95"
+    },
+    {
+      "id": "A5",
+      "name": "statistical round trip",
+      "passed": true,
+      "evidence": "fluid case within 1.5x floor: gr_rms x1.10; cn_tv x0.59"
+    },
+    {
+      "id": "A6",
+      "name": "conservation",
+      "passed": true,
+      "evidence": "frame {'Al': 27, 'Ni': 78} == program conserve atoms Al 27 Ni 78"
+    },
+    {
+      "id": "A7",
+      "name": "phase segmentation",
+      "passed": true,
+      "evidence": "bulk label accuracy 1.000"
+    },
+    {
+      "id": "A8",
+      "name": "reactive census",
+      "passed": true,
+      "evidence": "census {'H2O': 50, 'HO': 9, 'H': 9} exact on planted case"
+    },
+    {
+      "id": "A9",
+      "name": "compression",
+      "passed": true,
+      "evidence": "program 376 B vs coords 1100100 B = 0.03%"
+    },
+    {
+      "id": "A10",
+      "name": "determinism",
+      "passed": true,
+      "evidence": "repeated lifts byte-identical"
+    },
+    {
+      "id": "A11",
+      "name": "speed",
+      "passed": true,
+      "evidence": "fluid observables on 20000 atoms in 0.6s (scaled limit for 100k: 24s)"
+    },
+    {
+      "id": "A12",
+      "name": "static checks",
+      "passed": true,
+      "evidence": "lattice mismatch caught; impossible density caught"
+    },
+    {
+      "id": "A13",
+      "name": "no crashes",
+      "passed": true,
+      "evidence": "0 unhandled exceptions across 5 bench frames"
+    },
+    {
+      "id": "A14",
+      "name": "documentation",
+      "passed": true,
+      "evidence": "docs/reference.md present"
+    }
+  ],
+  "passed": 14,
+  "total": 14,
+  "all_passed": true
+}
