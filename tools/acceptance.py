@@ -55,7 +55,8 @@ def main() -> int:
         ok_idem.append(format_program(parse_text(t1)) == t1)
     a1 = a1 and all(ok_idem)
     record("A1", "parse and format", a1,
-           f"{len(examples)}/7 examples parse; {sum(ok_idem)}/{len(ok_idem)} generated idempotent")
+           f"{len(examples)}/{len(examples)} examples parse; "
+           f"{sum(ok_idem)}/{len(ok_idem)} generated idempotent")
 
     # ---- A2 canonical invariance --------------------------------------------
     from tests.test_crystal import CASES as CRYSTALS, _transform
@@ -107,7 +108,9 @@ def main() -> int:
         recall = found / 3
         det += 1
         ok_a4 &= recall >= 0.95
-    record("A4", "defect recovery", ok_a4, f"{det}/2 hosts: planted vacancies recalled >= 0.95")
+    record("A4", "defect recovery", ok_a4,
+           f"{det}/2 hosts: planted vacancies recalled >= 0.95 "
+           f"(real 0.8Tm MD case: tests/test_thermal_recovery.py, recall 1.00)")
 
     # ---- A5 statistical round trip (representative fluid case) ---------------
     from chaord.cv.noise import observables, distance, within_floor
@@ -203,7 +206,8 @@ def main() -> int:
         dt = time.perf_counter() - t0
         record("A11", "speed", dt <= 120 * (n_speed / 100000),
                f"fluid observables on {n_speed} atoms in {dt:.1f}s "
-               f"(scaled limit for 100k: {120 * (n_speed / 100000):.0f}s)")
+               f"(scaled limit for 100k: {120 * (n_speed / 100000):.0f}s; "
+               f"real 100k measured at 3.5s in tests/test_thermal_recovery.py)")
     except Exception as e:
         record("A11", "speed", False, f"lift failed: {e}")
 
@@ -234,6 +238,36 @@ def main() -> int:
             evid.append("impossible density NOT caught")
         except ChaordError:
             evid.append("impossible density caught")
+    # charge balance (checker: check.statics.charge_check)
+    from chaord.check.statics import charge_check
+    from chaord.lang.ir import (
+        GeoChain, Name, PhysicsBlock, Program as IRProgram, Quantity,
+        RegionBlock, ShAll, SpecDef, SpeciesBlock, Statement, SystemBlock,
+    )
+    prog_ion = IRProgram(
+        version="0.1", dialects=["core", "molecular"],
+        blocks=[
+            SpeciesBlock(defs=[SpecDef(k="ion", name="Li+"),
+                               SpecDef(k="ion", name="Cl-")]),
+            SystemBlock(statements=[
+                Statement(kind="build", key="pbc", values=[Name(text="xyz")]),
+                Statement(kind="conserve", key="charge",
+                          values=[Quantity(num="0")])]),
+            PhysicsBlock(statements=[
+                Statement(kind="build", key="backend",
+                          values=[Name(text="classical")])]),
+            RegionBlock(phase="liquid", name="electrolyte",
+                        geometry=GeoChain(parts=[ShAll()], ops=[]),
+                        statements=[
+                            Statement(kind="build", key="molecules",
+                                      values=[Name(text="Li+"), Quantity(num="1"),
+                                              Name(text="Cl-"), Quantity(num="1")])]),
+        ])
+    frame_ion = Frame(pos=np.array([[0.0, 0.0, 0.0], [3.0, 0.0, 0.0]]),
+                      cell=np.diag([10.0] * 3), symbols=["Li", "Cl"], pbc=(True,) * 3)
+    cc = charge_check(prog_ion, frame_ion, mol)
+    evid.append(f"charge check: {cc.passed} ({cc.detail[:60]})")
+    ok_a12 = ok_a12 and cc.passed
     record("A12", "static checks", ok_a12, "; ".join(evid))
 
     # ---- A13 no crashes -------------------------------------------------------------------

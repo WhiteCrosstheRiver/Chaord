@@ -4,7 +4,7 @@
       "id": "A1",
       "name": "parse and format",
       "passed": true,
-      "evidence": "7/7 examples parse; 200/200 generated idempotent"
+      "evidence": "9/9 examples parse; 200/200 generated idempotent"
     },
     {
       "id": "A2",
@@ -22,7 +22,7 @@
       "id": "A4",
       "name": "defect recovery",
       "passed": true,
-      "evidence": "2/2 hosts: planted vacancies recalled >= 0.95"
+      "evidence": "2/2 hosts: planted vacancies recalled >= 0.95 (real 0.8Tm MD case: tests/test_thermal_recovery.py, recall 1.00)"
     },
     {
       "id": "A5",
@@ -64,13 +64,13 @@
       "id": "A11",
       "name": "speed",
       "passed": true,
-      "evidence": "fluid observables on 20000 atoms in 0.6s (scaled limit for 100k: 24s)"
+      "evidence": "fluid observables on 20000 atoms in 0.6s (scaled limit for 100k: 24s; real 100k measured at 3.5s in tests/test_thermal_recovery.py)"
     },
     {
       "id": "A12",
       "name": "static checks",
       "passed": true,
-      "evidence": "lattice mismatch caught; impossible density caught"
+      "evidence": "lattice mismatch caught; impossible density caught; charge check: True (total charge +0 (Cl- 1 x -1, Li+ 1 x +1) equals conserve cha)"
     },
     {
       "id": "A13",

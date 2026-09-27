@@ -6,8 +6,12 @@ program describes a **macrostate** — a family of configurations; a coordinate
 file is one **microstate** of it. Order is written exactly where a system has
 it, statistics where it does not: from crystals to gases.
 
-Status: **v1.0 candidate** — M0-M8 complete; acceptance A1-A14 executed by
-`tools/acceptance.py` (report in `reports/acceptance.json`).
+Status: **v1.0 complete** — M0-M8 plus the wave-2 capability addenda (EAM
+backend, deposit protocol, Wood notation, rutile terminations, exact Burgers
+circuits, true 3-D segmentation, charge checks, 18-case x 5-frame bench,
+LLM prompt suite, CI + nightly); acceptance A1-A14 all pass
+(`tools/acceptance.py`, report in `reports/acceptance.json`,
+gate report in `reports/gate_b.md`).
 
 ## Install (from this repository)
 
@@ -61,8 +65,9 @@ re-ordering and re-imaging; fluids and glasses are judged against the floor.
 | M4 | segmentation, interface objects, Miller slabs, adsorbates |
 | M5 | history protocols, restraints, ring/Voronoi statistics, shortest program |
 | M6 | Burgers family detection, CSL Sigma bicrystals, reactive census |
-| M7 | acceptance runner A1-A14, reference manual, tutorials |
-| M8 | LLM schema, scripting layer, Laya state encoder |
+| M7 | acceptance runner A1-A14, reference manual, tutorials, bench 18x5 |
+| M8 | LLM schema, scripting layer, Laya encoder, prompt suite, active learning |
+| +2 | EAM backend, deposit, Wood/rutile, exact Burgers, 3-D segmentation, charge, CI |
 
 See `PLAN.md` for the full design and `AGENTS.md` for the binding rules.
 
