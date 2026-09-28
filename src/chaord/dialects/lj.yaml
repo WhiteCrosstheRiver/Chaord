@@ -21,6 +21,7 @@ thresholds:
   overlap_tolerance: 0.70         # static overlap check, in sigma
   md:
     skin: 0.3
+    relax_rc: 2.5                # neighbour cutoff for protocol/relaxation MD, sigma
     relax_steps_fast: 400
     relax_dt_fast: 0.001
     relax_gamma_fast: 5.0
@@ -28,6 +29,7 @@ thresholds:
     relax_steps: 2000
     relax_dt: 0.005
     relax_gamma: 0.5
+    quench_max_steps: 20000      # cap on quench integration steps (mirrors glass)
   printed_cutoff: "2.5"          # cutoff the lifter states in physics (metadata)
   printed_strain_tolerance: 0.2  # tolerance printed on the strain constrain line
   default_cutoff: 2.5            # build-side default when physics.cutoff is absent
@@ -39,6 +41,9 @@ thresholds:
   fluid_solid_fraction_max: 0.20    # above this solid fraction it is not one phase
   restrain_max_iter: 20            # density-restraint box-relaxation iterations
   quench_max_steps: 20000          # cap on quench integration steps
+  protocol_init_T: 0.1             # temperature of the initial protocol velocities
+  quench_default_rate: 0.001       # cooling rate when the program omits `at <rate>`
+  noise_gr_rmin: 0.8               # g(r) RMS lower edge, sigma
   lj_tmelting: 0.69                # fcc LJ melting temperature, reduced units (A4 anchor)
   lattice_scan_steps: 57           # thermal LJ frames bias d_NN (nearest of 12 neighbours) low by
                                    # ~10%, halving the scan step keeps a grid point inside the

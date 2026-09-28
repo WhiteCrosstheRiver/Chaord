@@ -13,7 +13,7 @@ from ..lang.errors import ChaordError
 
 # Template geometry is exact published data (dialect-exempt per AGENTS.md).
 TEMPLATES: dict[str, dict] = {}
-# dialect-exempt-begin: exact molecular geometry (published bond lengths/angles)
+# dialect-exempt-begin: exact-geometry
 
 
 def _register_mol(name, symbols, rel, charge=0):

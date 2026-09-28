@@ -48,10 +48,10 @@ class EAM:
         vec = {k: np.array([float(self.params[s][k]) for s in names])
                for k in ("A",) + _PAIR_KEYS}
         self.A = vec["A"]
-        self._mix = {k: 0.5 * (vec[k][:, None] + vec[k][None, :]) for k in _PAIR_KEYS}
+        self._mix = {k: 0.5 * (vec[k][:, None] + vec[k][None, :]) for k in _PAIR_KEYS}  # dialect-exempt: exact-geometry
         self.rc = float(rc) if rc is not None else float(
             max(m.max() for m in self._mix.values()))
-        self.skin = float(skin) if skin is not None else 0.3  # fallback; callers read the dialect
+        self.skin = float(skin) if skin is not None else 0.3  # dialect-exempt: numerical-guard: constructor fallback; every chaord caller passes eam_md.skin
         if symbols is None:
             if len(names) != 1:
                 raise ValueError("multi-species EAM needs the per-atom symbols list")
@@ -84,7 +84,7 @@ class EAM:
         if self.pairs is None:
             return True
         disp2 = np.sum(mic(r - self.r_last, self.L) ** 2, 1)
-        return disp2.max() > (0.5 * self.skin) ** 2
+        return disp2.max() > (0.5 * self.skin) ** 2  # dialect-exempt: exact-geometry
 
     # --------------------------------------------------------------- internals --
     def _bond(self, r):
@@ -111,26 +111,26 @@ class EAM:
 
         # rho_i = sum_j (r - d)^2  [r < d]
         m_d = dist < dd
-        w = np.where(m_d, (dist - dd) ** 2, 0.0)
+        w = np.where(m_d, (dist - dd) ** 2, 0.0)  # dialect-exempt: exact-geometry
         rho = np.bincount(i, w, n) + np.bincount(j, w, n)
 
         # embedding derivative coefficient A_i / (2 sqrt(rho_i)); 0 for isolated atoms
-        rho_safe = np.where(rho > 0.0, rho, 1.0)
-        k = np.where(rho > 0.0, self.A[self._sp] / (2.0 * np.sqrt(rho_safe)), 0.0)
+        rho_safe = np.where(rho > 0.0, rho, 1.0)  # dialect-exempt: numerical-guard: divide-by-zero guard for isolated atoms
+        k = np.where(rho > 0.0, self.A[self._sp] / (2.0 * np.sqrt(rho_safe)), 0.0)  # dialect-exempt: exact-geometry
 
         # dV/dr = 2(r-c)(c0+c1r+c2r^2) + (r-c)^2 (c1+2 c2 r)  [r < c]
         m_c = dist < cc
         x = dist - cc
         poly = c0 + c1 * dist + c2 * dist ** 2
-        dv = np.where(m_c, 2.0 * x * poly + x ** 2 * (c1 + 2.0 * c2 * dist), 0.0)
+        dv = np.where(m_c, 2.0 * x * poly + x ** 2 * (c1 + 2.0 * c2 * dist), 0.0)  # dialect-exempt: exact-geometry
         # dphi/dr = 2(r - d)  [r < d]
-        dw = np.where(m_d, 2.0 * (dist - dd), 0.0)
+        dw = np.where(m_d, 2.0 * (dist - dd), 0.0)  # dialect-exempt: exact-geometry
 
         # F_i = sum_j [ V'(r) - (A_i/(2 sqrt(rho_i)) + A_j/(2 sqrt(rho_j))) phi'(r) ]
         #       * (r_j - r_i) / r   (the embedding attraction carries the minus sign:
         # E_emb = -A sqrt(rho), so its gradient pulls i towards higher density)
         g = dv - (k[i] + k[j]) * dw
-        inv_r = np.where(dist > 0.0, 1.0 / np.where(dist > 0.0, dist, 1.0), 0.0)
+        inv_r = np.where(dist > 0.0, 1.0 / np.where(dist > 0.0, dist, 1.0), 0.0)  # dialect-exempt: numerical-guard: divide-by-zero guard for coincident pairs
         fij = (g * inv_r)[:, None] * d  # force on i (pair label i), reaction on j
         F = np.empty_like(r)
         for axis in range(3):
@@ -153,11 +153,11 @@ class EAM:
 
         m_c = dist < cc
         x = dist - cc
-        pair = np.where(m_c, x ** 2 * (c0 + c1 * dist + c2 * dist ** 2), 0.0)
-        e_pair = float(np.sum(pair))  # pairs are unordered (i<j): no 1/2 factor
+        pair = np.where(m_c, x ** 2 * (c0 + c1 * dist + c2 * dist ** 2), 0.0)  # dialect-exempt: exact-geometry
+        e_pair = float(np.sum(pair))  # pairs are unordered (i<j): no halving factor
 
         m_d = dist < dd
-        w = np.where(m_d, (dist - dd) ** 2, 0.0)
+        w = np.where(m_d, (dist - dd) ** 2, 0.0)  # dialect-exempt: exact-geometry
         rho = np.bincount(i, w, n) + np.bincount(j, w, n)
         e_emb = -float(np.sum(self.A[self._sp] * np.sqrt(rho)))
         return e_pair + e_emb

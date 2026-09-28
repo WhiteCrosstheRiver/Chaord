@@ -21,7 +21,7 @@ def network_edges(frame: Frame, dialect):
     from scipy.spatial import cKDTree
     from ..build.defects import typical_neighbor_distance
     L = frame.cell_diag
-    pos = np.minimum(np.mod(frame.pos, L), L * (1 - 1e-9))  # dialect-exempt: strict upper edge for KD trees
+    pos = np.minimum(np.mod(frame.pos, L), L * (1 - 1e-9))  # dialect-exempt: numerical-guard: strict upper edge for KD trees
     rc = float(dialect.threshold("amorphous_bond_factor")) * typical_neighbor_distance(frame)
     return [tuple(e) for e in cKDTree(pos, boxsize=L).query_pairs(rc, output_type="ndarray")]
 
@@ -89,11 +89,11 @@ def lift_amorphous(frame: Frame, dialect, backend="lj") -> Program:
         ang = angle_mean(frame, dialect, cutoff=cut)
         region_stmts.append(Statement(
             kind="assert", key="cn",
-            values=[Quantity(num=f"{cn:.2f}"), Tol(value=Quantity(num="0.30")),  # dialect-exempt: printed tolerance
+            values=[Quantity(num=f"{cn:.2f}"), Tol(value=Quantity(num="0.30")),  # dialect-exempt: numerical-guard: canonical printed tolerance
                     Name(text="cutoff"), q_cut]))
         region_stmts.append(Statement(
             kind="assert", key="angle_mean",
-            values=[Quantity(num=f"{ang:.1f}"), Tol(value=Quantity(num="3.0")),  # dialect-exempt: printed tolerance
+            values=[Quantity(num=f"{ang:.1f}"), Tol(value=Quantity(num="3.0")),  # dialect-exempt: numerical-guard: canonical printed tolerance
                     Name(text="deg")]))
     except Exception:
         pass
@@ -114,7 +114,7 @@ def lift_amorphous(frame: Frame, dialect, backend="lj") -> Program:
                          geometry=GeoChain(parts=[ShAll()], ops=[]),
                          statements=region_stmts)
     return Program(
-        version="0.1", dialects=list(dialect.names),  # dialect-exempt: language version
+        version="0.1", dialects=list(dialect.names),  # dialect-exempt: numerical-guard: language version constant
         blocks=[system,
                 PhysicsBlock(statements=[
                     Statement(kind="build", key="backend",

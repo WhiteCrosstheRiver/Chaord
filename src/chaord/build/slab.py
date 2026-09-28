@@ -136,7 +136,7 @@ def build_slab(program: Program, dialect, rng, physics: bool = True, md_steps=No
     cs = _region_stmt_map(crystal)
     ls = _region_stmt_map(liquid)
     a_x = _num(cs["a"].values[0])
-    strain = 0.0  # dialect-exempt: neutral init, replaced when a strain statement exists
+    strain = 0.0  # dialect-exempt: numerical-guard: neutral init, replaced when a strain statement exists
     if "strain" in cs:
         vals = [v for v in cs["strain"].values if v.t == "q"]
         strain = _num(vals[0])
@@ -177,7 +177,7 @@ def build_slab(program: Program, dialect, rng, physics: bool = True, md_steps=No
         if count is None or depth_target is None:
             raise ChaordError(f"defect statement needs count and depth: {s.key}")
         for _ in range(count):
-            cand = np.where(keep & (np.abs(depth - depth_target) < dz / 2 + 1e-9))[0]  # dialect-exempt: fp tolerance
+            cand = np.where(keep & (np.abs(depth - depth_target) < dz / 2 + 1e-9))[0]  # dialect-exempt: numerical-guard: fp tolerance on the depth band
             if len(cand) == 0:
                 cand = np.where(keep)[0][np.argsort(np.abs(depth[keep] - depth_target))[:20]]
             if _ == 0:

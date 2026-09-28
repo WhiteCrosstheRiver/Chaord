@@ -42,7 +42,7 @@ def qbar(r, L, l=6, rc=None):
 
 def otsu(x, bins=100):
     h, e = np.histogram(x, bins)
-    c = 0.5 * (e[1:] + e[:-1])  # dialect-exempt: bin centre arithmetic
+    c = 0.5 * (e[1:] + e[:-1])  # dialect-exempt: numerical-guard: bin centre arithmetic
     w = h / h.sum()
     best, thr = -1, None
     for k in range(1, bins):

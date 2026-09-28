@@ -80,14 +80,14 @@ def decompile(r, L, T, dialect):
     frac = float(dialect.threshold("phase_solid_fraction"))
     nb = int(Lz / binw)
     edges = np.linspace(0, Lz, nb + 1)
-    zc = 0.5 * (edges[1:] + edges[:-1])  # dialect-exempt: bin centre arithmetic
+    zc = 0.5 * (edges[1:] + edges[:-1])  # dialect-exempt: numerical-guard: bin centre arithmetic
     idx = np.minimum((r[:, 2] / Lz * nb).astype(int), nb - 1)
     nsol = np.bincount(idx, solid.astype(float), nb)
     ntot = np.bincount(idx, minlength=nb).astype(float)
     sm = lambda a, k: np.convolve(np.r_[a[-k:], a, a[:k]], np.ones(k), "same")[k:-k]
-    ph = sm(nsol, kw) / np.maximum(sm(ntot, kw), 1e-9)  # dialect-exempt: divide-by-zero guard
+    ph = sm(nsol, kw) / np.maximum(sm(ntot, kw), 1e-9)  # dialect-exempt: numerical-guard: divide-by-zero guard
     tot3 = sm(ntot, kn)
-    phi = sm(nsol, kn) / np.maximum(tot3, 1e-9)         # dialect-exempt: divide-by-zero guard
+    phi = sm(nsol, kn) / np.maximum(tot3, 1e-9)         # dialect-exempt: numerical-guard: divide-by-zero guard
     on = np.r_[ph > frac, ph > frac]
     best = (0, 0)
     s = None
@@ -108,7 +108,7 @@ def decompile(r, L, T, dialect):
     def fit(guess, sign):
         dz = _mz(zc - guess, Lz)
         m = (np.abs(dz) < fit_win) & (tot3 > 0)
-        f = lambda z, z0, w: 0.5 * (1 + sign * np.tanh((z - z0) / w))  # dialect-exempt: tanh profile model
+        f = lambda z, z0, w: 0.5 * (1 + sign * np.tanh((z - z0) / w))  # dialect-exempt: exact-geometry
         (z0, w), _ = curve_fit(f, dz[m], phi[m], p0=[0, 1],
                                bounds=([off_b[0], wid_b[0]], [off_b[1], wid_b[1]]))
         return np.mod(guess + z0, Lz), dialect.threshold("interface_width_factor") * w
@@ -187,7 +187,7 @@ def decompile(r, L, T, dialect):
     dd = np.linalg.norm(mic(r[pp[:, 1]] - r[pp[:, 0]], L), axis=1)
     rr = np.r_[dd[cen[pp[:, 0]]], dd[cen[pp[:, 1]]]]
     h, e = np.histogram(rr, np.linspace(0, rmax, nbin + 1))
-    rm = 0.5 * (e[1:] + e[:-1])  # dialect-exempt: bin centre arithmetic
+    rm = 0.5 * (e[1:] + e[:-1])  # dialect-exempt: numerical-guard: bin centre arithmetic
     gr = h / (cen.sum() * rho * 4 / 3 * np.pi * (e[1:] ** 3 - e[:-1] ** 3))
     ipk = np.argmax(gr)
     nl = tree.query_ball_point(wrap(r[cen], L), rcut)
@@ -306,7 +306,7 @@ def program_from_result(d, dialect, symbol="X"):
         _s("build", "lift_version", _sv("0.1.0")),
     ])
     return Program(
-        version="0.1",  # dialect-exempt: language version constant
+        version="0.1",  # dialect-exempt: numerical-guard: language version constant
         dialects=list(dialect.names),
         blocks=[system, physics, crystal, liquid, *ifaces, residual, provenance],
     )

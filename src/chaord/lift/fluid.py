@@ -57,7 +57,7 @@ def _rdf_stats(frame: Frame, dialect, pos=None):
     d -= L * np.round(d / L)
     r = np.linalg.norm(d, axis=1)
     h, e = np.histogram(r, np.linspace(0, rmax, nbin + 1))
-    rm = 0.5 * (e[1:] + e[:-1])  # dialect-exempt: bin centres
+    rm = 0.5 * (e[1:] + e[:-1])  # dialect-exempt: numerical-guard: bin centres
     shell = 4 / 3 * np.pi * (e[1:] ** 3 - e[:-1] ** 3)
     g = 2 * h / (len(pos) * rho * shell)
     return rm, g, rho
@@ -136,7 +136,7 @@ def lift_fluid(frame: Frame, dialect, T=None, backend=None) -> Program:
                 values=[Name(text=formula), Quantity(num=str(census[formula]))]))
         from ase.data import atomic_masses, chemical_symbols
         total_mass = sum(atomic_masses[chemical_symbols.index(s)] for s in frame.symbols)
-        rho_g = total_mass / float(np.prod(L)) / 0.6022140857  # u/A^3 -> g/cm3  # dialect-exempt: unit conversion
+        rho_g = total_mass / float(np.prod(L)) / 0.6022140857  # u/A^3 -> g/cm3  # dialect-exempt: exact-geometry
         region_stmts.append(Statement(
             kind="state", key="density",
             values=[Quantity(num=f"{rho_g:.3f}", unit="g/cm3")]))
@@ -177,7 +177,7 @@ def lift_fluid(frame: Frame, dialect, T=None, backend=None) -> Program:
     system_stmts.append(Statement(kind="conserve", key="atoms", values=conserve_values))
 
     return Program(
-        version="0.1", dialects=list(dialect.names),  # dialect-exempt: language version
+        version="0.1", dialects=list(dialect.names),  # dialect-exempt: numerical-guard: language version constant
         blocks=[
             SystemBlock(statements=system_stmts),
             PhysicsBlock(statements=[

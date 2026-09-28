@@ -49,7 +49,7 @@ _register("perovskite", "perovskite", ("a",), 221, ("Sr", "Ti", "O"), 5)
 _register("L1_2", "fcc", ("a",), 221, ("Ni", "Al"), 4)
 _register("rutile", "rutile", ("a", "c"), 136, ("Ti", "O"), 6)
 
-# dialect-exempt-begin: exact prototype geometry (rational basis, not thresholds)
+# dialect-exempt-begin: exact-geometry
 _FCC = ((0.0, 0.0, 0.0), (0.5, 0.5, 0.0), (0.5, 0.0, 0.5), (0.0, 0.5, 0.5))
 # dialect-exempt-end
 
@@ -65,51 +65,51 @@ def cell_matrix(name: str, params: dict) -> np.ndarray:
 
 def basis(name: str, params: dict) -> tuple[np.ndarray, tuple]:
     pos, slots = _basis_raw(name, params)
-    return np.mod(pos, 1.0), slots  # dialect-exempt: fractional wrap to [0,1)
+    return np.mod(pos, 1.0), slots  # dialect-exempt: numerical-guard: fractional wrap to [0,1)
 
 
-# dialect-exempt-begin: exact prototype geometry (rational basis, not thresholds)
+# dialect-exempt-begin: exact-geometry
 def _basis_raw(name: str, params: dict) -> tuple[np.ndarray, tuple]:
     """(fractional positions, species slots) of one conventional cell."""
     if name == "sc":
         return np.zeros((1, 3)), (0,)
     if name == "bcc":
-        return np.array([[0, 0, 0], [0.5, 0.5, 0.5]]), (0, 0)  # dialect-exempt: exact basis
+        return np.array([[0, 0, 0], [0.5, 0.5, 0.5]]), (0, 0)
     if name == "fcc":
-        return np.array(_FCC), (0,) * 4  # dialect-exempt: exact basis
+        return np.array(_FCC), (0,) * 4
     if name == "hcp":
-        return np.array([[0, 0, 0], [1 / 3, 2 / 3, 0.5]]), (0, 0)  # dialect-exempt: exact basis
+        return np.array([[0, 0, 0], [1 / 3, 2 / 3, 0.5]]), (0, 0)
     if name == "diamond":
-        pos = [tuple(np.array(f) + np.array([0.25, 0.25, 0.25])) for f in _FCC]  # dialect-exempt: exact basis
-        return np.array(list(_FCC) + pos), (0,) * 8  # dialect-exempt: exact basis
+        pos = [tuple(np.array(f) + np.array([0.25, 0.25, 0.25])) for f in _FCC]
+        return np.array(list(_FCC) + pos), (0,) * 8
     if name == "rocksalt":
         return np.array(list(_FCC) + [tuple(np.array(f) + np.array([0.5, 0.5, 0.5])) for f in _FCC]), \
-            (0,) * 4 + (1,) * 4  # dialect-exempt: exact basis
+            (0,) * 4 + (1,) * 4
     if name == "cscl":
-        return np.array([[0, 0, 0], [0.5, 0.5, 0.5]]), (0, 1)  # dialect-exempt: exact basis
+        return np.array([[0, 0, 0], [0.5, 0.5, 0.5]]), (0, 1)
     if name == "zincblende":
-        pos = [tuple(np.array(f) + np.array([0.25, 0.25, 0.25])) for f in _FCC]  # dialect-exempt: exact basis
-        return np.array(list(_FCC) + pos), (0,) * 4 + (1,) * 4  # dialect-exempt: exact basis
+        pos = [tuple(np.array(f) + np.array([0.25, 0.25, 0.25])) for f in _FCC]
+        return np.array(list(_FCC) + pos), (0,) * 4 + (1,) * 4
     if name == "wurtzite":
-        u = float(params.get("u", 0.375))  # dialect-exempt: ideal wurtzite u
+        u = float(params.get("u", 0.375))  # ideal wurtzite u (published crystallographic parameter)
         return (np.array([[1 / 3, 2 / 3, 0], [2 / 3, 1 / 3, 0.5],
                           [1 / 3, 2 / 3, u], [2 / 3, 1 / 3, 0.5 + u]]),
-                (0, 0, 1, 1))  # dialect-exempt: exact basis in terms of u
+                (0, 0, 1, 1))
     if name == "fluorite":
-        f1 = [tuple(np.array(f) + np.array([0.25, 0.25, 0.25])) for f in _FCC]  # dialect-exempt: exact basis
-        f2 = [tuple(np.array(f) + np.array([0.75, 0.75, 0.75])) for f in _FCC]  # dialect-exempt: exact basis
-        return np.array(list(_FCC) + f1 + f2), (0,) * 4 + (1,) * 8  # dialect-exempt: exact basis
+        f1 = [tuple(np.array(f) + np.array([0.25, 0.25, 0.25])) for f in _FCC]
+        f2 = [tuple(np.array(f) + np.array([0.75, 0.75, 0.75])) for f in _FCC]
+        return np.array(list(_FCC) + f1 + f2), (0,) * 4 + (1,) * 8
     if name == "perovskite":
         return (np.array([[0, 0, 0], [0.5, 0.5, 0.5], [0.5, 0, 0], [0, 0.5, 0], [0, 0, 0.5]]),
-                (0, 1, 2, 2, 2))  # dialect-exempt: exact basis
+                (0, 1, 2, 2, 2))
     if name == "L1_2":
         # corner = slot 1 (minority), faces = slot 0 (majority): Ni3Al has Al at corners
-        return np.array(list(_FCC)), (1, 0, 0, 0)  # dialect-exempt: exact basis
+        return np.array(list(_FCC)), (1, 0, 0, 0)
     if name == "rutile":
-        u = float(params.get("u", 0.305))  # dialect-exempt: TiO2 rutile u
+        u = float(params.get("u", 0.305))  # TiO2 rutile u (published crystallographic parameter)
         return (np.array([[0, 0, 0], [0.5, 0.5, 0.5],
                           [u, u, 0], [1 - u, 1 - u, 0],
                           [0.5 + u, 0.5 - u, 0.5], [0.5 - u, 0.5 + u, 0.5]]),
-                (0, 0, 1, 1, 1, 1))  # dialect-exempt: exact basis in terms of u
+                (0, 0, 1, 1, 1, 1))
     raise KeyError(f"unknown prototype {name!r}")
 # dialect-exempt-end

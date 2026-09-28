@@ -40,7 +40,7 @@ def lift_crystal_defects(frame, dialect, backend="eam") -> tuple[Program, dict]:
         conserve_values += [_n(s), Quantity(num=str(n_atoms[s]))]
 
     matched = len(sites) - len(vacancies)
-    sites_matched = 100.0 * matched / max(len(sites), 1)  # dialect-exempt: percent scaling
+    sites_matched = 100.0 * matched / max(len(sites), 1)  # dialect-exempt: exact-geometry
 
     region_stmts = []
     if occupancy_mode:
@@ -67,7 +67,7 @@ def lift_crystal_defects(frame, dialect, backend="eam") -> tuple[Program, dict]:
             boot_rng.shuffle(shuffled)
             fb = Frame(pos=frame.pos, cell=frame.cell, symbols=shuffled, pbc=frame.pbc)
             null.append(warren_cowley_alpha1(fb, atom_species[0], atom_species[0], cutoff))
-        noise = float(np.std(null)) if len(null) > 1 else 0.0  # dialect-exempt: degenerate std
+        noise = float(np.std(null)) if len(null) > 1 else 0.0  # dialect-exempt: numerical-guard: degenerate std
         emit_thr = max(float(dialect.threshold("sro_emit_min")),
                        float(dialect.threshold("sro_emit_noise_factor")) * noise)
         tol_sro = float(dialect.threshold("sro_print_tolerance"))
@@ -115,6 +115,6 @@ def lift_crystal_defects(frame, dialect, backend="eam") -> tuple[Program, dict]:
     diagnostics = dict(n_vacancies=len(vacancies), n_antisites=len(antisites),
                        n_interstitials=len(interstitials), fit_score=score,
                        sites_matched=sites_matched, prototype=name, a=a)
-    program = Program(version="0.1", dialects=list(dialect.names),  # dialect-exempt: language version
+    program = Program(version="0.1", dialects=list(dialect.names),  # dialect-exempt: numerical-guard: language version constant
                       blocks=[system, physics, region, ResidualBlock(none=True), provenance])
     return program, diagnostics

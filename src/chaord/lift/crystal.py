@@ -40,7 +40,7 @@ def standardize(frame: Frame, dialect):
     if cell is None:
         raise ValueError("spglib could not standardise the cell "
                          "(not periodic within symprec)")
-    return np.array(cell), np.mod(np.array(pos), 1.0), np.array(numbers)  # dialect-exempt: fractional wrap
+    return np.array(cell), np.mod(np.array(pos), 1.0), np.array(numbers)  # dialect-exempt: numerical-guard: fractional wrap
 
 
 def _lengths_angles(cell: np.ndarray):
@@ -62,7 +62,7 @@ def _axis_orders_for(name: str, cell: np.ndarray, tol):
     lengths, angles = _lengths_angles(cell)
     cubic = np.ptp(lengths) <= tol and abs(angles - 90).max() <= 2 * tol
     if name in ("hcp", "wurtzite", "rutile"):
-        want_gamma = 120.0 if name in ("hcp", "wurtzite") else 90.0  # dialect-exempt: crystallographic constants
+        want_gamma = 120.0 if name in ("hcp", "wurtzite") else 90.0  # dialect-exempt: exact-geometry
         out = []
         for perm in permutations(range(3)):
             i, j, k = perm
@@ -90,7 +90,7 @@ def _params_for(name: str, cell: np.ndarray, tol):
         return None
     lengths, _ = _lengths_angles(cell[orders[0]])
     if name in ("hcp", "wurtzite", "rutile"):
-        return {"a": 0.5 * (lengths[0] + lengths[1]), "c": lengths[2]}  # dialect-exempt: mean of the a-pair
+        return {"a": 0.5 * (lengths[0] + lengths[1]), "c": lengths[2]}  # dialect-exempt: numerical-guard: mean of the a-pair
     return {"a": lengths.mean()}
 
 
@@ -173,11 +173,11 @@ def match_prototype(cell, pos, numbers, dialect):
                 is_default = slot_species == PROTOTYPES[name].default_slots
                 better = (
                     best is None
-                    or rms < best[4] - 1e-12                       # dialect-exempt: fp tie margin
-                    or (abs(rms - best[4]) <= 1e-12                # dialect-exempt: fp tie margin
+                    or rms < best[4] - 1e-12                       # dialect-exempt: numerical-guard: fp tie margin
+                    or (abs(rms - best[4]) <= 1e-12                # dialect-exempt: numerical-guard: fp tie margin
                         and is_default
                         and best[2] != PROTOTYPES[best[0]].default_slots)
-                    or (abs(rms - best[4]) <= 1e-12                # dialect-exempt: fp tie margin
+                    or (abs(rms - best[4]) <= 1e-12                # dialect-exempt: numerical-guard: fp tie margin
                         and is_default and best[0] == name))
                 if better:
                     best = (name, params, slot_species, reps, rms)
@@ -187,7 +187,7 @@ def match_prototype(cell, pos, numbers, dialect):
 def _match_with_origin(cell, pos, numbers, name, params, slot_species, tol):
     frac, slots = basis(name, params)
     mirrored = frac.copy()
-    mirrored[:, 2] = np.mod(-mirrored[:, 2], 1.0)  # dialect-exempt: polar twins u<->1-u
+    mirrored[:, 2] = np.mod(-mirrored[:, 2], 1.0)  # dialect-exempt: numerical-guard: polar twins u<->1-u
     first_sym = slot_species[slots[0]]
     first_num = chemical_symbols.index(first_sym)
     best = None
@@ -203,7 +203,7 @@ def _match_with_origin(cell, pos, numbers, name, params, slot_species, tol):
 
 def _basis_rms_shifted(cell, pos, numbers, trial, slot_species, tol, shift):
     frac, slots = trial
-    frac = np.mod(frac + shift, 1.0)  # dialect-exempt: fractional wrap
+    frac = np.mod(frac + shift, 1.0)  # dialect-exempt: numerical-guard: fractional wrap
     rms_acc = []
     used = np.zeros(len(pos), bool)
     for f, slot in zip(frac, slots):
@@ -285,7 +285,7 @@ def lift_crystal(frame: Frame, dialect, backend="eam"):
         Name(text="x"), Name(text="[100]"), Name(text="y"), Name(text="[010]"),
         Name(text="z"), Name(text="[001]")]))
     region_stmts.append(Statement(kind="assert", key="sites_matched",
-                                  values=[Quantity(num="100.0", unit="%")]))  # dialect-exempt: canonical text
+                                  values=[Quantity(num="100.0", unit="%")]))  # dialect-exempt: numerical-guard: canonical assert text
 
     system = SystemBlock(statements=[
         Statement(kind="build", key="cell", values=[
@@ -304,5 +304,5 @@ def lift_crystal(frame: Frame, dialect, backend="eam"):
         Statement(kind="build", key="dialects", values=[StrVal(text=dialect.version_string)]),
         Statement(kind="build", key="lift_version", values=[StrVal(text="0.1.0")]),
     ])
-    return Program(version="0.1", dialects=list(dialect.names),  # dialect-exempt: language version
+    return Program(version="0.1", dialects=list(dialect.names),  # dialect-exempt: numerical-guard: language version constant
                    blocks=[system, physics, region, ResidualBlock(none=True), provenance])

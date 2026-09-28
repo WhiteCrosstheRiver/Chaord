@@ -28,6 +28,15 @@ def _termination_names(dialect):
         return {}
 
 
+def _net_dialect(dialect):
+    """Dialect for the net helpers; defaults to the surface dialect when a
+    caller (e.g. a direct test) omits one."""
+    if dialect is not None:
+        return dialect
+    from ..dialects import load_dialect
+    return load_dialect(("surface",))
+
+
 def has_vacuum(frame: Frame, dialect) -> bool:
     """A z-gap in the atom distribution wider than the dialect threshold."""
     try:
@@ -83,6 +92,8 @@ def _top_layer(frame: Frame, dialect):
     never the surface layer."""
     layers = _layers(frame, dialect)
     gap = float(dialect.threshold("vacuum_gap_min"))
+    dense_fraction = float(dialect.threshold("layer_dense_fraction"))
+    surface_fraction = float(dialect.threshold("layer_surface_fraction"))
     groups: list[list] = []
     for layer in layers:
         if groups and (frame.pos[layer, 2].min()
@@ -97,25 +108,28 @@ def _top_layer(frame: Frame, dialect):
     biggest = max((len(l) for l in stack), default=0)
     bulk_species = set()
     for layer in stack:
-        if len(layer) >= 0.5 * biggest:  # dialect-exempt: dense-layer floor
+        if len(layer) >= dense_fraction * biggest:
             bulk_species |= set(syms[layer])
     for layer in reversed(stack):
         if len(layer) < 2:
             continue
-        if len(layer) >= 0.5 * median or set(syms[layer]) <= bulk_species:  # dialect-exempt: layer size floor
+        if len(layer) >= surface_fraction * median or set(syms[layer]) <= bulk_species:
             return layer, float(frame.pos[layer, 2].max())
     return stack[-1], float(frame.pos[stack[-1], 2].max())
 
 
-def _net_vectors(pts2d, cell2d):
+def _net_vectors(pts2d, cell2d, dialect=None):
     """Two shortest independent primitive vectors of a 2D point set, or None.
 
     v1 is the shortest inter-atom vector; v2 is the shortest independent
     vector whose cell area matches the point density (rejecting 2x cells).
     Returns None when the points do not form a lattice with that v1."""
+    dialect = _net_dialect(dialect)
+    length_tol = float(dialect.threshold("net_length_tol"))
+    area_tol = float(dialect.threshold("net_cell_area_tol"))
     pts = np.asarray(pts2d, float)
     A2 = np.asarray(cell2d, float)
-    pts = np.mod(pts @ np.linalg.inv(A2), 1.0) @ A2  # dialect-exempt: fractional wrap
+    pts = np.mod(pts @ np.linalg.inv(A2), 1.0) @ A2  # dialect-exempt: numerical-guard: fractional wrap
     p0 = pts[0]
     cand = []
     for q in pts:
@@ -124,25 +138,25 @@ def _net_vectors(pts2d, cell2d):
             for nb in (-1, 0, 1):
                 w = v + na * A2[0] + nb * A2[1]
                 n = np.linalg.norm(w)
-                if n > 0.5:  # dialect-exempt: minimal vector length
+                if n > 0.5:  # dialect-exempt: numerical-guard: sub-noise duplicate-vector guard, A
                     cand.append((n, w))
     cand.sort(key=lambda x: x[0])
     v1 = cand[0][1]
     area_per_point = abs(A2[0][0] * A2[1][1] - A2[0][1] * A2[1][0]) / len(pts)
     for n, w in cand:
-        if abs(abs(np.dot(w, v1) / n) - np.linalg.norm(v1)) < 0.1 * np.linalg.norm(v1):  # dialect-exempt: collinearity
-            continue  # dialect-exempt: collinearity tolerance
+        if abs(abs(np.dot(w, v1) / n) - np.linalg.norm(v1)) < length_tol * np.linalg.norm(v1):
+            continue  # collinear with v1 (projected length matches |v1|)
         area = abs(v1[0] * w[1] - v1[1] * w[0])  # 2D cross product
-        if abs(area - area_per_point) <= 0.2 * area_per_point:  # dialect-exempt: cell-area tolerance
+        if abs(area - area_per_point) <= area_tol * area_per_point:
             return np.array(v1, float), np.array(w, float)
     return None
 
 
 def _surface_net(frame: Frame, top_idx, dialect):
     """(l1, l2, angle) of the primitive in-plane lattice of a layer."""
-    net = _net_vectors(frame.pos[top_idx][:, :2], frame.cell[:2, :2])
+    net = _net_vectors(frame.pos[top_idx][:, :2], frame.cell[:2, :2], dialect)
     if net is None:
-        return 0.0, 0.0, 90.0  # dialect-exempt: degenerate net report
+        return 0.0, 0.0, 90.0  # dialect-exempt: numerical-guard: degenerate net sentinel report
     v1, v2 = net
     cosg = np.clip(np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2)), -1, 1)
     return (float(np.linalg.norm(v1)), float(np.linalg.norm(v2)),
@@ -164,7 +178,7 @@ def _sub_layer(layers, top_idx):
     return top_idx
 
 
-# dialect-exempt-begin: integer lattice reduction (Hermite normal form, 2x2)
+# dialect-exempt-begin: exact-geometry
 def _xgcd(a: int, b: int):
     """(g, x, y) with g = gcd(a, b) >= 0 and g = x*a + y*b."""
     if a < 0:
@@ -204,7 +218,7 @@ def _wood_ratio_text(r, tol, sqrt_ks=(2, 3, 5, 7)):
     """Format a length ratio as a Wood token component: integer or r<sqrt k>."""
     if abs(r - round(r)) <= tol:
         return str(int(round(r)))
-    for k in sqrt_ks:  # dialect-exempt: crystallographic sqrt ratios
+    for k in sqrt_ks:   # crystallographic sqrt ratios (integers, exact)
         if abs(r - np.sqrt(k)) <= tol:
             return f"r{k}"
     return None
@@ -255,7 +269,7 @@ def _wood_statement(top_net, sub_net, dialect):
     cosg = np.clip(np.dot(v_sub[0], v_top[0])
                    / (np.linalg.norm(v_sub[0]) * np.linalg.norm(v_top[0])), -1, 1)
     theta = int(round(float(np.degrees(np.arccos(cosg)))))
-    sym = _net_symmetry_deg(v_sub)  # dialect-exempt: see crystallographic cases below
+    sym = _net_symmetry_deg(v_sub, dialect)
     theta = min(theta % sym, sym - theta % sym)
     if theta <= a_tol:  # within the rounding tolerance: no measurable rotation
         theta = 0
@@ -264,31 +278,36 @@ def _wood_statement(top_net, sub_net, dialect):
     return f"p({t1}x{t2})R{theta}" if theta else f"p({t1}x{t2})"
 
 
-# dialect-exempt-begin: net rotational symmetries (crystallographic)
-def _net_symmetry_deg(v_sub):
+# dialect-exempt-begin: exact-geometry
+def _net_symmetry_deg(v_sub, dialect=None):
     """Smallest rotation mapping the substrate net onto itself (degrees)."""
+    dialect = _net_dialect(dialect)
+    ratio_tol = float(dialect.threshold("surface_net_ratio_tolerance"))
+    angle_tol = float(dialect.threshold("surface_net_angle_tolerance"))
     l1, l2 = np.linalg.norm(v_sub[0]), np.linalg.norm(v_sub[1])
     cosg = np.clip(np.dot(v_sub[0], v_sub[1]) / (l1 * l2), -1, 1)
     gamma = float(np.degrees(np.arccos(cosg)))
-    equi = abs(l1 - l2) / max(l1, l2) < 0.12
-    if equi and abs(min(gamma, 180 - gamma) - 60) < 8:
+    equi = abs(l1 - l2) / max(l1, l2) < ratio_tol
+    if equi and abs(min(gamma, 180 - gamma) - 60) < angle_tol:
         return 60   # hexagonal net
-    if equi and abs(gamma - 90) < 8:
+    if equi and abs(gamma - 90) < angle_tol:
         return 90   # square net
     return 180      # rectangular / oblique: only +/- counts
 # dialect-exempt-end
 
 
-# dialect-exempt-begin: surface-net classification levels (crystallographic)
-def _identify_hkl(l1, l2, gamma, a_bulk):
-    tol = 0.12  # dialect-exempt: relative net-matching tolerance
-    if abs(l1 - l2) / max(l1, l2) < tol and abs(gamma - 90) < 8:
+# dialect-exempt-begin: exact-geometry
+def _identify_hkl(l1, l2, gamma, a_bulk, dialect=None):
+    dialect = _net_dialect(dialect)
+    tol = float(dialect.threshold("surface_net_ratio_tolerance"))
+    ang_tol = float(dialect.threshold("surface_net_angle_tolerance"))
+    if abs(l1 - l2) / max(l1, l2) < tol and abs(gamma - 90) < ang_tol:
         return "(001)"          # square net
-    if abs(gamma - 90) < 8 and abs(l2 / l1 - 2**0.5) / 2**0.5 < tol:
+    if abs(gamma - 90) < ang_tol and abs(l2 / l1 - 2**0.5) / 2**0.5 < tol:
         return "(110)"          # rectangular a x a*sqrt(2)
-    if abs(l1 - l2) / max(l1, l2) < tol and abs(gamma - 60) < 8:
+    if abs(l1 - l2) / max(l1, l2) < tol and abs(gamma - 60) < ang_tol:
         return "(111)"          # hexagonal net
-    if abs(gamma - 120) < 8 and abs(l1 - l2) / max(l1, l2) < tol:
+    if abs(gamma - 120) < ang_tol and abs(l1 - l2) / max(l1, l2) < tol:
         return "(111)"
     return "(001)"
 # dialect-exempt-end
@@ -306,13 +325,14 @@ def _prototype_bulk_atoms(name, params, slot_species):
 def _frac_wrap(P, cell):
     inv = np.linalg.inv(cell)
     f = P @ inv
-    return (f - np.floor(f + 1e-9)) @ cell  # dialect-exempt: strict wrap below 1
+    return (f - np.floor(f + 1e-9)) @ cell  # dialect-exempt: numerical-guard: strict wrap below 1
 
 
 def _inplane_primitive(P, syms, cell, dialect):
     """(v1, v2): the shortest in-plane translations mapping the atom set onto
     itself species-by-species (the primitive surface mesh of the slab)."""
     tol = float(dialect.threshold("site_match_tolerance"))
+    collinear_tol = float(dialect.threshold("net_collinear_tol"))
     sym = np.asarray(syms)
     W = _frac_wrap(np.asarray(P, float), cell)
     tree = cKDTree(W)
@@ -348,7 +368,7 @@ def _inplane_primitive(P, syms, cell, dialect):
     v1 = valid[0][2]
     for n, _key, t in valid[1:]:
         area = abs(v1[0] * t[1] - v1[1] * t[0])
-        if area > 0.2 * np.linalg.norm(v1) * n:  # dialect-exempt: collinearity tolerance
+        if area > collinear_tol * np.linalg.norm(v1) * n:
             return v1, t
     return None
 
@@ -359,7 +379,7 @@ def _net_shape(v1, v2):
     lo, hi = min(l1, l2), max(l1, l2)
     cosg = np.clip(np.dot(v1, v2) / (l1 * l2), -1, 1)
     ang = float(np.degrees(np.arccos(cosg)))
-    return hi / max(lo, 1e-9), min(ang, 180.0 - ang)  # dialect-exempt: degenerate length guard
+    return hi / max(lo, 1e-9), min(ang, 180.0 - ang)  # dialect-exempt: numerical-guard: degenerate length guard / angle fold
 
 
 def _identify_prototype_slab(frame: Frame, dialect):
@@ -514,7 +534,7 @@ def lift_surface(frame: Frame, dialect, backend="eam") -> Program:
 
     # adsorbates: every atom above the slab's surface layer
     top_layer_idx, top_z = _top_layer(frame, dialect)
-    slab_idx = np.where(frame.pos[:, 2] <= top_z + 0.5 * float(  # dialect-exempt: half layer tolerance
+    slab_idx = np.where(frame.pos[:, 2] <= top_z + 0.5 * float(  # dialect-exempt: numerical-guard: half of the layer tolerance
         dialect.threshold("layer_tolerance")))[0]
     ads_idx = np.setdiff1d(np.arange(len(frame.pos)), slab_idx)
 
@@ -550,7 +570,7 @@ def lift_surface(frame: Frame, dialect, backend="eam") -> Program:
         from .defects import _A_FROM_DNN
         L = frame.cell_diag
         wrapped = frame.pos - L * np.floor(frame.pos / L)
-        wrapped = np.minimum(wrapped, L * (1 - 1e-9))  # dialect-exempt: strict upper edge for KD trees
+        wrapped = np.minimum(wrapped, L * (1 - 1e-9))  # dialect-exempt: numerical-guard: strict upper edge for KD trees
         slab_pos = wrapped[slab_idx]
         dnn = typical_neighbor_distance(Frame(pos=slab_pos, cell=frame.cell,
                                               symbols=list(syms[slab_idx]), pbc=frame.pbc))
@@ -574,12 +594,12 @@ def lift_surface(frame: Frame, dialect, backend="eam") -> Program:
         l1, l2, gamma = _surface_net(frame, sub_idx, dialect)
         if l2 == 0:  # degenerate substrate net: fall back to the surface layer
             l1, l2, gamma = _surface_net(frame, top_layer_idx, dialect)
-        hkl = _identify_hkl(l1, l2, gamma, params["a"])
+        hkl = _identify_hkl(l1, l2, gamma, params["a"], dialect)
 
     # Wood reconstruction: the surface net against the substrate net
     wood = _wood_statement(
-        _net_vectors(frame.pos[top_layer_idx][:, :2], frame.cell[:2, :2]),
-        _net_vectors(frame.pos[sub_idx][:, :2], frame.cell[:2, :2]),
+        _net_vectors(frame.pos[top_layer_idx][:, :2], frame.cell[:2, :2], dialect),
+        _net_vectors(frame.pos[sub_idx][:, :2], frame.cell[:2, :2], dialect),
         dialect)
 
     # termination: the element of the top layer; compound slabs map it through
@@ -701,7 +721,7 @@ def lift_surface(frame: Frame, dialect, backend="eam") -> Program:
                              values=[StrVal(text="0.1.0")]),
                ])]
     return Program(
-        version="0.1", dialects=list(dialect.names),  # dialect-exempt: language version
+        version="0.1", dialects=list(dialect.names),  # dialect-exempt: numerical-guard: language version constant
         blocks=blocks)
 
 

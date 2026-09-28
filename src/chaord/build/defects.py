@@ -182,7 +182,7 @@ def warren_cowley_alpha1(frame: Frame, a: str, b: str, cutoff: float) -> float:
     if tot == 0:
         raise ChaordError("no neighbours within cutoff")
     p_ba = nb_count / tot
-    return 1.0 - p_ba / x_b  # dialect-exempt: Warren-Cowley definition
+    return 1.0 - p_ba / x_b  # dialect-exempt: exact-geometry
 
 
 def sqs_to_target(frame: Frame, pair: tuple[str, str], target: float,

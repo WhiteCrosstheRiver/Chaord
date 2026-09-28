@@ -30,6 +30,8 @@ thresholds:
     relax_rc: 2.5
     quench_max_steps: 20000
   md_reference_T: 0.65            # starting Langevin temperature for protocol/restraint runs
+  protocol_init_T: 0.1            # temperature of the initial protocol velocities
+  quench_default_rate: 0.001      # cooling rate when the program omits `at <rate>`
   # deposit protocol (sigma units)
   deposit_T: 0.65                 # Langevin temperature while depositing (liquid branch:
                                  # cold deposition collapses the voids a 0.9-sigma gap needs)

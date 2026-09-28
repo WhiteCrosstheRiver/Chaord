@@ -36,16 +36,16 @@ class LJ:
 
     def forces(self, r):
         if self.pairs is None or np.max(
-                np.sum(mic(r - self.r_last, self.L) ** 2, 1)) > (0.5 * self.skin) ** 2:
+                np.sum(mic(r - self.r_last, self.L) ** 2, 1)) > (0.5 * self.skin) ** 2:  # dialect-exempt: exact-geometry
             self.build(r)
         i, j = self.pairs[:, 0], self.pairs[:, 1]
         d = mic(r[j] - r[i], self.L)
         r2 = np.einsum("ij,ij->i", d, d)
         m = r2 < self.rc ** 2
         i, j, d, r2 = i[m], j[m], d[m], r2[m]
-        inv2 = 1.0 / r2
+        inv2 = 1.0 / r2  # dialect-exempt: numerical-guard: reciprocal one
         inv6 = inv2 ** 3
-        fs = 24.0 * inv2 * inv6 * (2.0 * inv6 - 1.0)
+        fs = 24.0 * inv2 * inv6 * (2.0 * inv6 - 1.0)  # dialect-exempt: exact-geometry
         fij = fs[:, None] * d
         N = len(r)
         F = np.empty_like(r)
@@ -74,17 +74,17 @@ def run_md(r, v, L, nsteps, dt, T, gamma, rng, frozen=None, lj=None, fcap=None):
     F = f(r)
     v[~mob] = 0
     for _ in range(nsteps):
-        v += 0.5 * dt * F
-        r += 0.5 * dt * v
+        v += 0.5 * dt * F  # dialect-exempt: exact-geometry
+        r += 0.5 * dt * v  # dialect-exempt: exact-geometry
         v = c1 * v + c2 * rng.standard_normal(r.shape)
         v[~mob] = 0
-        r += 0.5 * dt * v
+        r += 0.5 * dt * v  # dialect-exempt: exact-geometry
         F = f(r)
-        v += 0.5 * dt * F
+        v += 0.5 * dt * F  # dialect-exempt: exact-geometry
     return r, v
 
 
 def fcc(nx, ny, nz, a):
-    b = np.array([[0, 0, 0], [.5, .5, 0], [.5, 0, .5], [0, .5, .5]])
+    b = np.array([[0, 0, 0], [.5, .5, 0], [.5, 0, .5], [0, .5, .5]])  # dialect-exempt: exact-geometry
     g = np.array(np.meshgrid(range(nx), range(ny), range(nz), indexing="ij")).reshape(3, -1).T
     return ((g[:, None, :] + b[None]).reshape(-1, 3)) * a

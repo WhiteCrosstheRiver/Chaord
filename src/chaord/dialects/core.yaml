@@ -51,6 +51,11 @@ thresholds:
   segment_vote_cutoff: 1.45         # neighbour radius for label smoothing, A or sigma
   segment_vote_factor: 1.15         # label-smoothing radius as fraction of d_NN
   segment_flip_fraction: 0.75       # neighbourhood majority needed to flip a label
+  segment_cross_high: 0.9           # solid-side level of the 10-90 interface width
+  segment_cross_low: 0.1            # liquid-side level of the 10-90 interface width
+  # --- statistical noise floor (round-trip harness, cv/noise.py) ---
+  noise_gr_rmin: 0.8                # g(r) RMS lower edge, A (physical-unit systems)
+  noise_floor_factor: 1.5           # round trip passes within this multiple of the floor
   # --- 3-D phase segmentation and interface meshes (M4) ---
   segment3d_band_lo_factor: 0.9     # flood band lower edge as a fraction of q6_solid
   segment3d_band_hi_factor: 1.1     # flood band upper edge as a fraction of q6_solid

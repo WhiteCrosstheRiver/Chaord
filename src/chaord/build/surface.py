@@ -119,10 +119,14 @@ def _top_indices(pos: np.ndarray, dialect):
     return np.array(layers[-1])
 
 
-def _net_basis(pts2d, cell2d):
+def _net_basis(pts2d, cell2d, dialect=None):
     """Two shortest independent primitive vectors of the top-layer net."""
+    from ..dialects import load_dialect
+    dialect = dialect if dialect is not None else load_dialect(("surface",))
+    length_tol = float(dialect.threshold("net_length_tol"))
+    area_tol = float(dialect.threshold("net_cell_area_tol"))
     A2 = np.asarray(cell2d, float)
-    pts = np.mod(np.asarray(pts2d, float) @ np.linalg.inv(A2), 1.0) @ A2  # dialect-exempt: fractional wrap
+    pts = np.mod(np.asarray(pts2d, float) @ np.linalg.inv(A2), 1.0) @ A2  # dialect-exempt: numerical-guard: fractional wrap
     p0 = pts[0]
     cand = []
     for q in pts:
@@ -131,16 +135,16 @@ def _net_basis(pts2d, cell2d):
             for nb in (-1, 0, 1):
                 w = v + na * A2[0] + nb * A2[1]
                 n = np.linalg.norm(w)
-                if n > 0.5:  # dialect-exempt: minimal vector length
+                if n > 0.5:  # dialect-exempt: numerical-guard: sub-noise duplicate-vector guard, A
                     cand.append((n, w))
     cand.sort(key=lambda x: x[0])
     v1 = cand[0][1]
     area_per_point = abs(np.linalg.det(A2)) / len(pts)
     for n, w in cand:
-        if abs(abs(np.dot(w, v1) / n) - np.linalg.norm(v1)) < 0.1 * np.linalg.norm(v1):  # dialect-exempt: collinearity
-            continue  # dialect-exempt: collinearity tolerance
+        if abs(abs(np.dot(w, v1) / n) - np.linalg.norm(v1)) < length_tol * np.linalg.norm(v1):
+            continue  # collinear with v1 (projected length matches |v1|)
         area = abs(v1[0] * w[1] - v1[1] * w[0])
-        if abs(area - area_per_point) <= 0.2 * area_per_point:  # dialect-exempt: cell-area tolerance
+        if abs(area - area_per_point) <= area_tol * area_per_point:
             return np.array(v1, float), np.array(w, float)
     return None
 
@@ -155,7 +159,7 @@ def _apply_reconstruction(frame: Frame, wood_text: str, dialect) -> Frame:
     rule, _period = _parse_wood(wood_text)
     kind = rule[0] if isinstance(rule, tuple) else rule
     top = _top_indices(frame.pos, dialect)
-    net = _net_basis(frame.pos[top][:, :2], frame.cell[:2, :2])
+    net = _net_basis(frame.pos[top][:, :2], frame.cell[:2, :2], dialect)
     if net is None or len(top) < 2:
         raise ChaordError(
             f"reconstruction {wood_text!r}: the top layer is not a single lattice net")
@@ -177,7 +181,7 @@ def _apply_reconstruction(frame: Frame, wood_text: str, dialect) -> Frame:
     else:  # (r3xr3)R30: keep the sqrt(3) sublattice (basis-convention aware)
         cosg = np.clip(np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2)), -1, 1)
         gamma = float(np.degrees(np.arccos(cosg)))
-        s = k[:, 0] - k[:, 1] if gamma < 90 else k[:, 0] + k[:, 1]  # dialect-exempt: 60/120 hex basis split
+        s = k[:, 0] - k[:, 1] if gamma < 90 else k[:, 0] + k[:, 1]  # dialect-exempt: exact-geometry
         keep = np.mod(s, 3) == 0
     if not keep.any():
         raise ChaordError(f"reconstruction {wood_text!r} deletes every top-layer atom")
@@ -218,7 +222,7 @@ def _prototype_surface(name, params, slot_species, hkl, termination, dialect):
         t = dhkl * i / steps
         b = bulk.copy()
         shift = (t * nhat) @ np.linalg.inv(cell)
-        b.set_scaled_positions(np.mod(b.get_scaled_positions() + shift, 1.0))  # dialect-exempt: fractional wrap
+        b.set_scaled_positions(np.mod(b.get_scaled_positions() + shift, 1.0))  # dialect-exempt: numerical-guard: fractional wrap
         slab = ase_surface(b, tuple(int(x) for x in hkl), layers, vacuum=vac)
         top = _top_indices(slab.get_positions(), dialect)
         top_syms = [slab.symbols[int(j)] for j in top]

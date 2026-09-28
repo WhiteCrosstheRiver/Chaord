@@ -30,7 +30,7 @@ def smooth_labels(mask: np.ndarray, frame: Frame, dialect,
     from ..build.defects import typical_neighbor_distance
     L = frame.cell_diag
     pos = np.mod(frame.pos, L)
-    pos = np.minimum(pos, L * (1 - 1e-9))  # dialect-exempt: strict upper edge for KD trees
+    pos = np.minimum(pos, L * (1 - 1e-9))  # dialect-exempt: numerical-guard: strict upper edge for KD trees
     factor = float(dialect.threshold("segment_vote_factor"))
     rc = factor * typical_neighbor_distance(frame)
     flip_frac = float(dialect.threshold("segment_flip_fraction"))
@@ -75,12 +75,12 @@ def solid_fraction_profile(labels: np.ndarray, frame: Frame, axis=2,
     idx = np.clip((frame.pos[:, axis] / L[axis] * n).astype(int), 0, n - 1)
     solid = np.bincount(idx, labels.astype(float), minlength=n)
     total = np.bincount(idx, minlength=n).astype(float)
-    w = int(2)  # dialect-exempt: light circular smoothing width
+    w = int(2)  # light circular smoothing width (integer parameter)
     def circ(a, k):
         pad = np.r_[a[-k:], a, a[:k]]
         return np.convolve(pad, np.ones(k), "same")[k:-k]
-    frac = circ(solid, w) / np.maximum(circ(total, w), 1.0)  # dialect-exempt: divide-by-zero guard
-    centres = 0.5 * (edges[1:] + edges[:-1])  # dialect-exempt: bin centres
+    frac = circ(solid, w) / np.maximum(circ(total, w), 1.0)  # dialect-exempt: numerical-guard: divide-by-zero guard
+    centres = 0.5 * (edges[1:] + edges[:-1])  # dialect-exempt: numerical-guard: bin centres
     return centres, frac
 
 
@@ -88,12 +88,12 @@ def dialect_profile_bin(dialect):
     try:
         return float(dialect.threshold("profile_bin_size"))
     except Exception:
-        return 0.25  # dialect-exempt: fallback bin width
+        return 0.25  # dialect-exempt: numerical-guard: fallback equals core profile_bin_size for dialects without the key
 
 
 def _bin_size_for(dialect, frame):
     L = frame.cell_diag
-    default = max(L[2] / 80.0, 0.25)  # dialect-exempt: sane default bin width
+    default = max(L[2] / 80.0, 0.25)  # dialect-exempt: numerical-guard: fallback bin width for dialects without the key
     try:
         return float(dialect.threshold("profile_bin_size"))
     except Exception:
@@ -109,13 +109,15 @@ def slab_interfaces(labels: np.ndarray, frame: Frame, dialect, axis=2) -> list[d
     L = frame.cell_diag[axis]
     centres, frac = solid_fraction_profile(labels, frame, axis,
                                            bin_size=_bin_size_for(dialect, frame))
+    cross_hi = float(dialect.threshold("segment_cross_high"))
+    cross_lo = float(dialect.threshold("segment_cross_low"))
     n = len(centres)
     interfaces = []
     for i in range(n):
         j = (i + 1) % n  # circular: slabs wrap through the periodic boundary
         a, b = frac[i], frac[j]
-        if (a - 0.5) * (b - 0.5) < 0:  # dialect-exempt: 50% crossing level
-            t = (0.5 - a) / (b - a)  # dialect-exempt: crossing interpolation
+        if (a - 0.5) * (b - 0.5) < 0:  # dialect-exempt: numerical-guard: 50% crossing level
+            t = (0.5 - a) / (b - a)  # dialect-exempt: numerical-guard: crossing interpolation at the 50% level
             z0 = centres[i] + t * (centres[j] - centres[i]) if j > i else \
                 centres[i] + t * ((centres[j] + L) - centres[i])
             z0 = float(np.mod(z0, L))
@@ -123,16 +125,16 @@ def slab_interfaces(labels: np.ndarray, frame: Frame, dialect, axis=2) -> list[d
             lo = hi = z0
             for k in range(n):
                 zk = centres[(i - k) % n] - (L if (i - k) % n > i else 0)
-                if frac[(i - k) % n] > 0.9:  # dialect-exempt: crossing level
+                if frac[(i - k) % n] > cross_hi:
                     lo = zk
                     break
             for k in range(n):
                 idx = (j + k) % n
                 zk = centres[idx] + (L if idx < j else 0)
-                if frac[idx] < 0.1 + 1e-9:  # dialect-exempt: 10% crossing level
+                if frac[idx] < cross_lo + 1e-9:  # dialect-exempt: numerical-guard: fp guard on the crossing level
                     hi = zk
                     break
-            width = float(min(abs(hi - lo), L))  # dialect-exempt: periodic clamp
+            width = float(min(abs(hi - lo), L))  # dialect-exempt: numerical-guard: periodic clamp
             interfaces.append(dict(at=z0, width=width))
     return sorted(interfaces, key=lambda d: d["at"])
 
@@ -157,9 +159,9 @@ def _robust_neighbor_distance(frame: Frame) -> float:
     from scipy.spatial import cKDTree
     L = frame.cell_diag
     pos = np.mod(frame.pos, L)
-    pos = np.minimum(pos, L * (1 - 1e-9))  # dialect-exempt: strict upper edge for KD trees
+    pos = np.minimum(pos, L * (1 - 1e-9))  # dialect-exempt: numerical-guard: strict upper edge for KD trees
     d, _ = cKDTree(pos, boxsize=L).query(pos, k=2)
-    return float(np.percentile(d[:, 1], 75))  # dialect-exempt: robust quartile, not a threshold
+    return float(np.percentile(d[:, 1], 75))  # upper quartile: robust estimator choice, not a threshold
 
 
 def phase_labels_3d(frame: Frame, dialect) -> np.ndarray:
@@ -185,7 +187,7 @@ def phase_labels_3d(frame: Frame, dialect) -> np.ndarray:
     hi = float(dialect.threshold("segment3d_band_hi_factor")) * thr
     L = frame.cell_diag
     pos = np.mod(frame.pos, L)
-    pos = np.minimum(pos, L * (1 - 1e-9))  # dialect-exempt: strict upper edge for KD trees
+    pos = np.minimum(pos, L * (1 - 1e-9))  # dialect-exempt: numerical-guard: strict upper edge for KD trees
     q6, _, _ = qbar(pos, L, rc=rc)
     factor = float(dialect.threshold("segment_vote_factor"))
     rc_vote = factor * _robust_neighbor_distance(frame)
@@ -228,7 +230,7 @@ def interface_mesh(labels: np.ndarray, frame: Frame, dialect) -> dict:
 
     L = frame.cell_diag
     pos = np.mod(frame.pos, L)
-    pos = np.minimum(pos, L * (1 - 1e-9))  # dialect-exempt: strict upper edge for KD trees
+    pos = np.minimum(pos, L * (1 - 1e-9))  # dialect-exempt: numerical-guard: strict upper edge for KD trees
     d = _robust_neighbor_distance(frame)
     radius = float(dialect.threshold("segment_vote_factor")) * d
     normal_radius = float(dialect.threshold("segment3d_normal_factor")) * d
@@ -250,7 +252,7 @@ def interface_mesh(labels: np.ndarray, frame: Frame, dialect) -> dict:
         if solid.any() and not solid.all():
             v = disp[solid].mean(axis=0) - disp[~solid].mean(axis=0)
             norm = np.linalg.norm(v)
-            if norm > 1e-9:               # dialect-exempt: degenerate-normal guard
+            if norm > 1e-9:               # dialect-exempt: numerical-guard: degenerate-normal guard
                 normal = v / norm
         normals.append(normal)
     return dict(indices=np.array(indices, int),

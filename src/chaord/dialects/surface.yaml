@@ -25,6 +25,16 @@ thresholds:
   wood_commensurate_tol: 0.15      # max |coeff - integer| for a commensurate overlayer net
   wood_ratio_tolerance: 0.05       # relative tolerance for sqrt(n) length ratios in Wood text
   wood_angle_tolerance: 2.0        # degrees: rotation-angle rounding for Wood text, deg
+  # --- primitive-net search (surface and substrate layers) ---
+  net_length_tol: 0.1              # relative projected-length match when rejecting a
+                                   # collinear candidate net vector
+  net_cell_area_tol: 0.2           # net cell area vs points-per-area of the layer
+  net_collinear_tol: 0.2           # cross-product area fraction above which two net
+                                   # vectors count as independent
+  layer_dense_fraction: 0.5        # layer counts as dense at this fraction of the
+                                   # biggest layer (bulk-species census)
+  layer_surface_fraction: 0.5      # layer qualifies as the surface at this fraction
+                                   # of the median layer size
   # --- prototype (compound-terminated) slabs ---
   surface_miller_candidates:       # Miller planes tried when identifying a prototype slab
     - [0, 0, 1]

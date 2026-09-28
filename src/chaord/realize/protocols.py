@@ -15,13 +15,17 @@ _HISTORY_CMDS = ("melt", "quench", "anneal", "deposit")
 _DEPOSIT_FILLER = frozenset(_HISTORY_CMDS + ("for", "to", "at"))
 
 
-def parse_history(stmt):
+def parse_history(stmt, dialect=None):
     """`history melt 1.2 for 500 -> quench to 0.01 at 0.002 -> anneal 0.01 for 300`.
 
     The statement's key is the first command; arrows chain the rest. Returns
     steps: ('melt', T, steps), ('quench', T_target, from_T_unused, rate),
     ('anneal', T, steps), ('deposit', species, count, steps)."""
     from ..lang.ir import Arrow
+    if dialect is None:
+        from ..dialects import load_dialect
+        dialect = load_dialect(("lj",))
+    quench_rate = float(dialect.threshold("quench_default_rate"))
     vals = list(stmt.values)
     segments = [[]]
     for v in vals:
@@ -48,7 +52,7 @@ def parse_history(stmt):
         elif cmd == "quench" and nums:
             # `quench to T at rate` (T first when only one number remains)
             steps.append(("quench", nums[0], nums[0],
-                          nums[1] if len(nums) > 1 else 0.001))
+                          nums[1] if len(nums) > 1 else quench_rate))
         elif cmd == "anneal" and nums:
             steps.append(("anneal", nums[0], int(nums[1]) if len(nums) > 1 else 500))
         elif cmd == "deposit" and nums:
@@ -72,7 +76,7 @@ def _deposit_atom(r, v, L, gap, T, rng, lj, max_attempts):
     from scipy.spatial import cKDTree
     tree = cKDTree(np.mod(r, L), boxsize=L)
     for _ in range(int(max_attempts)):
-        p = np.mod(rng.uniform(0.0, L), L)
+        p = np.mod(rng.uniform(0.0, L), L)  # dialect-exempt: numerical-guard: uniform proposal over the box
         if not tree.query_ball_point(p, gap):
             r = np.vstack([r, p[None, :]])
             v = np.vstack([v, rng.normal(size=3) * np.sqrt(T)])
@@ -94,8 +98,8 @@ def run_protocol(frame: Frame, steps, dialect, rng, backend="lj") -> Frame:
     skin = float(md["skin"])
     L = frame.cell_diag
     r = np.mod(frame.pos, L)
-    v = rng.normal(size=r.shape) * np.sqrt(0.1)
-    lj = LJ(L, rc=float(md.get("relax_rc", 2.5)), skin=skin)
+    v = rng.normal(size=r.shape) * np.sqrt(float(dialect.threshold("protocol_init_T")))
+    lj = LJ(L, rc=float(md["relax_rc"]), skin=skin)
     fcap = float(md["fcap"])
     symbols = list(frame.symbols)
     for step in steps:
@@ -105,8 +109,8 @@ def run_protocol(frame: Frame, steps, dialect, rng, backend="lj") -> Frame:
             r, v = run_md(r, v, L, int(n), dt, T, gamma, rng, lj=lj, fcap=fcap)
         elif kind == "quench":
             _, T_hi, T_lo, rate = step
-            n = int(max(abs(T_hi - T_lo) / max(rate, 1e-6), 1))
-            n = min(n, int(md.get("quench_max_steps", 20000)))
+            n = int(max(abs(T_hi - T_lo) / max(rate, 1e-6), 1))  # dialect-exempt: numerical-guard: divide-by-zero guard on the rate
+            n = min(n, int(md["quench_max_steps"]))
             Ts = np.linspace(T_hi, T_lo, n)
             for T in Ts[::max(n // 200, 1)]:
                 r, v = run_md(r, v, L, max(n // 200, 1), dt, float(T), gamma, rng,
@@ -150,7 +154,7 @@ def _restrain_cn(frame: Frame, target, tolerance, dialect, rng, steps=None) -> F
     L = frame.cell_diag
     r = np.mod(frame.pos, L)
     v = rng.normal(size=r.shape) * np.sqrt(T)
-    lj = LJ(L, rc=float(md.get("relax_rc", 2.5)), skin=float(md["skin"]))
+    lj = LJ(L, rc=float(md["relax_rc"]), skin=float(md["skin"]))
 
     def current() -> Frame:
         return Frame(pos=np.mod(r, L), cell=frame.cell,

@@ -49,8 +49,8 @@ def build_amorphous(program: Program, dialect, rng, physics=True,
     if dens.values[0].unit == "g/cm3":
         from ase.data import atomic_masses, chemical_symbols
         from ..build.defects import typical_neighbor_distance  # noqa: F401
-        mass = atomic_masses[chemical_symbols.index(species)] if species in chemical_symbols else 1.0  # dialect-exempt: unit mass fallback
-        rho_number = rho / mass * 0.6022140857  # atoms/A^3  # dialect-exempt: unit conversion
+        mass = atomic_masses[chemical_symbols.index(species)] if species in chemical_symbols else 1.0  # dialect-exempt: numerical-guard: unit-mass fallback for placeholder species
+        rho_number = rho / mass * 0.6022140857  # atoms/A^3  # dialect-exempt: exact-geometry
     else:
         rho_number = rho
     L = float((n / rho_number) ** (1 / 3))
@@ -67,5 +67,5 @@ def build_amorphous(program: Program, dialect, rng, physics=True,
                   pbc=(True, True, True))
     if not physics or not history:
         return frame
-    steps = parse_history(history[0])
+    steps = parse_history(history[0], dialect)
     return run_protocol(frame, steps, dialect, rng)

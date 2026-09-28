@@ -24,7 +24,7 @@ from ..lang.errors import ChaordError
 from ..realize.lj import mic
 
 # factor taking d_NN to the cubic lattice constant for each cubic prototype
-# dialect-exempt-begin: exact crystallographic conversion factors (a from d_NN)
+# dialect-exempt-begin: exact-geometry
 _A_FROM_DNN = {
     "sc": 1.0, "fcc": np.sqrt(2), "bcc": 2 / np.sqrt(3), "diamond": 4 / np.sqrt(3),
     "rocksalt": 2.0, "cscl": 2 / np.sqrt(3), "zincblende": 4 / np.sqrt(3),
@@ -33,11 +33,11 @@ _A_FROM_DNN = {
 # dialect-exempt-end
 
 
-def _box_is_cubic(frame: Frame, tol_frac=0.02) -> bool:  # dialect-exempt: box sanity heuristic
+def _box_is_cubic(frame: Frame, tol_frac=0.02) -> bool:  # dialect-exempt: numerical-guard: box-shape sanity heuristic (currently unused)
     L = frame.cell
     off = np.abs(L - np.diag(np.diag(L))).max()
-    angles_ok = np.allclose(np.diag(L), np.diag(L).mean() * np.ones(3), rtol=0.05)  # dialect-exempt: box sanity
-    return off < 1e-6 and angles_ok  # dialect-exempt: zero tolerance
+    angles_ok = np.allclose(np.diag(L), np.diag(L).mean() * np.ones(3), rtol=0.05)  # dialect-exempt: numerical-guard: box-shape sanity
+    return off < 1e-6 and angles_ok  # dialect-exempt: numerical-guard: zero tolerance for off-diagonal cell entries
 
 
 def ideal_sites(name: str, a: float, box: np.ndarray, slot_species: tuple):
@@ -91,6 +91,7 @@ def fit_crystal(frame: Frame, dialect):
                 candidates.append((name, tuple(perm)))
 
     fit_tol = float(dialect.threshold("lattice_fit_tol_fraction")) * d_nn
+    plausibility = float(dialect.threshold("site_plausibility_floor"))
 
     def scan(name, eff_slots, species_aware):
         a0 = _A_FROM_DNN[name] * d_nn
@@ -101,10 +102,10 @@ def fit_crystal(frame: Frame, dialect):
         lo = float(dialect.threshold("lattice_scan_factor_lo"))
         hi = float(dialect.threshold("lattice_scan_factor_hi"))
         n_scan = int(dialect.threshold("lattice_scan_steps"))
-        for r in np.geomspace(lo, hi, n_scan):  # dialect-exempt: fit scan window
+        for r in np.geomspace(lo, hi, n_scan):
             aa = a0 * r
             sites, s_sp = ideal_sites(name, aa, frame.cell, eff_slots)
-            if len(sites) < total * 0.5:  # dialect-exempt: plausibility floor
+            if len(sites) < total * plausibility:
                 continue
             d_site, i_atom = tree.query(sites)
             near = d_site < tol
@@ -115,9 +116,9 @@ def fit_crystal(frame: Frame, dialect):
             # the candidate is a half-density sublattice of the true lattice
             # (unary bcc/diamond degenerate to sc/fcc without this gate)
             sites_wrapped = np.minimum(np.mod(sites, frame.cell_diag),
-                                       frame.cell_diag * (1 - 1e-9))  # dialect-exempt: strict upper edge
+                                       frame.cell_diag * (1 - 1e-9))  # dialect-exempt: numerical-guard: strict upper edge
             d_atom, _ = cKDTree(sites_wrapped, boxsize=frame.cell_diag).query(
-                np.minimum(pos_wrapped, frame.cell_diag * (1 - 1e-9)))  # dialect-exempt: strict upper edge
+                np.minimum(pos_wrapped, frame.cell_diag * (1 - 1e-9)))  # dialect-exempt: numerical-guard: strict upper edge
             if float((d_atom < tol).mean()) < float(
                     dialect.threshold("lattice_fit_gate_min")):
                 continue
@@ -136,16 +137,16 @@ def fit_crystal(frame: Frame, dialect):
         # refine: two shrinking fine grids around the coarse best (deterministic)
         def quality(aaa):
             sites2, s_sp2 = ideal_sites(name, aaa, frame.cell, eff_slots)
-            if len(sites2) < total * 0.5:  # dialect-exempt: plausibility floor
+            if len(sites2) < total * plausibility:
                 return np.inf, None, None
             d2, i2 = tree.query(sites2)
             near2 = d2 < tol
             if float(near2.mean()) < float(dialect.threshold("lattice_fit_gate_min")):
                 return np.inf, None, None
             sites2_wrapped = np.minimum(np.mod(sites2, frame.cell_diag),
-                                        frame.cell_diag * (1 - 1e-9))  # dialect-exempt: strict upper edge
+                                        frame.cell_diag * (1 - 1e-9))  # dialect-exempt: numerical-guard: strict upper edge
             d_atom2, _ = cKDTree(sites2_wrapped, boxsize=frame.cell_diag).query(
-                np.minimum(pos_wrapped, frame.cell_diag * (1 - 1e-9)))  # dialect-exempt: strict upper edge
+                np.minimum(pos_wrapped, frame.cell_diag * (1 - 1e-9)))  # dialect-exempt: numerical-guard: strict upper edge
             if float((d_atom2 < tol).mean()) < float(
                     dialect.threshold("lattice_fit_gate_min")):
                 return np.inf, None, None
@@ -156,8 +157,8 @@ def fit_crystal(frame: Frame, dialect):
 
         refine_half = float(dialect.threshold("lattice_refine_half"))
         half = refine_half
-        for _ in range(int(dialect.threshold("lattice_refine_passes"))):  # dialect-exempt: shrink schedule
-            for aaa in np.linspace(aa - half, aa + half, 11):  # dialect-exempt: refinement grid
+        for _ in range(int(dialect.threshold("lattice_refine_passes"))):
+            for aaa in np.linspace(aa - half, aa + half, 11):
                 if aaa <= 0:
                     continue
                 qc, sc, spc = quality(aaa)
@@ -169,7 +170,7 @@ def fit_crystal(frame: Frame, dialect):
     best_multi = None
     for name, slot_species in candidates:
         r = scan(name, slot_species, species_aware=True)
-        if r and r[1] > 0.5 and (best_multi is None or r[1] > best_multi[3]):  # dialect-exempt: plausibility floor
+        if r and r[1] > plausibility and (best_multi is None or r[1] > best_multi[3]):
             best_multi = (name, r[0], slot_species, r[1], r[2], r[3])
     pref_min = float(dialect.threshold("stoichiometric_preference_min"))
     if best_multi is not None and best_multi[3] >= pref_min:
@@ -178,7 +179,7 @@ def fit_crystal(frame: Frame, dialect):
     best = None
     for name in unary:                        # occupancy mode: any species count
         r = scan(name, (pops[0],), species_aware=False)
-        if r and r[1] > 0.5 and (best is None or r[1] > best[3]):  # dialect-exempt: plausibility floor
+        if r and r[1] > plausibility and (best is None or r[1] > best[3]):
             best = (name, r[0], None, r[1], r[2], r[3])
     if best is None:
         raise ChaordError("no cubic prototype fits the frame (M2 supports cubic defect hosts)")

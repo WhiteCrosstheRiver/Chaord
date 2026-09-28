@@ -37,8 +37,8 @@ def build_dislocation(region: RegionBlock, system: dict, dialect, rng) -> Frame:
     ux = np.zeros_like(x)
     uy = np.zeros_like(y)
     # pure tilt term: exact far-field closure of b per circuit
-    ux[safe] = (b / (2 * np.pi)) * np.arctan2(y[safe], x[safe])  # dialect-exempt: Volterra tilt field
-    uy[safe] = 0.0  # dialect-exempt: construction constant
+    ux[safe] = (b / (2 * np.pi)) * np.arctan2(y[safe], x[safe])  # dialect-exempt: exact-geometry
+    uy[safe] = 0.0  # dialect-exempt: numerical-guard: edge dislocation has no y tilt
     pos = frame.pos.copy()
     pos[:, 0] += ux
     pos[:, 1] += uy

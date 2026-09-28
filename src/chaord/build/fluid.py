@@ -35,14 +35,14 @@ def _molecule_counts(region) -> dict[str, int]:
 def _box_from_density(counts, density_stmt, program) -> np.ndarray:
     """Cubic box edge from mass and target g/cm3 density (auto cell)."""
     from ase.data import atomic_masses, chemical_symbols
-    total_mass = 0.0  # dialect-exempt: accumulator init
+    total_mass = 0.0  # dialect-exempt: numerical-guard: accumulator init
     for name, n in counts.items():
         if name in TEMPLATES:
             total_mass += molecular_mass(name) * n
         else:
             total_mass += atomic_masses[chemical_symbols.index(name)] * n
     rho = _num(density_stmt.values[0])  # g/cm3
-    vol_amu = total_mass / rho / 0.6022140857  # A^3  # dialect-exempt: unit conversion
+    vol_amu = total_mass / rho / 0.6022140857  # A^3  # dialect-exempt: exact-geometry
     edge = float(vol_amu ** (1 / 3))
     return np.array([edge, edge, edge])
 
@@ -89,13 +89,13 @@ def build_fluid(program: Program, dialect, rng, physics=True, md_steps=None) -> 
     if dens is not None and dens.values and dens.values[0].t == "q" and (
             dens.values[0].unit == "g/cm3"):
         from ase.data import atomic_masses, chemical_symbols
-        total_mass = 0.0  # dialect-exempt: accumulator init
+        total_mass = 0.0  # dialect-exempt: numerical-guard: accumulator init
         for name, n in counts.items():
             if name in TEMPLATES:
                 total_mass += molecular_mass(name) * n
             else:
                 total_mass += atomic_masses[chemical_symbols.index(name)] * n
-        rho = total_mass / float(np.prod(L)) / 0.6022140857  # dialect-exempt: unit conversion
+        rho = total_mass / float(np.prod(L)) / 0.6022140857  # dialect-exempt: exact-geometry
         stated = _num(dens.values[0])
         tol = float(dialect.threshold("density_match_tolerance"))
         if abs(rho - stated) > tol * stated:
@@ -179,7 +179,7 @@ def build_fluid(program: Program, dialect, rng, physics=True, md_steps=None) -> 
         return frame
     md = dialect.threshold("md")
     L3 = frame.cell_diag
-    lj = LJ(L3, rc=float(md.get("relax_rc", 2.5)), skin=float(md["skin"]))  # dialect-exempt: fallback cutoff
+    lj = LJ(L3, rc=float(md["relax_rc"]), skin=float(md["skin"]))
     r = np.mod(frame.pos, L3)
     v = np.zeros_like(r)
     r, v = run_md(r, v, L3, int(md["relax_steps_fast"]), float(md["relax_dt_fast"]),

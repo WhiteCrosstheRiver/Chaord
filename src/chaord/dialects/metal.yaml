@@ -98,6 +98,8 @@ thresholds:
   lattice_refine_half: 0.05        # half-width of the fine lattice-constant search, A
   lattice_refine_steps: 18
   lattice_refine_passes: 3         # successive grid refinements for the constant
+  site_plausibility_floor: 0.5     # a host candidate must explain at least this fraction
+                                   # of the atoms/sites to count as plausible
   sro_bootstrap_samples: 8        # null reshuffles sizing the SRO emission band
   sro_bootstrap_seed: 20260927
   q6_cutoff: 3.0                    # phase-indicator neighbour cutoff for metals, A
@@ -105,6 +107,8 @@ thresholds:
   dislocation_core_radius: 1.2     # inside this the Volterra field is unset, A
   burgers_tol: 0.25                # lattice-step tolerance for the circuit closure
   csl_angle_tol: 2.0               # degrees: misorientation to CSL match
+  gb_shell_length_tol: 0.10        # first-shell vector length band for CSL detection,
+                                   # as a fraction of the lattice constant
   circuit_inset_x: 0.15            # Burgers loop inset from the box x faces
   circuit_inset_y: 0.15            # ... and y faces
   slab_cn_factor: 1.15              # coordination cutoff for family detection, x d_NN

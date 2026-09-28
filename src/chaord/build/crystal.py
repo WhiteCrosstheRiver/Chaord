@@ -143,7 +143,7 @@ def build_conventional(name: str, params: dict, slots_species: tuple,
     for p0, s in zip(cart_basis, species):
         cand = p0 + offsets
         f = cand @ inv_cell
-        keep = np.all((f > -1e-9) & (f < 1 - 1e-9), axis=1)  # dialect-exempt: fp tolerance
+        keep = np.all((f > -1e-9) & (f < 1 - 1e-9), axis=1)  # dialect-exempt: numerical-guard: fp tolerance on fractional coordinates
         pos_list.append(cand[keep])
         sym_list.extend([s] * int(keep.sum()))
     pos = np.vstack(pos_list)

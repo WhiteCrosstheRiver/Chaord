@@ -30,41 +30,52 @@ def observables(frame: Frame, dialect, rmax=None, bins=None) -> dict:
 
     rc = float(dialect.threshold("cn_cutoff_fluid"))
     counts = np.array([len(x) - 1 for x in tree.query_ball_point(pos, rc)])
-    hist = np.histogram(counts, np.arange(-0.5, 25.5))[0].astype(float)
-    hist = hist / max(hist.sum(), 1.0)  # dialect-exempt: normalisation guard
-    return {"gr": g, "rm": 0.5 * (e[1:] + e[:-1]), "cn": float(counts.mean()),
+    hist = np.histogram(counts, np.arange(-0.5, 25.5))[0].astype(float)  # dialect-exempt: numerical-guard: half-integer bin edges for integer counts
+    hist = hist / max(hist.sum(), 1.0)  # dialect-exempt: numerical-guard: normalisation guard
+    return {"gr": g, "rm": 0.5 * (e[1:] + e[:-1]), "cn": float(counts.mean()),  # dialect-exempt: numerical-guard: bin centres
             "cn_hist": hist}
 
 
-def distance(o1: dict, o2: dict, rmin=0.8) -> dict:
-    """Distances between two observable sets (g(r) RMS, cn histogram TV)."""
+def distance(o1: dict, o2: dict, rmin=None, dialect=None) -> dict:
+    """Distances between two observable sets (g(r) RMS, cn histogram TV).
+
+    The g(r) RMS ignores r below `rmin`, read from the dialect
+    (`noise_gr_rmin`: sigma in lj, A in core) unless the caller passes one."""
+    if rmin is None:
+        from ..dialects import load_dialect
+        d = dialect if dialect is not None else load_dialect(("core",))
+        rmin = float(d.threshold("noise_gr_rmin"))
     m = o1["rm"] > rmin
     gr_rms = float(np.sqrt(np.mean((o1["gr"][m] - o2["gr"][m]) ** 2)))
     n = min(len(o1["cn_hist"]), len(o2["cn_hist"]))
-    cn_tv = float(0.5 * np.abs(o1["cn_hist"][:n] - o2["cn_hist"][:n]).sum())
+    cn_tv = float(0.5 * np.abs(o1["cn_hist"][:n] - o2["cn_hist"][:n]).sum())  # dialect-exempt: exact-geometry
     return {"gr_rms": gr_rms, "cn_tv": cn_tv}
 
 
 def noise_floor(frame_a: Frame, frame_b: Frame, dialect) -> dict:
-    return distance(observables(frame_a, dialect), observables(frame_b, dialect))
+    return distance(observables(frame_a, dialect), observables(frame_b, dialect),
+                    dialect=dialect)
 
 
 def within_floor(frame_rebuilt: Frame, frame_original: Frame,
-                 frame_later: Frame, dialect, factor: float = 1.5) -> dict:
+                 frame_later: Frame, dialect, factor: float = None) -> dict:
     """Statistical round-trip verdict against the measured noise floor.
 
     The floor is the distance between `frame_original` and `frame_later`, two
     frames of the same reference simulation; the verdict asks whether the
     rebuilt frame is closer to the original than `factor` times that natural
-    fluctuation, key by key."""
+    fluctuation, key by key. `factor` defaults to the dialect's
+    `noise_floor_factor`."""
+    if factor is None:
+        factor = float(dialect.threshold("noise_floor_factor"))
     oo = observables(frame_original, dialect)
     ol = observables(frame_later, dialect)
     o_re = observables(frame_rebuilt, dialect)
-    d_ref = distance(oo, ol)
-    d_re = distance(oo, o_re)
+    d_ref = distance(oo, ol, dialect=dialect)
+    d_re = distance(oo, o_re, dialect=dialect)
     out = {}
     for k in d_ref:
-        floor = max(d_ref[k], 1e-6)  # dialect-exempt: degenerate-floor guard
+        floor = max(d_ref[k], 1e-6)  # dialect-exempt: numerical-guard: degenerate-floor guard
         out[k] = dict(distance=d_re[k], floor=d_ref[k], ratio=d_re[k] / floor,
                       passed=bool(d_re[k] <= factor * floor))
     return out

@@ -11,19 +11,19 @@ from ..realize.lj import mic
 
 def _wrap(pos, L):
     """Positions strictly inside [0, L): cKDTree boxsize-safe."""
-    return np.minimum(np.mod(pos, L), L * (1 - 1e-9))  # dialect-exempt: strict upper edge
+    return np.minimum(np.mod(pos, L), L * (1 - 1e-9))  # dialect-exempt: numerical-guard: strict upper edge for KD trees
 
 
 def _family_and_a(frame: Frame, pos, L, tree, dnn, dialect):
     """fcc/bcc family from interior coordination, a from d_NN, |b| of the family."""
     from .defects import _A_FROM_DNN
     cn_cut = float(dialect.threshold("slab_cn_factor")) * dnn
-    zmid0 = 0.5 * L[2]  # dialect-exempt: construction constant
-    interior = pos[np.abs(pos[:, 2] - zmid0) < 0.3 * zmid0]  # dialect-exempt: construction constant
+    zmid0 = 0.5 * L[2]  # dialect-exempt: numerical-guard: box mid-plane
+    interior = pos[np.abs(pos[:, 2] - zmid0) < 0.3 * zmid0]  # dialect-exempt: numerical-guard: interior sampling band (middle 30% of the box)
     cn = float(np.mean([len(x) - 1 for x in tree.query_ball_point(interior, cn_cut)]))
     family = "fcc" if cn >= float(dialect.threshold("fcc_cn_min")) else "bcc"
     a = _A_FROM_DNN[family] * dnn
-    b_fam = a / np.sqrt(2) if family == "fcc" else a * np.sqrt(3) / 2  # dialect-exempt: a/2<110>, a/2<111>
+    b_fam = a / np.sqrt(2) if family == "fcc" else a * np.sqrt(3) / 2  # dialect-exempt: exact-geometry
     return family, a, b_fam
 
 
@@ -45,17 +45,17 @@ def _derived_basis(pos, L, tree, dnn, family, a, dialect):
                         np.linalg.norm(vecs, axis=1)))
     vecs = vecs[order]
     v1 = vecs[0]
-    v2 = next((v for v in vecs[1:] if np.linalg.norm(np.cross(v, v1)) > 1e-8), None)  # dialect-exempt: degenerate
+    v2 = next((v for v in vecs[1:] if np.linalg.norm(np.cross(v, v1)) > 1e-8), None)  # dialect-exempt: numerical-guard: degenerate-vector guard
     if v2 is None:
         return None
     v3 = next((v for v in vecs[2:]
-               if abs(np.dot(np.cross(v1, v2), v)) > 1e-8), None)  # dialect-exempt: coplanar
+               if abs(np.dot(np.cross(v1, v2), v)) > 1e-8), None)  # dialect-exempt: numerical-guard: coplanarity guard
     if v3 is None:
         return None
     B = np.array([v1, v2, v3], float)
     # primitive-volume check against the family (fcc a^3/4, bcc a^3/2)
-    want = (a ** 3) / 4 if family == "fcc" else (a ** 3) / 2  # dialect-exempt: primitive volumes
-    if abs(abs(np.linalg.det(B)) - want) > 1e-6 * want:  # dialect-exempt: fp tolerance
+    want = (a ** 3) / 4 if family == "fcc" else (a ** 3) / 2  # dialect-exempt: exact-geometry
+    if abs(abs(np.linalg.det(B)) - want) > 1e-6 * want:  # dialect-exempt: numerical-guard: fp tolerance on the primitive volume
         return None
     return B
 
@@ -85,15 +85,15 @@ def _mean_offset_vector(pos, L, tree, family, a, B, dialect):
 
     floor = float(dialect.threshold("burgers_detect_min")) * a
     for axis in (0, 1):
-        mid = 0.5 * L[axis]  # dialect-exempt: construction constant
-        band = 0.2 * L[axis]  # dialect-exempt: construction constant
+        mid = 0.5 * L[axis]  # dialect-exempt: numerical-guard: box mid-plane
+        band = 0.2 * L[axis]  # dialect-exempt: numerical-guard: top/bottom sampling band width
         top = shift[pos[:, axis] > mid + band]
         bottom = shift[pos[:, axis] < mid - band]
         if len(top) < 10 or len(bottom) < 10:
             continue
-        b2d = 2.0 * (top.mean(axis=0) - bottom.mean(axis=0))  # dialect-exempt: half-difference
+        b2d = 2.0 * (top.mean(axis=0) - bottom.mean(axis=0))  # dialect-exempt: exact-geometry
         if float(np.linalg.norm(b2d[:2])) >= floor:
-            return np.array([b2d[0], b2d[1], 0.0])  # dialect-exempt: line along z
+            return np.array([b2d[0], b2d[1], 0.0])  # dialect-exempt: numerical-guard: zero z of a line along z
     return None
 
 
@@ -104,7 +104,7 @@ def _axis_lattice_repeat(nn, axis, dialect):
     keep = []
     for v in cand:
         n = np.linalg.norm(v)
-        if n < 1e-8 or v[axis] <= 0:  # dialect-exempt: degenerate / wrong sense
+        if n < 1e-8 or v[axis] <= 0:  # dialect-exempt: numerical-guard: degenerate / wrong sense
             continue
         if abs(v[axis]) / n > np.cos(np.radians(tol)):
             keep.append(v)
@@ -143,7 +143,7 @@ def _rows_along(pos, L, tree, t, link_tol):
 
 def _two_means(v):
     """Means of the two value clusters of a step profile (1-D 2-means)."""
-    thr = 0.5 * (v.min() + v.max())  # dialect-exempt: midpoint split
+    thr = 0.5 * (v.min() + v.max())  # dialect-exempt: numerical-guard: midpoint of the value range
     lo, hi = v[v <= thr], v[v > thr]
     m1 = float(lo.mean()) if len(lo) else float(v.mean())
     m2 = float(hi.mean()) if len(hi) else float(v.mean())
@@ -253,7 +253,7 @@ def burgers_vector(frame: Frame, dialect) -> np.ndarray | None:
 
 def _in_plane_vectors(pos, L, k=8):
     """The k shortest xy-dominant lattice vectors of a grain (mid-grain atom)."""
-    pos = np.minimum(np.mod(pos, L), L * (1 - 1e-9))  # dialect-exempt: strict upper edge
+    pos = np.minimum(np.mod(pos, L), L * (1 - 1e-9))  # dialect-exempt: numerical-guard: strict upper edge for KD trees
     z = pos[:, 2]
     p0 = pos[np.argsort(np.abs(z - np.median(z)))[0]]
     cand = []
@@ -261,7 +261,7 @@ def _in_plane_vectors(pos, L, k=8):
         v = q - p0
         v -= L * np.round(v / L)
         n = np.linalg.norm(v)
-        if n > 0.5 and abs(v[2]) < 0.2 * n:  # dialect-exempt: in-plane filter
+        if n > 0.5 and abs(v[2]) < 0.2 * n:  # dialect-exempt: numerical-guard: in-plane filter (sub-noise / out-of-plane rejection)
             cand.append((n, v))
     cand.sort(key=lambda x: x[0])
     return [v for _n, v in cand[:k]]
@@ -270,8 +270,8 @@ def _in_plane_vectors(pos, L, k=8):
 def grain_boundary_sigma(frame: Frame, dialect) -> int | None:
     """Misorientation between z-half grains -> the [001] CSL Sigma."""
     L = frame.cell_diag
-    zmid = 0.5 * L[2]  # dialect-exempt: construction constant
-    pos = np.minimum(np.mod(frame.pos, L), L * (1 - 1e-9))  # dialect-exempt: strict upper edge
+    zmid = 0.5 * L[2]  # dialect-exempt: numerical-guard: box mid-plane
+    pos = np.minimum(np.mod(frame.pos, L), L * (1 - 1e-9))  # dialect-exempt: numerical-guard: strict upper edge for KD trees
     lower = pos[pos[:, 2] < zmid]
     upper = pos[pos[:, 2] >= zmid]
     if len(lower) < 20 or len(upper) < 20:
@@ -282,17 +282,18 @@ def grain_boundary_sigma(frame: Frame, dialect) -> int | None:
         return None
     # compare only first-shell in-plane vectors: both grains' shortest set
     a = min(np.linalg.norm(v) for v in va)
+    shell_tol = float(dialect.threshold("gb_shell_length_tol"))
     ang = lambda v: np.degrees(np.arctan2(v[1], v[0]))
-    theta = 90.0  # dialect-exempt: construction constant
+    theta = 90.0  # dialect-exempt: numerical-guard: [001] quadrant span, deg
     for x in va:
-        if abs(np.linalg.norm(x) - a) > 0.1 * a:  # dialect-exempt: construction constant
+        if abs(np.linalg.norm(x) - a) > shell_tol * a:
             continue
         for y_ in vb:
-            if abs(np.linalg.norm(y_) - a) > 0.1 * a:  # dialect-exempt: construction constant
+            if abs(np.linalg.norm(y_) - a) > shell_tol * a:
                 continue
-            d = abs(ang(y_) - ang(x)) % 90.0  # dialect-exempt: construction constant
-            if d > 45.0:  # dialect-exempt: construction constant
-                d = 90.0 - d  # dialect-exempt: construction constant
+            d = abs(ang(y_) - ang(x)) % 90.0  # dialect-exempt: numerical-guard: fold into one [001] quadrant
+            if d > 45.0:  # dialect-exempt: numerical-guard: fold into half a quadrant
+                d = 90.0 - d  # dialect-exempt: numerical-guard: fold into half a quadrant
             theta = min(theta, d)
     # CSL [001]: theta = 2 atan(n/m), Sigma = m^2 + n^2 (coprime m, n)
     tol = float(dialect.threshold("csl_angle_tol"))
