@@ -40,4 +40,4 @@ One row per statement key declared in `src/chaord/dialects/*.yaml`, with a passi
 | `units` | core:system | `units lj` | 01_solid_liquid_lifted.chaord | yes |
 | `width` | core:interface | `width 1.1` | 01_solid_liquid_lifted.chaord | yes |
 
-<!-- verification-ping -->
+<!-- second-green -->
