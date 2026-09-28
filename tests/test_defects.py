@@ -195,3 +195,19 @@ def test_conservation_exact_for_defects(dialect):
     from chaord.check.statics import conservation_check
     result = conservation_check(program, fd)
     assert result.passed, result.detail
+
+
+@pytest.mark.parametrize("name,params,species", [
+    ("bcc", {"a": 2.87}, "Fe"),
+    ("diamond", {"a": 5.43}, "Si"),
+], ids=["bcc", "diamond"])
+def test_unary_bcc_diamond_not_degenerate(dialect, name, params, species):
+    """Regression: a half-density sublattice must not win the unary fit
+    (bcc/diamond were read as sc/fcc before the atom-coverage gate)."""
+    rng = np.random.default_rng(7)
+    f = build_conventional(name, params, (species,), (2, 2, 2))
+    fd = apply_defects(f, [_kv(f"V_{species}", 2)], rng, dialect)
+    text = format_program(lift_frame(fd, dialect, mode="defects"))
+    lattice = next(l for l in text.splitlines() if l.strip().startswith("lattice"))
+    assert f"lattice {name}" in lattice
+    assert f"V_{species} count 2" in text

@@ -1,0 +1,81 @@
+{
+  "schema": "chaord-bench/2",
+  "case": "si001_2x1",
+  "category": "surfaces",
+  "description": "diamond Si(001) slab (ASE diamond100 path, a = 5.43, 3x3x4 then tiled 2x along x so the surface cell holds whole p(2x1) cells) with an independently planted p(2x1) missing-row top layer (every other top-layer row deleted); small thermal displacement per frame (the Wood net read compares two primitive vectors per layer with no ensemble averaging)",
+  "seed": 211,
+  "n_frames": 5,
+  "frames": [
+    {
+      "file": "frame_0.npz",
+      "seed": 211,
+      "n_atoms": 63,
+      "counts": {
+        "Si": 63
+      },
+      "n_top": 9
+    },
+    {
+      "file": "frame_1.npz",
+      "seed": 212,
+      "n_atoms": 63,
+      "counts": {
+        "Si": 63
+      },
+      "n_top": 9
+    },
+    {
+      "file": "frame_2.npz",
+      "seed": 213,
+      "n_atoms": 63,
+      "counts": {
+        "Si": 63
+      },
+      "n_top": 9
+    },
+    {
+      "file": "frame_3.npz",
+      "seed": 214,
+      "n_atoms": 63,
+      "counts": {
+        "Si": 63
+      },
+      "n_top": 9
+    },
+    {
+      "file": "frame_4.npz",
+      "seed": 215,
+      "n_atoms": 63,
+      "counts": {
+        "Si": 63
+      },
+      "n_top": 9
+    }
+  ],
+  "lift_mode": "surface",
+  "lift_dialect": [
+    "core",
+    "metal",
+    "surface"
+  ],
+  "thermal_amplitude": 0.05,
+  "expected": {
+    "surface": "(001)",
+    "termination": "Si",
+    "reconstruction": "p(2x1)",
+    "n_top": 9,
+    "top_z": 4.072499999999999,
+    "d_layer": 1.3575,
+    "prototype": "diamond",
+    "a": 5.43,
+    "counts": {
+      "Si": 63
+    },
+    "n_atoms": 63,
+    "cell": [
+      23.037538931057718,
+      11.518769465528859,
+      16.072499999999998
+    ]
+  }
+}

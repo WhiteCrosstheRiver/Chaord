@@ -1,4 +1,10 @@
-"""Surface lifter: slab + vacuum + adsorbates -> canonical program (M4)."""
+"""Surface lifter: slab + vacuum + adsorbates / molecular overlayer (M4, M6).
+
+Atoms above the surface layer lift as single-atom `adsorb` statements; a
+molecular census of the surface zone (the top layer and everything above)
+additionally yields a liquid `overlayer` region of `molecules` statements and,
+when dissociation fragments (OH + H) are present, a `dissociate` statement on
+the slab | overlayer interface."""
 from __future__ import annotations
 
 import numpy as np
@@ -9,7 +15,7 @@ from ..lang.errors import ChaordError
 from ..lang.ir import (
     GeoChain, InterfaceBlock, Name, PhysicsBlock, Plane, Program,
     ProvenanceBlock, Quantity, RangeVal, RegionBlock, ResidualBlock, ShSlab,
-    Statement, StrVal, SystemBlock, Wood,
+    SpecDef, SpeciesBlock, Statement, StrVal, SystemBlock, Wood,
 )
 from ..build.prototypes import PROTOTYPES
 
@@ -70,22 +76,35 @@ def _top_layer(frame: Frame, dialect):
     the surface layer has at least half the median layer size — or carries
     only species present in the dense (bulk) layers, which keeps sparse
     reconstructions (missing-row p(2x1), (r3xr3)R30) recognisable as the
-    surface layer rather than adsorbates."""
+    surface layer rather than adsorbates. A molecular overlayer sits across a
+    vacuum gap from the slab, so layers are first split at gaps wider than the
+    dialect's vacuum threshold and only the atom-majority group (the slab
+    stack) is searched: a dense all-bulk-species fragment of the overlayer is
+    never the surface layer."""
     layers = _layers(frame, dialect)
-    sizes = [len(l) for l in layers if len(l) >= 2] or [len(layers[-1])]
+    gap = float(dialect.threshold("vacuum_gap_min"))
+    groups: list[list] = []
+    for layer in layers:
+        if groups and (frame.pos[layer, 2].min()
+                       - frame.pos[groups[-1][-1], 2].max()) <= gap:
+            groups[-1].append(layer)
+        else:
+            groups.append([layer])
+    stack = max(groups, key=lambda g: sum(len(l) for l in g))
+    sizes = [len(l) for l in stack if len(l) >= 2] or [len(stack[-1])]
     median = float(np.median(sizes))
     syms = np.array(frame.symbols)
-    biggest = max((len(l) for l in layers), default=0)
+    biggest = max((len(l) for l in stack), default=0)
     bulk_species = set()
-    for layer in layers:
+    for layer in stack:
         if len(layer) >= 0.5 * biggest:  # dialect-exempt: dense-layer floor
             bulk_species |= set(syms[layer])
-    for layer in reversed(layers):
+    for layer in reversed(stack):
         if len(layer) < 2:
             continue
         if len(layer) >= 0.5 * median or set(syms[layer]) <= bulk_species:  # dialect-exempt: layer size floor
             return layer, float(frame.pos[layer, 2].max())
-    return layers[-1], float(frame.pos[layers[-1], 2].max())
+    return stack[-1], float(frame.pos[stack[-1], 2].max())
 
 
 def _net_vectors(pts2d, cell2d):
@@ -452,8 +471,45 @@ def _classify_sites(frame: Frame, ads_idx, top_idx, dialect):
     return out
 
 
+def _zone_census(frame: Frame, dialect, zone):
+    """(overlayer census, zone census, atom mask) of the surface zone.
+
+    The bond graph needs the whole periodic frame (a molecule may straddle the
+    periodic boundary); only afterwards are the connected components filtered
+    to those with every atom under the boolean `zone` mask. The zone census
+    counts every fully-in-zone component (single atoms included, they feed the
+    dissociation bookkeeping); the overlayer census counts the multi-atom
+    molecules only, and the boolean mask marks their atoms."""
+    from ..build.molecules import _formula, bond_graph
+    from scipy.sparse import coo_matrix
+    from scipy.sparse.csgraph import connected_components
+    edges = bond_graph(frame, dialect)
+    n = len(frame)
+    if edges:
+        rows = [e[0] for e in edges] + [e[1] for e in edges]
+        cols = [e[1] for e in edges] + [e[0] for e in edges]
+        _, labels = connected_components(
+            coo_matrix((np.ones(len(rows)), (rows, cols)), shape=(n, n)), directed=False)
+    else:
+        labels = np.arange(n)
+    zone_census: dict[str, int] = {}
+    overlayer: dict[str, int] = {}
+    mask = np.zeros(n, bool)
+    for g in range(labels.max() + 1):
+        idx = np.where(labels == g)[0]
+        if not bool(zone[idx].all()):
+            continue
+        formula = _formula([frame.symbols[i] for i in idx])
+        zone_census[formula] = zone_census.get(formula, 0) + 1
+        if len(idx) >= 2:
+            overlayer[formula] = overlayer.get(formula, 0) + 1
+            mask[idx] = True
+    return overlayer, zone_census, mask
+
+
 def lift_surface(frame: Frame, dialect, backend="eam") -> Program:
-    """Lift a slab + vacuum (+ adsorbates) frame into a canonical Program."""
+    """Lift a slab + vacuum (+ adsorbates / molecular overlayer) frame into a
+    canonical Program."""
     syms = np.array(frame.symbols)
 
     # adsorbates: every atom above the slab's surface layer
@@ -461,6 +517,21 @@ def lift_surface(frame: Frame, dialect, backend="eam") -> Program:
     slab_idx = np.where(frame.pos[:, 2] <= top_z + 0.5 * float(  # dialect-exempt: half layer tolerance
         dialect.threshold("layer_tolerance")))[0]
     ads_idx = np.setdiff1d(np.arange(len(frame.pos)), slab_idx)
+
+    # reactive overlayer: molecules of the surface zone (the top layer and
+    # everything above) lift as a liquid `overlayer` region; single atoms of
+    # the zone keep the adsorb route below. Without a molecular dialect there
+    # is no bond rule and the frame lifts exactly as before.
+    overlayer: dict[str, int] = {}
+    zone_census: dict[str, int] = {}
+    mol_mask = np.zeros(len(frame), bool)
+    if len(ads_idx):
+        zone = frame.pos[:, 2] > top_z - float(dialect.threshold("layer_tolerance"))
+        try:
+            overlayer, zone_census, mol_mask = _zone_census(frame, dialect, zone)
+        except ChaordError:
+            overlayer, zone_census, mol_mask = {}, {}, np.zeros(len(frame), bool)
+        ads_idx = ads_idx[~mol_mask[ads_idx]]
 
     # bulk identification: a compound slab is matched against the prototype
     # registry through one stacking period; a unary slab keeps the M4 route
@@ -519,8 +590,10 @@ def lift_surface(frame: Frame, dialect, backend="eam") -> Program:
             termination = _termination_names(dialect)[s]
             break
 
+    # conservation is per element over the whole frame: slab + adsorbates +
+    # overlayer molecules all count (never drop an atom)
     counts: dict[str, int] = {}
-    for s in list(syms[slab_idx]):
+    for s in frame.symbols:
         counts[s] = counts.get(s, 0) + 1
     conserve_values = []
     for s in sorted(counts):
@@ -588,21 +661,48 @@ def lift_surface(frame: Frame, dialect, backend="eam") -> Program:
                           lo=Quantity(num=f"{top_z:.1f}"),
                           hi=Quantity(num=f"{z_vac:.1f}")))], ops=[]),
                       statements=[])
-    iface = InterfaceBlock(a="slab", b="gap", statements=[
+    interface_stmts = [
         Statement(kind="build", key="at", values=[
             _n2("z"), Quantity(num=f"{top_z:.1f}")]),
         Statement(kind="build", key="width", values=[
             Quantity(num=f"{float(dialect.threshold('vacuum_interface_width')):.1f}")]),
-    ])
+    ]
+    blocks = [system, physics]
+    if overlayer:
+        from .reactive import display_name, dissociation_from_census
+        # species definitions carry no source: the census identified them, no
+        # SMILES is needed to re-build the templates
+        blocks.append(SpeciesBlock(defs=[
+            SpecDef(k="molecule", name=display_name(f))
+            for f in sorted(overlayer, key=display_name)]))
+        blocks.append(region)
+        blocks.append(RegionBlock(
+            phase="liquid", name="overlayer",
+            geometry=GeoChain(parts=[ShSlab(axis="z", rng=RangeVal(
+                lo=Quantity(num=f"{top_z:.1f}"),
+                hi=Quantity(num=f"{z_vac:.1f}")))], ops=[]),
+            statements=[Statement(
+                kind="build", key="molecules",
+                values=[_n2(display_name(f)), Quantity(num=str(overlayer[f]))])
+                for f in sorted(overlayer, key=display_name)]))
+        dissociation = dissociation_from_census(zone_census)
+        if dissociation is not None:
+            interface_stmts.append(dissociation)
+        iface = InterfaceBlock(a="slab", b="overlayer",
+                               statements=interface_stmts)
+    else:
+        blocks.append(region)
+        iface = InterfaceBlock(a="slab", b="gap", statements=interface_stmts)
+    blocks += [vac, iface, ResidualBlock(none=True),
+               ProvenanceBlock(statements=[
+                   Statement(kind="build", key="dialects",
+                             values=[StrVal(text=dialect.version_string)]),
+                   Statement(kind="build", key="lift_version",
+                             values=[StrVal(text="0.1.0")]),
+               ])]
     return Program(
         version="0.1", dialects=list(dialect.names),  # dialect-exempt: language version
-        blocks=[system, physics, region, vac, iface, ResidualBlock(none=True),
-                ProvenanceBlock(statements=[
-                    Statement(kind="build", key="dialects",
-                              values=[StrVal(text=dialect.version_string)]),
-                    Statement(kind="build", key="lift_version",
-                              values=[StrVal(text="0.1.0")]),
-                ])])
+        blocks=blocks)
 
 
 def _n2(text):

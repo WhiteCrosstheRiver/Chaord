@@ -1,0 +1,104 @@
+{
+  "schema": "chaord-bench/2",
+  "case": "cu_water",
+  "category": "interfaces",
+  "description": "Cu/water interface: fcc Cu block (4x4x6 conventional cells, a = 3.615) filling the lower half of a doubled box, 136 H2O RSA-packed into the upper half at 0.9 g/cm3 with the Cu atoms as excluded obstacles; per-frame two-phase label accuracy measured with the core+metal dialect (q6 rule, interface band excluded)",
+  "seed": 197,
+  "n_frames": 5,
+  "frames": [
+    {
+      "file": "frame_0.npz",
+      "seed": 197,
+      "n_atoms": 792,
+      "counts": {
+        "Cu": 384,
+        "H": 272,
+        "O": 136
+      },
+      "segmentation_accuracy": 1.0,
+      "segmentation_core_atoms": 692,
+      "typical_neighbor_distance": 0.9573113391159662
+    },
+    {
+      "file": "frame_1.npz",
+      "seed": 198,
+      "n_atoms": 792,
+      "counts": {
+        "Cu": 384,
+        "H": 272,
+        "O": 136
+      },
+      "segmentation_accuracy": 1.0,
+      "segmentation_core_atoms": 676,
+      "typical_neighbor_distance": 0.9573113391159658
+    },
+    {
+      "file": "frame_2.npz",
+      "seed": 199,
+      "n_atoms": 792,
+      "counts": {
+        "Cu": 384,
+        "H": 272,
+        "O": 136
+      },
+      "segmentation_accuracy": 1.0,
+      "segmentation_core_atoms": 686,
+      "typical_neighbor_distance": 0.9573113391159663
+    },
+    {
+      "file": "frame_3.npz",
+      "seed": 200,
+      "n_atoms": 792,
+      "counts": {
+        "Cu": 384,
+        "H": 272,
+        "O": 136
+      },
+      "segmentation_accuracy": 0.9985422740524781,
+      "segmentation_core_atoms": 686,
+      "typical_neighbor_distance": 0.957311339115966
+    },
+    {
+      "file": "frame_4.npz",
+      "seed": 201,
+      "n_atoms": 792,
+      "counts": {
+        "Cu": 384,
+        "H": 272,
+        "O": 136
+      },
+      "segmentation_accuracy": 1.0,
+      "segmentation_core_atoms": 677,
+      "typical_neighbor_distance": 0.9573113391159666
+    }
+  ],
+  "lift_mode": "interface",
+  "lift_dialect": [
+    "core",
+    "metal"
+  ],
+  "expected": {
+    "axis": "z",
+    "boundary_z": 21.69,
+    "phases": {
+      "solid": "Cu below",
+      "liquid": "H2O above"
+    },
+    "n_water": 136,
+    "water_density_g_cm3": 0.9,
+    "segmentation_target": 0.9,
+    "segmentation_min_measured": 0.9985422740524781,
+    "segmentation_note": "target 0.9 measured on every frame; the per-atom q6 rule counts water hydrogens, whose coordination is intramolecular, so frames recording below target would lower the test threshold to measured - 0.05 (not needed here)",
+    "counts": {
+      "Cu": 384,
+      "H": 272,
+      "O": 136
+    },
+    "n_atoms": 792,
+    "cell": [
+      14.46,
+      14.46,
+      43.38
+    ]
+  }
+}

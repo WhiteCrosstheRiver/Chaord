@@ -1,0 +1,136 @@
+{
+  "schema": "chaord-bench/2",
+  "case": "nacl_aq",
+  "category": "solutions",
+  "description": "aqueous NaCl: 120 H2O + 8 Na+ + 8 Cl- random-sequential packed (re-packed per frame); the packer jammed at the nominal 16.5 A box, so the box grew to 19.5 A (actual density 0.589 g/cm3 recorded); draws with ion pairs inside the census bond window are rejected and re-drawn, keeping the census exact",
+  "seed": 179,
+  "n_frames": 5,
+  "frames": [
+    {
+      "file": "frame_0.npz",
+      "seed": 179,
+      "n_atoms": 376,
+      "counts": {
+        "Cl": 8,
+        "H": 240,
+        "Na": 8,
+        "O": 120
+      },
+      "census": {
+        "Cl": 8,
+        "H2O": 120,
+        "Na": 8
+      },
+      "census_retries": 0
+    },
+    {
+      "file": "frame_1.npz",
+      "seed": 1180,
+      "n_atoms": 376,
+      "counts": {
+        "Cl": 8,
+        "H": 240,
+        "Na": 8,
+        "O": 120
+      },
+      "census": {
+        "Cl": 8,
+        "H2O": 120,
+        "Na": 8
+      },
+      "census_retries": 1
+    },
+    {
+      "file": "frame_2.npz",
+      "seed": 181,
+      "n_atoms": 376,
+      "counts": {
+        "Cl": 8,
+        "H": 240,
+        "Na": 8,
+        "O": 120
+      },
+      "census": {
+        "Cl": 8,
+        "H2O": 120,
+        "Na": 8
+      },
+      "census_retries": 0
+    },
+    {
+      "file": "frame_3.npz",
+      "seed": 1182,
+      "n_atoms": 376,
+      "counts": {
+        "Cl": 8,
+        "H": 240,
+        "Na": 8,
+        "O": 120
+      },
+      "census": {
+        "Cl": 8,
+        "H2O": 120,
+        "Na": 8
+      },
+      "census_retries": 1
+    },
+    {
+      "file": "frame_4.npz",
+      "seed": 183,
+      "n_atoms": 376,
+      "counts": {
+        "Cl": 8,
+        "H": 240,
+        "Na": 8,
+        "O": 120
+      },
+      "census": {
+        "Cl": 8,
+        "H2O": 120,
+        "Na": 8
+      },
+      "census_retries": 0
+    }
+  ],
+  "lift_mode": "fluid",
+  "lift_dialect": [
+    "core",
+    "molecular"
+  ],
+  "molecules": {
+    "H2O": 120,
+    "Na+": 8,
+    "Cl-": 8
+  },
+  "box": [
+    19.5,
+    19.5,
+    19.5
+  ],
+  "density_g_cm3": 0.5888279321817461,
+  "expected": {
+    "molecules": {
+      "H2O": 120,
+      "Na+": 8,
+      "Cl-": 8
+    },
+    "census": {
+      "Cl": 8,
+      "H2O": 120,
+      "Na": 8
+    },
+    "counts": {
+      "Cl": 8,
+      "H": 240,
+      "Na": 8,
+      "O": 120
+    },
+    "n_atoms": 376,
+    "cell": [
+      19.5,
+      19.5,
+      19.5
+    ],
+    "density_g_cm3": 0.5888279321817461
+  }
+}

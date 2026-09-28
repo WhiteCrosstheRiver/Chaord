@@ -1,7 +1,7 @@
 {
   "schema": "chaord-bench/2",
   "generator": "bench/generate.py",
-  "n_cases": 18,
+  "n_cases": 25,
   "n_frames_per_case": 5,
   "cases": [
     {
@@ -99,6 +99,18 @@
         "crystals\\fcc_crconi\\frame_4.npz"
       ],
       "ground_truth": "crystals\\fcc_crconi\\ground_truth.json"
+    },
+    {
+      "id": "solutions/cuau_random",
+      "category": "solutions",
+      "frames": [
+        "solutions\\cuau_random\\frame_0.npz",
+        "solutions\\cuau_random\\frame_1.npz",
+        "solutions\\cuau_random\\frame_2.npz",
+        "solutions\\cuau_random\\frame_3.npz",
+        "solutions\\cuau_random\\frame_4.npz"
+      ],
+      "ground_truth": "solutions\\cuau_random\\ground_truth.json"
     },
     {
       "id": "defects/fcc_cu_vacancies",
@@ -219,6 +231,78 @@
         "surface\\ni111_o_top\\frame_4.npz"
       ],
       "ground_truth": "surface\\ni111_o_top\\ground_truth.json"
+    },
+    {
+      "id": "surfaces/pt111_o",
+      "category": "surfaces",
+      "frames": [
+        "surfaces\\pt111_o\\frame_0.npz",
+        "surfaces\\pt111_o\\frame_1.npz",
+        "surfaces\\pt111_o\\frame_2.npz",
+        "surfaces\\pt111_o\\frame_3.npz",
+        "surfaces\\pt111_o\\frame_4.npz"
+      ],
+      "ground_truth": "surfaces\\pt111_o\\ground_truth.json"
+    },
+    {
+      "id": "solutions/nacl_aq",
+      "category": "solutions",
+      "frames": [
+        "solutions\\nacl_aq\\frame_0.npz",
+        "solutions\\nacl_aq\\frame_1.npz",
+        "solutions\\nacl_aq\\frame_2.npz",
+        "solutions\\nacl_aq\\frame_3.npz",
+        "solutions\\nacl_aq\\frame_4.npz"
+      ],
+      "ground_truth": "solutions\\nacl_aq\\ground_truth.json"
+    },
+    {
+      "id": "solutions/lipf6_ec",
+      "category": "solutions",
+      "frames": [
+        "solutions\\lipf6_ec\\frame_0.npz",
+        "solutions\\lipf6_ec\\frame_1.npz",
+        "solutions\\lipf6_ec\\frame_2.npz",
+        "solutions\\lipf6_ec\\frame_3.npz",
+        "solutions\\lipf6_ec\\frame_4.npz"
+      ],
+      "ground_truth": "solutions\\lipf6_ec\\ground_truth.json"
+    },
+    {
+      "id": "gases/co2_dense",
+      "category": "gases",
+      "frames": [
+        "gases\\co2_dense\\frame_0.npz",
+        "gases\\co2_dense\\frame_1.npz",
+        "gases\\co2_dense\\frame_2.npz",
+        "gases\\co2_dense\\frame_3.npz",
+        "gases\\co2_dense\\frame_4.npz"
+      ],
+      "ground_truth": "gases\\co2_dense\\ground_truth.json"
+    },
+    {
+      "id": "surfaces/si001_2x1",
+      "category": "surfaces",
+      "frames": [
+        "surfaces\\si001_2x1\\frame_0.npz",
+        "surfaces\\si001_2x1\\frame_1.npz",
+        "surfaces\\si001_2x1\\frame_2.npz",
+        "surfaces\\si001_2x1\\frame_3.npz",
+        "surfaces\\si001_2x1\\frame_4.npz"
+      ],
+      "ground_truth": "surfaces\\si001_2x1\\ground_truth.json"
+    },
+    {
+      "id": "interfaces/cu_water",
+      "category": "interfaces",
+      "frames": [
+        "interfaces\\cu_water\\frame_0.npz",
+        "interfaces\\cu_water\\frame_1.npz",
+        "interfaces\\cu_water\\frame_2.npz",
+        "interfaces\\cu_water\\frame_3.npz",
+        "interfaces\\cu_water\\frame_4.npz"
+      ],
+      "ground_truth": "interfaces\\cu_water\\ground_truth.json"
     }
   ]
 }

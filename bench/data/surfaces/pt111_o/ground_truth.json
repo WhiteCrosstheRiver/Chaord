@@ -1,0 +1,85 @@
+{
+  "schema": "chaord-bench/2",
+  "case": "pt111_o",
+  "category": "surfaces",
+  "description": "Pt(111) slab with O adsorbates on top sites; built by the surface builder, stored in its rectangular supercell so the diagonal npz format round-trips exactly (adsorbate sites re-drawn per frame)",
+  "seed": 193,
+  "n_frames": 5,
+  "frames": [
+    {
+      "file": "frame_0.npz",
+      "seed": 193,
+      "n_atoms": 80,
+      "counts": {
+        "O": 8,
+        "Pt": 72
+      },
+      "adsorb_o_count": 8
+    },
+    {
+      "file": "frame_1.npz",
+      "seed": 194,
+      "n_atoms": 80,
+      "counts": {
+        "O": 8,
+        "Pt": 72
+      },
+      "adsorb_o_count": 8
+    },
+    {
+      "file": "frame_2.npz",
+      "seed": 195,
+      "n_atoms": 80,
+      "counts": {
+        "O": 8,
+        "Pt": 72
+      },
+      "adsorb_o_count": 8
+    },
+    {
+      "file": "frame_3.npz",
+      "seed": 196,
+      "n_atoms": 80,
+      "counts": {
+        "O": 8,
+        "Pt": 72
+      },
+      "adsorb_o_count": 8
+    },
+    {
+      "file": "frame_4.npz",
+      "seed": 197,
+      "n_atoms": 80,
+      "counts": {
+        "O": 8,
+        "Pt": 72
+      },
+      "adsorb_o_count": 8
+    }
+  ],
+  "lift_mode": "surface",
+  "lift_dialect": [
+    "core",
+    "metal",
+    "surface"
+  ],
+  "expected": {
+    "surface": "(111)",
+    "termination": "Pt",
+    "adsorb": {
+      "species": "O",
+      "count": 8,
+      "site": "top"
+    },
+    "counts": {
+      "O": 8,
+      "Pt": 72
+    },
+    "n_atoms": 80,
+    "cell": [
+      8.3155757467538,
+      14.402999687565085,
+      18.78963916567
+    ]
+  }
+}

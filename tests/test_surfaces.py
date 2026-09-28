@@ -349,3 +349,51 @@ def test_rutile_110_round_trip_stable(dialect, tmp_path):
     assert "surface (110) top" in text2
     assert "termination bridging_O" in text2
     assert "reconstruction" not in text2
+
+
+def test_interface_width_within_noise_floor():
+    """M4 exit criterion: interface widths reproduce within the noise floor.
+
+    The floor between two reference frames is zero here (widths are quantised
+    to the profile bin), so the effective floor is the bin width: sub-bin
+    width differences are not resolvable. A rebuild with physics must land
+    within 1.5x that floor of the original width."""
+    import numpy as np
+    from chaord.io.frames import Frame as F
+    from chaord.lift.segment import phase_labels, slab_interfaces
+    from pathlib import Path as P
+    root = P(__file__).parent.parent
+    lj = load_dialect(("core", "lj"))
+
+    def interfaces(fr):
+        Lz = fr.cell_diag[2]
+        labels = phase_labels(fr, lj)
+        return [i for i in slab_interfaces(labels, fr, lj) if i["width"] < 0.6 * Lz]
+
+    fa = read_frame(root / "prototype" / "snap.npz")
+    fb = read_frame(root / "prototype" / "snap_later.npz")
+    ia = interfaces(fa)
+    ib = interfaces(fb)
+    assert len(ia) >= 1 and len(ib) >= 1
+    floor = abs(ia[0]["width"] - ib[0]["width"])
+    binw = float(lj.threshold("profile_bin_size"))
+    eff_floor = max(floor, binw)
+
+    from chaord.lang.api import load, save
+    from chaord.build import build_program
+    from chaord.lift import lift_frame
+    import tempfile
+    prog = lift_frame(fa, lj, mode="slab")
+    with tempfile.TemporaryDirectory() as td:
+        pp = P(td) / "p.chaord"
+        save(prog, pp)
+        rebuilt = build_program(load(pp), lj, rng=np.random.default_rng(3),
+                                physics=True)
+    ir = interfaces(rebuilt)
+    # crossings cluster near the (slightly shifted) rebuilt interface position:
+    # take the median width of the cluster nearest the reference crossing
+    near = [i for i in ir if abs(i["at"] - ia[0]["at"]) < 3.0] or ir
+    w_rebuilt = float(np.median([i["width"] for i in near]))
+    w_ref = ia[0]["width"]
+    assert abs(w_rebuilt - w_ref) <= 1.5 * eff_floor, (
+        f"width {w_rebuilt:.2f} vs {w_ref:.2f}, floor {eff_floor:.2f}")

@@ -1,0 +1,85 @@
+{
+  "schema": "chaord-bench/2",
+  "case": "cuau_random",
+  "category": "solutions",
+  "description": "fcc Cu, 3x3x3 supercell built exactly from the prototype table, Cu/Au assigned to fcc sites with unit fractions",
+  "seed": 199,
+  "n_frames": 5,
+  "frames": [
+    {
+      "file": "frame_0.npz",
+      "seed": 199,
+      "n_atoms": 108,
+      "counts": {
+        "Au": 54,
+        "Cu": 54
+      }
+    },
+    {
+      "file": "frame_1.npz",
+      "seed": 200,
+      "n_atoms": 108,
+      "counts": {
+        "Au": 54,
+        "Cu": 54
+      }
+    },
+    {
+      "file": "frame_2.npz",
+      "seed": 201,
+      "n_atoms": 108,
+      "counts": {
+        "Au": 54,
+        "Cu": 54
+      }
+    },
+    {
+      "file": "frame_3.npz",
+      "seed": 202,
+      "n_atoms": 108,
+      "counts": {
+        "Au": 54,
+        "Cu": 54
+      }
+    },
+    {
+      "file": "frame_4.npz",
+      "seed": 203,
+      "n_atoms": 108,
+      "counts": {
+        "Au": 54,
+        "Cu": 54
+      }
+    }
+  ],
+  "lift_mode": "crystal",
+  "lift_dialect": [
+    "core",
+    "metal"
+  ],
+  "thermal_amplitude_fraction": 0.06,
+  "expected": {
+    "prototype": "fcc",
+    "a": 3.8,
+    "composition": null,
+    "reps": [
+      3,
+      3,
+      3
+    ],
+    "cell": [
+      11.399999999999999,
+      11.399999999999999,
+      11.399999999999999
+    ],
+    "counts": {
+      "Au": 54,
+      "Cu": 54
+    },
+    "n_atoms": 108,
+    "occupancy": {
+      "Cu": "1/2",
+      "Au": "1/2"
+    }
+  }
+}

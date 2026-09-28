@@ -1,0 +1,143 @@
+{
+  "schema": "chaord-bench/2",
+  "case": "lipf6_ec",
+  "category": "solutions",
+  "description": "LiPF6/EC electrolyte surrogate: 40 EC + 4 Li+ + 4 PF6- in a 17 A box; EC (C3H4O3, simplified pentagon geometry, bonds 1.09-1.43 A) and PF6- (octahedral P-F 1.58 A, charge -1) templates are registered in this generator; packed by atom-level RSA (pack_molecules' molecular spheres jam above liquid density for a 10-atom solvent), so Li+ stays outside the EC/PF6 bond graphs and the census is exact",
+  "seed": 181,
+  "n_frames": 5,
+  "frames": [
+    {
+      "file": "frame_0.npz",
+      "seed": 181,
+      "n_atoms": 432,
+      "counts": {
+        "C": 120,
+        "F": 24,
+        "H": 160,
+        "Li": 4,
+        "O": 120,
+        "P": 4
+      },
+      "census": {
+        "C3H4O3": 40,
+        "F6P": 4,
+        "Li": 4
+      }
+    },
+    {
+      "file": "frame_1.npz",
+      "seed": 182,
+      "n_atoms": 432,
+      "counts": {
+        "C": 120,
+        "F": 24,
+        "H": 160,
+        "Li": 4,
+        "O": 120,
+        "P": 4
+      },
+      "census": {
+        "C3H4O3": 40,
+        "F6P": 4,
+        "Li": 4
+      }
+    },
+    {
+      "file": "frame_2.npz",
+      "seed": 183,
+      "n_atoms": 432,
+      "counts": {
+        "C": 120,
+        "F": 24,
+        "H": 160,
+        "Li": 4,
+        "O": 120,
+        "P": 4
+      },
+      "census": {
+        "C3H4O3": 40,
+        "F6P": 4,
+        "Li": 4
+      }
+    },
+    {
+      "file": "frame_3.npz",
+      "seed": 184,
+      "n_atoms": 432,
+      "counts": {
+        "C": 120,
+        "F": 24,
+        "H": 160,
+        "Li": 4,
+        "O": 120,
+        "P": 4
+      },
+      "census": {
+        "C3H4O3": 40,
+        "F6P": 4,
+        "Li": 4
+      }
+    },
+    {
+      "file": "frame_4.npz",
+      "seed": 185,
+      "n_atoms": 432,
+      "counts": {
+        "C": 120,
+        "F": 24,
+        "H": 160,
+        "Li": 4,
+        "O": 120,
+        "P": 4
+      },
+      "census": {
+        "C3H4O3": 40,
+        "F6P": 4,
+        "Li": 4
+      }
+    }
+  ],
+  "lift_mode": "fluid",
+  "lift_dialect": [
+    "core",
+    "molecular"
+  ],
+  "molecules": {
+    "EC": 40,
+    "Li+": 4,
+    "PF6-": 4
+  },
+  "box": [
+    17.0,
+    17.0,
+    17.0
+  ],
+  "density_g_cm3": 1.39592651310386,
+  "expected": {
+    "molecules": {
+      "EC": 40,
+      "Li+": 4,
+      "PF6-": 4
+    },
+    "census": {
+      "C3H4O3": 40,
+      "F6P": 4,
+      "Li": 4
+    },
+    "counts": {
+      "C": 120,
+      "F": 24,
+      "H": 160,
+      "Li": 4,
+      "O": 120,
+      "P": 4
+    },
+    "n_atoms": 432,
+    "cell": [
+      17.0,
+      17.0,
+      17.0
+    ],
+    "density_g_cm3": 1.39592651310386
+  }
+}

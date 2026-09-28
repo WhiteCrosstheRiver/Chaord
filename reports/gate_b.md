@@ -1,9 +1,10 @@
 # Gate B verification report — Chaord v1.0
 
 Date: 2026-09-28 (wave 2) · Runner: `tools/acceptance.py` · Machine output:
-`reports/acceptance.json` · Test suite: 283 fast + 10 slow-marker tests, all
-green; nightly harness in `tools/nightly.py`; CI workflow in
-`.github/workflows/ci.yml`.
+`reports/acceptance.json` · Test suite: 299 fast + 7 slow-marker tests, all
+green; nightly harness in `tools/nightly.py` (latest full run: slow 7/7,
+acceptance 14/14, overall PASS); CI workflow in `.github/workflows/ci.yml`
+(YAML-validated; first real execution happens when the repository is pushed).
 
 ## Verdict
 
@@ -20,8 +21,8 @@ by inspection; evidence strings come from the runner output.
 | A4 | planted vacancies recalled ≥ 0.95 on Cu and Ni3Al hosts; **real 0.8·Tm MD case recalls 3/3** (`tests/test_thermal_recovery.py`) |
 | A5 | LJ fluid statistical round trip within 1.5× noise floor: g(r) RMS ≈1.1×, coordination histogram ≤0.6×; amorphous case green in the slow suite |
 | A6 | per-species counts in the program equal the input frame on every lift; charge balance now checked too |
-| A7 | planted solid/liquid segmentation bulk accuracy 1.000; **true 3-D seeded-region segmentation** also 1.000 on a tilted (111) interface where the 1-D baseline drops to ~0.74 |
-| A8 | reactive census exact on planted H2O/OH/H case (50/9/9) |
+| A7 | planted solid/liquid segmentation bulk accuracy 1.000; **true 3-D seeded-region segmentation** also 1.000 on a tilted (111) interface where the 1-D baseline drops to ~0.74; interface **width** reproduces within 1.5x the resolution floor (bin-quantised profile) |
+| A8 | reactive census exact on planted H2O/OH/H case (50/9/9); **end-to-end reactive-interface lift** emits species block + overlayer region + `dissociate H2O -> OH @ surface + H @ surface` from rutile(110)+water coordinates |
 | A9 | program 376 B vs coordinates 1,100,100 B for a 20,000-atom frame = 0.03% (limit 2%) |
 | A10 | repeated lifts byte-identical; all randomness seeded (`default_rng`) |
 | A11 | fluid observables: 20,000 atoms in 0.6 s; **real 100,000-atom lift measured at 3.5 s** (limit 120 s) |
@@ -46,8 +47,12 @@ by inspection; evidence strings come from the runner output.
   deterministic writer 50/50 = 100%; file mode bridges a real LLM);
   active-learning hooks (`chaord.active`); strict opcode-based Laya patches
   with 320-token budget check.
-- **Bench**: 18 cases × 5 independent frames each (90 frames) with per-frame
-  ground truth; deterministic regeneration.
+- **Bench**: 25 cases × 5 independent frames each (125 frames) with per-frame
+  ground truth; deterministic regeneration; covers the PLAN categories
+  (crystals incl. Mg/Si/SrTiO3/CrCoNi/CuAu, solutions NaCl(aq) and LiPF6/EC,
+  dense CO2, Cu/water interface, Si(001)-(2x1) and Pt(111)-O surfaces).
+- **Defect-lift correctness**: unary bcc/diamond half-density sublattice
+  degeneracy fixed (atom-coverage gate in the lattice fit).
 - **Infra**: CI workflow (PR + nightly jobs), MIT LICENSE, nightly report
   tool, third-party licence audit.
 
@@ -59,10 +64,18 @@ by inspection; evidence strings come from the runner output.
    relaxed cores still resolve at family level.
 3. **Dense packing**: RSA placement saturates near true liquid densities for
    large molecules (1.0 g/cm³ water); the physics prior relaxes what packs.
-4. **LLM first-try rate**: the 50-prompt suite validates the pipeline with a
+4. **Surface-lift families**: the slab-lattice classifier recognises fcc/bcc
+   interiors; diamond slabs (Si surfaces) lift via the reconstruction helpers
+   but not the full surface path.
+5. **Rebuild of reactive interfaces**: the lifted rutile+water program
+   parses/fmt-round-trips, but `build_program` has no crystal+liquid+vacuum
+   combination builder yet (components exist separately).
+6. **SiO2/CuZr glasses, graphene/water, nanotube bench cases**: need potentials
+   outside the core (documented as out of v1.0 scope).
+7. **LLM first-try rate**: the 50-prompt suite validates the pipeline with a
    deterministic writer; the ≥90% criterion against a live LLM needs an API
    attached (`--writer file`).
-5. **PyPI/GitHub reservation** (name squatting) is an external action pending
+8. **PyPI/GitHub reservation** (name squatting) is an external action pending
    human execution.
 
 ## Reproduction

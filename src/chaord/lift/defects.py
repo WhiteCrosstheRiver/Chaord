@@ -60,6 +60,7 @@ def fit_crystal(frame: Frame, dialect):
     d_nn = typical_neighbor_distance(frame)
     tol = float(dialect.threshold("site_match_tol_fraction")) * d_nn
     syms = np.array(frame.symbols)
+    pos_wrapped = np.mod(frame.pos, frame.cell_diag)  # atom-coverage queries
     uniq = sorted(set(syms))
     L = frame.cell_diag
     tree = cKDTree(frame.pos, boxsize=L)
@@ -110,6 +111,16 @@ def fit_crystal(frame: Frame, dialect):
             gate = float(near.mean())
             if gate < float(dialect.threshold("lattice_fit_gate_min")):
                 continue
+            # atom coverage: every atom must sit near some site too, otherwise
+            # the candidate is a half-density sublattice of the true lattice
+            # (unary bcc/diamond degenerate to sc/fcc without this gate)
+            sites_wrapped = np.minimum(np.mod(sites, frame.cell_diag),
+                                       frame.cell_diag * (1 - 1e-9))  # dialect-exempt: strict upper edge
+            d_atom, _ = cKDTree(sites_wrapped, boxsize=frame.cell_diag).query(
+                np.minimum(pos_wrapped, frame.cell_diag * (1 - 1e-9)))  # dialect-exempt: strict upper edge
+            if float((d_atom < tol).mean()) < float(
+                    dialect.threshold("lattice_fit_gate_min")):
+                continue
             if species_aware:
                 sym_arr = np.array(frame.symbols)
                 near = near & (sym_arr[i_atom] == np.array(s_sp))
@@ -130,6 +141,13 @@ def fit_crystal(frame: Frame, dialect):
             d2, i2 = tree.query(sites2)
             near2 = d2 < tol
             if float(near2.mean()) < float(dialect.threshold("lattice_fit_gate_min")):
+                return np.inf, None, None
+            sites2_wrapped = np.minimum(np.mod(sites2, frame.cell_diag),
+                                        frame.cell_diag * (1 - 1e-9))  # dialect-exempt: strict upper edge
+            d_atom2, _ = cKDTree(sites2_wrapped, boxsize=frame.cell_diag).query(
+                np.minimum(pos_wrapped, frame.cell_diag * (1 - 1e-9)))  # dialect-exempt: strict upper edge
+            if float((d_atom2 < tol).mean()) < float(
+                    dialect.threshold("lattice_fit_gate_min")):
                 return np.inf, None, None
             if species_aware:
                 sym_arr = np.array(frame.symbols)
