@@ -1,0 +1,222 @@
+{
+  "engine": {
+    "name": "ASE",
+    "version": "3.29.0",
+    "python": "3.13.9",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "platform": "Windows-10-10.0.19045-SP0",
+    "integrator": "ase.md.langevin.Langevin",
+    "minimizer": "ase.optimize.FIRE"
+  },
+  "potential": {
+    "name": "SPC/E water + Joung-Cheatham Na+/Cl- (Wolf/DSF)",
+    "implementation": "bench/reference/fast_calculators.py:JCSPCEWolf \u2014 LJ (Lorentz-Berthelot, energy-shifted at rc) between O and ion sites plus damped-shifted-force (Wolf) electrostatics on all charged sites; intramolecular water pairs excluded",
+    "citation": {
+      "water": "H. J. C. Berendsen, J. R. Grigera, T. P. Straatsma, J. Phys. Chem. 91, 6269 (1987), SPC/E model",
+      "ions": "I. S. Joung, T. E. Cheatham III, J. Phys. Chem. B 112, 9020 (2008), Table 3, SPC/E parameter set",
+      "electrostatics": "C. J. Fennell, J. D. Gezelter, J. Chem. Phys. 124, 234104 (2006), damped shifted force method"
+    },
+    "parameters": {
+      "water": {
+        "qO_e": -0.8476,
+        "qH_e": 0.4238,
+        "sigma_O_A": 3.166,
+        "epsilon_O_kcal_mol": 0.1553,
+        "rOH_A": 1.0,
+        "angleHOH_deg": 109.47
+      },
+      "Na": {
+        "sigma_A": 2.159542,
+        "epsilon_kcal_mol": 0.3526418,
+        "charge_e": 1
+      },
+      "Cl": {
+        "sigma_A": 4.830486,
+        "epsilon_kcal_mol": 0.0300147,
+        "charge_e": -1
+      },
+      "mixing": "Lorentz-Berthelot",
+      "wolf_dsf": {
+        "alpha_inv_A": 0.2,
+        "rc_A": 9.0,
+        "formula": "V(r) = q_i q_j k [erfc(a r)/r - erfc(a rc)/rc + (r-rc)(erfc(a rc)/rc^2 + (2a/sqrt(pi)) exp(-a^2 rc^2)/rc)]",
+        "selftest": {
+          "dsf_force_matches_energy_derivative": true
+        }
+      },
+      "k_eV_A_per_e2": 14.399645
+    }
+  },
+  "units": {
+    "length": "A",
+    "time": "fs",
+    "temperature": "K",
+    "note": "rigid SPC/E water on the same machinery as water_tip4p; SPC/E is the solvent the Joung-Cheatham ion parameters were fitted for"
+  },
+  "protocol": {
+    "description": "540 rigid SPC/E waters + 10 Na+ + 10 Cl- (1.03 M), rho=1.037 g/cm3 (L=25.4652 A): water O on a 9^3 grid subset with random orientations; each Na+ replaces one grid water, each Cl- replaces two (its site and the nearest neighbour, placed at the midpoint so the anion starts with a ~3.2 A cavity); FIRE (fmax 0.05 eV/A); Langevin NVT dt=1 fs, friction 0.05 per ASE time unit: 1.5 ps at 350 K, 2 ps at 300 K, then 5 frames at 1 ps intervals at 300 K",
+    "ensemble": "NVT (Langevin, rigid water, fixcm=False)",
+    "steps": {
+      "hot_350K": 1500,
+      "equil_300K": 2000,
+      "sampling_stride": 1000
+    },
+    "dt_fs": 1.0
+  },
+  "seed": 20260928,
+  "sanity": {
+    "density": [
+      {
+        "region": "bulk",
+        "target": 0.09931204560403482,
+        "tolerance_pct": 2.0,
+        "note": "atom number density; 1.037 g/cm3"
+      }
+    ],
+    "min_pairs": [
+      {
+        "elements": [
+          "O",
+          "O"
+        ],
+        "floor": 2.4,
+        "note": "0.8 x ~3 A O-O core"
+      },
+      {
+        "elements": [
+          "Na",
+          "O"
+        ],
+        "floor": 2.1,
+        "note": "0.8 x sigma_LB(Na,O) = 0.8 x 2.663"
+      },
+      {
+        "elements": [
+          "Cl",
+          "O"
+        ],
+        "floor": 2.8,
+        "note": "LJ wall ~0.72 sigma_LB(Cl,O); epsilon_Cl is tiny, 0.8 sigma sits inside the equilibrium shell"
+      },
+      {
+        "elements": [
+          "Na",
+          "Na"
+        ],
+        "floor": 1.7,
+        "note": "0.8 x sigma_Na"
+      },
+      {
+        "elements": [
+          "Cl",
+          "Cl"
+        ],
+        "floor": 3.4,
+        "note": "LJ wall ~0.7 sigma_Cl"
+      },
+      {
+        "elements": [
+          "Na",
+          "Cl"
+        ],
+        "floor": 2.6,
+        "note": "Coulomb attraction pulls the contact pair inside sigma; floor clears the 10 kBT wall at 0.72 sigma"
+      },
+      {
+        "elements": [
+          "O",
+          "H"
+        ],
+        "floor": 1.4,
+        "exclude_intramolecular": true,
+        "note": "Coulomb-only H sites: guard floor below any physical hydrogen-bond contact"
+      },
+      {
+        "elements": [
+          "H",
+          "H"
+        ],
+        "floor": 1.4,
+        "exclude_intramolecular": true,
+        "note": "guard floor, see O-H"
+      },
+      {
+        "elements": [
+          "H",
+          "Na"
+        ],
+        "floor": 1.9
+      },
+      {
+        "elements": [
+          "H",
+          "Cl"
+        ],
+        "floor": 1.9
+      }
+    ],
+    "gr_peaks": [
+      {
+        "elements": [
+          "O",
+          "O"
+        ],
+        "window": [
+          2.7,
+          2.95
+        ],
+        "rmax": 5.0,
+        "note": "SPC/E O-O first peak"
+      },
+      {
+        "elements": [
+          "Cl",
+          "O"
+        ],
+        "window": [
+          3.0,
+          3.4
+        ],
+        "rmax": 5.5,
+        "note": "Joung-Cheatham report Cl-O ~3.19 A in SPC/E"
+      },
+      {
+        "elements": [
+          "Na",
+          "O"
+        ],
+        "window": [
+          2.2,
+          2.5
+        ],
+        "rmax": 4.5,
+        "note": "Joung-Cheatham report Na-O ~2.35 A in SPC/E"
+      }
+    ]
+  },
+  "case": "nacl_aq",
+  "wall_clock_s": 1112.1,
+  "frames": [
+    {
+      "file": "frame_0.npz",
+      "step": 4500
+    },
+    {
+      "file": "frame_1.npz",
+      "step": 5500
+    },
+    {
+      "file": "frame_2.npz",
+      "step": 6500
+    },
+    {
+      "file": "frame_3.npz",
+      "step": 7500
+    },
+    {
+      "file": "frame_4.npz",
+      "step": 8500
+    }
+  ]
+}

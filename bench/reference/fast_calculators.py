@@ -22,7 +22,7 @@ the corresponding ASE calculators (same numbers to machine precision);
 JCSPCEWolf checks that its DSF force is the exact derivative of its DSF
 energy and documents its formula.
 
-Nothing in this file may import chaord (circular-validation ban).
+Nothing in this file may use chaord (circular-validation ban).
 """
 from __future__ import annotations
 
@@ -35,6 +35,7 @@ from ase.calculators.calculator import Calculator, all_changes
 from ase.calculators.eam import EAM
 from ase.calculators.tip4p import (TIP4P, angleHOH, epsilon0, qH, rOH,
                                    sigma0)
+from ase.constraints.constraint import FixConstraint
 
 kC = units.Hartree * units.Bohr          # 14.3996 eV A for charges in e
 
@@ -365,3 +366,103 @@ class JCSPCEWolf(Calculator):
         if np.abs(num - du(r)).max() > 1e-6:
             raise AssertionError("DSF force is not dV/dr")
         return {"dsf_force_matches_energy_derivative": True}
+
+
+# ------------------------------------------------- vectorized rigid water --
+
+class RigidWater(FixConstraint):
+    """FixBondLengths for OHH water triples, vectorized by bond type.
+
+    Exactly the SHAKE/RATTLE iteration of ase.constraints.FixBondLengths
+    (same correction formulas, same tolerance semantics), but the Gauss
+    Seidel sweep runs over the three bond types (O-H1, O-H2, H1-H2) as
+    vectorized passes over all molecules instead of a Python loop over
+    every bond with a find_mic call — the ASE loop costs ~1 s/step for
+    the 1600-atom solution case, this costs milliseconds. The atoms must
+    be in OHH order with the waters first."""
+
+    maxiter = 500
+
+    def __init__(self, nmol, tolerance=1e-13):
+        self.nmol = int(nmol)
+        self.tolerance = tolerance
+        self.bondlengths = None
+        a = np.arange(nmol) * 3
+        self.pairs = [(a, a + 1), (a, a + 2), (a + 1, a + 2)]
+
+    def get_removed_dof(self, atoms):
+        return 3 * self.nmol
+
+    def _mic(self, d, L):
+        return d - L * np.round(d / L)
+
+    def _init_lengths(self, atoms):
+        pos = atoms.positions
+        L = np.asarray(atoms.cell.lengths(), float)
+        self.bondlengths = []
+        for ia, ib in self.pairs:
+            d = self._mic(pos[ib] - pos[ia], L)
+            self.bondlengths.append(np.sqrt((d * d).sum(1)))
+
+    def adjust_positions(self, atoms, new):
+        old = atoms.positions
+        masses = atoms.get_masses()
+        L = np.asarray(atoms.cell.lengths(), float)
+        if self.bondlengths is None:
+            self._init_lengths(atoms)
+        wa = np.array([1.0 / masses[ia[0]] for ia, _ in self.pairs])
+        wb = np.array([1.0 / masses[ib[1]] for _, ib in self.pairs])
+        wm = 1.0 / (wa + wb)
+        for _ in range(self.maxiter):
+            converged = True
+            for t, (ia, ib) in enumerate(self.pairs):
+                r0 = old[ia] - old[ib]
+                d0 = self._mic(r0, L)
+                d1 = new[ia] - new[ib] - r0 + d0
+                d0d1 = (d0 * d1).sum(1)
+                d1d1 = (d1 * d1).sum(1)
+                cd = self.bondlengths[t]
+                x = 0.5 * (cd ** 2 - d1d1) / d0d1
+                act = np.abs(x) > self.tolerance
+                if act.any():
+                    corr = (x * act * wm[t])[:, None] * d0
+                    new[ia] += corr * wa[t]     # wa = 1/mass
+                    new[ib] -= corr * wb[t]     # (ASE: x*m/ma*d0)
+                    converged = False
+            if converged:
+                return
+        raise RuntimeError('RigidWater: positions did not converge')
+
+    def adjust_momenta(self, atoms, p):
+        old = atoms.positions
+        masses = atoms.get_masses()
+        L = np.asarray(atoms.cell.lengths(), float)
+        if self.bondlengths is None:
+            self._init_lengths(atoms)
+        wa = np.array([1.0 / masses[ia[0]] for ia, _ in self.pairs])
+        wb = np.array([1.0 / masses[ib[1]] for _, ib in self.pairs])
+        wm = 1.0 / (wa + wb)
+        for _ in range(self.maxiter):
+            converged = True
+            for t, (ia, ib) in enumerate(self.pairs):
+                d = self._mic(old[ia] - old[ib], L)
+                dv = (p[ia] / masses[ia][:, None]
+                      - p[ib] / masses[ib][:, None])
+                dvd = (dv * d).sum(1)
+                cd = self.bondlengths[t]
+                x = -dvd / cd ** 2
+                act = np.abs(x) > self.tolerance
+                if act.any():
+                    corr = (x * act * wm[t])[:, None] * d
+                    p[ia] += corr
+                    p[ib] -= corr
+                    converged = False
+            if converged:
+                return
+        raise RuntimeError('RigidWater: momenta did not converge')
+
+    def adjust_forces(self, atoms, forces):
+        self.adjust_momenta(atoms, forces)
+
+    def get_indices(self):
+        return np.arange(3 * self.nmol)

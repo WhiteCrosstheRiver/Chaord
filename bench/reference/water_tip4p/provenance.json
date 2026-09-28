@@ -1,0 +1,124 @@
+{
+  "engine": {
+    "name": "ASE",
+    "version": "3.29.0",
+    "python": "3.13.9",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "platform": "Windows-10-10.0.19045-SP0",
+    "integrator": "ase.md.langevin.Langevin",
+    "minimizer": "ase.optimize.FIRE"
+  },
+  "potential": {
+    "name": "TIP4P rigid water",
+    "implementation": "bench/reference/fast_calculators.py:FastTIP4P \u2014 vectorized evaluation of ase.calculators.tip4p.TIP4P (same parameters, virtual sites, O-O smooth truncation and force redistribution), validated against the ASE calculator",
+    "citation": "W. L. Jorgensen, J. Chandrasekhar, J. D. Madura, R. W. Impey, M. L. Klein, J. Chem. Phys. 79, 926 (1983), doi:10.1063/1.445869",
+    "parameters": {
+      "qH_e": 0.52,
+      "sigma_O_A": 3.153578,
+      "epsilon_O_eV": 0.00672324,
+      "d_OM_A": 0.15,
+      "rOH_A": 0.9572,
+      "angleHOH_deg": 104.52,
+      "rc_OO_A": 8.0,
+      "switch_width_A": 1.0,
+      "truncation": "smooth switching function on the O-O center distance (ASE tip4p scheme)",
+      "validation_vs_ase_tip4p": {
+        "dE_eV": 3.725290298461914e-09,
+        "dF_eV_per_A": 7.450580596923828e-09
+      }
+    }
+  },
+  "units": {
+    "length": "A",
+    "time": "fs",
+    "temperature": "K",
+    "note": "physical units; rigid water constrained with ase.constraints.FixBondLengths (O-H, O-H, H-H per molecule; vectorized as RigidWater, same SHAKE iteration) following the ASE water tutorial"
+  },
+  "protocol": {
+    "description": "N=256 TIP4P waters at rho=0.997 g/cm3 (L=19.7308 A): O sites on a 7^3 grid subset with random rigid orientations; FIRE relaxation (fmax 0.05 eV/A); Langevin NVT dt=1 fs, friction 0.05 per ASE time unit: 2.5 ps at 350 K (melt-in), 2.5 ps at 300 K, then 5 frames at 1.5 ps intervals at 300 K",
+    "ensemble": "NVT (Langevin, rigid constraints, fixcm=False)",
+    "steps": {
+      "hot_350K": 2500,
+      "equil_300K": 2500,
+      "sampling_stride": 1500
+    },
+    "dt_fs": 1.0
+  },
+  "seed": 20260928,
+  "sanity": {
+    "density": [
+      {
+        "region": "bulk",
+        "target": 0.0999830311790027,
+        "tolerance_pct": 2.0,
+        "note": "atom number density; 0.997 g/cm3"
+      }
+    ],
+    "min_pairs": [
+      {
+        "elements": [
+          "O",
+          "O"
+        ],
+        "floor": 2.4,
+        "note": "hard core for O-O"
+      },
+      {
+        "elements": [
+          "O",
+          "H"
+        ],
+        "floor": 1.4,
+        "exclude_intramolecular": true,
+        "note": "Coulomb-only H sites: guard floor below any physical hydrogen-bond contact"
+      },
+      {
+        "elements": [
+          "H",
+          "H"
+        ],
+        "floor": 1.4,
+        "exclude_intramolecular": true
+      }
+    ],
+    "gr_peaks": [
+      {
+        "elements": [
+          "O",
+          "O"
+        ],
+        "window": [
+          2.75,
+          2.9
+        ],
+        "rmax": 5.0,
+        "note": "TIP4P O-O first peak at 300 K"
+      }
+    ]
+  },
+  "case": "water_tip4p",
+  "wall_clock_s": 569.2,
+  "frames": [
+    {
+      "file": "frame_0.npz",
+      "step": 6500
+    },
+    {
+      "file": "frame_1.npz",
+      "step": 8000
+    },
+    {
+      "file": "frame_2.npz",
+      "step": 9500
+    },
+    {
+      "file": "frame_3.npz",
+      "step": 11000
+    },
+    {
+      "file": "frame_4.npz",
+      "step": 12500
+    }
+  ]
+}

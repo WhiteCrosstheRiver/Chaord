@@ -1,0 +1,142 @@
+{
+  "engine": {
+    "name": "ASE",
+    "version": "3.29.0",
+    "python": "3.13.9",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "platform": "Windows-10-10.0.19045-SP0",
+    "integrator": "ase.md.langevin.Langevin"
+  },
+  "potential": {
+    "name": "Lennard-Jones 12-6",
+    "implementation": "ase.calculators.lj.LennardJones",
+    "citation": "Lennard-Jones potential as implemented in ASE; original: J. E. Jones, Proc. R. Soc. Lond. A 106, 463 (1924)",
+    "parameters": {
+      "epsilon_eV": 1.0,
+      "sigma_A": 1.0,
+      "rc_sigma": 2.5,
+      "smooth": false
+    }
+  },
+  "units": {
+    "mapping": "epsilon = 1 eV, sigma = 1 A, mass = 1 amu: the ASE unit system (A, eV, amu) coincides with LJ reduced units; tau = sqrt(m sigma^2/epsilon) is the ASE time unit",
+    "tau_fs": 10.180506,
+    "tau_fs_from_SI_constants": 10.180506,
+    "kB_eV_per_K": 8.617330337217213e-05,
+    "Tstar_to_K": "T_K = T* * epsilon / kB",
+    "temperatures_K": {
+      "melt": 29011.305,
+      "coexistence": 7542.939
+    },
+    "dt_reduced": 0.005,
+    "dt_fs": 0.050903
+  },
+  "protocol": {
+    "description": "Chaord prototype protocol (prototype/make_snapshot.py) at N=832: fcc(4x4x13) at rho*=0.96 with the lower half frozen; melt the upper half at T*=2.5 (Langevin, 1500 steps, verified liquid: g(r) peak height 5.42 < 75% of the crystal value); stretch the liquid half along z to rho*=0.845 about the interface plane; release all atoms, equilibrate the whole cell at T*=0.65 (2000 steps) and sample 5 frames at 500-step (2.5 tau) intervals; dt*=0.005",
+    "geometry": {
+      "a0_sigma": 1.609149,
+      "zmid_sigma": 10.4595,
+      "Lz_sigma": 22.3424,
+      "buffer_sigma": 3.2182979486854326
+    },
+    "steps": {
+      "melt": 1500,
+      "equilibration": 2000,
+      "sampling_stride": 500
+    },
+    "friction_per_tau": 0.5
+  },
+  "seed": 20260928,
+  "sanity": {
+    "density": [
+      {
+        "region": "solid",
+        "z": [
+          3.2182979486854326,
+          7.241170384542224
+        ],
+        "target": 0.96,
+        "tolerance_pct": 2.5,
+        "note": "atom number density, sigma units; window cut on fcc lattice planes; residual deviation = liquid infiltration of the eroded interface zone"
+      },
+      {
+        "region": "liquid",
+        "z": [
+          13.677766281913089,
+          19.124116656611513
+        ],
+        "target": 0.845,
+        "tolerance_pct": 5.0,
+        "note": "atom number density, sigma units; at T*=0.65 < Tm the interface advances slowly (~0.05 sigma/tau), compressing the liquid half by a few percent across the sampling window"
+      }
+    ],
+    "min_pairs": [
+      {
+        "elements": [
+          "X"
+        ],
+        "floor": 0.8,
+        "note": "0.8 sigma hard core"
+      }
+    ],
+    "gr_peaks": [
+      {
+        "elements": [
+          "X"
+        ],
+        "region": "solid",
+        "z": [
+          3.2182979486854326,
+          7.241170384542224
+        ],
+        "window": [
+          1.08,
+          1.2
+        ],
+        "rmax": 2.5,
+        "note": "fcc nearest-neighbour distance a0/sqrt(2)=1.140"
+      },
+      {
+        "elements": [
+          "X"
+        ],
+        "region": "liquid",
+        "z": [
+          13.677766281913089,
+          19.124116656611513
+        ],
+        "window": [
+          1.03,
+          1.18
+        ],
+        "rmax": 2.5,
+        "note": "broad liquid first peak ~1.1"
+      }
+    ]
+  },
+  "case": "lj_solid_liquid",
+  "wall_clock_s": 160.5,
+  "frames": [
+    {
+      "file": "frame_0.npz",
+      "step": 4000
+    },
+    {
+      "file": "frame_1.npz",
+      "step": 4500
+    },
+    {
+      "file": "frame_2.npz",
+      "step": 5000
+    },
+    {
+      "file": "frame_3.npz",
+      "step": 5500
+    },
+    {
+      "file": "frame_4.npz",
+      "step": 6000
+    }
+  ]
+}

@@ -67,3 +67,5 @@ thresholds:
   gr_rmax_fluid: 6.0                # g(r) range for fluid asserts, A
   gr_bins_fluid: 60
   cn_cutoff_fluid: 3.10             # first-shell default, A
+  angle_bins_fluid: 36              # bond-angle histogram bins over 0-180 deg (5 deg each)
+  density_profile_bins: 50          # density-profile bins along one cell axis (dimensionless count)

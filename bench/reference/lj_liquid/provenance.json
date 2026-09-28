@@ -1,0 +1,101 @@
+{
+  "engine": {
+    "name": "ASE",
+    "version": "3.29.0",
+    "python": "3.13.9",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "platform": "Windows-10-10.0.19045-SP0",
+    "integrator": "ase.md.langevin.Langevin"
+  },
+  "potential": {
+    "name": "Lennard-Jones 12-6",
+    "implementation": "ase.calculators.lj.LennardJones",
+    "citation": "Lennard-Jones potential as implemented in ASE (https://ase-lib.org); original: J. E. Jones, Proc. R. Soc. Lond. A 106, 463 (1924)",
+    "parameters": {
+      "epsilon_eV": 1.0,
+      "sigma_A": 1.0,
+      "rc_sigma": 2.5,
+      "smooth": false,
+      "truncation": "energy-shifted at rc=2.5 sigma, forces truncated (ASE default)"
+    }
+  },
+  "units": {
+    "mapping": "epsilon = 1 eV, sigma = 1 A, mass = 1 amu: the ASE unit system (A, eV, amu) coincides with LJ reduced units; tau = sqrt(m sigma^2/epsilon) is the ASE time unit",
+    "tau_fs": 10.180506,
+    "tau_fs_from_SI_constants": 10.180506,
+    "kB_eV_per_K": 8.617330337217213e-05,
+    "Tstar_to_K": "T_K = T* * epsilon / kB",
+    "temperatures_K": {
+      "equilibrium": 8355.256
+    },
+    "dt_reduced": 0.005,
+    "dt_fs": 0.050903
+  },
+  "protocol": {
+    "description": "N=500 fcc start at rho*=0.85, Maxwell velocities at T*, Langevin NVT (gamma*=0.5/tau) equilibration for 2000 steps (10 tau), then 5 frames at 1000-step (5 tau) intervals; dt*=0.005",
+    "ensemble": "NVT (Langevin, ase.md.langevin, fixcm=False)",
+    "steps": {
+      "equilibration": 2000,
+      "sampling_stride": 1000
+    },
+    "friction_per_tau": 0.5
+  },
+  "seed": 20260928,
+  "sanity": {
+    "density": [
+      {
+        "region": "bulk",
+        "target": 0.85,
+        "tolerance_pct": 2.0,
+        "note": "atom number density, sigma units"
+      }
+    ],
+    "min_pairs": [
+      {
+        "elements": [
+          "X"
+        ],
+        "floor": 0.8,
+        "note": "0.8 sigma hard core"
+      }
+    ],
+    "gr_peaks": [
+      {
+        "elements": [
+          "X"
+        ],
+        "window": [
+          1.05,
+          1.12
+        ],
+        "rmax": 2.5,
+        "note": "LJ liquid at rho*=0.85, T*~0.7: literature first peak 1.05-1.12 sigma"
+      }
+    ]
+  },
+  "case": "lj_liquid",
+  "wall_clock_s": 102.4,
+  "frames": [
+    {
+      "file": "frame_0.npz",
+      "step": 3000
+    },
+    {
+      "file": "frame_1.npz",
+      "step": 4000
+    },
+    {
+      "file": "frame_2.npz",
+      "step": 5000
+    },
+    {
+      "file": "frame_3.npz",
+      "step": 6000
+    },
+    {
+      "file": "frame_4.npz",
+      "step": 7000
+    }
+  ]
+}

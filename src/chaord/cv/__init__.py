@@ -6,3 +6,4 @@ threshold comes from the dialect by name — never hard-coded).
 """
 from .registry import CVS, CVDef, register, measure, missing_measure  # noqa: F401
 from . import local  # noqa: F401  (registers the local-structure CVs)
+from . import rich  # noqa: F401  (species-pair g(r), bond angles, density profiles)

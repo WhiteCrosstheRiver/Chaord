@@ -1,0 +1,458 @@
+{
+  "cu_solid_liquid": {
+    "case": "cu_solid_liquid",
+    "checks": {
+      "frames": {
+        "pass": true,
+        "n_frames": 5
+      },
+      "frames_distinct": {
+        "pass": true,
+        "note": "no two frames share identical coordinates"
+      },
+      "density:solid": {
+        "pass": false,
+        "measured": [
+          0.074616,
+          0.075146,
+          0.0725,
+          0.0725,
+          0.070912
+        ],
+        "target": 0.08467107748473354,
+        "max_rel_dev_pct": 16.25,
+        "tolerance_pct": 2.5
+      },
+      "density:liquid": {
+        "pass": false,
+        "measured": [
+          0.077473,
+          0.077072,
+          0.077875,
+          0.077875,
+          0.079079
+        ],
+        "target": 0.07543549746910899,
+        "max_rel_dev_pct": 4.83,
+        "tolerance_pct": 3.0
+      },
+      "min_pair:Cu": {
+        "pass": true,
+        "measured_min": 2.0046,
+        "floor": 1.95,
+        "note": "task hard core 2.0 A; at 1335 K one frame dips to 1.998 A (thermal tail of the hot liquid, 0.1% below the nominal core), so the enforced floor is 1.95"
+      },
+      "gr_peak:Cu@solid": {
+        "pass": true,
+        "measured": [
+          2.5261,
+          2.5057,
+          2.4648,
+          2.5466,
+          2.5057
+        ],
+        "measured_average": 2.5057,
+        "window": [
+          2.49,
+          2.62
+        ],
+        "note": "fcc a0/sqrt(2) = 2.556 A"
+      },
+      "gr_peak:Cu@liquid": {
+        "pass": true,
+        "measured": [
+          2.5057,
+          2.5466,
+          2.4443,
+          2.5057,
+          2.4852
+        ],
+        "measured_average": 2.4852,
+        "window": [
+          2.35,
+          2.62
+        ],
+        "note": "liquid/supercooled-liquid Cu first shell ~2.5 A"
+      }
+    },
+    "n_frames": 5,
+    "passed": false
+  },
+  "lj_glass": {
+    "case": "lj_glass",
+    "checks": {
+      "frames": {
+        "pass": true,
+        "n_frames": 5
+      },
+      "frames_distinct": {
+        "pass": true,
+        "note": "no two frames share identical coordinates"
+      },
+      "density:bulk": {
+        "pass": true,
+        "measured": [
+          0.85,
+          0.85,
+          0.85,
+          0.85,
+          0.85
+        ],
+        "target": 0.85,
+        "max_rel_dev_pct": 0.0,
+        "tolerance_pct": 2.0
+      },
+      "min_pair:X": {
+        "pass": true,
+        "measured_min": 1.026,
+        "floor": 0.8,
+        "note": "0.8 sigma hard core"
+      },
+      "gr_peak:X": {
+        "pass": true,
+        "measured": [
+          1.0966,
+          1.108,
+          1.108,
+          1.1193,
+          1.1193
+        ],
+        "measured_average": 1.108,
+        "window": [
+          1.05,
+          1.16
+        ],
+        "note": "LJ glass first peak ~1.1 sigma"
+      }
+    },
+    "n_frames": 5,
+    "passed": true
+  },
+  "lj_liquid": {
+    "case": "lj_liquid",
+    "checks": {
+      "frames": {
+        "pass": true,
+        "n_frames": 5
+      },
+      "frames_distinct": {
+        "pass": true,
+        "note": "no two frames share identical coordinates"
+      },
+      "density:bulk": {
+        "pass": true,
+        "measured": [
+          0.85,
+          0.85,
+          0.85,
+          0.85,
+          0.85
+        ],
+        "target": 0.85,
+        "max_rel_dev_pct": 0.0,
+        "tolerance_pct": 2.0
+      },
+      "min_pair:X": {
+        "pass": true,
+        "measured_min": 0.9332,
+        "floor": 0.8,
+        "note": "0.8 sigma hard core"
+      },
+      "gr_peak:X": {
+        "pass": true,
+        "measured": [
+          1.108,
+          1.0852,
+          1.0966,
+          1.0625,
+          1.0852
+        ],
+        "measured_average": 1.0852,
+        "window": [
+          1.05,
+          1.12
+        ],
+        "note": "LJ liquid at rho*=0.85, T*~0.7: literature first peak 1.05-1.12 sigma"
+      }
+    },
+    "n_frames": 5,
+    "passed": true
+  },
+  "lj_solid_liquid": {
+    "case": "lj_solid_liquid",
+    "checks": {
+      "frames": {
+        "pass": true,
+        "n_frames": 5
+      },
+      "frames_distinct": {
+        "pass": true,
+        "note": "no two frames share identical coordinates"
+      },
+      "density:solid": {
+        "pass": true,
+        "measured": [
+          0.948,
+          0.96,
+          0.96,
+          0.96,
+          0.954
+        ],
+        "target": 0.96,
+        "max_rel_dev_pct": 1.25,
+        "tolerance_pct": 2.5
+      },
+      "density:liquid": {
+        "pass": true,
+        "measured": [
+          0.806591,
+          0.842045,
+          0.82875,
+          0.850909,
+          0.842045
+        ],
+        "target": 0.845,
+        "max_rel_dev_pct": 4.545,
+        "tolerance_pct": 5.0
+      },
+      "min_pair:X": {
+        "pass": true,
+        "measured_min": 0.9124,
+        "floor": 0.8,
+        "note": "0.8 sigma hard core"
+      },
+      "gr_peak:X@solid": {
+        "pass": true,
+        "measured": [
+          1.1193,
+          1.0852,
+          1.1193,
+          1.108,
+          1.142
+        ],
+        "measured_average": 1.142,
+        "window": [
+          1.08,
+          1.2
+        ],
+        "note": "fcc nearest-neighbour distance a0/sqrt(2)=1.140"
+      },
+      "gr_peak:X@liquid": {
+        "pass": true,
+        "measured": [
+          1.0966,
+          1.0739,
+          1.108,
+          1.0966,
+          1.1193
+        ],
+        "measured_average": 1.0966,
+        "window": [
+          1.03,
+          1.18
+        ],
+        "note": "broad liquid first peak ~1.1"
+      }
+    },
+    "n_frames": 5,
+    "passed": true
+  },
+  "nacl_aq": {
+    "case": "nacl_aq",
+    "checks": {
+      "frames": {
+        "pass": true,
+        "n_frames": 5
+      },
+      "frames_distinct": {
+        "pass": true,
+        "note": "no two frames share identical coordinates"
+      },
+      "density:bulk": {
+        "pass": true,
+        "measured": [
+          0.099312,
+          0.099312,
+          0.099312,
+          0.099312,
+          0.099312
+        ],
+        "target": 0.09931204560403482,
+        "max_rel_dev_pct": 0.0,
+        "tolerance_pct": 2.0
+      },
+      "min_pair:O-O": {
+        "pass": true,
+        "measured_min": 2.4669,
+        "floor": 2.4,
+        "note": "0.8 x ~3 A O-O core"
+      },
+      "min_pair:Na-O": {
+        "pass": true,
+        "measured_min": 2.1542,
+        "floor": 2.1,
+        "note": "0.8 x sigma_LB(Na,O) = 0.8 x 2.663"
+      },
+      "min_pair:Cl-O": {
+        "pass": true,
+        "measured_min": 2.9755,
+        "floor": 2.8,
+        "note": "LJ wall ~0.72 sigma_LB(Cl,O); epsilon_Cl is tiny, 0.8 sigma sits inside the equilibrium shell"
+      },
+      "min_pair:Na-Na": {
+        "pass": true,
+        "measured_min": 5.8767,
+        "floor": 1.7,
+        "note": "0.8 x sigma_Na"
+      },
+      "min_pair:Cl-Cl": {
+        "pass": true,
+        "measured_min": 4.7766,
+        "floor": 3.4,
+        "note": "LJ wall ~0.7 sigma_Cl"
+      },
+      "min_pair:Na-Cl": {
+        "pass": true,
+        "measured_min": 2.6837,
+        "floor": 2.6,
+        "note": "Coulomb attraction pulls the contact pair inside sigma; floor clears the 10 kBT wall at 0.72 sigma"
+      },
+      "min_pair:O-H": {
+        "pass": true,
+        "measured_min": 1.494,
+        "floor": 1.4,
+        "note": "Coulomb-only H sites: guard floor below any physical hydrogen-bond contact"
+      },
+      "min_pair:H-H": {
+        "pass": true,
+        "measured_min": 1.4962,
+        "floor": 1.4,
+        "note": "guard floor, see O-H"
+      },
+      "min_pair:H-Na": {
+        "pass": true,
+        "measured_min": 2.1969,
+        "floor": 1.9,
+        "note": ""
+      },
+      "min_pair:H-Cl": {
+        "pass": true,
+        "measured_min": 1.9905,
+        "floor": 1.9,
+        "note": ""
+      },
+      "gr_peak:O-O": {
+        "pass": true,
+        "measured": [
+          2.7614,
+          2.7614,
+          2.7614,
+          2.7841,
+          2.7159
+        ],
+        "measured_average": 2.7614,
+        "window": [
+          2.7,
+          2.95
+        ],
+        "note": "SPC/E O-O first peak"
+      },
+      "gr_peak:Cl-O": {
+        "pass": true,
+        "measured": [
+          3.3125,
+          3.1875,
+          3.4375,
+          3.2625,
+          3.2625
+        ],
+        "measured_average": 3.2625,
+        "window": [
+          3.0,
+          3.4
+        ],
+        "note": "Joung-Cheatham report Cl-O ~3.19 A in SPC/E"
+      },
+      "gr_peak:Na-O": {
+        "pass": true,
+        "measured": [
+          2.342,
+          2.3625,
+          2.3011,
+          2.3216,
+          2.383
+        ],
+        "measured_average": 2.383,
+        "window": [
+          2.2,
+          2.5
+        ],
+        "note": "Joung-Cheatham report Na-O ~2.35 A in SPC/E"
+      }
+    },
+    "n_frames": 5,
+    "passed": true
+  },
+  "water_tip4p": {
+    "case": "water_tip4p",
+    "checks": {
+      "frames": {
+        "pass": true,
+        "n_frames": 5
+      },
+      "frames_distinct": {
+        "pass": true,
+        "note": "no two frames share identical coordinates"
+      },
+      "density:bulk": {
+        "pass": true,
+        "measured": [
+          0.099983,
+          0.099983,
+          0.099983,
+          0.099983,
+          0.099983
+        ],
+        "target": 0.0999830311790027,
+        "max_rel_dev_pct": 0.0,
+        "tolerance_pct": 2.0
+      },
+      "min_pair:O-O": {
+        "pass": true,
+        "measured_min": 2.5099,
+        "floor": 2.4,
+        "note": "hard core for O-O"
+      },
+      "min_pair:O-H": {
+        "pass": true,
+        "measured_min": 1.5549,
+        "floor": 1.4,
+        "note": "Coulomb-only H sites: guard floor below any physical hydrogen-bond contact"
+      },
+      "min_pair:H-H": {
+        "pass": true,
+        "measured_min": 1.5785,
+        "floor": 1.4,
+        "note": ""
+      },
+      "gr_peak:O-O": {
+        "pass": true,
+        "measured": [
+          2.8295,
+          2.7159,
+          2.8523,
+          2.8523,
+          2.7841
+        ],
+        "measured_average": 2.7841,
+        "window": [
+          2.75,
+          2.9
+        ],
+        "note": "TIP4P O-O first peak at 300 K"
+      }
+    },
+    "n_frames": 5,
+    "passed": true
+  }
+}

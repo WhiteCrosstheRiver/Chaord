@@ -21,3 +21,8 @@ thresholds:
   q6_cutoff: 3.2                    # phase-indicator neighbour cutoff for molecular fluids, A
   q6_solid: 0.32                    # solid-like threshold on averaged q6
   q6_centers_cutoff: 3.6            # molecule-centre q6 cutoff (O-O shell), A
+  angle_cutoff_fluid: 1.21          # bond-angle neighbour cutoff, A = bond_tolerance x (r_H + r_O):
+                                    # captures the O-H bond (0.9572 A), excludes H-H (1.515 A) and
+                                    # every intermolecular pair (hard core 1.5 A)
+  partial_gr_exclude_intramolecular: true   # species-pair g(r) drops same-molecule pairs (bond-graph
+                                    # components): the intramolecular O-H peak would otherwise dominate

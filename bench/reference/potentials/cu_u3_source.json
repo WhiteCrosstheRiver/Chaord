@@ -1,0 +1,13 @@
+{
+  "file": "Cu_u3.eam",
+  "name": "Foiles-Baskes-Daw 1986 Cu EAM (universal-3 functions)",
+  "citation": "S. M. Foiles, M. I. Baskes, M. S. Daw, Phys. Rev. B 33, 7983 (1986), doi:10.1103/PhysRevB.33.7983",
+  "url": "https://www.ctcms.nist.gov/potentials/Download/1986--Foiles-S-M-Baskes-M-I-Daw-M-S--Cu/1/Cu_u3.eam",
+  "entry": "https://www.ctcms.nist.gov/potentials/entry/1986--Foiles-S-M-Baskes-M-I-Daw-M-S--Cu/",
+  "repository": "NIST Interatomic Potentials Repository (ctcms.nist.gov)",
+  "format": "LAMMPS funcfl (single-element EAM table)",
+  "sha256": "6d37c8e85214154c9d899fd71a95163baf8cc518c9c256007dbe37f3eab9e3fa",
+  "header": "DATE: 2007-06-11 CONTRIBUTOR: Stephen Foiles, foiles@sandia.gov CITATION: Foiles et al, Phys Rev B, 33, 7983 (1986) COMM",
+  "retrieved": "2026-09-28",
+  "note": "fetched through the local HTTP proxy with curl; the NIST entry for the unary 1986 FBD Cu potential ships Cu_u3.eam (funcfl); no .eam.alloy variant of this entry exists"
+}

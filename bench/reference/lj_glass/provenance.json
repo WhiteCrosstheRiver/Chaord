@@ -1,0 +1,105 @@
+{
+  "engine": {
+    "name": "ASE",
+    "version": "3.29.0",
+    "python": "3.13.9",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "platform": "Windows-10-10.0.19045-SP0",
+    "integrator": "ase.md.langevin.Langevin"
+  },
+  "potential": {
+    "name": "Lennard-Jones 12-6",
+    "implementation": "ase.calculators.lj.LennardJones",
+    "citation": "Lennard-Jones potential as implemented in ASE; original: J. E. Jones, Proc. R. Soc. Lond. A 106, 463 (1924)",
+    "parameters": {
+      "epsilon_eV": 1.0,
+      "sigma_A": 1.0,
+      "rc_sigma": 2.5,
+      "smooth": false
+    }
+  },
+  "units": {
+    "mapping": "epsilon = 1 eV, sigma = 1 A, mass = 1 amu: the ASE unit system (A, eV, amu) coincides with LJ reduced units; tau = sqrt(m sigma^2/epsilon) is the ASE time unit",
+    "tau_fs": 10.180506,
+    "tau_fs_from_SI_constants": 10.180506,
+    "kB_eV_per_K": 8.617330337217213e-05,
+    "Tstar_to_K": "T_K = T* * epsilon / kB",
+    "temperatures_K": {
+      "melt": 23209.044,
+      "quench_end": 116.045,
+      "anneal": 116.045
+    },
+    "dt_reduced": 0.005,
+    "dt_fs": 0.050903
+  },
+  "protocol": {
+    "description": "N=500 fcc start at rho*=0.85; melt at T*=2.0 (1500 steps); linear quench T*=2.0 -> 0.01 over 3000 steps (rate 0.1327 T*/tau); anneal at T*=0.01 for 1000 steps; 5 frames at 500-step intervals of the anneal segment; dt*=0.005, Langevin gamma*=0.5",
+    "ensemble": "NVT (Langevin, fixcm=False)",
+    "quench_rate_Tstar_per_tau": 0.13267,
+    "steps": {
+      "melt": 1500,
+      "quench": 3000,
+      "anneal_equilibration": 1000,
+      "sampling_stride": 500
+    },
+    "friction_per_tau": 0.5
+  },
+  "seed": 20260928,
+  "sanity": {
+    "density": [
+      {
+        "region": "bulk",
+        "target": 0.85,
+        "tolerance_pct": 2.0,
+        "note": "atom number density, sigma units"
+      }
+    ],
+    "min_pairs": [
+      {
+        "elements": [
+          "X"
+        ],
+        "floor": 0.8,
+        "note": "0.8 sigma hard core"
+      }
+    ],
+    "gr_peaks": [
+      {
+        "elements": [
+          "X"
+        ],
+        "window": [
+          1.05,
+          1.16
+        ],
+        "rmax": 2.5,
+        "note": "LJ glass first peak ~1.1 sigma"
+      }
+    ]
+  },
+  "case": "lj_glass",
+  "wall_clock_s": 116.2,
+  "frames": [
+    {
+      "file": "frame_0.npz",
+      "step": 6000
+    },
+    {
+      "file": "frame_1.npz",
+      "step": 6500
+    },
+    {
+      "file": "frame_2.npz",
+      "step": 7000
+    },
+    {
+      "file": "frame_3.npz",
+      "step": 7500
+    },
+    {
+      "file": "frame_4.npz",
+      "step": 8000
+    }
+  ]
+}

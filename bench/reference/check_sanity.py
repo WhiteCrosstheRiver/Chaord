@@ -8,7 +8,7 @@ distances with the case's hard cores, first g(r) peak windows, frame
 distinctness) and prints one PASS/FAIL line per check. Writes
 sanity_report.json next to the cases and exits non-zero on any failure.
 
-This tool is part of the reference-data package and MUST NOT import chaord
+This tool is part of the reference-data package and must not depend on chaord
 (circular-validation ban, AGENTS.md).
 """
 from __future__ import annotations
@@ -34,7 +34,7 @@ def main(argv=None) -> int:
 
     root = Path(args.root)
     cases = [c for c in sorted(p.name for p in root.iterdir()
-                               if (p / "provenance.json").is_file()]
+                               if (p / "provenance.json").is_file())
              if not args.case or c in args.case]
     if not cases:
         print("no cases found under", root)
