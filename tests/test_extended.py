@@ -128,7 +128,13 @@ def test_sigma5_diagnostic(metal):
             if d > 45.0:
                 d = 90.0 - d
             theta = min(theta, d)
-    print(f"DIAG theta={theta:.3f} a={a:.4f} sigma={grain_boundary_sigma(frame, metal)}")
+    sigma = grain_boundary_sigma(frame, metal)
+    # deliberately assert with full intermediates in the message so the CI log
+    # shows them when this diagnostic fails (platform-difference hunting)
+    assert sigma == 5, (
+        f"DIAG theta={theta:.4f} a={a:.4f} sigma={sigma} "
+        f"lower0={sorted(round(float(np.degrees(np.arctan2(v[1], v[0]))), 2) for v in _in_plane_vectors(lower, L, p0=_deep(lower)[0]))[:4]} "
+        f"upper0={sorted(round(float(np.degrees(np.arctan2(v[1], v[0]))), 2) for v in _in_plane_vectors(upper, L, p0=_deep(upper)[0]))[:4]}")
 
 
 def test_sigma5_detected(metal):
