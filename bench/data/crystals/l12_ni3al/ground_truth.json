@@ -5,6 +5,7 @@
   "description": "L1_2 Ni3Al, 2x2x2 supercell built exactly from the prototype table",
   "seed": 109,
   "n_frames": 5,
+  "dialect": "core+metal",
   "frames": [
     {
       "file": "frame_0.npz",

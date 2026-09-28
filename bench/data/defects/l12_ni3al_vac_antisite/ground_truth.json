@@ -5,6 +5,7 @@
   "description": "L1_2 ('Ni', 'Al') 4x4x4 host with random 3 V_Ni, 4 Al_Ni (Kr\u00f6ger-Vink); defect sites are re-drawn every frame, counts fixed",
   "seed": 139,
   "n_frames": 5,
+  "dialect": "core+metal",
   "frames": [
     {
       "file": "frame_0.npz",

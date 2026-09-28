@@ -5,6 +5,7 @@
   "description": "hcp Mg, 2x2x2 supercell built exactly from the prototype table; orthohexagonal supercell (orient x [100], y [1 2 0], z [001]); reps count the rectangular cell",
   "seed": 113,
   "n_frames": 5,
+  "dialect": "core+metal",
   "frames": [
     {
       "file": "frame_0.npz",

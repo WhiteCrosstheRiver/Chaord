@@ -5,6 +5,7 @@
   "description": "rocksalt ('Na', 'Cl') 3x3x3 host with random 6 V_Na (Kr\u00f6ger-Vink); defect sites are re-drawn every frame, counts fixed",
   "seed": 149,
   "n_frames": 5,
+  "dialect": "core+metal",
   "frames": [
     {
       "file": "frame_0.npz",

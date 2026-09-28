@@ -5,6 +5,7 @@
   "description": "dense (supercritical-surrogate) CO2: 60 molecules in a 12 A box (~1.0 g/cm3); packed by atom-level RSA with the census bond threshold plus a 0.05 A margin as the exclusion, so molecules stay distinct components of the bond graph",
   "seed": 191,
   "n_frames": 5,
+  "dialect": "core+molecular",
   "frames": [
     {
       "file": "frame_0.npz",

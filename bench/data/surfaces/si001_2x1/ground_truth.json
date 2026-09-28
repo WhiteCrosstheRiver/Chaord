@@ -5,6 +5,7 @@
   "description": "diamond Si(001) slab (ASE diamond100 path, a = 5.43, 3x3x4 then tiled 2x along x so the surface cell holds whole p(2x1) cells) with an independently planted p(2x1) missing-row top layer (every other top-layer row deleted); small thermal displacement per frame (the Wood net read compares two primitive vectors per layer with no ensemble averaging)",
   "seed": 211,
   "n_frames": 5,
+  "dialect": "core+metal+surface",
   "frames": [
     {
       "file": "frame_0.npz",

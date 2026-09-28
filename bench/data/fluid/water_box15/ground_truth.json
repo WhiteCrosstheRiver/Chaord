@@ -5,6 +5,7 @@
   "description": "60 H2O packed into a 15 A cubic box (seeded random-sequential packing, re-packed per frame)",
   "seed": 13,
   "n_frames": 5,
+  "dialect": "core+molecular",
   "frames": [
     {
       "file": "frame_0.npz",

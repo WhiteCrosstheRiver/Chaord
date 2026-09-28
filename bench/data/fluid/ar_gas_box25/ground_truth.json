@@ -5,6 +5,7 @@
   "description": "50 Ar packed into a 25 A cubic box (seeded random-sequential packing, re-packed per frame)",
   "seed": 151,
   "n_frames": 5,
+  "dialect": "core+molecular",
   "frames": [
     {
       "file": "frame_0.npz",

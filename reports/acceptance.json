@@ -4,88 +4,87 @@
       "id": "A1",
       "name": "parse and format",
       "passed": true,
-      "evidence": "9/9 examples parse; 200/200 generated idempotent"
+      "evidence": "9/9 spec examples parse; property laws (parse==IR and fmt idempotent) hold on 10000 generated programs"
     },
     {
       "id": "A2",
       "name": "canonical invariance",
-      "passed": true,
-      "evidence": "12 transforms of 6 crystals -> byte-identical text"
+      "passed": false,
+      "evidence": "7/8 crystal cases; 14/16 rigid transforms (rotation + translation + re-imaging + re-ordering, 2 per case) lift to byte-identical text; differing: ['crystals/fcc_crconi']"
     },
     {
       "id": "A3",
       "name": "exact round trip (ordered)",
-      "passed": true,
-      "evidence": "6/6 crystal cases byte-identical"
+      "passed": false,
+      "evidence": "7/8 lift-build-lift texts byte-identical; 7/8 StructureMatcher(ltol 0.2, stol 0.3, 5 deg) fits original vs rebuilt; crystals/fcc_crconi: text DIFFERS, matcher no fit; rebuilt lift differs by:   constrain sro alpha1 Ni-Ni +0.18 +- 0.02"
     },
     {
       "id": "A4",
       "name": "defect recovery",
-      "passed": true,
-      "evidence": "2/2 hosts: planted vacancies recalled >= 0.95 (real 0.8Tm MD case: tests/test_thermal_recovery.py, recall 1.00)"
+      "passed": false,
+      "evidence": "22 host x defect-type x temperature cells (3 hosts, all four K-V kinds); precision >= 0.95 in 15/22, recall >= 0.95 in 22/22; worst precision 0.09 (L12-NiAl/interstitial/0.8Tm), worst recall 1.00 (fcc-Cu/vacancy/room)"
     },
     {
       "id": "A5",
       "name": "statistical round trip",
-      "passed": true,
-      "evidence": "fluid case within 1.5x floor: gr_rms x1.10; cn_tv x0.59"
+      "passed": false,
+      "evidence": "pass rate 0/0-with-floor; 3 cases without a floor on record: no-floor: skipped (synthetic frame); 3 could not round-trip: fluid/ar_gas_box25 lift-failed; interface/lj_solid_liquid build-failed; interfaces/cu_water lift-failed; no case has a measured noise floor -> criterion not demonstrated (populate reports/noise_floors.json from S1 MD frames with tools/noise_floor.py)"
     },
     {
       "id": "A6",
       "name": "conservation",
       "passed": true,
-      "evidence": "frame {'Al': 27, 'Ni': 78} == program conserve atoms Al 27 Ni 78"
+      "evidence": "110 lifts checked: frame count == conserve line on 110/110; verifier's own region arithmetic (composition/occupancy/molecules/defect net/residual) pins or cross-checks 86 programs (non-derivable shapes check two-way); charge consistent on 110/110"
     },
     {
       "id": "A7",
       "name": "phase segmentation",
       "passed": true,
-      "evidence": "bulk label accuracy 1.000"
+      "evidence": "10/10 interface frames (2 cases x 5 frames; interface band of 2 x d_NN excluded, d_NN = verifier's median nearest-neighbour distance) labelled >= 95% correct; worst 0.999 (interfaces/cu_water frame 3)"
     },
     {
       "id": "A8",
       "name": "reactive census",
       "passed": true,
-      "evidence": "census {'H2O': 50, 'HO': 9, 'H': 9} exact on planted case"
+      "evidence": "plan 0: census {'H2O': 40, 'HO': 9, 'H': 9} == planted {'H2O': 40, 'HO': 9, 'H': 9} (147 atoms, coordinates written directly in numpy); plan 1: census {'H2O': 25, 'HO': 5, 'H': 7} == planted {'H2O': 25, 'HO': 5, 'H': 7} (92 atoms, coordinates written directly in numpy)"
     },
     {
       "id": "A9",
       "name": "compression",
-      "passed": true,
-      "evidence": "program 376 B vs coords 1100100 B = 0.03%"
+      "passed": false,
+      "evidence": "0 bench frames reach 1,000 atoms (largest raw bench frame: 512 atoms) -> criterion cannot be demonstrated on this bench; worst measured ratio 34.29% (crystals/bcc_fe) across 22 cases; supplementary tiled >= 1,000-atom measurement in details (not a raw bench frame, not counted)"
     },
     {
       "id": "A10",
       "name": "determinism",
       "passed": true,
-      "evidence": "repeated lifts byte-identical"
+      "evidence": "repeated lift of bench defect frame byte-identical: True; same-seed builds identical coordinates: True"
     },
     {
       "id": "A11",
       "name": "speed",
       "passed": true,
-      "evidence": "fluid observables on 20000 atoms in 0.6s (scaled limit for 100k: 24s; real 100k measured at 3.5s in tests/test_thermal_recovery.py)"
+      "evidence": "lift_frame(mode=fluid) on 100,000 atoms took 6.5 s (target <= 120 s); input = fcc lattice at rho 0.85 with 0.10 x a jitter (thermally disordered, not equilibrated MD); program states the exact count: yes"
     },
     {
       "id": "A12",
       "name": "static checks",
       "passed": true,
-      "evidence": "lattice mismatch caught; impossible density caught; charge check: True (total charge +0 (Cl- 1 x -1, Li+ 1 x +1) equals conserve cha)"
+      "evidence": "lattice_mismatch: caught; impossible_density: caught; charge_imbalance: caught; overlap_0.1sigma: caught"
     },
     {
       "id": "A13",
       "name": "no crashes",
-      "passed": true,
-      "evidence": "0 unhandled exceptions across 5 bench frames"
+      "passed": false,
+      "evidence": "109/125 bench frames lift without any exception; 0 atoms placed in residual blocks across successful lifts; 16 frames refused with ChaordError (a lift refusal is still a failed lift for this criterion): crystals/hcp_mg[0] ChaordError: dialect 'core + metal' defines no threshold 'md; crystals/hcp_mg[1] ChaordError: dialect 'core + metal' defines no threshold 'md; crystals/hcp_mg[2] ChaordError: dialect 'core + metal' defines no threshold 'md; crystals/hcp_mg[3] ChaordError: dialect 'core + metal' defines no threshold 'md; crystals/hcp_mg[4] ChaordError: dialect 'core + metal' defines no threshold 'md; fluid/ar_gas_box25[0] ChaordError: dialect 'core + molecular' defines no threshold; surfaces/si001_2x1[0] ChaordError: slab interior coordination 3.3 is neither fcc-l; surfaces/si001_2x1[1] ChaordError: slab interior coordination 2.8 is neither fcc-l..."
     },
     {
       "id": "A14",
       "name": "documentation",
-      "passed": true,
-      "evidence": "docs/reference.md present"
+      "passed": false,
+      "evidence": "35 distinct keys across dialect YAMLs; reference.md covers 28/35 (missing entries: chirality, forcefield, lift_version, nanotube, note, source, stacking); example found for 26/35 keys (spec/examples; sketch_check pass); generated docs/reference_generated.md"
     }
   ],
-  "passed": 14,
-  "total": 14,
-  "all_passed": true
+  "passed": 7,
+  "total": 14
 }

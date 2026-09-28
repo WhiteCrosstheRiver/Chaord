@@ -5,6 +5,7 @@
   "description": "dissociation fragment mixture (water, hydroxide, atomic hydrogen) in a 20 A box; the species census must be recovered exactly from the bond graph of every frame",
   "seed": 3,
   "n_frames": 5,
+  "dialect": "core+molecular",
   "frames": [
     {
       "file": "frame_0.npz",

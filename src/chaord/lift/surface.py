@@ -582,12 +582,16 @@ def lift_surface(frame: Frame, dialect, backend="eam") -> Program:
         cn = float(np.mean([len(x) - 1 for x in tree.query_ball_point(interior, cn_cut)]))
         fcc_min = float(dialect.threshold("fcc_cn_min"))
         bcc_min = float(dialect.threshold("bcc_cn_min"))
+        diamond_min = float(dialect.threshold("diamond_cn_min"))
         if cn >= fcc_min:
             name, slot_species = "fcc", None
         elif cn >= bcc_min:
             name, slot_species = "bcc", None
+        elif cn >= diamond_min:
+            name, slot_species = "diamond", None
         else:
-            raise ChaordError(f"slab interior coordination {cn:.1f} is neither fcc-like nor bcc-like")
+            raise ChaordError(f"slab interior coordination {cn:.1f} is neither "
+                              f"fcc-, bcc- nor diamond-like")
         params = {"a": _A_FROM_DNN[name] * dnn}
         # orientation from the substrate net (the layer below the surface:
         # still bulk-terminated when the top layer is reconstructed)

@@ -5,6 +5,7 @@
   "description": "fcc Cu, 2x2x2 supercell built exactly from the prototype table",
   "seed": 101,
   "n_frames": 5,
+  "dialect": "core+metal",
   "frames": [
     {
       "file": "frame_0.npz",

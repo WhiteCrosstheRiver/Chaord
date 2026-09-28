@@ -5,6 +5,7 @@
   "description": "80 N2 packed into a 22 A cubic box (seeded random-sequential packing, re-packed per frame)",
   "seed": 157,
   "n_frames": 5,
+  "dialect": "core+molecular",
   "frames": [
     {
       "file": "frame_0.npz",

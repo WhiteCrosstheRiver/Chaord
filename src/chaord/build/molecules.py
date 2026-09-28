@@ -120,6 +120,7 @@ def bond_graph(frame: Frame, dialect):
     L = frame.cell_diag
     syms = frame.symbols
     pos = np.mod(frame.pos, L)
+    pos = np.minimum(pos, L * (1 - 1e-9))  # dialect-exempt: strict upper edge for KD trees
     rc_max = max(covalent_radii[chemical_symbols.index(s)] for s in syms) * tol * 2
     tree = cKDTree(pos, boxsize=L)
     pairs = tree.query_pairs(rc_max, output_type="ndarray")

@@ -76,7 +76,10 @@ def _route(frame, dialect, T, mode):
                               "(solid-like fraction too high)")
     if mode in ("auto", "slab"):
         if T is None:
-            T = float(dialect.threshold("md_reference_T"))
+            try:
+                T = float(dialect.threshold("md_reference_T"))
+            except Exception:
+                T = None  # T is metadata: dialects without MD defaults omit it
         try:
             res = decompile(frame.pos, frame.cell_diag, T, dialect)
             program = program_from_result(res, dialect)

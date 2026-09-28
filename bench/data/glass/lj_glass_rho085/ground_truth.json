@@ -5,6 +5,7 @@
   "description": "LJ amorphous packing: 200 X atoms RSA-placed at number density 0.85 /sigma^3 (physics off, no protocol)",
   "seed": 163,
   "n_frames": 5,
+  "dialect": "core+glass",
   "frames": [
     {
       "file": "frame_0.npz",

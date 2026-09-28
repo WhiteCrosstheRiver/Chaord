@@ -5,6 +5,7 @@
   "description": "bcc Fe, 2x2x2 supercell built exactly from the prototype table",
   "seed": 103,
   "n_frames": 5,
+  "dialect": "core+metal",
   "frames": [
     {
       "file": "frame_0.npz",

@@ -239,13 +239,16 @@ def program_from_result(d, dialect, symbol="X"):
     ncl = int((d["clusters"] >= 2).sum())
     wrap_c = d["z_lo"] > d["z_up"]
 
-    system = SystemBlock(statements=[
+    system_statements = [
         _s("build", "units", _n("lj")),
         _s("build", "cell", _q(f"{L[0]:.2f}"), _q(f"{L[1]:.2f}"), _q(f"{L[2]:.2f}")),
         _s("build", "pbc", _n("xyz")),
-        _s("state", "T", _q(f"{d['T']:.2f}")),
-        _s("conserve", "atoms", _n(symbol), _q(str(d["N"]))),
-    ])
+    ]
+    if d.get("T") is not None:  # T is metadata; dialects without MD omit it
+        system_statements.append(_s("state", "T", _q(f"{d['T']:.2f}")))
+    system_statements.append(
+        _s("conserve", "atoms", _n(symbol), _q(str(d["N"]))))
+    system = SystemBlock(statements=system_statements)
     physics = PhysicsBlock(statements=[
         _s("build", "backend", _n("lj")),
         _s("build", "epsilon", _q("1")),

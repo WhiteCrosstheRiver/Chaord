@@ -5,6 +5,7 @@
   "description": "fcc Cr, 3x3x3 supercell built exactly from the prototype table, Cr/Co/Ni assigned to fcc sites with unit fractions",
   "seed": 137,
   "n_frames": 5,
+  "dialect": "core+metal",
   "frames": [
     {
       "file": "frame_0.npz",

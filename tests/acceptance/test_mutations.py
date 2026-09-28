@@ -1,0 +1,160 @@
+"""Mutation canaries for the A1-A14 acceptance checks (tools/acceptance.py).
+
+Every criterion gets one seeded mutation injected into the checked input; the
+acceptance function must return passed=False on the mutated input.  Where the
+full-scope clean run is an honest FAIL (A2/A3 on the random-alloy case, A5 with
+no noise floor, A9 with no >= 1,000-atom bench frame, A13 on refused frames,
+A14 on uncovered keys), the canary first runs a *scoped* clean configuration
+that passes, then the same configuration with the mutation -- so a PASS->FAIL
+flip is demonstrated, not just a persistent FAIL.
+
+The full-scope acceptance run (the honest per-criterion evidence) is
+`python tools/acceptance.py`; these tests only guard the checker itself.
+"""
+import pytest
+
+from tools import acceptance as acc
+
+
+# --------------------------------------------------------------------- A1 ----
+def test_a1_fmt_idempotence_and_parse():
+    clean = acc.check_a1(max_examples=25)
+    assert clean["passed"], clean["evidence"]
+    bad = acc.check_a1(mutation="malformed_example", max_examples=25)
+    assert not bad["passed"], bad["evidence"]
+    assert any("parse failures" in s for s in [bad["evidence"]])
+
+
+# --------------------------------------------------------------------- A2 ----
+def test_a2_canonical_invariance():
+    clean = acc.check_a2(case_filter="fcc_cu")
+    assert clean["passed"], clean["evidence"]
+    bad = acc.check_a2(mutation="scale_lattice", case_filter="fcc_cu")
+    assert not bad["passed"], bad["evidence"]
+
+
+# --------------------------------------------------------------------- A3 ----
+def test_a3_round_trip_and_structure_matcher():
+    clean = acc.check_a3(case_filter="fcc_cu")
+    assert clean["passed"], clean["evidence"]
+    bad = acc.check_a3(mutation="displace_rebuilt", case_filter="fcc_cu")
+    assert not bad["passed"], bad["evidence"]
+
+
+# --------------------------------------------------------------------- A4 ----
+def test_a4_defect_precision_and_recall():
+    clean = acc.check_a4(temps=("room",))
+    assert clean["passed"], clean["evidence"]
+    bad = acc.check_a4(mutation="false_defect", temps=("room",))
+    assert not bad["passed"]
+    # one false vacancy among 6 planted: precision 6/7 = 0.857 < 0.95
+    worst = min(bad["details"]["matrix"], key=lambda m: m["precision"])
+    assert worst["precision"] < 0.95 and worst["fp"] >= 1
+
+
+# --------------------------------------------------------------------- A5 ----
+def test_a5_noise_floor_gate():
+    # scoped clean run: fabricate a floor at 2x the actually measured distance
+    base = acc.check_a5(case_filter="water_box15")
+    row = base["details"]["rows"][0]
+    assert row["status"].startswith("no-floor")      # no floor on record
+    floor = {k: 2.0 * v for k, v in row["distance"].items()}
+    floors = {"fluid/water_box15": floor}
+    clean = acc.check_a5(case_filter="water_box15", floors=floors)
+    assert clean["passed"], clean["evidence"]
+    bad = acc.check_a5(mutation="distort_rebuild", case_filter="water_box15",
+                       floors=floors)
+    assert not bad["passed"], bad["evidence"]
+
+
+# --------------------------------------------------------------------- A6 ----
+def test_a6_three_way_conservation():
+    clean = acc.check_a6(frame_limit=6)
+    assert clean["passed"], clean["evidence"]
+    bad = acc.check_a6(mutation="drop_atom", frame_limit=6)
+    assert not bad["passed"], bad["evidence"]
+
+
+# --------------------------------------------------------------------- A7 ----
+def test_a7_phase_labels():
+    clean = acc.check_a7(frames=(0,))
+    assert clean["passed"], clean["evidence"]
+    bad = acc.check_a7(mutation="flip_labels", frames=(0,))
+    assert not bad["passed"], bad["evidence"]
+
+
+# --------------------------------------------------------------------- A8 ----
+def test_a8_reactive_census_independent_construction():
+    clean = acc.check_a8()
+    assert clean["passed"], clean["evidence"]
+    bad = acc.check_a8(mutation="extra_oh")
+    assert not bad["passed"], bad["evidence"]
+
+
+# --------------------------------------------------------------------- A9 ----
+def test_a9_compression_gate():
+    case = dict(case="synthetic-2000", n_atoms=2000,
+                prog_bytes=10_000, xyz_bytes=1_000_000)
+    clean = acc.check_a9(cases_override=[case])
+    assert clean["passed"], clean["evidence"]
+    bad = acc.check_a9(mutation="inflate_program", cases_override=[case])
+    assert not bad["passed"], bad["evidence"]
+
+
+# -------------------------------------------------------------------- A10 ----
+def test_a10_determinism():
+    clean = acc.check_a10()
+    assert clean["passed"], clean["evidence"]
+    bad = acc.check_a10(mutation="perturb_build")
+    assert not bad["passed"], bad["evidence"]
+
+
+# -------------------------------------------------------------------- A11 ----
+def test_a11_speed_limit():
+    clean = acc.check_a11()
+    assert clean["passed"], clean["evidence"]
+    bad = acc.check_a11(elapsed_override=120.5)
+    assert not bad["passed"], bad["evidence"]
+
+
+# -------------------------------------------------------------------- A12 ----
+def test_a12_all_four_seed_errors_caught():
+    clean = acc.check_a12()
+    assert clean["passed"], clean["evidence"]
+
+
+@pytest.mark.parametrize("stub", ["stub_overlap", "stub_charge"])
+def test_a12_missing_checker_stub_flips_verdict(stub):
+    bad = acc.check_a12(mutation=stub)
+    assert not bad["passed"], bad["evidence"]
+    assert "uncaught" in bad["evidence"]
+
+
+# -------------------------------------------------------------------- A13 ----
+def test_a13_no_crashes():
+    clean = acc.check_a13(frame_limit=3)
+    assert clean["passed"], clean["evidence"]
+    bad = acc.check_a13(mutation="poison_frame", frame_limit=3)
+    assert not bad["passed"], bad["evidence"]
+
+
+# -------------------------------------------------------------------- A14 ----
+def test_a14_reference_coverage():
+    base = acc.check_a14()
+    keys = base["details"]["keys"]
+    assert keys, "no dialect keys found"
+    full_reference = " ".join(keys)       # a reference that covers every key
+    clean = acc.check_a14(reference_text=full_reference)
+    assert clean["passed"], clean["evidence"]
+    bad = acc.check_a14(mutation="hide_key", reference_text=full_reference)
+    assert not bad["passed"], bad["evidence"]
+    assert "epsilon" in bad["details"]["missing"]
+
+
+# ------------------------------------------------------------- runner shape --
+def test_runner_report_schema():
+    results = acc.run_all(only=["A8"])
+    assert len(results) == 1
+    r = results[0]
+    assert set(r) >= {"id", "name", "passed", "evidence", "details"}
+    assert r["id"] == "A8" and isinstance(r["passed"], bool)

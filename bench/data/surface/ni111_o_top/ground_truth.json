@@ -5,6 +5,7 @@
   "description": "Ni(111) slab with O adsorbates on top sites; built by the surface builder, stored in its rectangular supercell so the diagonal npz format round-trips exactly (adsorbate sites re-drawn per frame)",
   "seed": 173,
   "n_frames": 5,
+  "dialect": "core+metal+surface",
   "frames": [
     {
       "file": "frame_0.npz",

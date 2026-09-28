@@ -82,6 +82,15 @@ statement carries a kind: **build** (no keyword), **state**, **constrain**,
 | `assert ring_mode` | `assert ring_mode 6` | dominant King ring size |
 | `assert coverage` | `assert coverage OH 0.25 ML +- 0.05` | adsorbate coverage |
 | `assert solid_clusters` | `assert solid_clusters 0` | fluid purity |
+| `chirality` | `chirality (14,3)` | nanotube handedness (carbon dialect) |
+| `forcefield` | `forcefield "trappe-ua"` | classical force-field tag |
+| `lift_version` | `lift_version "0.1.0"` | provenance: lifting tool version |
+| `nanotube` | `nanotube count 1` | carbon dialect construction |
+| `note` | `note "any text"` | free-form provenance note |
+| `source` | `source "dump.lammpstrj"` | provenance: origin file |
+| `stacking` | `stacking AB` | layer stacking order |
+| `dialects` | `dialects "core 0.1.0 + lj 0.1.0"` | provenance: dialect versions used |
+| `state` (region) | `state T 300 K` inside a region | region-level equilibrium metadata |
 | `conserve atoms` | `conserve atoms Ni 646 Al 217` | exact per-species counts |
 | `conserve charge` | `conserve charge 0` | total charge (checked against the frame's ionic census) |
 

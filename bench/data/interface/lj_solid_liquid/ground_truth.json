@@ -5,6 +5,7 @@
   "description": "LJ solid-liquid slab: perfect fcc (4x4x8, rho_solid = 1.0/sigma^3) below z = 6.3496, re-randomised liquid above; the two-phase label boundary is the mid-plane of the box",
   "seed": 167,
   "n_frames": 5,
+  "dialect": "core+lj",
   "frames": [
     {
       "file": "frame_0.npz",

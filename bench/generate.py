@@ -488,10 +488,11 @@ def _write_case(out: Path, category: str, case_id: str, frames, ground) -> dict:
             "frames": rel_frames, "ground_truth": gt_path.relative_to(out).as_posix()}
 
 
-def _gt_header(case_id: str, category: str, description: str, seed) -> dict:
+def _gt_header(case_id: str, category: str, description: str, seed,
+               dialect: str = "core+metal") -> dict:
     return {"schema": SCHEMA, "case": case_id, "category": category,
             "description": description, "seed": seed, "n_frames": N_FRAMES,
-            "frames": []}
+            "dialect": dialect, "frames": []}
 
 
 def _frame_record(k: int, seed: int, frame: Frame, **extra) -> dict:
@@ -618,7 +619,8 @@ def _packed_frames(spec, dialect, category, description, out):
                                f"{spec['molecules']}")
         frames.append(_sanitize(frame))
         census_list.append(census)
-    ground = _gt_header(spec["id"], category, description, spec["seed"])
+    ground = _gt_header(spec["id"], category, description, spec["seed"],
+                         dialect="core+molecular")
     ground["lift_mode"] = "fluid" if category == "fluid" else "reactive"
     ground["lift_dialect"] = ["core", "molecular"]
     ground["molecules"] = spec["molecules"]
@@ -671,7 +673,8 @@ def generate_glass(out: Path) -> list:
     ground = _gt_header(
         spec["id"], "glass",
         f"LJ amorphous packing: {spec['n']} X atoms RSA-placed at number "
-        f"density {spec['rho']} /sigma^3 (physics off, no protocol)", spec["seed"])
+        f"density {spec['rho']} /sigma^3 (physics off, no protocol)", spec["seed"],
+        dialect="core+glass")
     ground["lift_mode"] = "amorphous"
     ground["lift_dialect"] = ["core", "glass"]
     ground["expected"] = {
@@ -716,7 +719,7 @@ def generate_interface(out: Path) -> list:
         f"LJ solid-liquid slab: perfect fcc ({spec['reps'][0]}x{spec['reps'][1]}x"
         f"{spec['reps'][2]}, rho_solid = {spec['rho_solid']}/sigma^3) below "
         f"z = {boundary:.4f}, re-randomised liquid above; the two-phase label "
-        f"boundary is the mid-plane of the box", spec["seed"])
+        f"boundary is the mid-plane of the box", spec["seed"], dialect="core+lj")
     ground["lift_mode"] = "interface"
     ground["lift_dialect"] = ["core", "lj"]
     ground["expected"] = {
@@ -785,7 +788,7 @@ def generate_surface(out: Path) -> list:
             f"sites; built by the surface builder, stored in its rectangular "
             f"supercell so the diagonal npz format round-trips exactly "
             f"(adsorbate sites re-drawn per frame)",
-            spec["seed"])
+            spec["seed"], dialect="core+metal+surface")
         ground["lift_mode"] = "surface"
         ground["lift_dialect"] = ["core", "metal", "surface"]
         ground["expected"] = {
@@ -864,7 +867,7 @@ def generate_nacl_aq(out: Path, molecular) -> list:
         f"so the box grew to {box:.1f} A (actual density "
         f"{density:.3f} g/cm3 recorded); draws with ion pairs inside the "
         f"census bond window are rejected and re-drawn, keeping the census "
-        f"exact", spec["seed"])
+        f"exact", spec["seed"], dialect="core+molecular")
     ground["lift_mode"] = "fluid"
     ground["lift_dialect"] = ["core", "molecular"]
     ground["molecules"] = spec["molecules"]
@@ -904,7 +907,8 @@ def _dense_solution_case(spec, category, description, out, molecular) -> list:
         censuses.append(census)
     density = _density_g_cm3(spec["molecules"],
                              float(np.prod(np.asarray(spec["box"], float))))
-    ground = _gt_header(spec["id"], category, description, spec["seed"])
+    ground = _gt_header(spec["id"], category, description, spec["seed"],
+                         dialect="core+molecular")
     ground["lift_mode"] = "fluid"
     ground["lift_dialect"] = ["core", "molecular"]
     ground["molecules"] = spec["molecules"]
@@ -1005,7 +1009,7 @@ def generate_si001(out: Path) -> list:
         f"missing-row top layer (every other top-layer row deleted); small "
         f"thermal displacement per frame (the Wood net read compares two "
         f"primitive vectors per layer with no ensemble averaging)",
-        spec["seed"])
+        spec["seed"], dialect="core+metal+surface")
     ground["lift_mode"] = "surface"
     ground["lift_dialect"] = ["core", "metal", "surface"]
     ground["thermal_amplitude"] = amp

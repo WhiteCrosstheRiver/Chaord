@@ -46,3 +46,4 @@ thresholds:
   termination_scan_steps: 20          # cut-origin scan steps over one interplanar spacing
   surface_termination_names:          # element -> compound termination name
     O: bridging_O
+  diamond_cn_min: 2.5               # ... and diamond-like (4-coordinated networks)

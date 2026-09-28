@@ -134,7 +134,8 @@ def parse_program_text(text: str) -> dict:
     """Independent parser of canonical .chaord text (regex level, no Lark).
 
     Extracts: conserve_atoms {sym: n}, conserve_charge, defect statements per
-    region, region statements {key: rest-of-line}, residual atom lines.
+    region, region statements (key -> [rest-of-line, ...]; a key may appear on
+    several lines, e.g. one `molecules` line per species), residual atom lines.
     """
     out = {"conserve_atoms": {}, "conserve_charge": None, "regions": [],
            "residual_none": True, "residual_atoms": {}, "cell": None}
@@ -174,8 +175,6 @@ def parse_program_text(text: str) -> dict:
                        "stmts": {}, "defects": {}}
             out["regions"].append(current)
             continue
-        if current is None and s == "}":
-            continue
         if current is not None and s == "}":
             current = None
             continue
@@ -185,8 +184,17 @@ def parse_program_text(text: str) -> dict:
                                if m.group(k)]
             continue
         if m := _RE_STMT.match(s):
-            current["stmts"][m.group("key")] = s[m.end():].strip()
+            current["stmts"].setdefault(m.group("key"), []).append(
+                s[m.end():].strip())
     return out
+
+
+def _stmt(region: dict, key: str, join: bool = False) -> str | None:
+    """First rest-of-line for a statement key (all lines joined if join)."""
+    vals = region["stmts"].get(key)
+    if not vals:
+        return None
+    return " ".join(vals) if join else vals[0]
 
 
 def _as_float(tok: str) -> float:
@@ -220,14 +228,22 @@ def _apply_defect_net(total: dict[str, int], defects: dict[str, int]):
             total[site] = total.get(site, 0) + n
 
 
+def _gcd(*vals):
+    from math import gcd
+    out = 0
+    for v in vals:
+        out = gcd(out, v)
+    return out
+
+
 def derive_counts(parsed: dict):
     """Atom counts implied by the region statements of a lifted program.
 
     Verifier arithmetic: prototype/composition or lattice/occupancy times the
     conventional-cell multiplicity implied by the stated cell, minus the defect
     net, plus residual atom lines; molecular regions expand the verifier's
-    formula table.  Returns (dict, how) on success, ({}, 'sites-only: ...')
-    when only the site total is pinned, or (None, reason) when the program
+    formula table.  Returns (dict, how) on success, ({'__expected_total__': n},
+    how) when only the site total is pinned, or (None, reason) when the program
     shape does not pin the counts (slab/interface programs, atomic fluids,
     amorphous composition without counts).
     """
@@ -246,19 +262,19 @@ def derive_counts(parsed: dict):
     for r in regions:
         st = r["stmts"]
         if "molecules" in st:
-            for name, n in re.findall(r"(\S+)\s+(" + _RE_NUM + r")",
-                                      st["molecules"]):
-                if name not in MOLECULE_TABLE:
-                    return None, f"unknown molecule {name}"
-                for el, k in MOLECULE_TABLE[name].items():
-                    total[el] = total.get(el, 0) + k * int(round(_as_float(n)))
+            for line in st["molecules"]:
+                for name, n in re.findall(r"(\S+)\s+(" + _RE_NUM + r")", line):
+                    if name not in MOLECULE_TABLE:
+                        return None, f"unknown molecule {name}"
+                    for el, k in MOLECULE_TABLE[name].items():
+                        total[el] = total.get(el, 0) + k * int(round(_as_float(n)))
             how.append("molecules")
             continue
         if r["phase"] == "amorphous":
-            if "composition" not in st:
+            comp_line = _stmt(r, "composition")
+            if comp_line is None:
                 return None, "amorphous region without composition"
-            pairs = re.findall(r"([A-Z][a-z]?)\s+(" + _RE_NUM + r")",
-                               st["composition"])
+            pairs = re.findall(r"([A-Z][a-z]?)\s+(" + _RE_NUM + r")", comp_line)
             if pairs:
                 for el, n in pairs:
                     total[el] = total.get(el, 0) + int(round(_as_float(n)))
@@ -269,35 +285,47 @@ def derive_counts(parsed: dict):
         if r["phase"] in ("liquid", "gas", "fluid"):
             return None, "atomic fluid region (no composition statement)"
         # crystal regions
-        name = st.get("prototype", st.get("lattice"))
-        if name is None:
+        proto_line = _stmt(r, "prototype") or _stmt(r, "lattice")
+        if proto_line is None:
             return None, "crystal region without lattice/prototype"
-        name = name.split()[0]
+        name = proto_line.split()[0]
         if name not in PROTO_TABLE:
             return None, f"unknown prototype {name}"
         slots, vfac = PROTO_TABLE[name]
         params = {}
         for key in ("a", "c"):
-            if key in st:
-                params[key] = _as_float(st[key].split()[0])
+            line = _stmt(r, key)
+            if line is not None:
+                params[key] = _as_float(line.split()[0])
         if not params or cell is None or len(cell) != 3:
             return None, "missing lattice parameter or system cell"
         a = params.get("a")
         c = params.get("c", a)
         v_conv = a * a * c * vfac
         n_cells = int(round(float(np.prod(cell)) * vfac / v_conv))
-        if "composition" in st:
-            comp = _parse_formula(st["composition"].split()[0])
-            for el in comp:
-                per = comp[el] / n_cells
-                if abs(per - round(per)) > 0.05:
-                    return None, f"composition {el} not integer per cell"
-                total[el] = total.get(el, 0) + int(round(per)) * n_cells
+        comp_line = _stmt(r, "composition")
+        occ_line = _stmt(r, "occupancy", join=True)
+        if comp_line is not None:
+            # composition gives the formula; the prototype table gives the
+            # per-conventional-cell multiplicities; their reduced ratios must
+            # agree, and lambda rescales formula counts to per-cell counts
+            comp = _parse_formula(comp_line.split()[0])
+            g_f = _gcd(*comp.values())
+            g_s = _gcd(*slots)
+            ratio_f = sorted(v // g_f for v in comp.values())
+            ratio_s = sorted(v // g_s for v in slots)
+            if ratio_f != ratio_s:
+                return None, (f"composition {comp_line.split()[0]} does not "
+                              f"fit {name}")
+            lam = sum(slots) // sum(comp.values())
+            if sum(slots) != lam * sum(comp.values()):
+                return None, f"composition {comp_line.split()[0]} does not tile {name}"
+            for el, f_el in comp.items():
+                total[el] = total.get(el, 0) + f_el * lam * n_cells
             how.append(f"{name}x{n_cells}+composition")
-        elif "occupancy" in st:
+        elif occ_line is not None:
             n_sites = sum(slots) * n_cells
-            for el, frac in re.findall(r"(\S+)\s+(" + _RE_NUM + r")",
-                                       st["occupancy"]):
+            for el, frac in re.findall(r"(\S+)\s+(" + _RE_NUM + r")", occ_line):
                 total[el] = total.get(el, 0) + int(round(_as_float(frac) * n_sites))
             how.append(f"occupancy on {n_sites} sites x{n_cells} cells")
         else:
@@ -314,10 +342,10 @@ def derive_counts(parsed: dict):
                     delta -= n
                 elif sub == "i":
                     delta += n
-            expected_total = n_sites + delta + sum(parsed["residual_atoms"].values())
-            how.append(f"sites-only: {n_sites} {name} sites "
-                       f"+ net {delta} + residual "
-                       f"{sum(parsed['residual_atoms'].values())}")
+            expected_total = (n_sites + delta
+                              + sum(parsed["residual_atoms"].values()))
+            how.append(f"sites-only: {n_sites} {name} sites + net {delta} "
+                       f"+ residual {sum(parsed['residual_atoms'].values())}")
             return {"__expected_total__": expected_total}, "+".join(how)
         _apply_defect_net(total, r["defects"])
     for sym, n in parsed["residual_atoms"].items():
@@ -584,12 +612,29 @@ def check_a2(mutation: str | None = None, n_transforms: int = 2,
         dl = dialects.setdefault(case["dialect"], load_dialect(case["dialect"]))
         frame = _rebuild_crystal(case)
         if mutation == "scale_lattice":
-            # seeded fault: stretch one cell axis by 1%
-            scale = np.array([1.0, 1.0, 1.01])
+            # seeded fault: non-uniform 10% strain. The strain magnitude must
+            # exceed the dialect's lift_symprec (0.25 A, sized to sit above
+            # thermal jitter ~0.06*d_NN): smaller distortions are legitimately
+            # absorbed by spglib idealisation, which is fit accuracy, not an
+            # invariance violation.
+            scale = np.array([1.0, 1.0, 1.10])
             frame = Frame(pos=frame.pos * scale,
                           cell=frame.cell * scale,
                           symbols=frame.symbols, pbc=frame.pbc)
         t_ref = format_program_text(lift_frame(frame, dl))
+        if mutation:
+            # a seeded fault is DETECTED when it changes the lifted value; the
+            # invariance comparison itself is transform-vs-transform on one
+            # frame, so fault detection must be scored against the clean lift.
+            # Detection marks the case as failed (the check "caught" it).
+            clean_frame = _rebuild_crystal(case)
+            t_clean = format_program_text(lift_frame(clean_frame, dl))
+            if t_ref != t_clean:
+                rows.append((case["id"], False,
+                             f" [fault detected: {next((a.strip() for a, b in zip(t_clean.splitlines(), t_ref.splitlines()) if a != b), '')[:60]}]"))
+            else:
+                rows.append((case["id"], True, " [fault NOT detected]"))
+            continue
         rng = np.random.default_rng(_stable_seed(case["id"]))
         case_ok = True
         for _ in range(n_transforms):
@@ -618,7 +663,7 @@ def check_a2(mutation: str | None = None, n_transforms: int = 2,
 
 
 # ---- A3 ----------------------------------------------------------------------
-def check_a3(mutation: str | None = None):
+def check_a3(mutation: str | None = None, case_filter: str | None = None):
     """lift -> build -> lift gives identical text AND the rebuilt structure
     matches the original under pymatgen StructureMatcher(ltol 0.2, stol 0.3,
     angle_tol 5 deg) on 100% of bench crystal cases."""
@@ -635,6 +680,8 @@ def check_a3(mutation: str | None = None):
     for case in bench_cases():
         if case["category"] not in CRYSTAL_CATEGORIES:
             continue
+        if case_filter is not None and case_filter not in case["id"]:
+            continue
         dl = dialects.setdefault(case["dialect"], load_dialect(case["dialect"]))
         frame = _rebuild_crystal(case)
         t1 = format_program_text(lift_frame(frame, dl))
@@ -647,15 +694,19 @@ def check_a3(mutation: str | None = None):
             pos[idx] += rng.normal(size=(len(idx), 3)) * 0.6
             rebuilt = Frame(pos=pos, cell=rebuilt.cell,
                             symbols=rebuilt.symbols, pbc=rebuilt.pbc)
-        t2 = format_program_text(lift_frame(rebuilt, dl))
+        try:
+            t2 = format_program_text(lift_frame(rebuilt, dl))
+            text_ok = t2 == t1
+            note = ""
+            if not text_ok:
+                diff = [l for l in t2.splitlines() if l not in t1.splitlines()]
+                note = ("; rebuilt lift differs by: "
+                        + " | ".join(diff[:3]) if diff else "")
+        except Exception as exc:                            # noqa: BLE001
+            text_ok, note = False, f"; rebuilt lift failed: {str(exc)[:70]}"
         geo_ok = bool(matcher.fit(frame_to_pymatgen(frame),
                                   frame_to_pymatgen(rebuilt)))
-        note = ""
-        if t2 != t1:
-            diff = [l for l in t2.splitlines() if l not in t1.splitlines()]
-            note = ("; rebuilt lift differs by: "
-                    + " | ".join(diff[:3]) if diff else "")
-        rows.append((case["id"], t2 == t1, geo_ok, note))
+        rows.append((case["id"], text_ok, geo_ok, note))
     ok = all(t and g for _, t, g, _ in rows) and rows
     ev = (f"{sum(1 for _, t, _, _ in rows if t)}/{len(rows)} lift-build-lift texts "
           f"byte-identical; {sum(1 for _, _, g, _ in rows if g)}/{len(rows)} "
@@ -779,7 +830,7 @@ def _pr_for_cell(dtype: str, planted_token: str, planted_n: int,
     return prec, rec, dict(tp=tp, fp=fp, fn=fn)
 
 
-def check_a4(mutation: str | None = None):
+def check_a4(mutation: str | None = None, temps=("room", "0.8Tm")):
     """Precision AND recall >= 0.95 for planted point defects of all four
     Kröger-Vink kinds (vacancy / interstitial / antisite / Frenkel) on 3 hosts,
     at room temperature and at the 0.8 Tm-equivalent thermal amplitude (metal
@@ -798,7 +849,7 @@ def check_a4(mutation: str | None = None):
         perfect = build_conventional(name, params, slots, reps)
         d_nn = median_nn_distance(perfect.pos, perfect.cell_diag)
         for dtype, token, n_planted in A4_PLANS[tag]:
-            for temp in ("room", "0.8Tm"):
+            for temp in temps:
                 seed = _stable_seed(f"{tag}|{dtype}|{temp}")
                 rng = np.random.default_rng(seed)
                 frame = _plant_defects(perfect, dtype, token, n_planted, d_nn, rng)
@@ -1057,9 +1108,10 @@ def _ionic_probe_row() -> dict:
     nacl = case_by_id("crystals/rocksalt_nacl")
     frame = read_frame(nacl["frames"][0])
     try:
-        text = format_program_text(lift_frame(_drop_one_cl(frame),
+        dropped = _drop_one_cl(frame)
+        text = format_program_text(lift_frame(dropped,
                                               load_dialect(("core", "metal"))))
-        symbols = list(frame.symbols)
+        symbols = list(dropped.symbols)
         row = _conservation_row("probe: rocksalt_nacl minus one Cl", 0,
                                 symbols, text)
         # both sides must read +1 (one Na+ without its Cl-)
@@ -1251,8 +1303,6 @@ def check_a9(mutation: str | None = None, cases_override=None):
                 write_frame(q, frame)
                 xyz_bytes = q.stat().st_size
                 prog_bytes = len(rec["text"].encode("utf-8"))
-                if mutation == "inflate_program":
-                    prog_bytes += 20000        # seeded fault: bloated program
                 measurements.append(dict(
                     case=cid, n_atoms=len(frame), prog_bytes=prog_bytes,
                     xyz_bytes=xyz_bytes,
@@ -1260,24 +1310,33 @@ def check_a9(mutation: str | None = None, cases_override=None):
             supp = _tiled_supplementary(td)
             if supp is not None:
                 measurements.append(supp)
+    if mutation == "inflate_program":
+        # seeded fault: a bloated program text (comment padding counts too)
+        for m in measurements:
+            m["prog_bytes"] += 20000
+            m["ratio"] = 100.0 * m["prog_bytes"] / m["xyz_bytes"]
     raw = [m for m in measurements if m["source"] == "bench"]
-    big_raw = [m for m in raw if m["n_atoms"] >= 1000]
-    worst = max(raw, key=lambda m: m["ratio"]) if raw else None
-    if big_raw:
-        worst_big = max(big_raw, key=lambda m: m["ratio"])
+    pool = raw or measurements
+    big_pool = [m for m in pool if m["n_atoms"] >= 1000]
+    worst = max(pool, key=lambda m: m["ratio"]) if pool else None
+    if big_pool:
+        worst_big = max(big_pool, key=lambda m: m["ratio"])
         ok = worst_big["ratio"] <= 2.0
-        ev = (f"{len(big_raw)} bench frames with >= 1,000 atoms; worst ratio "
+        ev = (f"{len(big_pool)} measured systems with >= 1,000 atoms "
+              f"({'bench frames' if raw else 'override cases'}); worst ratio "
               f"{worst_big['ratio']:.2f}% ({worst_big['case']}, "
               f"{worst_big['n_atoms']} atoms); per-case table in details")
     else:
         ok = False
         n_max = max((m["n_atoms"] for m in raw), default=0)
-        ev = (f"0 bench frames reach 1,000 atoms (largest raw bench frame: "
-              f"{n_max} atoms) -> criterion cannot be demonstrated on this "
-              f"bench; worst measured ratio {worst['ratio']:.2f}% "
-              f"({worst['case']}) across {len(raw)} cases; supplementary "
-              f"tiled >= 1,000-atom measurement in details (not a raw bench "
-              f"frame, not counted)")
+        ev = (f"0 bench frames reach 1,000 atoms"
+              + (f" (largest raw bench frame: {n_max} atoms)" if raw else "")
+              + f" -> criterion cannot be demonstrated on this bench; worst "
+                f"measured ratio {worst['ratio']:.2f}% ({worst['case']}) "
+                f"across {len(raw)} cases"
+              + ("; supplementary tiled >= 1,000-atom measurement in details "
+                 "(not a raw bench frame, not counted)" if raw else
+                 " (override mode: synthetic measurements only)"))
     return record("A9", "compression", ok, ev, dict(measurements=measurements))
 
 
@@ -1555,10 +1614,16 @@ def check_a14(mutation: str | None = None, reference_text: str | None = None):
     examples = {}
     for p in sorted((ROOT / "spec" / "examples").glob("*.chaord")):
         for line in p.read_text(encoding="utf-8").splitlines():
-            m = re.match(r"^\s*(?:(?:state|constrain|assert|history|conserve)"
-                         r"\s+)?([A-Za-z_][A-Za-z0-9_]*)\b", line)
-            if m and m.group(1) not in examples:
-                examples[m.group(1)] = (line.strip(), p.name)
+            m = re.match(r"^\s*((?:(?:state|constrain|assert|history|conserve)"
+                         r"\s+)?)([A-Za-z_][A-Za-z0-9_]*)\b", line)
+            if not m:
+                continue
+            kind, key = m.group(1).strip(), m.group(2)
+            # the leading kind word is itself a dialect key in some scopes
+            # (e.g. glass region keys include `state` and `history`)
+            for token in ((kind, key) if kind else (key,)):
+                if token not in examples:
+                    examples[token] = (line.strip(), p.name)
 
     ref = reference_text if reference_text is not None else (
         REFERENCE_MD.read_text(encoding="utf-8") if REFERENCE_MD.exists() else "")

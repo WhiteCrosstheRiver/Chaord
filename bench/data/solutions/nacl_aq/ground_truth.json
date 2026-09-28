@@ -5,6 +5,7 @@
   "description": "aqueous NaCl: 120 H2O + 8 Na+ + 8 Cl- random-sequential packed (re-packed per frame); the packer jammed at the nominal 16.5 A box, so the box grew to 19.5 A (actual density 0.589 g/cm3 recorded); draws with ion pairs inside the census bond window are rejected and re-drawn, keeping the census exact",
   "seed": 179,
   "n_frames": 5,
+  "dialect": "core+molecular",
   "frames": [
     {
       "file": "frame_0.npz",

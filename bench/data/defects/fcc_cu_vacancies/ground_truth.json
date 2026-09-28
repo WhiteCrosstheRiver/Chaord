@@ -5,6 +5,7 @@
   "description": "fcc ('Cu',) 3x3x3 host with random 3 V_Cu (Kr\u00f6ger-Vink); defect sites are re-drawn every frame, counts fixed",
   "seed": 11,
   "n_frames": 5,
+  "dialect": "core+metal",
   "frames": [
     {
       "file": "frame_0.npz",

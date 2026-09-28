@@ -58,22 +58,25 @@ def load_provenance(case_dir: Path) -> dict:
 # ------------------------------------------------------------------ probes --
 
 def _selection_mask(symbols, elements):
-    """Boolean mask of atoms whose symbol is in `elements` (['X'] = all)."""
-    if not elements or elements == ["X"]:
+    """Boolean mask of atoms whose symbol is in `elements` (literal symbols;
+    'X' is the LJ reference species, not a wildcard)."""
+    if not elements:
         return np.ones(len(symbols), bool)
     return np.array([s in elements for s in symbols])
 
 
-def pair_histogram(cross_tree_a, cross_tree_b, n_a, n_b, volume, rmax, bins,
-                   self_pairs):
-    """Pair-count histogram -> g(r) between two selections under PBC."""
+def pair_histogram(cross_tree_a, cross_tree_b, n_a, n_b, volume, rmax, bins):
+    """Pair-count histogram -> g(r) between two selections under PBC.
+
+    count_neighbors is cumulative, so the r=0 self pairs (identical trees)
+    fall on the first edge and are dropped by the diff."""
     edges = np.linspace(0.0, rmax, bins + 1)
     counts = cross_tree_a.count_neighbors(cross_tree_b, edges)
     h = np.diff(counts).astype(float)
-    if self_pairs:
-        h[0] -= n_a          # remove the r=0 self pairs
     shell = 4.0 / 3.0 * np.pi * (edges[1:] ** 3 - edges[:-1] ** 3)
     rho_a = n_a / volume
+    # identical trees count each unordered pair twice (both directions),
+    # which is exactly the factor g(r) needs; cross trees count once
     return h / (n_b * rho_a * shell), 0.5 * (edges[1:] + edges[:-1])
 
 
@@ -85,10 +88,8 @@ def pair_gr(pos, symbols, L, elements, rmax, bins):
     lb = np.mod(pos[mb], L)
     ta = cKDTree(la, boxsize=L)
     tb = cKDTree(lb, boxsize=L)
-    same = np.array_equal(ma, mb)
     vol = float(np.prod(L))
-    return pair_histogram(ta, tb, ma.sum(), mb.sum(), vol, rmax, bins,
-                          self_pairs=same)
+    return pair_histogram(ta, tb, ma.sum(), mb.sum(), vol, rmax, bins)
 
 
 def min_pair_distance(pos, symbols, L, elements_a, elements_b=None,
@@ -107,7 +108,7 @@ def min_pair_distance(pos, symbols, L, elements_a, elements_b=None,
     if same:
         pairs = ta.query_pairs(6.0, output_type="ndarray")
     else:
-        idx = ta.query_ball_tree(tb)
+        idx = ta.query_ball_tree(tb, 6.0)
         pairs = np.array([[a, b] for a, bs in enumerate(idx) for b in bs],
                          dtype=int).reshape(-1, 2)
     if exclude_bonded is not None and len(pairs):
