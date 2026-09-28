@@ -29,7 +29,16 @@ jobs:
       - name: Magic-number gate (thresholds live in dialects only)
         run: python tools/check_magic_numbers.py
       - name: Fast test suite
-        run: python -m pytest tests -m "not slow"
+        run: |
+          set -o pipefail
+          python -m pytest tests -m "not slow" -q --tb=short -rA 2>&1 | tee pytest_output.txt
+          exit ${PIPESTATUS[0]}
+      - name: Upload test output (debug)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-output-${{ matrix.os }}
+          path: pytest_output.txt
 
   nightly:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
