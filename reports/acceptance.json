@@ -22,19 +22,19 @@
       "id": "A4",
       "name": "defect recovery",
       "passed": false,
-      "evidence": "22 host x defect-type x temperature cells (3 hosts, all four K-V kinds); precision >= 0.95 in 15/22, recall >= 0.95 in 22/22; worst precision 0.09 (L12-NiAl/interstitial/0.8Tm), worst recall 1.00 (fcc-Cu/vacancy/room)"
+      "evidence": "22 host x defect-type x temperature cells (3 hosts, all four K-V kinds); precision >= 0.95 in 18/22, recall >= 0.95 in 22/22; worst precision 0.09 (L12-NiAl/interstitial/0.8Tm), worst recall 1.00 (fcc-Cu/vacancy/room)"
     },
     {
       "id": "A5",
       "name": "statistical round trip",
       "passed": false,
-      "evidence": "pass rate 0/0-with-floor; 3 cases without a floor on record: no-floor: skipped (synthetic frame); 3 could not round-trip: fluid/ar_gas_box25 lift-failed; interface/lj_solid_liquid build-failed; interfaces/cu_water lift-failed; no case has a measured noise floor -> criterion not demonstrated (populate reports/noise_floors.json from S1 MD frames with tools/noise_floor.py)"
+      "evidence": "pass rate 0/0-with-floor; 4 cases without a floor on record: no-floor: skipped (synthetic frame); 2 could not round-trip: interface/lj_solid_liquid build-failed; interfaces/cu_water build-failed; no case has a measured noise floor -> criterion not demonstrated (populate reports/noise_floors.json from S1 MD frames with tools/noise_floor.py)"
     },
     {
       "id": "A6",
       "name": "conservation",
       "passed": true,
-      "evidence": "110 lifts checked: frame count == conserve line on 110/110; verifier's own region arithmetic (composition/occupancy/molecules/defect net/residual) pins or cross-checks 86 programs (non-derivable shapes check two-way); charge consistent on 110/110"
+      "evidence": "126 lifts checked: frame count == conserve line on 126/126; verifier's own region arithmetic (composition/occupancy/molecules/defect net/residual) pins or cross-checks 86 programs (non-derivable shapes check two-way); charge consistent on 126/126"
     },
     {
       "id": "A7",
@@ -52,7 +52,7 @@
       "id": "A9",
       "name": "compression",
       "passed": false,
-      "evidence": "0 bench frames reach 1,000 atoms (largest raw bench frame: 512 atoms) -> criterion cannot be demonstrated on this bench; worst measured ratio 34.29% (crystals/bcc_fe) across 22 cases; supplementary tiled >= 1,000-atom measurement in details (not a raw bench frame, not counted)"
+      "evidence": "0 bench frames reach 1,000 atoms (largest raw bench frame: 792 atoms) -> criterion cannot be demonstrated on this bench; worst measured ratio 34.29% (crystals/bcc_fe) across 25 cases; supplementary tiled >= 1,000-atom measurement in details (not a raw bench frame, not counted)"
     },
     {
       "id": "A10",
@@ -64,7 +64,7 @@
       "id": "A11",
       "name": "speed",
       "passed": true,
-      "evidence": "lift_frame(mode=fluid) on 100,000 atoms took 6.5 s (target <= 120 s); input = fcc lattice at rho 0.85 with 0.10 x a jitter (thermally disordered, not equilibrated MD); program states the exact count: yes"
+      "evidence": "lift_frame(mode=fluid) on 100,000 atoms took 4.0 s (target <= 120 s); input = fcc lattice at rho 0.85 with 0.10 x a jitter (thermally disordered, not equilibrated MD); program states the exact count: yes"
     },
     {
       "id": "A12",
@@ -75,16 +75,16 @@
     {
       "id": "A13",
       "name": "no crashes",
-      "passed": false,
-      "evidence": "109/125 bench frames lift without any exception; 0 atoms placed in residual blocks across successful lifts; 16 frames refused with ChaordError (a lift refusal is still a failed lift for this criterion): crystals/hcp_mg[0] ChaordError: dialect 'core + metal' defines no threshold 'md; crystals/hcp_mg[1] ChaordError: dialect 'core + metal' defines no threshold 'md; crystals/hcp_mg[2] ChaordError: dialect 'core + metal' defines no threshold 'md; crystals/hcp_mg[3] ChaordError: dialect 'core + metal' defines no threshold 'md; crystals/hcp_mg[4] ChaordError: dialect 'core + metal' defines no threshold 'md; fluid/ar_gas_box25[0] ChaordError: dialect 'core + molecular' defines no threshold; surfaces/si001_2x1[0] ChaordError: slab interior coordination 3.3 is neither fcc-l; surfaces/si001_2x1[1] ChaordError: slab interior coordination 2.8 is neither fcc-l..."
+      "passed": true,
+      "evidence": "125/125 bench frames lift without any exception; 0 atoms placed in residual blocks across successful lifts"
     },
     {
       "id": "A14",
       "name": "documentation",
-      "passed": false,
-      "evidence": "35 distinct keys across dialect YAMLs; reference.md covers 28/35 (missing entries: chirality, forcefield, lift_version, nanotube, note, source, stacking); example found for 26/35 keys (spec/examples; sketch_check pass); generated docs/reference_generated.md"
+      "passed": true,
+      "evidence": "35 distinct keys across dialect YAMLs; reference.md covers 35/35; example found for 26/35 keys (spec/examples; sketch_check pass); generated docs/reference_generated.md"
     }
   ],
-  "passed": 7,
+  "passed": 9,
   "total": 14
 }

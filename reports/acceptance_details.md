@@ -39,7 +39,7 @@ Per-case numbers behind `reports/acceptance.json`.  Written by `tools/acceptance
 
 ## A4 defect recovery — FAIL
 
-**Evidence:** 22 host x defect-type x temperature cells (3 hosts, all four K-V kinds); precision >= 0.95 in 15/22, recall >= 0.95 in 22/22; worst precision 0.09 (L12-NiAl/interstitial/0.8Tm), worst recall 1.00 (fcc-Cu/vacancy/room)
+**Evidence:** 22 host x defect-type x temperature cells (3 hosts, all four K-V kinds); precision >= 0.95 in 18/22, recall >= 0.95 in 22/22; worst precision 0.09 (L12-NiAl/interstitial/0.8Tm), worst recall 1.00 (fcc-Cu/vacancy/room)
 
 | host | type | temp | planted | detected | P | R | tp/fp/fn |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -47,41 +47,41 @@ Per-case numbers behind `reports/acceptance.json`.  Written by `tools/acceptance
 | fcc-Cu | vacancy | 0.8Tm | 6 | V_Cu:6 | 1.00 | 1.00 | 6/0/0 |
 | fcc-Cu | interstitial | room | 4 | Cu_i:4 | 1.00 | 1.00 | 4/0/0 |
 | fcc-Cu | interstitial | 0.8Tm | 4 | Cu_i:4,frenkel_pair:13 | 0.24 | 1.00 | 4/13/0 |
-| fcc-Cu | frenkel | room | 4 | V_Cu:4,Cu_i:4 | 1.00 | 1.00 | 4/0/0 |
-| fcc-Cu | frenkel | 0.8Tm | 4 | V_Cu:4,Cu_i:4,frenkel_pair:6 | 0.50 | 1.00 | 4/4/0 |
+| fcc-Cu | frenkel | room | 4 | frenkel_pair:4 | 1.00 | 1.00 | 4/0/0 |
+| fcc-Cu | frenkel | 0.8Tm | 4 | frenkel_pair:10 | 1.00 | 1.00 | 4/0/0 |
 | L12-NiAl | vacancy | room | 3 | V_Ni:3 | 1.00 | 1.00 | 3/0/0 |
 | L12-NiAl | vacancy | 0.8Tm | 3 | V_Ni:3,frenkel_pair:3 | 0.50 | 1.00 | 3/3/0 |
 | L12-NiAl | antisite | room | 4 | Al_Ni:4 | 1.00 | 1.00 | 4/0/0 |
 | L12-NiAl | antisite | 0.8Tm | 4 | Al_Ni:4 | 1.00 | 1.00 | 4/0/0 |
 | L12-NiAl | interstitial | room | 3 | Ni_i:3 | 1.00 | 1.00 | 3/0/0 |
 | L12-NiAl | interstitial | 0.8Tm | 3 | Ni_i:3,frenkel_pair:30 | 0.09 | 1.00 | 3/30/0 |
-| L12-NiAl | frenkel | room | 3 | V_Al:3,Al_i:3 | 1.00 | 1.00 | 3/0/0 |
-| L12-NiAl | frenkel | 0.8Tm | 3 | V_Al:3,Al_i:3,frenkel_pair:4 | 0.50 | 1.00 | 3/3/0 |
+| L12-NiAl | frenkel | room | 3 | frenkel_pair:3 | 1.00 | 1.00 | 3/0/0 |
+| L12-NiAl | frenkel | 0.8Tm | 3 | frenkel_pair:4 | 1.00 | 1.00 | 3/0/0 |
 | NaCl | vacancy | room | 6 | V_Na:6 | 1.00 | 1.00 | 6/0/0 |
 | NaCl | vacancy | 0.8Tm | 6 | V_Na:6 | 1.00 | 1.00 | 6/0/0 |
 | NaCl | antisite | room | 4 | Cl_Na:4 | 1.00 | 1.00 | 4/0/0 |
 | NaCl | antisite | 0.8Tm | 4 | Cl_Na:4 | 1.00 | 1.00 | 4/0/0 |
 | NaCl | interstitial | room | 3 | Na_i:3 | 1.00 | 1.00 | 3/0/0 |
 | NaCl | interstitial | 0.8Tm | 3 | Na_i:3,frenkel_pair:5 | 0.38 | 1.00 | 3/5/0 |
-| NaCl | frenkel | room | 3 | V_Na:3,Na_i:3 | 1.00 | 1.00 | 3/0/0 |
-| NaCl | frenkel | 0.8Tm | 3 | V_Na:3,Na_i:3,frenkel_pair:4 | 0.50 | 1.00 | 3/3/0 |
+| NaCl | frenkel | room | 3 | frenkel_pair:3 | 1.00 | 1.00 | 3/0/0 |
+| NaCl | frenkel | 0.8Tm | 3 | frenkel_pair:7 | 1.00 | 1.00 | 3/0/0 |
 
 ## A5 statistical round trip — FAIL
 
-**Evidence:** pass rate 0/0-with-floor; 3 cases without a floor on record: no-floor: skipped (synthetic frame); 3 could not round-trip: fluid/ar_gas_box25 lift-failed; interface/lj_solid_liquid build-failed; interfaces/cu_water lift-failed; no case has a measured noise floor -> criterion not demonstrated (populate reports/noise_floors.json from S1 MD frames with tools/noise_floor.py)
+**Evidence:** pass rate 0/0-with-floor; 4 cases without a floor on record: no-floor: skipped (synthetic frame); 2 could not round-trip: interface/lj_solid_liquid build-failed; interfaces/cu_water build-failed; no case has a measured noise floor -> criterion not demonstrated (populate reports/noise_floors.json from S1 MD frames with tools/noise_floor.py)
 
 | case | category | status | distances | ratios |
 | --- | --- | --- | --- | --- |
 | fluid/water_box15 | fluid | no-floor: skipped (synthetic frame) | gr_rms=0.122, cn_tv=0.172 |  |
-| fluid/ar_gas_box25 | fluid | lift-failed (dialect 'core + molecular' defines no threshold 'md_reference_T') |  |  |
+| fluid/ar_gas_box25 | fluid | no-floor: skipped (synthetic frame) | gr_rms=0.797, cn_tv=0.000 |  |
 | fluid/n2_box22 | fluid | no-floor: skipped (synthetic frame) | gr_rms=0.313, cn_tv=0.050 |  |
 | glass/lj_glass_rho085 | glass | no-floor: skipped (synthetic frame) | gr_rms=0.143, cn_tv=0.055 |  |
 | interface/lj_solid_liquid | interface | build-failed (rebuild exceeded the time budget) |  |  |
-| interfaces/cu_water | interfaces | lift-failed (dialect 'core + metal' defines no threshold 'md_reference_T') |  |  |
+| interfaces/cu_water | interfaces | build-failed (ValueError: 'Cu384' is not in list) |  |  |
 
 ## A6 conservation — PASS
 
-**Evidence:** 110 lifts checked: frame count == conserve line on 110/110; verifier's own region arithmetic (composition/occupancy/molecules/defect net/residual) pins or cross-checks 86 programs (non-derivable shapes check two-way); charge consistent on 110/110
+**Evidence:** 126 lifts checked: frame count == conserve line on 126/126; verifier's own region arithmetic (composition/occupancy/molecules/defect net/residual) pins or cross-checks 86 programs (non-derivable shapes check two-way); charge consistent on 126/126
 
 | case | frame | frame counts | conserve | derivation | derived | ok | charge |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -105,6 +105,11 @@ Per-case numbers behind `reports/acceptance.json`.  Written by `tools/acceptance
 | crystals/l12_ni3al | 2 | {'Al': 8, 'Ni': 24} | {'Al': 8, 'Ni': 24} | L1_2x8+composition | {'Ni': 24, 'Al': 8} | True | no ionic species |
 | crystals/l12_ni3al | 3 | {'Al': 8, 'Ni': 24} | {'Al': 8, 'Ni': 24} | L1_2x8+composition | {'Ni': 24, 'Al': 8} | True | no ionic species |
 | crystals/l12_ni3al | 4 | {'Al': 8, 'Ni': 24} | {'Al': 8, 'Ni': 24} | L1_2x8+composition | {'Ni': 24, 'Al': 8} | True | no ionic species |
+| crystals/hcp_mg | 0 | {'Mg': 32} | {'Mg': 32} | unknown molecule Mg32 | - | True | no ionic species |
+| crystals/hcp_mg | 1 | {'Mg': 32} | {'Mg': 32} | unknown molecule Mg32 | - | True | no ionic species |
+| crystals/hcp_mg | 2 | {'Mg': 32} | {'Mg': 32} | unknown molecule Mg32 | - | True | no ionic species |
+| crystals/hcp_mg | 3 | {'Mg': 32} | {'Mg': 32} | unknown molecule Mg32 | - | True | no ionic species |
+| crystals/hcp_mg | 4 | {'Mg': 32} | {'Mg': 32} | unknown molecule Mg32 | - | True | no ionic species |
 | crystals/diamond_si | 0 | {'Si': 64} | {'Si': 64} | sites-only: 64 diamond sites + net 0 + residual 0 [total 64 == 64] | - | True | no ionic species |
 | crystals/diamond_si | 1 | {'Si': 64} | {'Si': 64} | sites-only: 64 diamond sites + net 0 + residual 0 [total 64 == 64] | - | True | no ionic species |
 | crystals/diamond_si | 2 | {'Si': 64} | {'Si': 64} | sites-only: 64 diamond sites + net 0 + residual 0 [total 64 == 64] | - | True | no ionic species |
@@ -145,6 +150,7 @@ Per-case numbers behind `reports/acceptance.json`.  Written by `tools/acceptance
 | fluid/water_box15 | 2 | {'H': 120, 'O': 60} | {'H': 120, 'O': 60} | molecules | {'H': 120, 'O': 60} | True | no ionic species |
 | fluid/water_box15 | 3 | {'H': 120, 'O': 60} | {'H': 120, 'O': 60} | molecules | {'H': 120, 'O': 60} | True | no ionic species |
 | fluid/water_box15 | 4 | {'H': 120, 'O': 60} | {'H': 120, 'O': 60} | molecules | {'H': 120, 'O': 60} | True | no ionic species |
+| fluid/ar_gas_box25 | 0 | {'Ar': 50} | {'Ar': 50} | atomic fluid region (no composition statement) | - | True | no ionic species |
 | fluid/ar_gas_box25 | 1 | {'Ar': 50} | {'Ar': 50} | atomic fluid region (no composition statement) | - | True | no ionic species |
 | fluid/ar_gas_box25 | 2 | {'Ar': 50} | {'Ar': 50} | atomic fluid region (no composition statement) | - | True | no ionic species |
 | fluid/ar_gas_box25 | 3 | {'Ar': 50} | {'Ar': 50} | atomic fluid region (no composition statement) | - | True | no ionic species |
@@ -194,6 +200,16 @@ Per-case numbers behind `reports/acceptance.json`.  Written by `tools/acceptance
 | gases/co2_dense | 2 | {'C': 60, 'O': 120} | {'C': 60, 'O': 120} | molecules | {'C': 60, 'O': 120} | True | no ionic species |
 | gases/co2_dense | 3 | {'C': 60, 'O': 120} | {'C': 60, 'O': 120} | molecules | {'C': 60, 'O': 120} | True | no ionic species |
 | gases/co2_dense | 4 | {'C': 60, 'O': 120} | {'C': 60, 'O': 120} | molecules | {'C': 60, 'O': 120} | True | no ionic species |
+| surfaces/si001_2x1 | 0 | {'Si': 63} | {'Si': 63} | unsupported phase | - | True | no ionic species |
+| surfaces/si001_2x1 | 1 | {'Si': 63} | {'Si': 63} | unsupported phase | - | True | no ionic species |
+| surfaces/si001_2x1 | 2 | {'Si': 63} | {'Si': 63} | unsupported phase | - | True | no ionic species |
+| surfaces/si001_2x1 | 3 | {'Si': 63} | {'Si': 63} | unsupported phase | - | True | no ionic species |
+| surfaces/si001_2x1 | 4 | {'Si': 63} | {'Si': 63} | unsupported phase | - | True | no ionic species |
+| interfaces/cu_water | 0 | {'Cu': 384, 'H': 272, 'O': 136} | {'Cu': 384, 'H': 272, 'O': 136} | unknown molecule Cu384 | - | True | no ionic species |
+| interfaces/cu_water | 1 | {'Cu': 384, 'H': 272, 'O': 136} | {'Cu': 384, 'H': 272, 'O': 136} | unknown molecule Cu384 | - | True | no ionic species |
+| interfaces/cu_water | 2 | {'Cu': 384, 'H': 272, 'O': 136} | {'Cu': 384, 'H': 272, 'O': 136} | unknown molecule Cu384 | - | True | no ionic species |
+| interfaces/cu_water | 3 | {'Cu': 384, 'H': 272, 'O': 136} | {'Cu': 384, 'H': 272, 'O': 136} | unknown molecule Cu384 | - | True | no ionic species |
+| interfaces/cu_water | 4 | {'Cu': 384, 'H': 272, 'O': 136} | {'Cu': 384, 'H': 272, 'O': 136} | unknown molecule Cu384 | - | True | no ionic species |
 | probe: rocksalt_nacl minus one Cl | 0 | {'Cl': 31, 'Na': 32} | {'Cl': 31, 'Na': 32} | rocksaltx8+composition | {'Na': 32, 'Cl': 31} | True | charge +1 == frame +1 [expected: charge +1] |
 
 ## A7 phase segmentation — PASS
@@ -224,7 +240,7 @@ Per-case numbers behind `reports/acceptance.json`.  Written by `tools/acceptance
 
 ## A9 compression — FAIL
 
-**Evidence:** 0 bench frames reach 1,000 atoms (largest raw bench frame: 512 atoms) -> criterion cannot be demonstrated on this bench; worst measured ratio 34.29% (crystals/bcc_fe) across 22 cases; supplementary tiled >= 1,000-atom measurement in details (not a raw bench frame, not counted)
+**Evidence:** 0 bench frames reach 1,000 atoms (largest raw bench frame: 792 atoms) -> criterion cannot be demonstrated on this bench; worst measured ratio 34.29% (crystals/bcc_fe) across 25 cases; supplementary tiled >= 1,000-atom measurement in details (not a raw bench frame, not counted)
 
 | case | atoms | program B | extxyz B | ratio % | source |
 | --- | --- | --- | --- | --- | --- |
@@ -232,6 +248,7 @@ Per-case numbers behind `reports/acceptance.json`.  Written by `tools/acceptance
 | crystals/diamond_si | 64 | 342 | 3620 | 9.45 | bench |
 | crystals/fcc_crconi | 108 | 412 | 6041 | 6.82 | bench |
 | crystals/fcc_cu | 32 | 335 | 1857 | 18.04 | bench |
+| crystals/hcp_mg | 32 | 337 | 1871 | 18.01 | bench |
 | crystals/l12_ni3al | 32 | 363 | 1860 | 19.52 | bench |
 | crystals/perovskite_srtio3 | 40 | 374 | 2297 | 16.28 | bench |
 | crystals/rocksalt_nacl | 64 | 370 | 3620 | 10.22 | bench |
@@ -244,12 +261,14 @@ Per-case numbers behind `reports/acceptance.json`.  Written by `tools/acceptance
 | gases/co2_dense | 180 | 387 | 9998 | 3.87 | bench |
 | glass/lj_glass_rho085 | 200 | 380 | 11137 | 3.41 | bench |
 | interface/lj_solid_liquid | 512 | 373 | 28300 | 1.32 | bench |
+| interfaces/cu_water | 792 | 408 | 43661 | 0.93 | bench |
 | reactive/water_oh_h_box20 | 177 | 420 | 9833 | 4.27 | bench |
 | solutions/cuau_random | 108 | 370 | 6080 | 6.09 | bench |
 | solutions/lipf6_ec | 432 | 446 | 23858 | 1.87 | bench |
 | solutions/nacl_aq | 376 | 433 | 20778 | 2.08 | bench |
 | surface/ni111_o_top | 80 | 485 | 4538 | 10.69 | bench |
 | surfaces/pt111_o | 80 | 485 | 4532 | 10.70 | bench |
+| surfaces/si001_2x1 | 63 | 560 | 3604 | 15.54 | bench |
 | defects/l12_ni3al_vac_antisite tiled 2x2 (supplementary, not a raw bench frame) | 1012 | 415 | 55765 | 0.74 | tiled-supplementary |
 
 ## A10 determinism — PASS
@@ -259,7 +278,7 @@ Per-case numbers behind `reports/acceptance.json`.  Written by `tools/acceptance
 
 ## A11 speed — PASS
 
-**Evidence:** lift_frame(mode=fluid) on 100,000 atoms took 6.5 s (target <= 120 s); input = fcc lattice at rho 0.85 with 0.10 x a jitter (thermally disordered, not equilibrated MD); program states the exact count: yes
+**Evidence:** lift_frame(mode=fluid) on 100,000 atoms took 4.0 s (target <= 120 s); input = fcc lattice at rho 0.85 with 0.10 x a jitter (thermally disordered, not equilibrated MD); program states the exact count: yes
 
 
 ## A12 static checks — PASS
@@ -267,30 +286,12 @@ Per-case numbers behind `reports/acceptance.json`.  Written by `tools/acceptance
 **Evidence:** lattice_mismatch: caught; impossible_density: caught; charge_imbalance: caught; overlap_0.1sigma: caught
 
 
-## A13 no crashes — FAIL
+## A13 no crashes — PASS
 
-**Evidence:** 109/125 bench frames lift without any exception; 0 atoms placed in residual blocks across successful lifts; 16 frames refused with ChaordError (a lift refusal is still a failed lift for this criterion): crystals/hcp_mg[0] ChaordError: dialect 'core + metal' defines no threshold 'md; crystals/hcp_mg[1] ChaordError: dialect 'core + metal' defines no threshold 'md; crystals/hcp_mg[2] ChaordError: dialect 'core + metal' defines no threshold 'md; crystals/hcp_mg[3] ChaordError: dialect 'core + metal' defines no threshold 'md; crystals/hcp_mg[4] ChaordError: dialect 'core + metal' defines no threshold 'md; fluid/ar_gas_box25[0] ChaordError: dialect 'core + molecular' defines no threshold; surfaces/si001_2x1[0] ChaordError: slab interior coordination 3.3 is neither fcc-l; surfaces/si001_2x1[1] ChaordError: slab interior coordination 2.8 is neither fcc-l...
+**Evidence:** 125/125 bench frames lift without any exception; 0 atoms placed in residual blocks across successful lifts
 
-| case | frame | error |
-| --- | --- | --- |
-| crystals/hcp_mg | 0 | ChaordError: dialect 'core + metal' defines no threshold 'md_reference_T' |
-| crystals/hcp_mg | 1 | ChaordError: dialect 'core + metal' defines no threshold 'md_reference_T' |
-| crystals/hcp_mg | 2 | ChaordError: dialect 'core + metal' defines no threshold 'md_reference_T' |
-| crystals/hcp_mg | 3 | ChaordError: dialect 'core + metal' defines no threshold 'md_reference_T' |
-| crystals/hcp_mg | 4 | ChaordError: dialect 'core + metal' defines no threshold 'md_reference_T' |
-| fluid/ar_gas_box25 | 0 | ChaordError: dialect 'core + molecular' defines no threshold 'md_reference_T' |
-| surfaces/si001_2x1 | 0 | ChaordError: slab interior coordination 3.3 is neither fcc-like nor bcc-like |
-| surfaces/si001_2x1 | 1 | ChaordError: slab interior coordination 2.8 is neither fcc-like nor bcc-like |
-| surfaces/si001_2x1 | 2 | ChaordError: slab interior coordination 2.9 is neither fcc-like nor bcc-like |
-| surfaces/si001_2x1 | 3 | ChaordError: slab interior coordination 3.4 is neither fcc-like nor bcc-like |
-| surfaces/si001_2x1 | 4 | ChaordError: slab interior coordination 2.7 is neither fcc-like nor bcc-like |
-| interfaces/cu_water | 0 | ChaordError: dialect 'core + metal' defines no threshold 'md_reference_T' |
-| interfaces/cu_water | 1 | ChaordError: dialect 'core + metal' defines no threshold 'md_reference_T' |
-| interfaces/cu_water | 2 | ChaordError: dialect 'core + metal' defines no threshold 'md_reference_T' |
-| interfaces/cu_water | 3 | ChaordError: dialect 'core + metal' defines no threshold 'md_reference_T' |
-| interfaces/cu_water | 4 | ChaordError: dialect 'core + metal' defines no threshold 'md_reference_T' |
 
-## A14 documentation — FAIL
+## A14 documentation — PASS
 
-**Evidence:** 35 distinct keys across dialect YAMLs; reference.md covers 28/35 (missing entries: chirality, forcefield, lift_version, nanotube, note, source, stacking); example found for 26/35 keys (spec/examples; sketch_check pass); generated docs/reference_generated.md
+**Evidence:** 35 distinct keys across dialect YAMLs; reference.md covers 35/35; example found for 26/35 keys (spec/examples; sketch_check pass); generated docs/reference_generated.md
 

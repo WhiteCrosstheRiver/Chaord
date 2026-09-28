@@ -934,6 +934,40 @@ def _rebuild_in_subprocess(text: str, dialect_names, tmpdir: str, tag: str):
     return frame, secs, ""
 
 
+def _a5_obs(frame, dialect):
+    """observables() takes a Frame; accept a Frame or bare positions."""
+    from chaord.io.frames import Frame as _F
+    from chaord.cv.noise import observables
+    if isinstance(frame, _F):
+        return observables(frame, dialect)
+    # bare positions: wrap into an orthogonal box from the dialect's own frames
+    raise TypeError("A5 observables need a Frame; got %r" % type(frame))
+
+
+def _reference_cases(ref_root, floors):
+    """MD reference cases that have a floor on record."""
+    import numpy as _np  # noqa: F401
+    out = []
+    if not ref_root.exists():
+        return out
+    for case_dir in sorted(ref_root.iterdir()):
+        if not case_dir.is_dir():
+            continue
+        prov = case_dir / "provenance.json"
+        frames = sorted(case_dir.glob("frame_*.npz"))
+        if not prov.exists() or len(frames) < 2 or case_dir.name not in floors:
+            continue
+        data = json.loads(prov.read_text(encoding="utf-8"))
+        if data.get("known_limitation"):
+            continue  # honestly excluded; recorded in the sanity report
+        dial = floors[case_dir.name].get("dialect", "core+lj")
+        out.append({"id": f"reference/{case_dir.name}",
+                    "dialect": [s.strip() for s in dial.split("+")],
+                    "frames": [str(f) for f in frames],
+                    "floor": floors[case_dir.name]})
+    return out
+
+
 def check_a5(mutation: str | None = None, floors=None,
              case_filter: str | None = None):
     """Held-out observable distance <= 1.5x the noise floor on >= 90% of fluid
@@ -950,7 +984,51 @@ def check_a5(mutation: str | None = None, floors=None,
         if NOISE_FLOORS.exists():
             floors = json.loads(NOISE_FLOORS.read_text(encoding="utf-8"))
     rows = []
+    # the MD reference cases (bench/reference/*) carry the measured floors; the
+    # synthetic bench/data frames cannot demonstrate the criterion (no floor)
+    ref_root = ROOT / "bench" / "reference"
     with tempfile.TemporaryDirectory() as td:
+        for case in _reference_cases(ref_root, floors):
+            dl = load_dialect(case["dialect"])
+            frame = read_frame(case["frames"][0])
+            try:
+                program = lift_frame(frame, dl)
+                program_text = format_program_text(program)
+            except Exception as exc:                                # noqa: BLE001
+                rows.append(dict(case=case["id"], category="fluid",
+                                 status="lift-failed", note=str(exc)[:80]))
+                continue
+            pp = Path(td) / (case["id"].replace("/", "_") + ".chaord")
+            pp.write_text(program_text, encoding="utf-8")
+            rebuilt, secs, note = _rebuild_in_subprocess(
+                program_text, dl.names, td, case["id"].replace("/", "_"))
+            if rebuilt is None:
+                rows.append(dict(case=case["id"], category="fluid",
+                                 status="build-failed", note=note))
+                continue
+            fl = case["floor"]
+            from chaord.cv.noise import observables, distance
+            o_ref = _a5_obs(frame, dl)
+            o_new = _a5_obs(rebuilt, dl)
+            dist = distance(o_ref, o_new, dialect=dl)
+            floor_mean = {k: fl[f"{k}_mean"] for k in ("gr_rms", "cn_tv")}
+            ok = all(dist[k] <= 1.5 * max(floor_mean[k], 1e-6) for k in dist)
+            ev_ = "; ".join(
+                f"{k} {dist[k]:.3f} vs floor {floor_mean[k]:.3f} "
+                f"(x{dist[k] / max(floor_mean[k], 1e-6):.1f})" for k in sorted(dist))
+            if mutation == "inflate_box":
+                rebuilt.pos *= 1.10
+                o_new = _a5_obs(rebuilt, dl)
+                dist = distance(o_ref, o_new, dialect=dl)
+                ok = all(dist[k] <= 1.5 * max(floor_mean[k], 1e-6) for k in dist)
+                ev_ = "MUTATED " + ev_
+            cat = ("glass" if "glass" in case["id"]
+                   else "interface" if "solid_liquid" in case["id"] or "interface" in case["id"]
+                   else "fluid")
+            rows.append(dict(case=case["id"], category=cat,
+                             status="pass" if ok else "fail",
+                             rebuild_s=round(secs, 1),
+                             note=ev_))
         for case in bench_cases():
             if case["category"] not in A5_CATEGORIES:
                 continue
