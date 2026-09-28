@@ -218,12 +218,17 @@ def defect_diff(frame: Frame, sites, site_species, dialect, occupancy=False):
 
 
 def group_defects(vacancies, antisites, interstitials, sites, site_species,
-                  frame: Frame, dialect):
-    """Cluster vacancies with nearby interstitials -> frenkel pairs; name the rest."""
+                  frame: Frame, dialect, dnn_lattice=None):
+    """Cluster vacancies with nearby interstitials -> frenkel pairs; name the rest.
+
+    dnn_lattice (optional) anchors the pairing radius to the FITTED lattice
+    spacing rather than the point cloud's median: planted interstitials
+    contaminate the median and would shrink the radius exactly where pairing
+    matters."""
     from scipy.sparse import coo_matrix
     from scipy.sparse.csgraph import connected_components
 
-    d_nn = nearest_neighbor_distance(frame)
+    d_nn = dnn_lattice if dnn_lattice is not None else typical_neighbor_distance(frame)
     rc = float(dialect.threshold("defect_cluster_rc_fraction")) * d_nn
     L = frame.cell_diag
 
@@ -239,21 +244,28 @@ def group_defects(vacancies, antisites, interstitials, sites, site_species,
     for a_idx in interstitials:
         inter_by_species.setdefault(frame.symbols[a_idx], []).append(a_idx)
 
-    # frenkel pairs: vacancy of species s within rc of an interstitial of species s
+    # frenkel pairs: a vacancy and an interstitial of the SAME species whose
+    # separation is within the pair radius. The pair radius is tighter than the
+    # generic cluster radius: a true frenkel interstitial sits in a nearby
+    # interstice (~0.6 dnn), while thermal jitter pairs two unrelated atoms at
+    # random separation -- pairing those inflates false positives at 0.8Tm.
     frenkel: dict[str, int] = {}
     used_vac: set[int] = set()
     used_int: set[int] = set()
+    pair_rc = float(dialect.threshold("frenkel_pair_rc_fraction")) * d_nn
     for sp, ints in inter_by_species.items():
         for a_idx in ints:
+            best, best_d = None, np.inf
             for s_idx in vac_by_species.get(sp, []):
                 if s_idx in used_vac:
                     continue
-                d = mic(sites[s_idx] - frame.pos[a_idx], L)
-                if np.linalg.norm(d) < rc:
-                    frenkel[sp] = frenkel.get(sp, 0) + 1
-                    used_vac.add(s_idx)
-                    used_int.add(a_idx)
-                    break
+                d = np.linalg.norm(mic(sites[s_idx] - frame.pos[a_idx], L))
+                if d < best_d:
+                    best, best_d = s_idx, d
+            if best is not None and best_d < pair_rc:
+                frenkel[sp] = frenkel.get(sp, 0) + 1
+                used_vac.add(best)
+                used_int.add(a_idx)
 
     statements = []
     for sp in sorted(vac_by_species):

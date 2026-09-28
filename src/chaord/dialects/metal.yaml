@@ -117,3 +117,4 @@ thresholds:
   burgers_row_link_fraction: 0.5    # row-chain link tolerance, fraction of d_NN
   burgers_row_angle_tol: 5.0        # degrees: lattice-repeat parallelism for row chains
   burgers_step_band: 0.25           # accepted row-step magnitudes, fraction around family |b|
+  frenkel_pair_rc_fraction: 0.80  # max vacancy-interstitial separation named frenkel_pair, x d_NN

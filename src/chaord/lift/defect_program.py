@@ -28,8 +28,11 @@ def lift_crystal_defects(frame, dialect, backend="eam") -> tuple[Program, dict]:
     occupancy_mode = slot_species is None
     vacancies, antisites, interstitials = defect_diff(
         frame, sites, site_species, dialect, occupancy=occupancy_mode)
+    from .defects import _A_FROM_DNN
+    dnn_lattice = a / _A_FROM_DNN[name] if name in _A_FROM_DNN else None
     defect_stmts = group_defects(vacancies, antisites, interstitials, sites,
-                                 site_species, frame, dialect)
+                                 site_species, frame, dialect,
+                                 dnn_lattice=dnn_lattice)
 
     L = frame.cell_diag
     n_atoms: dict[str, int] = {}
