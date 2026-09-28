@@ -122,24 +122,28 @@ MACE 后端属外接；热弛豫位错核仍到家族级；大分子近液密度
 
 ```bash
 # 环境
-python -m venv .venv && .venv/Scripts/python -m pip install -e .[test]
+python -m venv .venv
+.venv/bin/python -m pip install -e .[test]        # Linux/macOS
+# Windows: .venv\Scripts\python -m pip install -e .[test]
+
+PY=.venv/bin/python        # Windows: .venv\Scripts\python
 
 # 快测（~2 分钟，299 项）
-.venv/Scripts/python -m pytest tests -m "not slow"
+$PY -m pytest tests -m "not slow"
 
 # 慢速统计往返（~5 分钟）
-.venv/Scripts/python -m pytest tests -m slow
+$PY -m pytest tests -m slow
 
 # 验收 A1–A14（~15 分钟，写 reports/acceptance.json）
-.venv/Scripts/python tools/acceptance.py
+$PY tools/acceptance.py
 
 # 夜间全量（慢测+验收 → reports/nightly_<date>.md）
-.venv/Scripts/python tools/nightly.py
+$PY tools/nightly.py
 
 # 门禁
-.venv/Scripts/python tools/check_magic_numbers.py
-.venv/Scripts/python tools/sketch_check.py spec/examples/*.chaord
-.venv/Scripts/python tools/llm_prompt_suite.py
+$PY tools/check_magic_numbers.py
+$PY tools/sketch_check.py spec/examples/*.chaord
+$PY tools/llm_prompt_suite.py
 ```
 
 ## 八、仓库结构速查

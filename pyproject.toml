@@ -8,10 +8,10 @@ version = "0.1.0"
 description = "Chaord: describe the macrostate, sample the microstate"
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = ["numpy", "scipy", "ase", "lark", "pydantic>=2", "pyyaml"]
+dependencies = ["numpy", "scipy", "ase", "lark", "pydantic>=2", "pyyaml", "spglib", "pymatgen"]
 
 [project.optional-dependencies]
-test = ["pytest", "hypothesis"]
+test = ["pytest", "hypothesis", "spglib", "pymatgen"]
 dev = ["pytest", "hypothesis"]
 
 [project.scripts]

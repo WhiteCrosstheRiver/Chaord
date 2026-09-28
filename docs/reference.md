@@ -108,6 +108,8 @@ live ONLY in `src/chaord/dialects/*.yaml` — never in pass code (CI-enforced).
 ## CLI
 
 ```
+# invoke as `.venv/bin/python -m chaord ...` (Linux/macOS)
+# or     `.venv\Scripts\python -m chaord ...` (Windows)
 chaord fmt in.chaord [-o out] [--check]
 chaord build in.chaord -o out.extxyz [--seed 1] [--no-physics]
 chaord lift dump.extxyz [-o out.chaord] [--dialect core+lj] [--mode auto|crystal|defects|surface|amorphous|fluid|slab]

@@ -4,10 +4,11 @@ Build a defect-bearing intermetallic, lift it back, and check the round trip.
 
 ```bash
 cd Chaord
-.venv/Scripts/python -m chaord.cli build spec/examples/02_crystal_defects.chaord -o ni3al.extxyz --seed 7
-.venv/Scripts/python -m chaord.cli lift ni3al.extxyz -o lifted.chaord --dialect core+metal --mode defects
-.venv/Scripts/python -m chaord.cli fmt lifted.chaord --check
-.venv/Scripts/python -m chaord.cli diff spec/examples/02_crystal_defects.chaord lifted.chaord
+PY=.venv/Scripts/python        # Windows; on Linux/macOS use .venv/bin/python
+$PY -m chaord.cli build spec/examples/02_crystal_defects.chaord -o ni3al.extxyz --seed 7
+$PY -m chaord.cli lift ni3al.extxyz -o lifted.chaord --dialect core+metal --mode defects
+$PY -m chaord.cli fmt lifted.chaord --check
+$PY -m chaord.cli diff spec/examples/02_crystal_defects.chaord lifted.chaord
 ```
 
 What happened:
@@ -21,11 +22,11 @@ What happened:
 
 ```bash
 printf 'chaord 0.1\n\nsystem {\n  cell 7.6 7.6 7.6\n  pbc xyz\n  state T 0.80\n  conserve atoms X 320\n}\n\nphysics {\n  backend lj\n  epsilon 1\n  sigma 1\n  cutoff 2.5\n}\n\nliquid bulk : all {\n  state density 0.73\n}\n' > liquid.chaord
-.venv/Scripts/python -m chaord.cli build liquid.chaord -o a.npz --seed 23
-.venv/Scripts/python -m chaord.cli lift a.npz -o p.chaord --dialect core+lj
-.venv/Scripts/python -m chaord.cli build p.chaord -o b.npz --seed 29
-.venv/Scripts/python tools/noise_floor.py a.npz b.npz --dialect core+lj
-.venv/Scripts/python -m chaord.cli roundtrip a.npz --seed 3
+$PY -m chaord.cli build liquid.chaord -o a.npz --seed 23
+$PY -m chaord.cli lift a.npz -o p.chaord --dialect core+lj
+$PY -m chaord.cli build p.chaord -o b.npz --seed 29
+$PY tools/noise_floor.py a.npz b.npz --dialect core+lj
+$PY -m chaord.cli roundtrip a.npz --seed 3
 ```
 
 The noise floor (`g(r)` RMS between two frames of one simulation) defines the

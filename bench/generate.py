@@ -480,12 +480,12 @@ def _write_case(out: Path, category: str, case_id: str, frames, ground) -> dict:
             assert z["r"].shape == frame.pos.shape
             assert z["symbols"].dtype == np.dtype("U8")
             assert z["L"].shape == (3,)
-        rel_frames.append(str(npz.relative_to(out)))
+        rel_frames.append(npz.relative_to(out).as_posix())
     gt_path = case_dir / "ground_truth.json"
     gt_path.write_text(json.dumps(ground, indent=2, sort_keys=False) + "\n",
                        encoding="utf-8")
     return {"id": f"{category}/{case_id}", "category": category,
-            "frames": rel_frames, "ground_truth": str(gt_path.relative_to(out))}
+            "frames": rel_frames, "ground_truth": gt_path.relative_to(out).as_posix()}
 
 
 def _gt_header(case_id: str, category: str, description: str, seed) -> dict:

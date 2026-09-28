@@ -501,6 +501,8 @@ Ten test layers run at three cadences. The statistical ones are judged against a
 | Cross-check | agreement with trusted tools | spglib space groups, OVITO structure counts, pymatgen StructureMatcher | nightly |
 | Performance | speed and memory | lift 100,000 atoms | weekly |
 
+**Reference data.** The `same reference simulation` in the noise-floor rule means an independent MD engine with a published potential. Reference generators must not import chaord (no circular validation); every case stores engine, potential (with citation), protocol and seed, and passes sanity checks: no pair closer than 0.8 sigma (or the potential's hard core), density within 2% of target, first g(r) peak at its literature position. Synthetic packer output may serve as a unit-test fixture, never as benchmark reference data for disordered systems.
+
 **Noise floor.** For each system and observable, it is the distance between two independent frames of the same reference simulation. A statistical round trip passes when the rebuilt structure is no further from the original than 1.5× this floor. The prototype's Lennard-Jones case measured 0.12 for g(r) (RMS) and 0.015 for the bond-angle distribution.
 
 **Chaord-Bench.** Each case stores its generator script, at least five independent frames and a ground-truth file.

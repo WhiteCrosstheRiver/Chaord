@@ -3,9 +3,15 @@ name: ci
 on:
   push:
   pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 3 * * *"
 
 jobs:
   pr:
+    defaults:
+      run:
+        shell: bash
     strategy:
       fail-fast: false
       matrix:
@@ -26,8 +32,11 @@ jobs:
         run: python -m pytest tests -m "not slow"
 
   nightly:
-    if: github.event_name == 'schedule'
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -43,8 +52,3 @@ jobs:
         with:
           name: acceptance-report
           path: reports/
-
-# The nightly schedule itself (kept here so the job definition stays with CI):
-# add to the `on:` block when the repository lives on a scheduler:
-#   schedule:
-#     - cron: "0 3 * * *"

@@ -32,6 +32,15 @@ and a decompiler (`chaord lift`: coordinates → program). A program describes a
 - Conservation check runs after every lift: atoms per species and total charge in the program must equal the input.
 - If the spec is unclear, open a question in the PR instead of guessing. Spec, grammar and dialect-threshold
   changes need human approval.
+- Reference data for disordered systems (liquids, glasses, interfaces, solutions)
+  comes from an independent MD engine with a published potential. Generator code
+  for reference data MUST NOT import chaord. Every case records engine, potential
+  (name, citation, parameters), protocol and seed, and passes physical sanity
+  checks: no pair closer than 0.8 sigma (or the potential's hard core), density
+  within 2% of target, first g(r) peak where the literature puts it.
+- A claim in README or a report needs a test that could have failed AND a run on
+  a clean machine. "Passes on my machine" is not evidence; self-run acceptance
+  is bookkeeping, not verification.
 
 ## Definition of done (every PR)
 - New tests written first and passing; full unit + property + golden suites green (< 10 min).

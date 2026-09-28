@@ -8,301 +8,301 @@
       "id": "crystals/fcc_cu",
       "category": "crystals",
       "frames": [
-        "crystals\\fcc_cu\\frame_0.npz",
-        "crystals\\fcc_cu\\frame_1.npz",
-        "crystals\\fcc_cu\\frame_2.npz",
-        "crystals\\fcc_cu\\frame_3.npz",
-        "crystals\\fcc_cu\\frame_4.npz"
+        "crystals/fcc_cu/frame_0.npz",
+        "crystals/fcc_cu/frame_1.npz",
+        "crystals/fcc_cu/frame_2.npz",
+        "crystals/fcc_cu/frame_3.npz",
+        "crystals/fcc_cu/frame_4.npz"
       ],
-      "ground_truth": "crystals\\fcc_cu\\ground_truth.json"
+      "ground_truth": "crystals/fcc_cu/ground_truth.json"
     },
     {
       "id": "crystals/bcc_fe",
       "category": "crystals",
       "frames": [
-        "crystals\\bcc_fe\\frame_0.npz",
-        "crystals\\bcc_fe\\frame_1.npz",
-        "crystals\\bcc_fe\\frame_2.npz",
-        "crystals\\bcc_fe\\frame_3.npz",
-        "crystals\\bcc_fe\\frame_4.npz"
+        "crystals/bcc_fe/frame_0.npz",
+        "crystals/bcc_fe/frame_1.npz",
+        "crystals/bcc_fe/frame_2.npz",
+        "crystals/bcc_fe/frame_3.npz",
+        "crystals/bcc_fe/frame_4.npz"
       ],
-      "ground_truth": "crystals\\bcc_fe\\ground_truth.json"
+      "ground_truth": "crystals/bcc_fe/ground_truth.json"
     },
     {
       "id": "crystals/rocksalt_nacl",
       "category": "crystals",
       "frames": [
-        "crystals\\rocksalt_nacl\\frame_0.npz",
-        "crystals\\rocksalt_nacl\\frame_1.npz",
-        "crystals\\rocksalt_nacl\\frame_2.npz",
-        "crystals\\rocksalt_nacl\\frame_3.npz",
-        "crystals\\rocksalt_nacl\\frame_4.npz"
+        "crystals/rocksalt_nacl/frame_0.npz",
+        "crystals/rocksalt_nacl/frame_1.npz",
+        "crystals/rocksalt_nacl/frame_2.npz",
+        "crystals/rocksalt_nacl/frame_3.npz",
+        "crystals/rocksalt_nacl/frame_4.npz"
       ],
-      "ground_truth": "crystals\\rocksalt_nacl\\ground_truth.json"
+      "ground_truth": "crystals/rocksalt_nacl/ground_truth.json"
     },
     {
       "id": "crystals/l12_ni3al",
       "category": "crystals",
       "frames": [
-        "crystals\\l12_ni3al\\frame_0.npz",
-        "crystals\\l12_ni3al\\frame_1.npz",
-        "crystals\\l12_ni3al\\frame_2.npz",
-        "crystals\\l12_ni3al\\frame_3.npz",
-        "crystals\\l12_ni3al\\frame_4.npz"
+        "crystals/l12_ni3al/frame_0.npz",
+        "crystals/l12_ni3al/frame_1.npz",
+        "crystals/l12_ni3al/frame_2.npz",
+        "crystals/l12_ni3al/frame_3.npz",
+        "crystals/l12_ni3al/frame_4.npz"
       ],
-      "ground_truth": "crystals\\l12_ni3al\\ground_truth.json"
+      "ground_truth": "crystals/l12_ni3al/ground_truth.json"
     },
     {
       "id": "crystals/hcp_mg",
       "category": "crystals",
       "frames": [
-        "crystals\\hcp_mg\\frame_0.npz",
-        "crystals\\hcp_mg\\frame_1.npz",
-        "crystals\\hcp_mg\\frame_2.npz",
-        "crystals\\hcp_mg\\frame_3.npz",
-        "crystals\\hcp_mg\\frame_4.npz"
+        "crystals/hcp_mg/frame_0.npz",
+        "crystals/hcp_mg/frame_1.npz",
+        "crystals/hcp_mg/frame_2.npz",
+        "crystals/hcp_mg/frame_3.npz",
+        "crystals/hcp_mg/frame_4.npz"
       ],
-      "ground_truth": "crystals\\hcp_mg\\ground_truth.json"
+      "ground_truth": "crystals/hcp_mg/ground_truth.json"
     },
     {
       "id": "crystals/diamond_si",
       "category": "crystals",
       "frames": [
-        "crystals\\diamond_si\\frame_0.npz",
-        "crystals\\diamond_si\\frame_1.npz",
-        "crystals\\diamond_si\\frame_2.npz",
-        "crystals\\diamond_si\\frame_3.npz",
-        "crystals\\diamond_si\\frame_4.npz"
+        "crystals/diamond_si/frame_0.npz",
+        "crystals/diamond_si/frame_1.npz",
+        "crystals/diamond_si/frame_2.npz",
+        "crystals/diamond_si/frame_3.npz",
+        "crystals/diamond_si/frame_4.npz"
       ],
-      "ground_truth": "crystals\\diamond_si\\ground_truth.json"
+      "ground_truth": "crystals/diamond_si/ground_truth.json"
     },
     {
       "id": "crystals/perovskite_srtio3",
       "category": "crystals",
       "frames": [
-        "crystals\\perovskite_srtio3\\frame_0.npz",
-        "crystals\\perovskite_srtio3\\frame_1.npz",
-        "crystals\\perovskite_srtio3\\frame_2.npz",
-        "crystals\\perovskite_srtio3\\frame_3.npz",
-        "crystals\\perovskite_srtio3\\frame_4.npz"
+        "crystals/perovskite_srtio3/frame_0.npz",
+        "crystals/perovskite_srtio3/frame_1.npz",
+        "crystals/perovskite_srtio3/frame_2.npz",
+        "crystals/perovskite_srtio3/frame_3.npz",
+        "crystals/perovskite_srtio3/frame_4.npz"
       ],
-      "ground_truth": "crystals\\perovskite_srtio3\\ground_truth.json"
+      "ground_truth": "crystals/perovskite_srtio3/ground_truth.json"
     },
     {
       "id": "crystals/fcc_crconi",
       "category": "crystals",
       "frames": [
-        "crystals\\fcc_crconi\\frame_0.npz",
-        "crystals\\fcc_crconi\\frame_1.npz",
-        "crystals\\fcc_crconi\\frame_2.npz",
-        "crystals\\fcc_crconi\\frame_3.npz",
-        "crystals\\fcc_crconi\\frame_4.npz"
+        "crystals/fcc_crconi/frame_0.npz",
+        "crystals/fcc_crconi/frame_1.npz",
+        "crystals/fcc_crconi/frame_2.npz",
+        "crystals/fcc_crconi/frame_3.npz",
+        "crystals/fcc_crconi/frame_4.npz"
       ],
-      "ground_truth": "crystals\\fcc_crconi\\ground_truth.json"
+      "ground_truth": "crystals/fcc_crconi/ground_truth.json"
     },
     {
       "id": "solutions/cuau_random",
       "category": "solutions",
       "frames": [
-        "solutions\\cuau_random\\frame_0.npz",
-        "solutions\\cuau_random\\frame_1.npz",
-        "solutions\\cuau_random\\frame_2.npz",
-        "solutions\\cuau_random\\frame_3.npz",
-        "solutions\\cuau_random\\frame_4.npz"
+        "solutions/cuau_random/frame_0.npz",
+        "solutions/cuau_random/frame_1.npz",
+        "solutions/cuau_random/frame_2.npz",
+        "solutions/cuau_random/frame_3.npz",
+        "solutions/cuau_random/frame_4.npz"
       ],
-      "ground_truth": "solutions\\cuau_random\\ground_truth.json"
+      "ground_truth": "solutions/cuau_random/ground_truth.json"
     },
     {
       "id": "defects/fcc_cu_vacancies",
       "category": "defects",
       "frames": [
-        "defects\\fcc_cu_vacancies\\frame_0.npz",
-        "defects\\fcc_cu_vacancies\\frame_1.npz",
-        "defects\\fcc_cu_vacancies\\frame_2.npz",
-        "defects\\fcc_cu_vacancies\\frame_3.npz",
-        "defects\\fcc_cu_vacancies\\frame_4.npz"
+        "defects/fcc_cu_vacancies/frame_0.npz",
+        "defects/fcc_cu_vacancies/frame_1.npz",
+        "defects/fcc_cu_vacancies/frame_2.npz",
+        "defects/fcc_cu_vacancies/frame_3.npz",
+        "defects/fcc_cu_vacancies/frame_4.npz"
       ],
-      "ground_truth": "defects\\fcc_cu_vacancies\\ground_truth.json"
+      "ground_truth": "defects/fcc_cu_vacancies/ground_truth.json"
     },
     {
       "id": "defects/l12_ni3al_vac_antisite",
       "category": "defects",
       "frames": [
-        "defects\\l12_ni3al_vac_antisite\\frame_0.npz",
-        "defects\\l12_ni3al_vac_antisite\\frame_1.npz",
-        "defects\\l12_ni3al_vac_antisite\\frame_2.npz",
-        "defects\\l12_ni3al_vac_antisite\\frame_3.npz",
-        "defects\\l12_ni3al_vac_antisite\\frame_4.npz"
+        "defects/l12_ni3al_vac_antisite/frame_0.npz",
+        "defects/l12_ni3al_vac_antisite/frame_1.npz",
+        "defects/l12_ni3al_vac_antisite/frame_2.npz",
+        "defects/l12_ni3al_vac_antisite/frame_3.npz",
+        "defects/l12_ni3al_vac_antisite/frame_4.npz"
       ],
-      "ground_truth": "defects\\l12_ni3al_vac_antisite\\ground_truth.json"
+      "ground_truth": "defects/l12_ni3al_vac_antisite/ground_truth.json"
     },
     {
       "id": "defects/rocksalt_nacl_vna",
       "category": "defects",
       "frames": [
-        "defects\\rocksalt_nacl_vna\\frame_0.npz",
-        "defects\\rocksalt_nacl_vna\\frame_1.npz",
-        "defects\\rocksalt_nacl_vna\\frame_2.npz",
-        "defects\\rocksalt_nacl_vna\\frame_3.npz",
-        "defects\\rocksalt_nacl_vna\\frame_4.npz"
+        "defects/rocksalt_nacl_vna/frame_0.npz",
+        "defects/rocksalt_nacl_vna/frame_1.npz",
+        "defects/rocksalt_nacl_vna/frame_2.npz",
+        "defects/rocksalt_nacl_vna/frame_3.npz",
+        "defects/rocksalt_nacl_vna/frame_4.npz"
       ],
-      "ground_truth": "defects\\rocksalt_nacl_vna\\ground_truth.json"
+      "ground_truth": "defects/rocksalt_nacl_vna/ground_truth.json"
     },
     {
       "id": "fluid/water_box15",
       "category": "fluid",
       "frames": [
-        "fluid\\water_box15\\frame_0.npz",
-        "fluid\\water_box15\\frame_1.npz",
-        "fluid\\water_box15\\frame_2.npz",
-        "fluid\\water_box15\\frame_3.npz",
-        "fluid\\water_box15\\frame_4.npz"
+        "fluid/water_box15/frame_0.npz",
+        "fluid/water_box15/frame_1.npz",
+        "fluid/water_box15/frame_2.npz",
+        "fluid/water_box15/frame_3.npz",
+        "fluid/water_box15/frame_4.npz"
       ],
-      "ground_truth": "fluid\\water_box15\\ground_truth.json"
+      "ground_truth": "fluid/water_box15/ground_truth.json"
     },
     {
       "id": "fluid/ar_gas_box25",
       "category": "fluid",
       "frames": [
-        "fluid\\ar_gas_box25\\frame_0.npz",
-        "fluid\\ar_gas_box25\\frame_1.npz",
-        "fluid\\ar_gas_box25\\frame_2.npz",
-        "fluid\\ar_gas_box25\\frame_3.npz",
-        "fluid\\ar_gas_box25\\frame_4.npz"
+        "fluid/ar_gas_box25/frame_0.npz",
+        "fluid/ar_gas_box25/frame_1.npz",
+        "fluid/ar_gas_box25/frame_2.npz",
+        "fluid/ar_gas_box25/frame_3.npz",
+        "fluid/ar_gas_box25/frame_4.npz"
       ],
-      "ground_truth": "fluid\\ar_gas_box25\\ground_truth.json"
+      "ground_truth": "fluid/ar_gas_box25/ground_truth.json"
     },
     {
       "id": "fluid/n2_box22",
       "category": "fluid",
       "frames": [
-        "fluid\\n2_box22\\frame_0.npz",
-        "fluid\\n2_box22\\frame_1.npz",
-        "fluid\\n2_box22\\frame_2.npz",
-        "fluid\\n2_box22\\frame_3.npz",
-        "fluid\\n2_box22\\frame_4.npz"
+        "fluid/n2_box22/frame_0.npz",
+        "fluid/n2_box22/frame_1.npz",
+        "fluid/n2_box22/frame_2.npz",
+        "fluid/n2_box22/frame_3.npz",
+        "fluid/n2_box22/frame_4.npz"
       ],
-      "ground_truth": "fluid\\n2_box22\\ground_truth.json"
+      "ground_truth": "fluid/n2_box22/ground_truth.json"
     },
     {
       "id": "reactive/water_oh_h_box20",
       "category": "reactive",
       "frames": [
-        "reactive\\water_oh_h_box20\\frame_0.npz",
-        "reactive\\water_oh_h_box20\\frame_1.npz",
-        "reactive\\water_oh_h_box20\\frame_2.npz",
-        "reactive\\water_oh_h_box20\\frame_3.npz",
-        "reactive\\water_oh_h_box20\\frame_4.npz"
+        "reactive/water_oh_h_box20/frame_0.npz",
+        "reactive/water_oh_h_box20/frame_1.npz",
+        "reactive/water_oh_h_box20/frame_2.npz",
+        "reactive/water_oh_h_box20/frame_3.npz",
+        "reactive/water_oh_h_box20/frame_4.npz"
       ],
-      "ground_truth": "reactive\\water_oh_h_box20\\ground_truth.json"
+      "ground_truth": "reactive/water_oh_h_box20/ground_truth.json"
     },
     {
       "id": "glass/lj_glass_rho085",
       "category": "glass",
       "frames": [
-        "glass\\lj_glass_rho085\\frame_0.npz",
-        "glass\\lj_glass_rho085\\frame_1.npz",
-        "glass\\lj_glass_rho085\\frame_2.npz",
-        "glass\\lj_glass_rho085\\frame_3.npz",
-        "glass\\lj_glass_rho085\\frame_4.npz"
+        "glass/lj_glass_rho085/frame_0.npz",
+        "glass/lj_glass_rho085/frame_1.npz",
+        "glass/lj_glass_rho085/frame_2.npz",
+        "glass/lj_glass_rho085/frame_3.npz",
+        "glass/lj_glass_rho085/frame_4.npz"
       ],
-      "ground_truth": "glass\\lj_glass_rho085\\ground_truth.json"
+      "ground_truth": "glass/lj_glass_rho085/ground_truth.json"
     },
     {
       "id": "interface/lj_solid_liquid",
       "category": "interface",
       "frames": [
-        "interface\\lj_solid_liquid\\frame_0.npz",
-        "interface\\lj_solid_liquid\\frame_1.npz",
-        "interface\\lj_solid_liquid\\frame_2.npz",
-        "interface\\lj_solid_liquid\\frame_3.npz",
-        "interface\\lj_solid_liquid\\frame_4.npz"
+        "interface/lj_solid_liquid/frame_0.npz",
+        "interface/lj_solid_liquid/frame_1.npz",
+        "interface/lj_solid_liquid/frame_2.npz",
+        "interface/lj_solid_liquid/frame_3.npz",
+        "interface/lj_solid_liquid/frame_4.npz"
       ],
-      "ground_truth": "interface\\lj_solid_liquid\\ground_truth.json"
+      "ground_truth": "interface/lj_solid_liquid/ground_truth.json"
     },
     {
       "id": "surface/ni111_o_top",
       "category": "surface",
       "frames": [
-        "surface\\ni111_o_top\\frame_0.npz",
-        "surface\\ni111_o_top\\frame_1.npz",
-        "surface\\ni111_o_top\\frame_2.npz",
-        "surface\\ni111_o_top\\frame_3.npz",
-        "surface\\ni111_o_top\\frame_4.npz"
+        "surface/ni111_o_top/frame_0.npz",
+        "surface/ni111_o_top/frame_1.npz",
+        "surface/ni111_o_top/frame_2.npz",
+        "surface/ni111_o_top/frame_3.npz",
+        "surface/ni111_o_top/frame_4.npz"
       ],
-      "ground_truth": "surface\\ni111_o_top\\ground_truth.json"
+      "ground_truth": "surface/ni111_o_top/ground_truth.json"
     },
     {
       "id": "surfaces/pt111_o",
       "category": "surfaces",
       "frames": [
-        "surfaces\\pt111_o\\frame_0.npz",
-        "surfaces\\pt111_o\\frame_1.npz",
-        "surfaces\\pt111_o\\frame_2.npz",
-        "surfaces\\pt111_o\\frame_3.npz",
-        "surfaces\\pt111_o\\frame_4.npz"
+        "surfaces/pt111_o/frame_0.npz",
+        "surfaces/pt111_o/frame_1.npz",
+        "surfaces/pt111_o/frame_2.npz",
+        "surfaces/pt111_o/frame_3.npz",
+        "surfaces/pt111_o/frame_4.npz"
       ],
-      "ground_truth": "surfaces\\pt111_o\\ground_truth.json"
+      "ground_truth": "surfaces/pt111_o/ground_truth.json"
     },
     {
       "id": "solutions/nacl_aq",
       "category": "solutions",
       "frames": [
-        "solutions\\nacl_aq\\frame_0.npz",
-        "solutions\\nacl_aq\\frame_1.npz",
-        "solutions\\nacl_aq\\frame_2.npz",
-        "solutions\\nacl_aq\\frame_3.npz",
-        "solutions\\nacl_aq\\frame_4.npz"
+        "solutions/nacl_aq/frame_0.npz",
+        "solutions/nacl_aq/frame_1.npz",
+        "solutions/nacl_aq/frame_2.npz",
+        "solutions/nacl_aq/frame_3.npz",
+        "solutions/nacl_aq/frame_4.npz"
       ],
-      "ground_truth": "solutions\\nacl_aq\\ground_truth.json"
+      "ground_truth": "solutions/nacl_aq/ground_truth.json"
     },
     {
       "id": "solutions/lipf6_ec",
       "category": "solutions",
       "frames": [
-        "solutions\\lipf6_ec\\frame_0.npz",
-        "solutions\\lipf6_ec\\frame_1.npz",
-        "solutions\\lipf6_ec\\frame_2.npz",
-        "solutions\\lipf6_ec\\frame_3.npz",
-        "solutions\\lipf6_ec\\frame_4.npz"
+        "solutions/lipf6_ec/frame_0.npz",
+        "solutions/lipf6_ec/frame_1.npz",
+        "solutions/lipf6_ec/frame_2.npz",
+        "solutions/lipf6_ec/frame_3.npz",
+        "solutions/lipf6_ec/frame_4.npz"
       ],
-      "ground_truth": "solutions\\lipf6_ec\\ground_truth.json"
+      "ground_truth": "solutions/lipf6_ec/ground_truth.json"
     },
     {
       "id": "gases/co2_dense",
       "category": "gases",
       "frames": [
-        "gases\\co2_dense\\frame_0.npz",
-        "gases\\co2_dense\\frame_1.npz",
-        "gases\\co2_dense\\frame_2.npz",
-        "gases\\co2_dense\\frame_3.npz",
-        "gases\\co2_dense\\frame_4.npz"
+        "gases/co2_dense/frame_0.npz",
+        "gases/co2_dense/frame_1.npz",
+        "gases/co2_dense/frame_2.npz",
+        "gases/co2_dense/frame_3.npz",
+        "gases/co2_dense/frame_4.npz"
       ],
-      "ground_truth": "gases\\co2_dense\\ground_truth.json"
+      "ground_truth": "gases/co2_dense/ground_truth.json"
     },
     {
       "id": "surfaces/si001_2x1",
       "category": "surfaces",
       "frames": [
-        "surfaces\\si001_2x1\\frame_0.npz",
-        "surfaces\\si001_2x1\\frame_1.npz",
-        "surfaces\\si001_2x1\\frame_2.npz",
-        "surfaces\\si001_2x1\\frame_3.npz",
-        "surfaces\\si001_2x1\\frame_4.npz"
+        "surfaces/si001_2x1/frame_0.npz",
+        "surfaces/si001_2x1/frame_1.npz",
+        "surfaces/si001_2x1/frame_2.npz",
+        "surfaces/si001_2x1/frame_3.npz",
+        "surfaces/si001_2x1/frame_4.npz"
       ],
-      "ground_truth": "surfaces\\si001_2x1\\ground_truth.json"
+      "ground_truth": "surfaces/si001_2x1/ground_truth.json"
     },
     {
       "id": "interfaces/cu_water",
       "category": "interfaces",
       "frames": [
-        "interfaces\\cu_water\\frame_0.npz",
-        "interfaces\\cu_water\\frame_1.npz",
-        "interfaces\\cu_water\\frame_2.npz",
-        "interfaces\\cu_water\\frame_3.npz",
-        "interfaces\\cu_water\\frame_4.npz"
+        "interfaces/cu_water/frame_0.npz",
+        "interfaces/cu_water/frame_1.npz",
+        "interfaces/cu_water/frame_2.npz",
+        "interfaces/cu_water/frame_3.npz",
+        "interfaces/cu_water/frame_4.npz"
       ],
-      "ground_truth": "interfaces\\cu_water\\ground_truth.json"
+      "ground_truth": "interfaces/cu_water/ground_truth.json"
     }
   ]
 }
