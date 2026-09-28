@@ -6,20 +6,27 @@ program describes a **macrostate** — a family of configurations; a coordinate
 file is one **microstate** of it. Order is written exactly where a system has
 it, statistics where it does not: from crystals to gases.
 
-Status: **v1.0 complete** — M0-M8 plus the wave-2 capability addenda (EAM
-backend, deposit protocol, Wood notation, rutile terminations, exact Burgers
-circuits, true 3-D segmentation, charge checks, 18-case x 5-frame bench,
-LLM prompt suite, CI + nightly); acceptance A1-A14 all pass
-(`tools/acceptance.py`, report in `reports/acceptance.json`,
-gate report in `reports/gate_b.md`).
+Status: **v0.1 prototype: self-tested, CI failing, not independently
+verified.** The M0-M8 feature work exists (grammar/IR/fmt, crystal and defect
+lifting, fluids, surfaces, amorphous, extended defects, integrations), and the
+self-run acceptance report is in `reports/acceptance.json` with the honest
+self-assessment in `reports/self_assessment_2026-09-28.md` — but the
+benchmark's disordered frames are not yet produced by an independent MD
+engine, and no independent verifier has signed off. See
+`docs/review_guide.md` for what is solid and what is not.
 
 ## Install (from this repository)
 
 ```bash
 python -m venv .venv
-.venv/Scripts/python -m pip install -e .[test]
-.venv/Scripts/python -m pytest tests -m "not slow"     # fast suite
-.venv/Scripts/python -m pytest tests -m "slow"         # statistical round trips
+# Linux / macOS:
+.venv/bin/python -m pip install -e .[test]
+.venv/bin/python -m pytest tests -m "not slow"          # fast suite
+.venv/bin/python -m pytest tests -m "slow"              # statistical round trips
+# Windows:
+.venv\Scripts\python -m pip install -e .[test]
+.venv\Scripts\python -m pytest tests -m "not slow"
+.venv\Scripts\python -m pytest tests -m "slow"
 ```
 
 Core runs on numpy, scipy, ASE, Lark, Pydantic and PyYAML only; heavy tools
@@ -39,7 +46,7 @@ src/chaord/
   check/       static checks, shortest-program controller
   io/          Frame I/O (extxyz, LAMMPS, POSCAR, CIF, npz)
   cli.py       fmt / build / lift / check / diff / roundtrip
-  integrations.py  LLM JSON schema, scripting layer, Laya state encoder
+  integrations.py  LLM JSON schema, scripting layer, line-diff state codec (Laya, pipeline-level)
 bench/         Chaord-Bench generators and ground truth
 docs/          reference.md, tutorials.md
 prototype/     the original Lennard-Jones demo (reference, not extended)
@@ -66,7 +73,7 @@ re-ordering and re-imaging; fluids and glasses are judged against the floor.
 | M5 | history protocols, restraints, ring/Voronoi statistics, shortest program |
 | M6 | Burgers family detection, CSL Sigma bicrystals, reactive census |
 | M7 | acceptance runner A1-A14, reference manual, tutorials, bench 18x5 |
-| M8 | LLM schema, scripting layer, Laya encoder, prompt suite, active learning |
+| M8 | LLM schema, scripting layer, line-diff codec, prompt pipeline tests (deterministic writer, not a live-LLM eval), active learning |
 | +2 | EAM backend, deposit, Wood/rutile, exact Burgers, 3-D segmentation, charge, CI |
 
 See `PLAN.md` for the full design and `AGENTS.md` for the binding rules.

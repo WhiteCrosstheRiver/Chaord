@@ -142,6 +142,9 @@ def test_thermal_vacancy_recovery_real_md(lj):
 
 @pytest.mark.slow
 def test_lift_100k_atoms_fluid_observables_speed():
+    # NOTE: the input is a thermally jittered fcc lattice (single phase,
+    # disordered by displacement), NOT an equilibrated liquid; the test
+    # measures the O(N log N) cost of the observables stack only.
     """A11: 100,000-atom LJ liquid frame lifts (qbar + rdf + cn) in <= 2 min."""
     rho = 0.85
     a = (4.0 / rho) ** (1.0 / 3.0)
