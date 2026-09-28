@@ -251,11 +251,16 @@ def burgers_vector(frame: Frame, dialect) -> np.ndarray | None:
                 vector=vec, method=method)
 
 
-def _in_plane_vectors(pos, L, k=8):
-    """The k shortest xy-dominant lattice vectors of a grain (mid-grain atom)."""
+def _in_plane_vectors(pos, L, k=8, p0=None):
+    """The k shortest xy-dominant lattice vectors around a reference atom.
+
+    p0 defaults to the mid-grain atom; the caller may pin a reference away
+    from the grain boundary (boundary atoms see both lattices and their
+    "shortest vectors" mix nets on some BLAS builds)."""
     pos = np.minimum(np.mod(pos, L), L * (1 - 1e-9))  # dialect-exempt: numerical-guard: strict upper edge for KD trees
-    z = pos[:, 2]
-    p0 = pos[np.argsort(np.abs(z - np.median(z)))[0]]
+    if p0 is None:
+        z = pos[:, 2]
+        p0 = pos[np.argsort(np.abs(z - np.median(z)))[0]]
     cand = []
     for q in pos:
         v = q - p0
@@ -276,8 +281,14 @@ def grain_boundary_sigma(frame: Frame, dialect) -> int | None:
     upper = pos[pos[:, 2] >= zmid]
     if len(lower) < 20 or len(upper) < 20:
         return None
-    va = _in_plane_vectors(lower, L)
-    vb = _in_plane_vectors(upper, L)
+    def _deep_reference(half):
+        z = half[:, 2]
+        mid = 0.5 * (z.min() + z.max())  # dialect-exempt: numerical-guard: mid-height
+        depth = np.abs(z - mid)
+        return half[np.argsort(depth)[:max(len(half) // 4, 8)]]
+
+    va = _in_plane_vectors(lower, L, p0=_deep_reference(lower)[0])
+    vb = _in_plane_vectors(upper, L, p0=_deep_reference(upper)[0])
     if not va or not vb:
         return None
     # compare only first-shell in-plane vectors: both grains' shortest set
