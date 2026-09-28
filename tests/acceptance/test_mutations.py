@@ -54,9 +54,11 @@ def test_a4_defect_precision_and_recall():
 
 # --------------------------------------------------------------------- A5 ----
 def test_a5_noise_floor_gate():
-    # scoped clean run: fabricate a floor at 2x the actually measured distance
+    # scoped to a synthetic case with NO floor: it must be skipped, and a
+    # fabricated generous floor must make it pass; a distorted rebuild fail
     base = acc.check_a5(case_filter="water_box15")
-    row = base["details"]["rows"][0]
+    row = next(r for r in base["details"]["rows"]
+               if r["case"] == "fluid/water_box15")
     assert row["status"].startswith("no-floor")      # no floor on record
     floor = {k: 2.0 * v for k, v in row["distance"].items()}
     floors = {"fluid/water_box15": floor}
