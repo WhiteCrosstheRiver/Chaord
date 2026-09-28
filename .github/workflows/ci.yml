@@ -31,8 +31,15 @@ jobs:
       - name: Fast test suite
         run: |
           set -o pipefail
-          python -m pytest tests -m "not slow" -q --tb=short -rA 2>&1 | tee pytest_output.txt
-          exit ${PIPESTATUS[0]}
+          python -m pytest tests -m "not slow" -q --tb=line -rA 2>&1 | tee pytest_output.txt
+          code=${PIPESTATUS[0]}
+          if [ "$code" -ne 0 ]; then
+            grep -E "^(FAILED|ERROR)" pytest_output.txt | head -8 | while IFS= read -r line; do
+              echo "::error::${line:0:250}"
+            done
+            echo "::error::full output in job log (pytest_output.txt)"
+          fi
+          exit $code
       - name: Upload test output (debug)
         if: always()
         uses: actions/upload-artifact@v4
