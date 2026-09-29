@@ -36,11 +36,11 @@ FRAMES_PER_CASE = 5
 # sigma = A for the LJ cases; molecular thresholds in A for the rest)
 DIALECTS = {
     "lj_liquid": ("core", "lj"),
-    "lj_glass": ("core", "lj"),
+    "lj_glass": ("core", "glass"),       # glass lifts as amorphous (Review 2)
     "lj_solid_liquid": ("core", "lj"),
     "water_tip4p": ("core", "molecular"),
     "nacl_aq": ("core", "molecular"),
-    "cu_solid_liquid": ("core", "molecular"),
+    "cu_solid_liquid": ("core", "metal"),  # Cu crystal (Review 2)
 }
 
 # independent re-assertion of the task's literature bounds

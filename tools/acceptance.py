@@ -1069,27 +1069,45 @@ from chaord.dialects import load_dialect
 text = sys.stdin.read()
 t0 = time.perf_counter()
 frame = build_program(parse_text(text), load_dialect(tuple(cfg["dialect"])),
-                      rng=np.random.default_rng(7), physics=True)
+                      rng=np.random.default_rng(7),
+                      physics=bool(cfg.get("physics", True)))
 np.savez(cfg["out"], pos=frame.pos, cell=frame.cell,
          symbols=np.array(frame.symbols, dtype="U8"))
 print(json.dumps({"seconds": time.perf_counter() - t0, "n": len(frame)}))
 """
 
 
-def _rebuild_in_subprocess(text: str, dialect_names, tmpdir: str, tag: str):
+def _rebuild_in_subprocess(text: str, dialect_names, tmpdir: str, tag: str,
+                           physics: bool = True):
     """Run lift->build in a child process with a time budget; returns
-    (frame|None, seconds, status_note)."""
+    (frame|None, seconds, status_note, physics_used).
+
+    physics=False rebuilds with the packing prior only (no MD relaxation) --
+    the A5 physics-off mutation.  A program whose backend has no core
+    realization (molecular 'classical') is an error under physics=True by
+    design (build API, review 2: no silent skip); the runner then takes the
+    explicit physics=False opt-out and records it in status_note."""
     import subprocess as sp
     out = str(Path(tmpdir) / f"rebuild_{tag}.npz")
-    cfg = json.dumps({"dialect": list(dialect_names), "out": out})
+    cfg = json.dumps({"dialect": list(dialect_names), "out": out,
+                      "physics": bool(physics)})
     try:
         r = sp.run([sys.executable, "-c", _REBUILD_CHILD, str(ROOT), cfg],
                    input=text, capture_output=True, text=True, cwd=ROOT,
                    timeout=A5_BUILD_TIMEOUT)
     except sp.TimeoutExpired:
-        return None, A5_BUILD_TIMEOUT, "rebuild exceeded the time budget"
+        return None, A5_BUILD_TIMEOUT, "rebuild exceeded the time budget", physics
     if r.returncode != 0:
-        return None, 0.0, (r.stderr.strip().splitlines() or ["build error"])[-1][:80]
+        err = (r.stderr.strip().splitlines() or ["build error"])[-1][:80]
+        if physics and "no realize backend" in err:
+            frame, secs, note, _used = _rebuild_in_subprocess(
+                text, dialect_names, tmpdir, tag + "_packed", physics=False)
+            if frame is not None:
+                note = ("; ".join(x for x in (note,
+                        "physics off: no core realization for this backend")
+                        if x))
+            return frame, secs, note, False
+        return None, 0.0, err, physics
     z = np.load(out)
     from chaord.io.frames import Frame
     frame = Frame(pos=z["pos"], cell=z["cell"],
@@ -1099,7 +1117,7 @@ def _rebuild_in_subprocess(text: str, dialect_names, tmpdir: str, tag: str):
         secs = json.loads(r.stdout.strip().splitlines()[-1]).get("seconds", 0.0)
     except Exception:                                      # noqa: BLE001
         pass
-    return frame, secs, ""
+    return frame, secs, "", physics
 
 
 def _a5_obs(frame, dialect):
@@ -1110,6 +1128,61 @@ def _a5_obs(frame, dialect):
         return observables(frame, dialect)
     # bare positions: wrap into an orthogonal box from the dialect's own frames
     raise TypeError("A5 observables need a Frame; got %r" % type(frame))
+
+
+# verifier-side extraction of what one A5 rebuild was configured to do, from
+# the lifted program text (state T / physics backend / history protocol) and
+# the dialect's own protocol tables
+_RE_A5_T = re.compile(r"(?m)^\s*state T\s+([-+0-9.eE]+)")
+_RE_A5_BACKEND = re.compile(r"(?m)^\s*backend\s+(\S+)")
+_RE_A5_MELT = re.compile(r"\bmelt\s+([-+0-9.eE]+)(?:\s+for\s+(\d+))?")
+_RE_A5_QUENCH = re.compile(
+    r"\bquench\s+to\s+([-+0-9.eE]+)(?:\s+at\s+([-+0-9.eE]+))?")
+_RE_A5_ANNEAL = re.compile(r"\banneal\s+[-+0-9.eE]+\s+for\s+(\d+)")
+
+
+def _a5_history_md_steps(line: str, dialect) -> int:
+    """MD steps of one printed `history melt ... -> quench ... -> anneal`
+    protocol, verifier arithmetic mirroring realize.protocols.run_protocol:
+    melt for N + quench n = |T_hi - T_lo| / rate (capped) + anneal for N."""
+    steps = 0
+    t_cur = None
+    if m := _RE_A5_MELT.search(line):
+        t_cur = float(m.group(1))
+        if m.group(2):
+            steps += int(m.group(2))
+    if q := _RE_A5_QUENCH.search(line):
+        t_lo = float(q.group(1))
+        rate = (float(q.group(2)) if q.group(2) else
+                float(dialect.threshold("quench_default_rate")))
+        t_hi = t_cur if t_cur is not None else t_lo
+        n = int(max(abs(t_hi - t_lo) / max(rate, 1e-6), 1))
+        steps += min(n, int(dialect.threshold("md")["quench_max_steps"]))
+    if a := _RE_A5_ANNEAL.search(line):
+        steps += int(a.group(1))
+    return steps
+
+
+def _a5_rebuild_meta(program_text: str, dialect, physics_on: bool) -> dict:
+    """{temperature, backend, md_steps} of one A5 rebuild: temperature from
+    the program's `state T`, backend from its physics block, md_steps the MD
+    integration the rebuild runs (0 when physics is off or the backend has no
+    core MD; fluid relax = fast + slow relax steps; glass = its history)."""
+    m_t = _RE_A5_T.search(program_text)
+    m_b = _RE_A5_BACKEND.search(program_text)
+    backend = m_b.group(1) if m_b else None
+    steps = 0
+    if physics_on and backend in ("lj", "eam"):
+        hist = next((ln for ln in program_text.splitlines()
+                     if ln.strip().startswith("history ")), None)
+        if hist is not None:
+            steps = _a5_history_md_steps(hist, dialect)
+        else:
+            md = dialect.threshold("md" if backend == "lj" else "eam_md")
+            steps = int(md.get("relax_steps_fast", 0)) + int(
+                md.get("relax_steps", 0))
+    return {"temperature": float(m_t.group(1)) if m_t else None,
+            "backend": backend, "md_steps": steps}
 
 
 def _reference_cases(ref_root, floors):
@@ -1142,7 +1215,16 @@ def check_a5(mutation: str | None = None, floors=None,
     and interface cases and >= 80% of amorphous cases, per case, against the
     noise floors on record (reports/noise_floors.json; from two frames of one
     reference MD simulation).  Synthetic packed frames have no floor: recorded
-    as 'no-floor: skipped (synthetic frame)', never silently passed."""
+    as 'no-floor: skipped (synthetic frame)', never silently passed.
+
+    case_filter scopes BOTH the MD reference cases and the bench cases to ids
+    containing it (the canary tests use it to flip one case PASS->FAIL).
+    Every scored row records the rebuild's temperature (program `state T`),
+    backend (physics block) and md_steps (the MD the rebuild runs; 0 when the
+    physics-off mutation drops the MD prior).  Floor provenance notes from
+    reports/noise_floors.json are surfaced in the evidence; a glass floor
+    without such a note is honestly flagged as measured within one quench
+    (may be too tight: a perfect independent rebuild could exceed it)."""
     from chaord.dialects import load_dialect
     from chaord.io.frames import read_frame
     from chaord.lift import lift_frame
@@ -1155,8 +1237,11 @@ def check_a5(mutation: str | None = None, floors=None,
     # the MD reference cases (bench/reference/*) carry the measured floors; the
     # synthetic bench/data frames cannot demonstrate the criterion (no floor)
     ref_root = ROOT / "bench" / "reference"
+    physics_on = mutation != "physics_off"
     with tempfile.TemporaryDirectory() as td:
         for case in _reference_cases(ref_root, floors):
+            if case_filter is not None and case_filter not in case["id"]:
+                continue
             dl = load_dialect(case["dialect"])
             frame = read_frame(case["frames"][0])
             try:
@@ -1168,11 +1253,13 @@ def check_a5(mutation: str | None = None, floors=None,
                 continue
             pp = Path(td) / (case["id"].replace("/", "_") + ".chaord")
             pp.write_text(program_text, encoding="utf-8")
-            rebuilt, secs, note = _rebuild_in_subprocess(
-                program_text, dl.names, td, case["id"].replace("/", "_"))
+            rebuilt, secs, note, physics_used = _rebuild_in_subprocess(
+                program_text, dl.names, td, case["id"].replace("/", "_"),
+                physics=physics_on)
+            meta = _a5_rebuild_meta(program_text, dl, physics_used)
             if rebuilt is None:
                 rows.append(dict(case=case["id"], category="fluid",
-                                 status="build-failed", note=note))
+                                 status="build-failed", note=note, **meta))
                 continue
             fl = case["floor"]
             from chaord.cv.noise import observables, distance
@@ -1184,19 +1271,31 @@ def check_a5(mutation: str | None = None, floors=None,
             ev_ = "; ".join(
                 f"{k} {dist[k]:.3f} vs floor {floor_mean[k]:.3f} "
                 f"(x{dist[k] / max(floor_mean[k], 1e-6):.1f})" for k in sorted(dist))
+            if note:
+                ev_ += f"; rebuild: {note}"
             if mutation == "inflate_box":
                 rebuilt.pos *= 1.10
                 o_new = _a5_obs(rebuilt, dl)
                 dist = distance(o_ref, o_new, dialect=dl)
                 ok = all(dist[k] <= 1.5 * max(floor_mean[k], 1e-6) for k in dist)
                 ev_ = "MUTATED " + ev_
+            if mutation == "physics_off":
+                # seeded fault: the rebuild kept the packing prior but dropped
+                # the physics (MD) prior -- A5 must catch it
+                ev_ = "MUTATED(physics-off rebuild) " + ev_
             cat = ("glass" if "glass" in case["id"]
                    else "interface" if "solid_liquid" in case["id"] or "interface" in case["id"]
                    else "fluid")
+            floor_note = fl.get("note")
+            if cat == "glass" and not floor_note:
+                floor_note = ("glass floor measured within one quench "
+                              "(may be too tight)")
+            if floor_note:
+                ev_ += f"; floor: {floor_note}"
             rows.append(dict(case=case["id"], category=cat,
                              status="pass" if ok else "fail",
                              rebuild_s=round(secs, 1),
-                             note=ev_))
+                             note=ev_, floor_note=floor_note, **meta))
         for case in bench_cases():
             if case["category"] not in A5_CATEGORIES:
                 continue
@@ -1206,15 +1305,17 @@ def check_a5(mutation: str | None = None, floors=None,
             frame = read_frame(case["frames"][0])
             try:
                 text = format_program_text(lift_frame(frame, dl))
-            except Exception as exc:                        # noqa: BLE001
+            except Exception as exc:                                # noqa: BLE001
                 rows.append(dict(case=case["id"], category=case["category"],
                                  status="lift-failed", note=str(exc)[:80]))
                 continue
-            rebuilt, secs, note = _rebuild_in_subprocess(
-                text, case["dialect"], td, case["id"].replace("/", "_"))
+            rebuilt, secs, note, physics_used = _rebuild_in_subprocess(
+                text, case["dialect"], td, case["id"].replace("/", "_"),
+                physics=physics_on)
+            meta = _a5_rebuild_meta(text, dl, physics_used)
             if rebuilt is None:
                 rows.append(dict(case=case["id"], category=case["category"],
-                                 status="build-failed", note=note))
+                                 status="build-failed", note=note, **meta))
                 continue
             if mutation == "distort_rebuild":
                 # seeded fault: expand the rebuilt box (g(r) shifts past the
@@ -1231,7 +1332,8 @@ def check_a5(mutation: str | None = None, floors=None,
             if floor is None:
                 rows.append(dict(case=case["id"], category=case["category"],
                                  status="no-floor: skipped (synthetic frame)",
-                                 rebuild_s=round(secs, 1), distance=dist))
+                                 rebuild_s=round(secs, 1), distance=dist,
+                                 **meta))
                 continue
             fl = floor.get("floor", floor) if isinstance(floor, dict) else floor
             ratios = {k: (dist[k] / fl[k] if fl.get(k) else None) for k in dist}
@@ -1239,7 +1341,7 @@ def check_a5(mutation: str | None = None, floors=None,
             rows.append(dict(case=case["id"], category=case["category"],
                              status="pass" if passed else "fail",
                              rebuild_s=round(secs, 1), distance=dist,
-                             floor=fl, ratios=ratios))
+                             floor=fl, ratios=ratios, **meta))
     with_floor = [r for r in rows if r["status"] in ("pass", "fail")]
     n_pass = sum(r["status"] == "pass" for r in with_floor)
     by_cat = {}
@@ -1258,6 +1360,16 @@ def check_a5(mutation: str | None = None, floors=None,
               for cat, (n, N, t) in by_cat.items()]
     parts.append(f"{len(skipped)} cases without a floor on record: "
                  f"no-floor: skipped (synthetic frame)")
+    floor_notes = []
+    for r in with_floor:
+        if r.get("floor_note") and r["floor_note"] not in floor_notes:
+            floor_notes.append(r["floor_note"])
+    if floor_notes:
+        # first sentence per note in the criterion evidence; the full text
+        # stays in the per-case rows and in reports/noise_floors.json
+        brief = [n.split(". ")[0] + "." for n in floor_notes]
+        parts.append("floor provenance: " + "; ".join(brief)
+                     + " (full notes: details rows / noise_floors.json)")
     if failed_other:
         parts.append(f"{len(failed_other)} could not round-trip: "
                      + "; ".join(f"{r['case']} {r['status']}"
@@ -1947,16 +2059,23 @@ def _md_report(results) -> str:
                            f"{m['planted']} | {det} | {m['precision']:.2f} | "
                            f"{m['recall']:.2f} | {m['tp']}/{m['fp']}/{m['fn']} |")
         if r["id"] == "A5" and d.get("rows"):
-            out += ["| case | category | status | distances | ratios |",
-                    "| --- | --- | --- | --- | --- |"]
+            out += ["| case | category | status | T | backend | md_steps | "
+                    "distances | ratios |",
+                    "| --- | --- | --- | --- | --- | --- | --- | --- |"]
             for m in d["rows"]:
                 dist = m.get("distance") or {}
                 ratios = m.get("ratios") or {}
                 d_txt = ", ".join(f"{k}={v:.3f}" for k, v in dist.items())
                 r_txt = ", ".join(f"{k}={v:.2f}" for k, v in ratios.items())
                 note = f" ({m['note']})" if m.get("note") else ""
+                t_txt = ("-" if m.get("temperature") is None
+                         else f"{m['temperature']:g}")
+                b_txt = m.get("backend") or "-"
+                s_txt = ("-" if m.get("md_steps") is None
+                         else str(m["md_steps"]))
                 out.append(f"| {m['case']} | {m['category']} | {m['status']}"
-                           f"{note} | {d_txt} | {r_txt} |")
+                           f"{note} | {t_txt} | {b_txt} | {s_txt} | {d_txt} | "
+                           f"{r_txt} |")
         if r["id"] == "A2" and d.get("rows"):
             seen = {}
             for m in d["rows"]:

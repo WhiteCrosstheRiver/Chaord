@@ -144,7 +144,12 @@ def build_fluid(program: Program, dialect, rng, physics=True, md_steps=None) -> 
             if s.key == "backend":
                 backend = s.values[0].text
     if backend not in ("lj", "eam"):
-        return frame  # no core physics for this backend: packed config stands
+        # Review 2: no silent skip. A backend with no core realization is an
+        # error; the packed frame is available through the explicit
+        # physics=False opt-out, never by accident of the backend name.
+        raise ChaordError(
+            f"no realize backend for {backend!r}; available: lj, eam "
+            f"(build with physics=False for the packed frame alone)")
 
     if backend == "eam":
         # analytic Finnis-Sinclair relaxation (eV / A units, dialect parameters)
@@ -186,7 +191,12 @@ def build_fluid(program: Program, dialect, rng, physics=True, md_steps=None) -> 
     if T is None:
         T = float(dialect.threshold("md_reference_T")) if dialect.names[-1] == "lj" else None
     if T is None:
-        return frame
+        # Review 2: no silent skip. The physics prior cannot run without a
+        # temperature; returning the packed frame would hand out a sample the
+        # program never described.
+        raise ChaordError(
+            "lj backend needs a temperature: state T in the system block "
+            "or build with physics=False for the packed frame alone")
     md = dialect.threshold("md")
     L3 = frame.cell_diag
     lj = LJ(L3, rc=float(md["relax_rc"]), skin=float(md["skin"]))

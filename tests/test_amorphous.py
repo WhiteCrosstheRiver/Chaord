@@ -142,6 +142,62 @@ def test_amorphous_lift_program(dialect, tmp_path):
     assert "state density 0.9" in text2
 
 
+def test_amorphous_without_history_assumes_dialect_protocol(dialect, tmp_path):
+    """Review 2 root cause: an amorphous program with no history line silently
+    returned the random RSA packing -- a frame that never saw melt-quench.
+    Instead the builder runs the dialect's default protocol (glass_melt/quench/
+    anneal thresholds, the same ones the lifter states) and records that the
+    protocol was assumed."""
+    from chaord.build import build_program
+    text = AMORPH_PROGRAM.format(n=30, rho=0.8).replace(
+        "  history melt 2 for 3000 -> quench to 0.01 at 0.000332 -> anneal 0.01 for 2000\n",
+        "")
+    assert "history" not in text
+    path = tmp_path / "no_history.chaord"
+    path.write_text(text)
+    packed = build_program(load(path), dialect,
+                           rng=np.random.default_rng(2), physics=False)
+    quenched = build_program(load(path), dialect,
+                             rng=np.random.default_rng(2), physics=True)
+    assert len(quenched) == 30  # never drop an atom
+    assert quenched.info.get("assumed_history") == \
+        "assumed default protocol from dialect"
+    # the protocol actually ran: not the RSA start any more
+    assert not np.allclose(packed.pos, quenched.pos)
+
+
+def test_amorphous_without_history_unknown_dialect_raises(tmp_path):
+    """A dialect that defines no default glass protocol cannot silently fall
+    back to the packing either: the missing threshold is the error."""
+    from chaord.build import build_program
+    from chaord.lang.errors import ChaordError
+    text = AMORPH_PROGRAM.format(n=30, rho=0.8).replace(
+        "  history melt 2 for 3000 -> quench to 0.01 at 0.000332 -> anneal 0.01 for 2000\n",
+        "")
+    path = tmp_path / "no_history_lj.chaord"
+    path.write_text(text.replace("dialect core + glass", "dialect core + lj"))
+    with pytest.raises(ChaordError, match="glass_melt_T"):
+        build_program(load(path), load_dialect(("core", "lj")),
+                      rng=np.random.default_rng(2), physics=True)
+
+
+def test_amorphous_lift_marks_assumed_history(dialect, tmp_path):
+    """The amorphous lifter states a history line whose parameters are the
+    dialect defaults, not anything measured from the frame: the program must
+    say so (provenance note), so a reader knows the protocol was assumed."""
+    from chaord.build import build_program
+    text = AMORPH_PROGRAM.format(n=30, rho=0.8).replace(
+        "melt 2 for 3000", "melt 2 for 300").replace(
+        "anneal 0.01 for 2000", "anneal 0.01 for 200")
+    path = tmp_path / "g3.chaord"
+    path.write_text(text)
+    frame = build_program(load(path), dialect, rng=np.random.default_rng(5),
+                          physics=True)
+    text2 = format_program(lift_frame(frame, dialect, mode="amorphous"))
+    assert "history melt" in text2
+    assert 'note "assumed default protocol from dialect"' in text2
+
+
 def test_shortest_controller(dialect):
     from chaord.check.shortest import shortest_program
     from chaord.build.fluid import build_fluid

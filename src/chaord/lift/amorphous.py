@@ -74,7 +74,10 @@ def lift_amorphous(frame: Frame, dialect, backend="lj") -> Program:
     region_stmts.append(Statement(kind="state", key="density",
                                   values=[Quantity(num=f"{rho:.4f}")]))
     # the protocol is the shortest description of how a glass is made: the
-    # dialect's default melt-quench, in the backend's reduced units (LJ only)
+    # dialect's default melt-quench, in the backend's reduced units (LJ only).
+    # These parameters are the dialect defaults, not anything measured from
+    # the frame: the provenance note says the protocol was assumed.
+    assumed_history = False
     if backend == "lj":
         from ..lang.ir import Arrow
         t_melt = float(dialect.threshold("glass_melt_T"))
@@ -92,6 +95,7 @@ def lift_amorphous(frame: Frame, dialect, backend="lj") -> Program:
                     Name(text="at"), Quantity(num=f"{rate:g}"), Arrow(),
                     Name(text="anneal"), Quantity(num=f"{t_a:g}"), Name(text="for"),
                     Quantity(num=str(n_a))]))
+        assumed_history = True
     # held-out network statistics as asserts; placeholder species (X) use a
     # geometric cutoff (fraction of d_NN), real elements the dialect rule
     from ..cv.local import angle_mean, cn_mean
@@ -144,4 +148,9 @@ def lift_amorphous(frame: Frame, dialect, backend="lj") -> Program:
                               values=[StrVal(text=dialect.version_string)]),
                     Statement(kind="build", key="lift_version",
                               values=[StrVal(text="0.1.0")]),
+                    *([Statement(kind="build", key="note",
+                                  values=[StrVal(
+                                      text="assumed default protocol from "
+                                           "dialect")])]
+                      if assumed_history else []),
                 ])])

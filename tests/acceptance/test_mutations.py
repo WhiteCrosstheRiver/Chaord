@@ -101,6 +101,31 @@ def test_a5_noise_floor_gate():
     assert not bad["passed"], bad["evidence"]
 
 
+def test_a5_physics_off_rebuild_fails():
+    """Review-2 mutation: rebuilding lj_liquid with physics=False (the packing
+    prior alone, no MD relaxation) must FAIL A5, while the physics rebuild of
+    the same scoped case passes.  Done when: the physics-off mutation fails;
+    lj_liquid is within 1.5x the floor on both observables."""
+    clean = acc.check_a5(case_filter="lj_liquid")
+    row = next(r for r in clean["details"]["rows"]
+               if r["case"] == "reference/lj_liquid")
+    assert row["status"] == "pass", row["note"]
+    assert row["backend"] == "lj"
+    assert row["temperature"] == 0.65          # program `state T`
+    assert row["md_steps"] > 0                 # MD relaxation ran (physics on)
+    # both observables within 1.5x the floor
+    assert "cn_tv" in row["note"] and "gr_rms" in row["note"]
+    assert "MUTATED" not in row["note"]
+
+    bad = acc.check_a5(mutation="physics_off", case_filter="lj_liquid")
+    row = next(r for r in bad["details"]["rows"]
+               if r["case"] == "reference/lj_liquid")
+    assert row["status"] == "fail", row["note"]
+    assert row["md_steps"] == 0                # the MD prior really dropped
+    assert "MUTATED(physics-off rebuild)" in row["note"]
+    assert not bad["passed"], bad["evidence"]
+
+
 # --------------------------------------------------------------------- A6 ----
 def test_a6_three_way_conservation():
     clean = acc.check_a6(frame_limit=6)

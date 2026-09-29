@@ -21,6 +21,60 @@ def _kv(text):
     return KVDefect(text=text)
 
 
+def _neighbor_degrees(pos, cell_diag, cutoff) -> np.ndarray:
+    """Degree of every atom in the cutoff neighbour graph (order-invariant:
+    the pair SET of a KD-tree query does not depend on the atom ordering,
+    and the per-atom degrees are integer counts over that set)."""
+    from scipy.spatial import cKDTree
+    tree = cKDTree(pos, boxsize=cell_diag)
+    pairs = tree.query_pairs(cutoff, output_type="ndarray")
+    degrees = np.zeros(len(pos), dtype=np.int64)
+    np.add.at(degrees, pairs[:, 0], 1)
+    np.add.at(degrees, pairs[:, 1], 1)
+    return degrees
+
+
+def _join_count_null(degrees, n_a: int) -> float:
+    """Exact randomisation std of alpha1(a, a) under uniform relabelling.
+
+    Join-count significance (Cliff & Ord, spatial-autocorrelation
+    randomisation / nonfree sampling): with the species labels randomly
+    permuted over the same sites, the ordered like-neighbour count
+    J = sum_ij A_ij * 1[x_i = a] * 1[x_j = a] has the closed form
+
+        E[J]   = 2 M q2
+        Var(J) = 4 [ M q2 (1 - q2)
+                     + 2 ( H (q3 - q2^2) + D (q4 - q2^2) ) ]
+
+    where M is the number of edges, H the number of edge pairs sharing a
+    vertex, D the number of disjoint edge pairs, and q_m the falling-factorial
+    ratio N_a(N_a-1)..(N_a-m+1) / N(N-1)..(N-m+1) = P(m given sites all
+    carry the species under sampling without replacement).  sd(alpha1) is
+    then sqrt(Var(J)) / E[J] (the null alpha is 1 - J/E[J]).  Only integer
+    graph invariants and the composition enter, so the band is a symmetric
+    function of the labelling: identical for every atom ordering of the same
+    frame (rule 3) and free of sampling noise -- no bootstrap draw at all.
+    Returns 0.0 for degenerate nulls (too few atoms, sites or like pairs),
+    which falls the emission gate back onto the dialect threshold."""
+    degrees = np.asarray(degrees, dtype=np.int64)
+    n = int(degrees.shape[0])
+    m_edges = int(degrees.sum()) // 2
+    if n < 4 or n_a < 2 or m_edges < 1:
+        return 0
+    h_shared = int(sum(d * (d - 1) // 2 for d in degrees.tolist()))
+    d_disjoint = m_edges * (m_edges - 1) // 2 - h_shared
+    q2 = (n_a * (n_a - 1)) / (n * (n - 1))
+    q3 = (n_a * (n_a - 1) * (n_a - 2)) / (n * (n - 1) * (n - 2))
+    q4 = (n_a * (n_a - 1) * (n_a - 2) * (n_a - 3)) / (n * (n - 1) * (n - 2) * (n - 3))
+    e_j = 2 * m_edges * q2
+    if e_j <= 0:
+        return 0
+    var_j = 4 * (m_edges * q2 * (1 - q2)
+                 + 2 * (h_shared * (q3 - q2 * q2)
+                        + d_disjoint * (q4 - q2 * q2)))
+    return float(np.sqrt(max(var_j, 0)) / e_j)
+
+
 def _axis_canonical(frame: Frame) -> Frame:
     """Rotate an arbitrarily oriented orthogonal cell onto the coordinate axes.
 
@@ -82,33 +136,28 @@ def lift_crystal_defects(frame, dialect, backend="eam") -> tuple[Program, dict]:
         d_nn = nearest_neighbor_distance(frame)
         cutoff = float(dialect.threshold("sro_shell1_factor")) * d_nn
         atom_species = sorted(n_atoms)
-        # emission threshold from a bootstrap null: alpha1 of the same multiset
-        # with labels reshuffled; emit only outside factor x (null std). The
-        # null labels start from the SORTED multiset, so the sampled band is
-        # the same for any atom ordering of the same frame (canonical text,
-        # rule 3) -- shuffling a differently ordered list would sample a
-        # different null and make the emission decision order-dependent.
-        n_boot = int(dialect.threshold("sro_bootstrap_samples"))
-        boot_rng = np.random.default_rng(int(dialect.threshold("sro_bootstrap_seed")))
-        null = []
-        labels = sorted(frame.symbols)
-        for _ in range(n_boot):
-            shuffled = labels[:]
-            boot_rng.shuffle(shuffled)
-            fb = Frame(pos=frame.pos, cell=frame.cell, symbols=shuffled, pbc=frame.pbc)
-            null.append(warren_cowley_alpha1(fb, atom_species[0], atom_species[0], cutoff))
-        noise = float(np.std(null)) if len(null) > 1 else 0.0  # dialect-exempt: numerical-guard: degenerate std
+        # emission band from the EXACT join-count null: the like-neighbour
+        # count of a random relabelling of the same composition has a
+        # closed-form mean and variance (Cliff-Ord randomisation), so the
+        # band depends only on the neighbour-graph invariants and the
+        # species counts. Both are symmetric functions of the frame, so the
+        # band -- and the emitted text -- is the same for any atom ordering
+        # of the same frame (canonical text, rule 3), with no sampling noise
+        # and no bootstrap cost.
+        degrees = _neighbor_degrees(frame.pos, frame.cell_diag, cutoff)
+        noise = {s: _join_count_null(degrees, n_atoms[s]) for s in atom_species}
         # significance gate: a random solution's alpha1 is a finite-sample
         # fluctuation of the alpha = 0 null (rule 1: the program is the
         # macrostate). A constrain line may carry the measured value only when
-        # it leaves BOTH the dialect's minimum band and the reshuffle null
+        # it leaves BOTH the dialect's minimum band and the relabelling null
         # band; otherwise the line bakes one microstate's noise into the text
         # and the round trip is no longer byte-stable across frames/seeds.
-        emit_thr = max(float(dialect.threshold("sro_emit_threshold")),
-                       float(dialect.threshold("sro_emit_noise_factor")) * noise)
         tol_sro = float(dialect.threshold("sro_print_tolerance"))
         for i in range(len(atom_species)):
             alpha = warren_cowley_alpha1(frame, atom_species[i], atom_species[i], cutoff)
+            emit_thr = max(float(dialect.threshold("sro_emit_threshold")),
+                           float(dialect.threshold("sro_emit_noise_factor"))
+                           * noise[atom_species[i]])
             if abs(alpha) > emit_thr:
                 region_stmts.append(Statement(
                     kind="constrain", key="sro",

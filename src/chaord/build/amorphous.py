@@ -1,6 +1,8 @@
 """Amorphous builder: density + history protocol -> quenched frame."""
 from __future__ import annotations
 
+import sys
+
 import numpy as np
 
 from ..io.frames import Frame
@@ -65,7 +67,38 @@ def build_amorphous(program: Program, dialect, rng, physics=True,
     history = [s for s in region.statements if s.kind == "history"]
     frame = Frame(pos=pos0, cell=np.diag([L] * 3), symbols=[species] * n,
                   pbc=(True, True, True))
-    if not physics or not history:
+    if not physics:
         return frame
-    steps = parse_history(history[0], dialect)
-    return run_protocol(frame, steps, dialect, rng)
+    assumed = False
+    if history:
+        steps = parse_history(history[0], dialect)
+    else:
+        # Review 2: no silent skip to the random packing. A program without a
+        # history line builds with the dialect's default melt-quench -- the
+        # same glass_* thresholds the amorphous lifter states -- and the
+        # assumption is recorded on the frame and printed to stderr.
+        steps = _default_protocol(dialect)
+        assumed = True
+    out = run_protocol(frame, steps, dialect, rng)
+    if assumed:
+        out.info["assumed_history"] = "assumed default protocol from dialect"
+        print("chaord: amorphous program states no history: assumed default "
+              "protocol from dialect", file=sys.stderr)
+    return out
+
+
+def _default_protocol(dialect) -> list:
+    """The dialect's default melt -> quench -> anneal, as the amorphous lifter
+    states it (glass_melt/quench/anneal thresholds, LJ reduced units; the
+    quench rate is linear over glass_quench_steps)."""
+    t_melt = float(dialect.threshold("glass_melt_T"))
+    n_melt = int(dialect.threshold("glass_melt_steps"))
+    t_q = float(dialect.threshold("glass_quench_T"))
+    n_q = int(dialect.threshold("glass_quench_steps"))
+    t_a = float(dialect.threshold("glass_anneal_T"))
+    n_a = int(dialect.threshold("glass_anneal_steps"))
+    rate = round((t_melt - t_q) / n_q, 6)  # dialect-exempt: numerical-guard: printable cooling rate, T per step
+    # `quench to T at rate` parses to (T, T, rate): run_protocol quenches from
+    # wherever the protocol currently is (after the melt)
+    return [("melt", t_melt, n_melt), ("quench", t_q, t_q, rate),
+            ("anneal", t_a, n_a)]

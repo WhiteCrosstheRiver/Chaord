@@ -167,6 +167,35 @@ def test_sro_lift_emits_constrain(dialect):
     assert "constrain sro alpha1 Cr-Cr" in text
 
 
+def test_fcc_crconi_reordering_byte_stable(dialect):
+    """Review 2 root cause: SRO emission order dependence on fcc_crconi.
+
+    The 108-atom random solution sits ~2.6 sigma from the alpha = 0 null, so
+    an order-dependent emission band flips the `constrain sro` line between
+    reorderings of the SAME frame (rule 3: one structure, one text). Ten
+    random atom reorderings must lift to byte-identical text. This is the
+    reproducer for the bootstrap-order root cause; it passed after the
+    sorted-multiset fix and guards the exact join-count replacement."""
+    from pathlib import Path
+
+    from chaord.io.frames import read_frame
+
+    path = (Path(__file__).parent.parent / "bench" / "data" / "crystals"
+            / "fcc_crconi" / "frame_0.npz")
+    if not path.is_file():
+        pytest.skip("bench data not generated (bench/generate.py --out bench/data)")
+    frame = read_frame(path)
+    texts = set()
+    rng = np.random.default_rng(20260929)
+    for _ in range(10):
+        perm = rng.permutation(len(frame))
+        reordered = Frame(pos=frame.pos[perm], cell=frame.cell,
+                          symbols=[frame.symbols[i] for i in perm],
+                          pbc=frame.pbc)
+        texts.add(format_program(lift_frame(reordered, dialect, mode="defects")))
+    assert len(texts) == 1, "lift text depends on the atom ordering"
+
+
 def test_sro_build_round_trip(dialect, tmp_path):
     rng = np.random.default_rng(59)
     f = build_conventional("fcc", {"a": 3.56}, ("Cr",), (4, 4, 4))
@@ -185,6 +214,67 @@ def test_sro_build_round_trip(dialect, tmp_path):
     cutoff = float(dialect.threshold("sro_shell1_factor")) * d_nn
     alpha = warren_cowley_alpha1(rebuilt, "Cr", "Cr", cutoff)
     assert abs(alpha - 0.12) <= 0.02
+
+
+# 3x3 grid graph: irregular degrees (corners 2, edges 3, centre 4) -- the
+# join-count null must hold beyond k-regular first shells
+_GRID_EDGES = [(i, i + 1) for i in range(9) if i % 3 != 2] + \
+              [(i, i + 3) for i in range(6)]
+
+
+@pytest.mark.parametrize("n_a", [2, 3, 4, 5], ids=lambda v: f"na{v}")
+def test_join_count_null_matches_exhaustive_enumeration(n_a):
+    """The exact join-count band is the TRUE randomisation distribution.
+
+    On a small irregular graph every placement of the species can be
+    enumerated exhaustively; the closed-form Cliff-Ord randomisation moments
+    must reproduce the exact mean and variance of the ordered like-neighbour
+    count J over all C(N, N_a) placements (this is the test that could have
+    caught a wrong variance formula -- the bootstrap it replaces only ever
+    sampled this distribution)."""
+    from itertools import combinations
+
+    from chaord.lift.defect_program import _join_count_null
+
+    n = 9
+    degrees = [0] * n
+    for i, j in _GRID_EDGES:
+        degrees[i] += 1
+        degrees[j] += 1
+    js = []
+    for sites in combinations(range(n), n_a):
+        s = set(sites)
+        js.append(2 * sum(1 for i, j in _GRID_EDGES if i in s and j in s))
+    js = np.array(js, float)
+    exact = float(np.std(js) / np.mean(js))          # sd of alpha = 1 - J/E[J]
+    assert _join_count_null(degrees, n_a) == pytest.approx(exact, rel=1e-12)
+
+
+def test_join_count_null_degenerate_and_order_invariant(dialect):
+    """Degenerate nulls (single like pair, empty graph, tiny frame) fall back
+    to the dialect threshold, and the band is a symmetric function of the
+    labelling: any atom ordering of the same frame gives the identical band."""
+    from chaord.lift.defect_program import _join_count_null, _neighbor_degrees
+
+    rng = np.random.default_rng(71)
+    f = build_conventional("fcc", {"a": 3.56}, ("Cr",), (2, 2, 2))
+    occ = [Statement(kind="build", key="occupancy", values=[
+        Name(text="Cr"), Quantity(num="1/3"),
+        Name(text="Co"), Quantity(num="1/3"),
+        Name(text="Ni"), Quantity(num="1/3")])]
+    g = assign_occupancy(f, occ, rng, dialect)
+    n_cr = sum(1 for s in g.symbols if s == "Cr")
+    d_nn = nearest_neighbor_distance(g)
+    cutoff = float(dialect.threshold("sro_shell1_factor")) * d_nn
+    degrees = _neighbor_degrees(g.pos, g.cell_diag, cutoff)
+    band = _join_count_null(degrees, n_cr)
+    assert band > 0.0
+    for _ in range(10):
+        perm = rng.permutation(len(g))
+        assert _join_count_null(degrees[perm], n_cr) == band
+    assert _join_count_null(degrees, 1) == 0          # one like atom: no like join
+    assert _join_count_null([1, 1], 1) == 0           # frame too small for q4
+    assert _join_count_null([0, 0, 0, 0], 2) == 0     # no edges at all
 
 
 def test_conservation_exact_for_defects(dialect):

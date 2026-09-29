@@ -128,12 +128,14 @@ def test_water_lift_round_trip_conserves(mol_dialect, tmp_path):
     text = format_program(lift_frame(f, mol_dialect, mode="fluid"))
     assert "molecules H2O 60" in text
     assert "conserve atoms H 120 O 60" in text
-    # rebuild (no physics: classical backend has no core MD)
+    # rebuild (no physics: the classical backend has no core realization, so
+    # the rebuild opts out explicitly -- physics=True raises now instead of
+    # silently returning the packed frame)
     path = tmp_path / "water.chaord"
     path.write_text(text)
     from chaord.build import build_program
     rng2 = np.random.default_rng(17)
-    g = build_program(load(path), mol_dialect, rng=rng2, physics=True)
+    g = build_program(load(path), mol_dialect, rng=rng2, physics=False)
     assert molecule_census(g, mol_dialect) == {"H2O": 60}
     assert len(g) == 180
     text2 = format_program(lift_frame(g, mol_dialect, mode="fluid"))
@@ -151,6 +153,43 @@ def test_impossible_density_is_a_static_error(mol_dialect, tmp_path):
     from chaord.lang.errors import ChaordError
     with pytest.raises(ChaordError, match="impossible density"):
         build_program(load(path), mol_dialect)
+
+
+_MLP_WATER = ("chaord 0.1\ndialect core + molecular\n\n"
+              "system {\n  cell 15 15 15\n  pbc xyz\n}\n\n"
+              "physics {\n  backend BACKEND\n"
+              "  model \"mace-mp-0\"\n}\n\n"
+              "liquid water : all {\n  molecules H2O 60\n}\n")
+
+
+def test_backend_without_core_realization_is_an_error(mol_dialect, tmp_path):
+    """Review 2 root cause: the fluid builder silently returned the packed
+    frame for backends with no core realization (`return frame` at the backend
+    gate), so a `backend mlp` program "built" without any physics. It must
+    raise instead; the packed frame is only available through physics=False,
+    the explicit opt-out."""
+    from chaord.build import build_program
+    from chaord.lang.errors import ChaordError
+    path = tmp_path / "mlp.chaord"
+    path.write_text(_MLP_WATER.replace("BACKEND", "mlp"))
+    with pytest.raises(ChaordError, match="no realize backend for 'mlp'"):
+        build_program(load(path), mol_dialect, rng=np.random.default_rng(1))
+    # the explicit opt-out still builds the packed frame
+    frame = build_program(load(path), mol_dialect,
+                          rng=np.random.default_rng(1), physics=False)
+    assert molecule_census(frame, mol_dialect) == {"H2O": 60}
+
+
+def test_lj_backend_without_temperature_is_an_error(mol_dialect, tmp_path):
+    """Review 2 root cause: `if T is None: return frame` skipped the physics
+    prior without a word when an lj-backend program stated no temperature and
+    the dialect offered no default. Temperature is required: raise."""
+    from chaord.build import build_program
+    from chaord.lang.errors import ChaordError
+    path = tmp_path / "noT.chaord"
+    path.write_text(_MLP_WATER.replace("BACKEND", "lj"))
+    with pytest.raises(ChaordError, match="needs a temperature"):
+        build_program(load(path), mol_dialect, rng=np.random.default_rng(1))
 
 
 def test_noise_floor_shipped_snapshot(lj_dialect):

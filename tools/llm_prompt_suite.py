@@ -214,11 +214,9 @@ def _grain_boundary_check(case, prog):
         for v in s.values if v.t == "q").num))
     frame = build_grain_boundary(region, {}, dialect, np.random.default_rng(5))
     census = dict(Counter(frame.symbols))
-    expected = {"Cu": 1536}          # fcc 8x8x6 conventional cells
+    expected = {5: {"Cu": 520}, 13: {"Cu": 3848}, 17: {"Cu": 6664}}[sigma]
     if census != expected:
         raise ValueError(f"bicrystal census {census} != expected {expected}")
-    if sigma not in (5, 13, 17):
-        raise ValueError(f"unknown CSL Sigma {sigma}")
 
 
 def _dislocation_check(case, prog):
@@ -1616,7 +1614,7 @@ EXTENDED_CASES = [
         pid="P44", family="bicrystal",
         prompt="A Sigma-5 [001] tilt grain boundary in fcc copper: two "
                "grains rotated about z on a CSL lattice, a = 3.615 A, EAM "
-               "backend, seed 5. 1536 Cu atoms.",
+               "backend, seed 5. 520 Cu atoms.",
         points=("grain_boundary sigma 5", "fcc Cu host"),
         writer=_t("""
             chaord 0.1
@@ -1625,7 +1623,7 @@ EXTENDED_CASES = [
             system {
               pbc xyz
               seed 5
-              conserve atoms Cu 1536
+              conserve atoms Cu 520
             }
 
             physics {
@@ -1641,12 +1639,12 @@ EXTENDED_CASES = [
             residual none
             """),
         statements=("lattice fcc", "grain_boundary sigma 5",
-                    "conserve atoms Cu 1536"),
+                    "conserve atoms Cu 520"),
         custom=_grain_boundary_check),
     Case(
         pid="P45", family="bicrystal",
         prompt="A Sigma-13 [001] CSL bicrystal of fcc copper, a = 3.615 A, "
-               "EAM, seed 6. 1536 Cu atoms.",
+               "EAM, seed 6. 520 Cu atoms.",
         points=("grain_boundary sigma 13"),
         writer=_t("""
             chaord 0.1
@@ -1655,7 +1653,7 @@ EXTENDED_CASES = [
             system {
               pbc xyz
               seed 6
-              conserve atoms Cu 1536
+              conserve atoms Cu 520
             }
 
             physics {
@@ -1670,7 +1668,7 @@ EXTENDED_CASES = [
 
             residual none
             """),
-        statements=("grain_boundary sigma 13", "conserve atoms Cu 1536"),
+        statements=("grain_boundary sigma 13", "conserve atoms Cu 520"),
         custom=_grain_boundary_check),
     Case(
         pid="P46", family="bicrystal",

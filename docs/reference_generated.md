@@ -16,7 +16,7 @@ One row per statement key declared in `src/chaord/dialects/*.yaml`, with a passi
 | `defect` | metal:region_crystal_defect | `defect divacancy count 1 depth 5.2 form split  # 4 empty sites, 2 displaced atoms` | 01_solid_liquid_lifted.chaord | yes |
 | `dialects` | core:provenance | `(no example in spec/examples/ - add one)` | - | yes |
 | `dissociate` | core:interface | `dissociate H2O -> OH @ Ti_5c + H @ O_br count 9` | 07_reactive_interface.chaord | yes |
-| `epsilon` | core:physics | `epsilon 1` | 01_solid_liquid_lifted.chaord | yes |
+| `epsilon` | core:physics | `epsilon 1` | 01_solid_liquid_lifted.chaord | MISSING |
 | `forcefield` | core:physics | `forcefield "trappe-ua"` | 06_gas.chaord | yes |
 | `history` | glass:region_amorphous | `history melt 3000 K for 20 ps -> quench to 300 K at 1 K/ps -> anneal 300 K for 50 ps` | 04_amorphous_si.chaord | yes |
 | `lattice` | metal:region_crystal | `lattice fcc` | 01_solid_liquid_lifted.chaord | yes |

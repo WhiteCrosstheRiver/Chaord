@@ -1,6 +1,6 @@
 # metal dialect — metals and ordered intermetallics (M1+).
 name: metal
-version: "0.2.1"
+version: "0.2.2"
 
 units: []
 
@@ -118,6 +118,9 @@ thresholds:
   csl_angle_tol: 2.0               # degrees: misorientation to CSL match (R2 reverted a68e202 widening)
   gb_shell_length_tol: 0.10        # first-shell vector length band (R2 reverted a68e202 widening)
                                    # as a fraction of the lattice constant
+  gb_overlap_fraction: 0.8         # unrelaxed CSL bicrystals remove the upper-grain atom of any
+                                   # cross-grain pair closer than this fraction of d_NN (the AGENTS
+                                   # reference-data sanity floor: no pair closer than 0.8 d_NN)
   circuit_inset_x: 0.15            # Burgers loop inset from the box x faces
   circuit_inset_y: 0.15            # ... and y faces
   slab_cn_factor: 1.15              # coordination cutoff for family detection, x d_NN
