@@ -39,5 +39,3 @@ One row per statement key declared in `src/chaord/dialects/*.yaml`, with a passi
 | `termination` | surface:region_crystal | `termination bridging_O` | 07_reactive_interface.chaord | yes |
 | `units` | core:system | `units lj` | 01_solid_liquid_lifted.chaord | yes |
 | `width` | core:interface | `width 1.1` | 01_solid_liquid_lifted.chaord | yes |
-
-<!-- second-green -->

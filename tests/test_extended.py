@@ -77,67 +77,12 @@ def test_no_burgers_in_perfect_crystal(metal):
     assert burgers_vector(frame, metal) is None
 
 
-def test_sigma5_diagnostic(metal):
-    """Prints intermediate detection values; asserts nothing (diagnostic)."""
-    import numpy as np
-    from chaord.lift.extended import (_in_plane_vectors, grain_boundary_sigma)
-    from chaord.build.extended import build_grain_boundary
-    frame = build_grain_boundary(_region(
-        Statement(kind="build", key="lattice", values=[Name(text="fcc")]),
-        Statement(kind="build", key="a", values=[Quantity(num="3.615")]),
-        Statement(kind="build", key="grain_boundary",
-                  values=[Name(text="sigma"), Quantity(num="5")])),
-        {}, metal, np.random.default_rng(0))
-    L = frame.cell_diag
-    zmid = 0.5 * L[2]
-    pos = np.minimum(np.mod(frame.pos, L), L * (1 - 1e-9))
-    lower = pos[pos[:, 2] < zmid]
-    upper = pos[pos[:, 2] >= zmid]
-
-    def _deep(half):
-        z = half[:, 2]
-        mid = 0.5 * (z.min() + z.max())
-        return half[np.argsort(np.abs(z - mid))[:max(len(half) // 4, 8)]]
-
-    def ang(v):
-        return np.degrees(np.arctan2(v[1], v[0]))
-
-    for tag, half in (("lower", lower), ("upper", upper)):
-        deep = _deep(half)
-        for j, p0 in enumerate(deep[:3]):
-            vecs = _in_plane_vectors(half, L, p0=p0)
-            angs = sorted(round(ang(v), 2) for v in vecs)
-            lens = sorted(round(float(np.linalg.norm(v)), 3) for v in vecs)
-            print(f"DIAG {tag} ref{j}: angles={angs[:6]} lens={lens[:6]}")
-
-    def _deep_ref(half):
-        z = half[:, 2]
-        mid = 0.5 * (z.min() + z.max())
-        return half[np.argsort(np.abs(z - mid))[:max(len(half) // 4, 8)]]
-    va = _in_plane_vectors(lower, L, p0=_deep_ref(lower)[0])
-    vb = _in_plane_vectors(upper, L, p0=_deep_ref(upper)[0])
-    a = min(np.linalg.norm(v) for v in va)
-    theta = 90.0
-    for x in va:
-        if abs(np.linalg.norm(x) - a) > 0.15 * a:
-            continue
-        for y_ in vb:
-            if abs(np.linalg.norm(y_) - a) > 0.15 * a:
-                continue
-            d = abs(ang(y_) - ang(x)) % 90.0
-            if d > 45.0:
-                d = 90.0 - d
-            theta = min(theta, d)
-    sigma = grain_boundary_sigma(frame, metal)
-    # deliberately assert with full intermediates in the message so the CI log
-    # shows them when this diagnostic fails (platform-difference hunting)
-    assert sigma == 5, (
-        f"DIAG theta={theta:.4f} a={a:.4f} sigma={sigma} "
-        f"lower0={sorted(round(float(np.degrees(np.arctan2(v[1], v[0]))), 2) for v in _in_plane_vectors(lower, L, p0=_deep(lower)[0]))[:4]} "
-        f"upper0={sorted(round(float(np.degrees(np.arctan2(v[1], v[0]))), 2) for v in _in_plane_vectors(upper, L, p0=_deep(upper)[0]))[:4]}")
-
-
 def test_sigma5_detected(metal):
+    # NOTE: the CSL detection algorithm uses a single deep reference atom
+    # whose sort-order tie-breaking is BLAS-sensitive; verified deterministic
+    # on Windows (10 seeds) but the reference selection can pick a
+    # boundary-adjacent atom on some Linux builds. This is a known limitation
+    # recorded in reports/gate_a_prime.md (detection robustness is the fix).
     frame = build_grain_boundary(_region(
         Statement(kind="build", key="lattice", values=[Name(text="fcc")]),
         Statement(kind="build", key="a", values=[Quantity(num="3.615")]),
