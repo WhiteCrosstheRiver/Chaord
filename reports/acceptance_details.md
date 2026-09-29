@@ -70,16 +70,16 @@ Per-case numbers behind `reports/acceptance.json`.  Written by `tools/acceptance
 
 ## A5 statistical round trip — PASS
 
-**Evidence:** pass rate 6/6-with-floor; fluid: 4/4 (target >= 90%); interface: 1/1 (target >= 90%); glass: 1/1 (target >= 80%); 6 cases without a floor on record: no-floor: skipped (synthetic frame); floor provenance: floor = mean over the cross-quench frame pairs (last two, most-annealed frames of each of the 3 independent quenches, identical protocol, distinct seeds).; frames spaced 5 ps (beyond the water structural relaxation time, Review 2): the floor is not shrunk by residual inter-frame correlation. (full notes: details rows / noise_floors.json)
+**Evidence:** pass rate 6/6-with-floor; fluid: 4/4 (target >= 90%); interface: 1/1 (target >= 90%); glass: 1/1 (target >= 80%); 6 cases without a floor on record: no-floor: skipped (synthetic frame); floor provenance: floor = mean over the cross-quench frame pairs (last two, most-annealed frames of each of the 3 independent quenches, identical protocol, distinct seeds).; floor = mean over frame pairs at lag >= 2 (the decorrelated half; 6 of 10 pairs, residual short-lag correlation must not shrink the floor).; floor = mean over frame pairs at lag >= 2 (the decorrelated half; 6 of 10 pairs, residual short-lag correlation must not shrink the floor); frames spaced 5 ps (beyond the water structural relaxation time, Review 2): the floor is not shrunk by residual inter-frame correlation. (full notes: details rows / noise_floors.json)
 
 | case | category | status | T | backend | md_steps | distances | ratios |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| reference/lj_glass | glass | pass (cn_tv 0.042 vs floor 0.073 (x0.6); gr_rms 0.122 vs floor 0.165 (x0.7); floor: floor = mean over the cross-quench frame pairs (last two, most-annealed frames of each of the 3 independent quenches, identical protocol, distinct seeds). Within-one-quench pairs of the same frames (intra_quench below) share the anneal basin and sit closer; a floor built from them is too tight for a perfect independent rebuild (Review 2).) | - | lj | 10993 |  |  |
-| reference/lj_liquid | fluid | pass (cn_tv 0.034 vs floor 0.060 (x0.6); gr_rms 0.088 vs floor 0.092 (x1.0)) | 0.65 | lj | 7400 |  |  |
-| reference/lj_liquid_large | fluid | pass (cn_tv 0.010 vs floor 0.017 (x0.6); gr_rms 0.042 vs floor 0.039 (x1.1)) | 0.65 | lj | 7400 |  |  |
-| reference/lj_solid_liquid | interface | pass (cn_tv 0.085 vs floor 0.059 (x1.4); gr_rms 0.086 vs floor 0.068 (x1.3)) | 0.65 | lj | 7400 |  |  |
-| reference/nacl_aq | fluid | pass (cn_tv 0.046 vs floor 0.032 (x1.4); gr_rms 0.036 vs floor 0.036 (x1.0)) | - | classical | 0 |  |  |
-| reference/water_tip4p | fluid | pass (cn_tv 0.069 vs floor 0.077 (x0.9); gr_rms 0.052 vs floor 0.055 (x0.9); floor: frames spaced 5 ps (beyond the water structural relaxation time, Review 2): the floor is not shrunk by residual inter-frame correlation) | - | classical | 0 |  |  |
+| reference/lj_glass | glass | pass (cn_tv 0.061 vs floor 0.073 (x0.8; draws 0.042/0.080); gr_rms 0.114 vs floor 0.165 (x0.7; draws 0.122/0.106); floor: floor = mean over the cross-quench frame pairs (last two, most-annealed frames of each of the 3 independent quenches, identical protocol, distinct seeds). Within-one-quench pairs of the same frames (intra_quench below) share the anneal basin and sit closer; a floor built from them is too tight for a perfect independent rebuild (Review 2).) | - | lj | 10993 |  |  |
+| reference/lj_liquid | fluid | pass (cn_tv 0.045 vs floor 0.056 (x0.8; draws 0.034/0.056); gr_rms 0.077 vs floor 0.094 (x0.8; draws 0.088/0.066); floor: floor = mean over frame pairs at lag >= 2 (the decorrelated half; 6 of 10 pairs, residual short-lag correlation must not shrink the floor)) | 0.65 | lj | 7400 |  |  |
+| reference/lj_liquid_large | fluid | pass (cn_tv 0.011 vs floor 0.018 (x0.6; draws 0.010/0.012); gr_rms 0.038 vs floor 0.040 (x0.9; draws 0.042/0.033); floor: floor = mean over frame pairs at lag >= 2 (the decorrelated half; 6 of 10 pairs, residual short-lag correlation must not shrink the floor)) | 0.65 | lj | 7400 |  |  |
+| reference/lj_solid_liquid | interface | pass (cn_tv 0.087 vs floor 0.067 (x1.3; draws 0.085/0.089); gr_rms 0.085 vs floor 0.071 (x1.2; draws 0.086/0.084); floor: floor = mean over frame pairs at lag >= 2 (the decorrelated half; 6 of 10 pairs, residual short-lag correlation must not shrink the floor)) | 0.65 | lj | 7400 |  |  |
+| reference/nacl_aq | fluid | pass (cn_tv 0.045 vs floor 0.033 (x1.4; draws 0.046/0.045); gr_rms 0.034 vs floor 0.037 (x0.9; draws 0.036/0.032); floor: floor = mean over frame pairs at lag >= 2 (the decorrelated half; 6 of 10 pairs, residual short-lag correlation must not shrink the floor)) | - | classical | 0 |  |  |
+| reference/water_tip4p | fluid | pass (cn_tv 0.077 vs floor 0.073 (x1.1; draws 0.069/0.086); gr_rms 0.056 vs floor 0.054 (x1.0; draws 0.052/0.060); floor: floor = mean over frame pairs at lag >= 2 (the decorrelated half; 6 of 10 pairs, residual short-lag correlation must not shrink the floor); frames spaced 5 ps (beyond the water structural relaxation time, Review 2): the floor is not shrunk by residual inter-frame correlation) | - | classical | 0 |  |  |
 | fluid/water_box15 | fluid | no-floor: skipped (synthetic frame) | - | classical | 0 | gr_rms=0.319, cn_tv=0.450 |  |
 | fluid/ar_gas_box25 | fluid | no-floor: skipped (synthetic frame) | - | classical | 0 | gr_rms=0.769, cn_tv=0.160 |  |
 | fluid/n2_box22 | fluid | no-floor: skipped (synthetic frame) | - | classical | 0 | gr_rms=1.126, cn_tv=0.319 |  |
@@ -286,7 +286,7 @@ Per-case numbers behind `reports/acceptance.json`.  Written by `tools/acceptance
 
 ## A11 speed — PASS
 
-**Evidence:** lift_frame(mode=fluid) on 100,000 atoms took 3.7 s (target <= 120 s); input = fcc lattice at rho 0.85 with 0.10 x a jitter (thermally disordered, not equilibrated MD); program states the exact count: yes
+**Evidence:** lift_frame(mode=fluid) on 100,000 atoms took 6.4 s (target <= 120 s); input = fcc lattice at rho 0.85 with 0.10 x a jitter (thermally disordered, not equilibrated MD); program states the exact count: yes
 
 
 ## A12 static checks — PASS

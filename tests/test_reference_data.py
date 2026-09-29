@@ -381,19 +381,41 @@ def test_pairwise_noise_floors_written():
                 f"{floors[case]['gr_rms_mean']:.4f} <= "
                 f"{PRE_REVIEW2_GLASS_FLOOR}")
         else:
-            pairs = []
+            # Decorrelated half of the lags (Review 2 follow-up, 2026-09-29):
+            # a floor mixing short-lag frame pairs is shrunk by residual
+            # inter-frame correlation. Measured on lj_solid_liquid (frames
+            # 2.5 tau apart): lag-1 pairs cn_tv 0.048 vs lag-4 0.073 -- a
+            # floor from all pairs understates what an independent rebuild
+            # can hit. The floor is therefore the mean over pairs with
+            # lag >= half the maximum; the all-pairs summary stays recorded
+            # for transparency. Cases sampled beyond their structural
+            # relaxation (water 5 ps, nacl 10 ps) barely move (measured:
+            # nacl 0.0320 -> 0.0329, water 0.0768 -> 0.0727) -- the rule
+            # only bites where correlation was real.
+            min_lag = max(1, (n - 1) // 2)
+            pairs, all_pairs = [], []
             for i, j in combinations(range(n), 2):
                 d = distance(obs[i], obs[j])
                 assert np.isfinite(d["gr_rms"]) and np.isfinite(d["cn_tv"])
-                pairs.append({"frames": [i, j], "gr_rms": d["gr_rms"],
-                              "cn_tv": d["cn_tv"]})
-            assert min(p["gr_rms"] for p in pairs) > 0.0, \
+                entry = {"frames": [i, j], "gr_rms": d["gr_rms"],
+                         "cn_tv": d["cn_tv"]}
+                all_pairs.append(entry)
+                if j - i >= min_lag:
+                    pairs.append(entry)
+            assert pairs, f"{case}: no decorrelated pairs"
+            assert min(p["gr_rms"] for p in all_pairs) > 0.0, \
                 f"{case}: frames not decorrelated (gr_rms 0)"
             floors[case] = {"dialect": " + ".join(DIALECTS[case]),
-                            **_floor_summary(pairs)}
+                            **_floor_summary(pairs),
+                            "note": (f"floor = mean over frame pairs at lag "
+                                     f">= {min_lag} (the decorrelated half; "
+                                     f"{len(pairs)} of {len(all_pairs)} "
+                                     "pairs, residual short-lag correlation "
+                                     "must not shrink the floor)"),
+                            "all_pairs": _floor_summary(all_pairs)}
             if case == "water_tip4p":
-                floors[case]["note"] = (
-                    "frames spaced 5 ps (beyond the water structural "
+                floors[case]["note"] += (
+                    "; frames spaced 5 ps (beyond the water structural "
                     "relaxation time, Review 2): the floor is not shrunk by "
                     "residual inter-frame correlation")
     NOISE_FLOORS.parent.mkdir(parents=True, exist_ok=True)

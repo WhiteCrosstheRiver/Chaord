@@ -62,7 +62,11 @@ jobs:
         run: python -m pip install -e .[test]
       - name: Acceptance A1-A14 (clean machine)
         run: python tools/acceptance.py -o reports/acceptance.json
+      - name: Per-case acceptance details (on failure)
+        if: failure()
+        run: cat reports/acceptance_details.md
       - name: Upload clean-machine acceptance report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: clean-acceptance-report
