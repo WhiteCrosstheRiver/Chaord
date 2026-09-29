@@ -30,7 +30,7 @@ physics {{
 
 amorphous glass : all {{
   state density {rho}
-  history melt 1.2 for 300 -> quench to 0.01 at 0.01 -> anneal 0.01 for 200
+  history melt 2 for 3000 -> quench to 0.01 at 0.000332 -> anneal 0.01 for 2000
 }}
 """
 
@@ -88,10 +88,17 @@ def test_voronoi_index_sc(dialect):
 
 @pytest.mark.slow
 def test_amorphous_round_trip_statistics(dialect, tmp_path):
-    """M5 exit criterion: rebuilt glass within 1.5x the noise floor."""
+    """M5 exit criterion: rebuilt glass within 1.5x the noise floor.
+
+    The frame is a sample of the macrostate the lifter describes: the
+    dialect's canonical melt-quench (glass_melt_T/steps, glass_quench_*,
+    glass_anneal_* in glass.yaml), at the N=500 size the criterion is
+    calibrated on (A5's reference glass). A shorter toy protocol would put
+    the frame in a different (faster-quenched) family than the lifted
+    program rebuilds from."""
     from chaord.build import build_program
     from chaord.cv.noise import observables, distance
-    text = AMORPH_PROGRAM.format(n=216, rho=0.95)
+    text = AMORPH_PROGRAM.format(n=500, rho=0.95)
     path = tmp_path / "glass.chaord"
     path.write_text(text)
     rng = np.random.default_rng(17)
@@ -110,7 +117,7 @@ def test_amorphous_round_trip_statistics(dialect, tmp_path):
     ppath.write_text(format_program(program))
     rng2 = np.random.default_rng(23)
     rebuilt = build_program(load(ppath), dialect, rng=rng2, physics=True)
-    assert len(rebuilt) == 216  # never drop an atom
+    assert len(rebuilt) == 500  # never drop an atom
 
     oo, ol, o_re = observables(frame, dialect), observables(later, dialect), observables(rebuilt, dialect)
     floor = distance(oo, ol)
@@ -123,8 +130,8 @@ def test_amorphous_round_trip_statistics(dialect, tmp_path):
 def test_amorphous_lift_program(dialect, tmp_path):
     from chaord.build import build_program
     text = AMORPH_PROGRAM.format(n=108, rho=0.9).replace(
-        "melt 1.2 for 300", "melt 1.2 for 150").replace(
-        "anneal 0.01 for 200", "anneal 0.01 for 100")
+        "melt 2 for 3000", "melt 2 for 300").replace(
+        "anneal 0.01 for 2000", "anneal 0.01 for 200")
     path = tmp_path / "g2.chaord"
     path.write_text(text)
     rng = np.random.default_rng(5)

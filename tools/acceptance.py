@@ -548,6 +548,115 @@ def check_a1(mutation: str | None = None, max_examples: int = 10000):
 # ---- A2 ----------------------------------------------------------------------
 CRYSTAL_CATEGORIES = {"crystals"}
 
+# fcc neighbour-shell radii as fractions of a (verifier's own table from the
+# International Tables): a/sqrt(2), a, a*sqrt(3/2).  Shell bands for the
+# Warren-Cowley species check are the midpoints between consecutive radii.
+FCC_SHELL_RADII = (2 ** -0.5, 1.0, 1.5 ** 0.5)
+
+
+def _is_random_solution(case) -> bool:
+    """Random solid solution: several species spread by unit fractions on a
+    unary prototype.  Decided from the bench GROUND TRUTH only -- never from
+    the lifted text -- so a lifter bug cannot switch its own case to the
+    weaker species-blind comparison (human approval 2026-09-29)."""
+    gt = case["gt"].get("expected", {})
+    if "occupancy" not in gt or len(gt.get("counts", {})) < 2:
+        return False
+    name = gt.get("prototype")
+    return name in PROTO_TABLE and len(PROTO_TABLE[name][0]) == 1
+
+
+def _exact_roundtrip_cases(case_filter: str | None = None) -> list[dict]:
+    """Cases judged by the exact round trip (A2/A3): every crystal case plus
+    the random solid solutions (occupancy on a unary prototype), wherever the
+    category files them (crystals/fcc_crconi, solutions/cuau_random)."""
+    return [c for c in bench_cases()
+            if (c["category"] in CRYSTAL_CATEGORIES or _is_random_solution(c))
+            and (case_filter is None or case_filter in c["id"])]
+
+
+def _wc_alpha_shell(pos, symbols, cell_diag, pair, lo, hi):
+    """Warren-Cowley alpha of one shell band, verifier's own implementation
+    (independent of chaord.build.defects.warren_cowley_alpha1)."""
+    from scipy.spatial import cKDTree
+    pos = np.mod(np.asarray(pos, float), cell_diag)   # tolerate unwrapped input
+    syms = np.asarray(symbols)
+    x_b = float((syms == pair[1]).mean())
+    if x_b == 0:
+        return None
+    tree = cKDTree(pos, boxsize=cell_diag)
+    tot = nb = 0
+    for i in np.where(syms == pair[0])[0]:
+        for j in tree.query_ball_point(pos[i], hi):
+            if j == i:
+                continue
+            d = pos[i] - pos[j]
+            d -= cell_diag * np.round(d / cell_diag)
+            r = float(np.linalg.norm(d))
+            if lo <= r < hi:
+                tot += 1
+                nb += int(syms[j] == pair[1])
+    if tot == 0:
+        return None
+    return 1.0 - (nb / tot) / x_b
+
+
+def _alpha_shell_bands(case):
+    """(lo, hi) radius bands for Warren-Cowley shells 1 and 2 of the case's
+    lattice, or None when the verifier has no shell table for it (non-fcc)."""
+    gt = case["gt"]["expected"]
+    if gt.get("prototype") != "fcc":
+        return None
+    a = float(gt["a"])
+    r = [f * a for f in FCC_SHELL_RADII]
+    m1 = 0.5 * (r[0] + r[1])
+    return [(0.0, m1), (m1, 0.5 * (r[1] + r[2]))]
+
+
+def _max_alpha_delta(frame, other, bands) -> float:
+    """Largest |delta alpha| over all species pairs and both shells between
+    two frames on the same sites (verifier's own statistic)."""
+    species = sorted(set(frame.symbols))
+    worst = 0.0
+    for a in species:
+        for b in species:
+            for lo, hi in bands:
+                a1 = _wc_alpha_shell(frame.pos, frame.symbols,
+                                     frame.cell_diag, (a, b), lo, hi)
+                a2 = _wc_alpha_shell(other.pos, other.symbols,
+                                     other.cell_diag, (a, b), lo, hi)
+                if a1 is None or a2 is None:
+                    continue
+                worst = max(worst, abs(a1 - a2))
+    return worst
+
+
+def _relabel_noise_floor(case, bands, n_seeds: int = 5) -> float:
+    """Noise floor of the species statistic: max |delta alpha| between the
+    case frame and independent verifier relabelings of the same ground truth,
+    mean over >= n_seeds seeds (rule 9: judge against the microstate noise)."""
+    from chaord.io.frames import Frame
+    base = _rebuild_crystal(case)
+    multiset = sum(([s] * n for s, n in
+                    case["gt"]["expected"]["counts"].items()), [])
+    worst = []
+    for k in range(n_seeds):
+        rng = np.random.default_rng(_stable_seed(case["id"] + f"|alphafloor{k}"))
+        labels = multiset[:]
+        rng.shuffle(labels)
+        relab = Frame(pos=base.pos, cell=base.cell, symbols=labels,
+                      pbc=base.pbc)
+        worst.append(_max_alpha_delta(base, relab, bands))
+    return float(np.mean(worst))
+
+
+def _anonymized_pymatgen(frame):
+    """Species-blind view of a frame (all sites 'X'): the structure matcher
+    then judges lattice and positions only."""
+    from pymatgen.core import Lattice, Structure
+    return Structure(Lattice(frame.cell), ["X"] * len(frame), frame.pos,
+                     coords_are_cartesian=True)
+
 
 def _rebuild_crystal(case):
     """Perfect frame rebuilt from the case's ground-truth parameters
@@ -598,16 +707,15 @@ def _slots_from_counts(name: str, counts: dict) -> tuple:
 def check_a2(mutation: str | None = None, n_transforms: int = 2,
              case_filter: str | None = None):
     """Byte-identical text under rotation, translation, re-ordering and
-    re-imaging on 100% of bench crystal cases, >= 2 transforms per case."""
+    re-imaging on 100% of bench crystal and random-solid-solution cases,
+    >= 2 transforms per case."""
     from chaord.dialects import load_dialect
     from chaord.io.frames import Frame
     from chaord.lift import lift_frame
 
     dialects: dict = {}
     rows, n_cases_ok = [], 0
-    crystal_cases = [c for c in bench_cases()
-                     if c["category"] in CRYSTAL_CATEGORIES
-                     and (case_filter is None or case_filter in c["id"])]
+    crystal_cases = _exact_roundtrip_cases(case_filter)
     for case in crystal_cases:
         dl = dialects.setdefault(case["dialect"], load_dialect(case["dialect"]))
         frame = _rebuild_crystal(case)
@@ -649,7 +757,7 @@ def check_a2(mutation: str | None = None, n_transforms: int = 2,
         n_cases_ok += int(case_ok)
     n_transforms_total = len(rows)
     ok = all(s for _, s, _ in rows) and rows
-    ev = (f"{n_cases_ok}/{len(crystal_cases)} crystal cases; "
+    ev = (f"{n_cases_ok}/{len(crystal_cases)} crystal + random-solution cases; "
           f"{sum(s for _, s, _ in rows)}/{n_transforms_total} rigid transforms "
           f"(rotation + translation + re-imaging + re-ordering, {n_transforms} "
           f"per case) lift to byte-identical text")
@@ -663,10 +771,30 @@ def check_a2(mutation: str | None = None, n_transforms: int = 2,
 
 
 # ---- A3 ----------------------------------------------------------------------
+def _force_occupancy_text(text: str) -> str:
+    """Seeded fault: rewrite an ordered L1_2 program as a random-occupancy
+    program (prototype L1_2 + composition Ni3Al -> lattice fcc + occupancy
+    Ni 3/4 Al 1/4).  The rebuilt species arrangement is then a random draw,
+    which the species-aware matcher must reject."""
+    out = []
+    for line in text.splitlines():
+        s = line.strip()
+        if s.startswith("prototype L1_2"):
+            line = line.replace("prototype L1_2", "lattice fcc")
+        elif s.startswith("composition Ni3Al"):
+            line = line.replace("composition Ni3Al", "occupancy Ni 3/4 Al 1/4")
+        out.append(line)
+    return "\n".join(out) + "\n"
+
+
 def check_a3(mutation: str | None = None, case_filter: str | None = None):
     """lift -> build -> lift gives identical text AND the rebuilt structure
     matches the original under pymatgen StructureMatcher(ltol 0.2, stol 0.3,
-    angle_tol 5 deg) on 100% of bench crystal cases."""
+    angle_tol 5 deg) on 100% of bench crystal cases.  Random solid solutions
+    (ground-truth occupancy on a unary prototype) are matched species-blind
+    and their species arrangement is judged by Warren-Cowley alphas against
+    the relabeling noise floor: the labeling is a microstate, no macrostate
+    program text can reproduce it (human approval 2026-09-29)."""
     from pymatgen.analysis.structure_matcher import StructureMatcher
     from chaord.build import build_program
     from chaord.dialects import load_dialect
@@ -677,14 +805,15 @@ def check_a3(mutation: str | None = None, case_filter: str | None = None):
     matcher = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5)
     dialects: dict = {}
     rows = []
-    for case in bench_cases():
-        if case["category"] not in CRYSTAL_CATEGORIES:
-            continue
-        if case_filter is not None and case_filter not in case["id"]:
-            continue
+    for case in _exact_roundtrip_cases(case_filter):
         dl = dialects.setdefault(case["dialect"], load_dialect(case["dialect"]))
+        random_solution = _is_random_solution(case)
         frame = _rebuild_crystal(case)
         t1 = format_program_text(lift_frame(frame, dl))
+        if mutation == "force_occupancy" and not random_solution:
+            # seeded fault: an ordered program forced to a random-occupancy
+            # program must still fail A3 under the species-aware matcher
+            t1 = _force_occupancy_text(t1)
         rebuilt = build_program(parse_text(t1), dl, rng=np.random.default_rng(5))
         if mutation == "displace_rebuilt":
             # seeded fault: displace a quarter of the rebuilt atoms by 0.6 A
@@ -694,6 +823,26 @@ def check_a3(mutation: str | None = None, case_filter: str | None = None):
             pos[idx] += rng.normal(size=(len(idx), 3)) * 0.6
             rebuilt = Frame(pos=pos, cell=rebuilt.cell,
                             symbols=rebuilt.symbols, pbc=rebuilt.pbc)
+        if mutation == "segregate" and random_solution:
+            # seeded fault: lay the species out as z-sorted blocks (Co slab,
+            # Cr slab, Ni slab) -- sites and composition stay right, so only
+            # the Warren-Cowley species check can see it
+            order = np.argsort(rebuilt.pos[:, 2], kind="stable")
+            blocks = np.concatenate(
+                [np.full(n, s) for s, n in
+                 sorted(count_species(rebuilt.symbols).items())])
+            segregated = np.empty(len(rebuilt), dtype=object)
+            segregated[order] = blocks       # atom with z-rank r gets blocks[r]
+            rebuilt = Frame(pos=rebuilt.pos, cell=rebuilt.cell,
+                            symbols=list(segregated), pbc=rebuilt.pbc)
+        if mutation == "composition" and random_solution:
+            # seeded fault: relabel 5% of the Cr as Ni (composition corruption)
+            syms = np.array(rebuilt.symbols)
+            cr = np.where(syms == "Cr")[0]
+            flip = cr[: max(1, len(cr) // 20)]
+            syms[flip] = "Ni"
+            rebuilt = Frame(pos=rebuilt.pos, cell=rebuilt.cell,
+                            symbols=list(syms), pbc=rebuilt.pbc)
         try:
             t2 = format_program_text(lift_frame(rebuilt, dl))
             text_ok = t2 == t1
@@ -704,17 +853,36 @@ def check_a3(mutation: str | None = None, case_filter: str | None = None):
                         + " | ".join(diff[:3]) if diff else "")
         except Exception as exc:                            # noqa: BLE001
             text_ok, note = False, f"; rebuilt lift failed: {str(exc)[:70]}"
-        geo_ok = bool(matcher.fit(frame_to_pymatgen(frame),
-                                  frame_to_pymatgen(rebuilt)))
-        rows.append((case["id"], text_ok, geo_ok, note))
+        bands = _alpha_shell_bands(case)
+        if random_solution and bands is not None:
+            # a random solid solution's species-to-site assignment is a
+            # microstate: no macrostate program text can reproduce the
+            # verifier's relabeling, so the structure is matched species-blind
+            # and the species arrangement is judged by its Warren-Cowley
+            # alphas against the relabeling noise floor (rule 9; human
+            # approval 2026-09-29)
+            geo_ok = bool(matcher.fit(_anonymized_pymatgen(frame),
+                                      _anonymized_pymatgen(rebuilt)))
+            delta = _max_alpha_delta(frame, rebuilt, bands)
+            floor = _relabel_noise_floor(case, bands)
+            species_ok = delta <= 1.5 * floor
+            note += (f"; species: max |dAlpha| {delta:.3f} vs relabel floor "
+                     f"{floor:.3f} (x{delta / max(floor, 1e-9):.1f})"
+                     f" {'ok' if species_ok else 'EXCEEDS 1.5x floor'}")
+        else:
+            geo_ok = bool(matcher.fit(frame_to_pymatgen(frame),
+                                      frame_to_pymatgen(rebuilt)))
+            species_ok = True
+        rows.append((case["id"], text_ok, geo_ok and species_ok, note))
     ok = all(t and g for _, t, g, _ in rows) and rows
     ev = (f"{sum(1 for _, t, _, _ in rows if t)}/{len(rows)} lift-build-lift texts "
           f"byte-identical; {sum(1 for _, _, g, _ in rows if g)}/{len(rows)} "
-          f"StructureMatcher(ltol 0.2, stol 0.3, 5 deg) fits original vs "
-          f"rebuilt")
+          f"structure fits original vs rebuilt (species-aware for ordered "
+          f"cases; species-blind lattice/positions + Warren-Cowley alpha vs "
+          f"relabel noise floor for random solutions)")
     for c, t, g, note in rows:
         if not (t and g):
-            ev += (f"; {c}: text {'ok' if t else 'DIFFERS'}, matcher "
+            ev += (f"; {c}: text {'ok' if t else 'DIFFERS'}, structure "
                    f"{'ok' if g else 'no fit'}{note}")
     return record("A3", "exact round trip (ordered)", ok, ev,
                   dict(rows=[dict(case=c, text=bool(t), geometry=bool(g),
@@ -901,7 +1069,7 @@ from chaord.dialects import load_dialect
 text = sys.stdin.read()
 t0 = time.perf_counter()
 frame = build_program(parse_text(text), load_dialect(tuple(cfg["dialect"])),
-                      rng=np.random.default_rng(7), physics=False)
+                      rng=np.random.default_rng(7), physics=True)
 np.savez(cfg["out"], pos=frame.pos, cell=frame.cell,
          symbols=np.array(frame.symbols, dtype="U8"))
 print(json.dumps({"seconds": time.perf_counter() - t0, "n": len(frame)}))

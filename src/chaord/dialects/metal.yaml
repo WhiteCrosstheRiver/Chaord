@@ -1,6 +1,6 @@
 # metal dialect — metals and ordered intermetallics (M1+).
 name: metal
-version: "0.2.0"
+version: "0.2.1"
 
 units: []
 
@@ -81,7 +81,11 @@ thresholds:
   interstitial_distance_fraction: 0.60
   defect_cluster_rc_fraction: 0.60
   sro_shell1_factor: 1.20         # first-shell cutoff for Warren-Cowley alpha1
-  sro_emit_threshold: 0.05        # lift states sro only outside this band
+  lattice_anchor_improvement: 0.7 # a translation re-anchor of the defect lift
+                                   # must improve the mean matched distance by
+                                   # at least this factor (rule 3: re-imaged
+                                   # inputs anchor; aligned inputs keep the
+                                   # origin-anchored fit unchanged)
   sro_print_tolerance: 0.02
   sro_mc_steps: 4000              # SQS-lite swap moves
   defect_stoichiometry_slack: 0.10   # counts may deviate from slot ratio by this fraction
@@ -90,8 +94,11 @@ thresholds:
   lattice_scan_factor_lo: 0.70
   lattice_scan_factor_hi: 2.40
   lattice_scan_steps: 29
-  sro_emit_min: 0.05
-  sro_emit_noise_factor: 2.5
+  sro_emit_threshold: 0.05        # lift states sro only outside this band
+  sro_emit_noise_factor: 3.5      # significance: emit only beyond n x the reshuffle-null std
+                                   # (2.5 let a 2.6-sigma fluctuation of a random ternary
+                                   #  108-atom solution emit; 3.5 sigma keeps random
+                                   #  occupancy silent while genuine SRO still passes)
   sqs_converge_tol: 0.005
   lattice_fit_tol_fraction: 0.15   # tight gate used to rank lattice-constant candidates
   lattice_fit_gate_min: 0.85       # candidate must match at least this fraction of sites
@@ -100,7 +107,9 @@ thresholds:
   lattice_refine_passes: 3         # successive grid refinements for the constant
   site_plausibility_floor: 0.5     # a host candidate must explain at least this fraction
                                    # of the atoms/sites to count as plausible
-  sro_bootstrap_samples: 8        # null reshuffles sizing the SRO emission band
+  sro_bootstrap_samples: 48       # null reshuffles sizing the SRO emission band
+                                   # (8 left a +/-27% error on the null std, enough to
+                                   #  flip the emission decision between orderings)
   sro_bootstrap_seed: 20260927
   q6_cutoff: 3.0                    # phase-indicator neighbour cutoff for metals, A
   q6_solid: 0.32

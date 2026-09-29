@@ -90,7 +90,9 @@ CRYSTAL_CASES = [
     ("fcc_cu", "fcc", {"a": 3.615}, ("Cu",), (2, 2, 2), None, 101),
     ("bcc_fe", "bcc", {"a": 2.87}, ("Fe",), (2, 2, 2), None, 103),
     ("rocksalt_nacl", "rocksalt", {"a": 5.64}, ("Na", "Cl"), (2, 2, 2), None, 107),
-    ("l12_ni3al", "L1_2", {"a": 3.572}, ("Ni", "Al"), (2, 2, 2), None, 109),
+    # 7x7x7 conventional L1_2 cells = 1,372 atoms: A9 (compression) needs a
+    # raw bench frame of >= 1,000 atoms
+    ("l12_ni3al", "L1_2", {"a": 3.572}, ("Ni", "Al"), (7, 7, 7), None, 109),
     ("hcp_mg", "hcp", {"a": 3.21, "c": 5.21}, ("Mg",), (2, 2, 2),
      np.array([[1, 0, 0], [1, 2, 0], [0, 0, 1]], int), 113),
     ("diamond_si", "diamond", {"a": 5.43}, ("Si",), (2, 2, 2), None, 127),

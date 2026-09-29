@@ -2,7 +2,7 @@
   "schema": "chaord-bench/2",
   "case": "nacl_aq",
   "category": "solutions",
-  "description": "aqueous NaCl: 120 H2O + 8 Na+ + 8 Cl- random-sequential packed (re-packed per frame); the packer jammed at the nominal 16.5 A box, so the box grew to 19.5 A (actual density 0.589 g/cm3 recorded); draws with ion pairs inside the census bond window are rejected and re-drawn, keeping the census exact",
+  "description": "aqueous NaCl: 120 H2O + 8 Na+ + 8 Cl- random-sequential packed (re-packed per frame); the packer jammed at the nominal 16.5 A box, so the box grew to 18.5 A (actual density 0.690 g/cm3 recorded); draws with ion pairs inside the census bond window are rejected and re-drawn, keeping the census exact",
   "seed": 179,
   "n_frames": 5,
   "dialect": "core+molecular",
@@ -26,7 +26,7 @@
     },
     {
       "file": "frame_1.npz",
-      "seed": 1180,
+      "seed": 180,
       "n_atoms": 376,
       "counts": {
         "Cl": 8,
@@ -39,7 +39,7 @@
         "H2O": 120,
         "Na": 8
       },
-      "census_retries": 1
+      "census_retries": 0
     },
     {
       "file": "frame_2.npz",
@@ -60,7 +60,7 @@
     },
     {
       "file": "frame_3.npz",
-      "seed": 1182,
+      "seed": 182,
       "n_atoms": 376,
       "counts": {
         "Cl": 8,
@@ -73,7 +73,7 @@
         "H2O": 120,
         "Na": 8
       },
-      "census_retries": 1
+      "census_retries": 0
     },
     {
       "file": "frame_4.npz",
@@ -104,11 +104,11 @@
     "Cl-": 8
   },
   "box": [
-    19.5,
-    19.5,
-    19.5
+    18.5,
+    18.5,
+    18.5
   ],
-  "density_g_cm3": 0.5888279321817461,
+  "density_g_cm3": 0.6895679250802322,
   "expected": {
     "molecules": {
       "H2O": 120,
@@ -128,10 +128,10 @@
     },
     "n_atoms": 376,
     "cell": [
-      19.5,
-      19.5,
-      19.5
+      18.5,
+      18.5,
+      18.5
     ],
-    "density_g_cm3": 0.5888279321817461
+    "density_g_cm3": 0.6895679250802322
   }
 }

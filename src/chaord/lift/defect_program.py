@@ -21,9 +21,32 @@ def _kv(text):
     return KVDefect(text=text)
 
 
+def _axis_canonical(frame: Frame) -> Frame:
+    """Rotate an arbitrarily oriented orthogonal cell onto the coordinate axes.
+
+    The defect pass measures geometry through `cell_diag` boxes (KD trees with
+    `boxsize`), which presumes an axis-aligned cell; rule 3 requires identical
+    text under rigid rotation, so a rotated input is rotated back first. The
+    transform is orthogonal (lengths and angles preserved): every measured
+    quantity -- fitted lattice constant, defect tokens, SRO alphas -- is
+    unchanged, only the frame orientation. Non-orthogonal cells cannot be
+    described by the diagonal-box convention and are rejected honestly."""
+    cell = np.asarray(frame.cell, float)
+    L = np.linalg.norm(cell, axis=1)
+    U = cell / L[:, None]                       # rows: unit cell edges
+    if not np.allclose(U @ U.T, np.eye(3), atol=1e-8):  # dialect-exempt: numerical-guard: orthogonality residue
+        from ..lang.errors import ChaordError
+        raise ChaordError("defect lift needs an orthogonal cell "
+                          "(a non-diagonal triclinic box is unsupported)")
+    pos = np.mod(frame.pos @ U.T, L)
+    pos = np.minimum(pos, L * (1 - 1e-9))       # dialect-exempt: numerical-guard: strict upper edge for KD trees
+    return Frame(pos=pos, cell=np.diag(L), symbols=frame.symbols, pbc=frame.pbc)
+
+
 def lift_crystal_defects(frame, dialect, backend="eam") -> tuple[Program, dict]:
     """Lift a crystal frame with point defects / solid solution into a Program."""
     from ..build.crystal import SLOT_COUNTS
+    frame = _axis_canonical(frame)
     name, a, slot_species, score, sites, site_species = fit_crystal(frame, dialect)
     occupancy_mode = slot_species is None
     vacancies, antisites, interstitials = defect_diff(
@@ -60,18 +83,28 @@ def lift_crystal_defects(frame, dialect, backend="eam") -> tuple[Program, dict]:
         cutoff = float(dialect.threshold("sro_shell1_factor")) * d_nn
         atom_species = sorted(n_atoms)
         # emission threshold from a bootstrap null: alpha1 of the same multiset
-        # with labels reshuffled; emit only outside factor x (null std)
+        # with labels reshuffled; emit only outside factor x (null std). The
+        # null labels start from the SORTED multiset, so the sampled band is
+        # the same for any atom ordering of the same frame (canonical text,
+        # rule 3) -- shuffling a differently ordered list would sample a
+        # different null and make the emission decision order-dependent.
         n_boot = int(dialect.threshold("sro_bootstrap_samples"))
         boot_rng = np.random.default_rng(int(dialect.threshold("sro_bootstrap_seed")))
         null = []
-        labels = list(frame.symbols)
+        labels = sorted(frame.symbols)
         for _ in range(n_boot):
             shuffled = labels[:]
             boot_rng.shuffle(shuffled)
             fb = Frame(pos=frame.pos, cell=frame.cell, symbols=shuffled, pbc=frame.pbc)
             null.append(warren_cowley_alpha1(fb, atom_species[0], atom_species[0], cutoff))
         noise = float(np.std(null)) if len(null) > 1 else 0.0  # dialect-exempt: numerical-guard: degenerate std
-        emit_thr = max(float(dialect.threshold("sro_emit_min")),
+        # significance gate: a random solution's alpha1 is a finite-sample
+        # fluctuation of the alpha = 0 null (rule 1: the program is the
+        # macrostate). A constrain line may carry the measured value only when
+        # it leaves BOTH the dialect's minimum band and the reshuffle null
+        # band; otherwise the line bakes one microstate's noise into the text
+        # and the round trip is no longer byte-stable across frames/seeds.
+        emit_thr = max(float(dialect.threshold("sro_emit_threshold")),
                        float(dialect.threshold("sro_emit_noise_factor")) * noise)
         tol_sro = float(dialect.threshold("sro_print_tolerance"))
         for i in range(len(atom_species)):

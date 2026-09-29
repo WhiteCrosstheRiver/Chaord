@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from ..build.molecules import molecule_census
+from ..lang.errors import ChaordError
 from ..lang.ir import Arrow, At, Name, Plus, Quantity, Statement
 
 # census formulas follow Hill order (HO); these display names are the
@@ -9,8 +10,18 @@ from ..lang.ir import Arrow, At, Name, Plus, Quantity, Statement
 DISPLAY_NAMES = {"HO": "OH"}
 
 
-def display_name(formula: str) -> str:
-    """Conventional species name for a census formula (HO -> OH)."""
+def display_name(formula: str, dialect=None) -> str:
+    """Conventional species name for a census formula (HO -> OH, Na -> Na+).
+
+    With a dialect, its `monatomic_ion_names` rule names the monatomic ion
+    species of molecular fluids (the census key is the bare element)."""
+    if dialect is not None:
+        try:
+            ions = dialect.threshold("monatomic_ion_names") or {}
+        except ChaordError:
+            ions = {}
+        if isinstance(ions, dict) and formula in ions:
+            return str(ions[formula])
     return DISPLAY_NAMES.get(formula, formula)
 
 

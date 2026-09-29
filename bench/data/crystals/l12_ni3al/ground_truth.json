@@ -2,7 +2,7 @@
   "schema": "chaord-bench/2",
   "case": "l12_ni3al",
   "category": "crystals",
-  "description": "L1_2 Ni3Al, 2x2x2 supercell built exactly from the prototype table",
+  "description": "L1_2 Ni3Al, 7x7x7 supercell built exactly from the prototype table",
   "seed": 109,
   "n_frames": 5,
   "dialect": "core+metal",
@@ -10,46 +10,46 @@
     {
       "file": "frame_0.npz",
       "seed": 109,
-      "n_atoms": 32,
+      "n_atoms": 1372,
       "counts": {
-        "Al": 8,
-        "Ni": 24
+        "Al": 343,
+        "Ni": 1029
       }
     },
     {
       "file": "frame_1.npz",
       "seed": 110,
-      "n_atoms": 32,
+      "n_atoms": 1372,
       "counts": {
-        "Al": 8,
-        "Ni": 24
+        "Al": 343,
+        "Ni": 1029
       }
     },
     {
       "file": "frame_2.npz",
       "seed": 111,
-      "n_atoms": 32,
+      "n_atoms": 1372,
       "counts": {
-        "Al": 8,
-        "Ni": 24
+        "Al": 343,
+        "Ni": 1029
       }
     },
     {
       "file": "frame_3.npz",
       "seed": 112,
-      "n_atoms": 32,
+      "n_atoms": 1372,
       "counts": {
-        "Al": 8,
-        "Ni": 24
+        "Al": 343,
+        "Ni": 1029
       }
     },
     {
       "file": "frame_4.npz",
       "seed": 113,
-      "n_atoms": 32,
+      "n_atoms": 1372,
       "counts": {
-        "Al": 8,
-        "Ni": 24
+        "Al": 343,
+        "Ni": 1029
       }
     }
   ],
@@ -64,19 +64,19 @@
     "a": 3.572,
     "composition": "Ni3Al",
     "reps": [
-      2,
-      2,
-      2
+      7,
+      7,
+      7
     ],
     "cell": [
-      7.144,
-      7.144,
-      7.144
+      25.004,
+      25.004,
+      25.004
     ],
     "counts": {
-      "Al": 8,
-      "Ni": 24
+      "Al": 343,
+      "Ni": 1029
     },
-    "n_atoms": 32
+    "n_atoms": 1372
   }
 }

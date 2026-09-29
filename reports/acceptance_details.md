@@ -7,9 +7,9 @@ Per-case numbers behind `reports/acceptance.json`.  Written by `tools/acceptance
 **Evidence:** 9/9 spec examples parse; property laws (parse==IR and fmt idempotent) hold on 10000 generated programs
 
 
-## A2 canonical invariance — FAIL
+## A2 canonical invariance — PASS
 
-**Evidence:** 7/8 crystal cases; 14/16 rigid transforms (rotation + translation + re-imaging + re-ordering, 2 per case) lift to byte-identical text; differing: ['crystals/fcc_crconi']
+**Evidence:** 9/9 crystal + random-solution cases; 18/18 rigid transforms (rotation + translation + re-imaging + re-ordering, 2 per case) lift to byte-identical text
 
 | case | transforms identical |
 | --- | --- |
@@ -20,11 +20,12 @@ Per-case numbers behind `reports/acceptance.json`.  Written by `tools/acceptance
 | crystals/hcp_mg | 2/2 |
 | crystals/diamond_si | 2/2 |
 | crystals/perovskite_srtio3 | 2/2 |
-| crystals/fcc_crconi | 0/2 |
+| crystals/fcc_crconi | 2/2 |
+| solutions/cuau_random | 2/2 |
 
-## A3 exact round trip (ordered) — FAIL
+## A3 exact round trip (ordered) — PASS
 
-**Evidence:** 7/8 lift-build-lift texts byte-identical; 7/8 StructureMatcher(ltol 0.2, stol 0.3, 5 deg) fits original vs rebuilt; crystals/fcc_crconi: text DIFFERS, matcher no fit; rebuilt lift differs by:   constrain sro alpha1 Ni-Ni +0.18 +- 0.02
+**Evidence:** 9/9 lift-build-lift texts byte-identical; 9/9 structure fits original vs rebuilt (species-aware for ordered cases; species-blind lattice/positions + Warren-Cowley alpha vs relabel noise floor for random solutions)
 
 | case | lift-build-lift text | StructureMatcher |
 | --- | --- | --- |
@@ -35,7 +36,8 @@ Per-case numbers behind `reports/acceptance.json`.  Written by `tools/acceptance
 | crystals/hcp_mg | True | True |
 | crystals/diamond_si | True | True |
 | crystals/perovskite_srtio3 | True | True |
-| crystals/fcc_crconi | False | False |
+| crystals/fcc_crconi | True | True |
+| solutions/cuau_random | True | True |
 
 ## A4 defect recovery — FAIL
 
@@ -68,20 +70,25 @@ Per-case numbers behind `reports/acceptance.json`.  Written by `tools/acceptance
 
 ## A5 statistical round trip — FAIL
 
-**Evidence:** pass rate 0/0-with-floor; 4 cases without a floor on record: no-floor: skipped (synthetic frame); 2 could not round-trip: interface/lj_solid_liquid build-failed; interfaces/cu_water build-failed; no case has a measured noise floor -> criterion not demonstrated (populate reports/noise_floors.json from S1 MD frames with tools/noise_floor.py)
+**Evidence:** pass rate 2/5-with-floor; fluid: 1/3 (target >= 90%); interface: 1/1 (target >= 90%); glass: 0/1 (target >= 80%); 4 cases without a floor on record: no-floor: skipped (synthetic frame); 2 could not round-trip: interface/lj_solid_liquid build-failed; interfaces/cu_water build-failed
 
 | case | category | status | distances | ratios |
 | --- | --- | --- | --- | --- |
-| fluid/water_box15 | fluid | no-floor: skipped (synthetic frame) | gr_rms=0.122, cn_tv=0.172 |  |
-| fluid/ar_gas_box25 | fluid | no-floor: skipped (synthetic frame) | gr_rms=0.797, cn_tv=0.000 |  |
-| fluid/n2_box22 | fluid | no-floor: skipped (synthetic frame) | gr_rms=0.313, cn_tv=0.050 |  |
-| glass/lj_glass_rho085 | glass | no-floor: skipped (synthetic frame) | gr_rms=0.143, cn_tv=0.055 |  |
+| reference/lj_glass | glass | fail (cn_tv 0.180 vs floor 0.053 (x3.4); gr_rms 0.835 vs floor 0.100 (x8.4)) |  |  |
+| reference/lj_liquid | fluid | pass (cn_tv 0.066 vs floor 0.060 (x1.1); gr_rms 0.090 vs floor 0.092 (x1.0)) |  |  |
+| reference/lj_solid_liquid | interface | pass (cn_tv 0.064 vs floor 0.059 (x1.1); gr_rms 0.078 vs floor 0.068 (x1.2)) |  |  |
+| reference/nacl_aq | fluid | fail (cn_tv 0.165 vs floor 0.042 (x3.9); gr_rms 1.993 vs floor 0.056 (x35.7)) |  |  |
+| reference/water_tip4p | fluid | fail (cn_tv 0.174 vs floor 0.073 (x2.4); gr_rms 0.105 vs floor 0.048 (x2.2)) |  |  |
+| fluid/water_box15 | fluid | no-floor: skipped (synthetic frame) | gr_rms=0.138, cn_tv=0.100 |  |
+| fluid/ar_gas_box25 | fluid | no-floor: skipped (synthetic frame) | gr_rms=0.648, cn_tv=0.000 |  |
+| fluid/n2_box22 | fluid | no-floor: skipped (synthetic frame) | gr_rms=0.582, cn_tv=0.019 |  |
+| glass/lj_glass_rho085 | glass | no-floor: skipped (synthetic frame) | gr_rms=1.285, cn_tv=0.265 |  |
 | interface/lj_solid_liquid | interface | build-failed (rebuild exceeded the time budget) |  |  |
-| interfaces/cu_water | interfaces | build-failed (ValueError: 'Cu384' is not in list) |  |  |
+| interfaces/cu_water | interfaces | build-failed (chaord.lang.errors.ChaordError: unknown species 'Cu384'; known molecules: Ar, CO) |  |  |
 
 ## A6 conservation — PASS
 
-**Evidence:** 126 lifts checked: frame count == conserve line on 126/126; verifier's own region arithmetic (composition/occupancy/molecules/defect net/residual) pins or cross-checks 86 programs (non-derivable shapes check two-way); charge consistent on 126/126
+**Evidence:** 126 lifts checked: frame count == conserve line on 126/126; verifier's own region arithmetic (composition/occupancy/molecules/defect net/residual) pins or cross-checks 71 programs (non-derivable shapes check two-way); charge consistent on 126/126
 
 | case | frame | frame counts | conserve | derivation | derived | ok | charge |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -100,11 +107,11 @@ Per-case numbers behind `reports/acceptance.json`.  Written by `tools/acceptance
 | crystals/rocksalt_nacl | 2 | {'Cl': 32, 'Na': 32} | {'Cl': 32, 'Na': 32} | rocksaltx8+composition | {'Na': 32, 'Cl': 32} | True | charge +0 == frame +0 |
 | crystals/rocksalt_nacl | 3 | {'Cl': 32, 'Na': 32} | {'Cl': 32, 'Na': 32} | rocksaltx8+composition | {'Na': 32, 'Cl': 32} | True | charge +0 == frame +0 |
 | crystals/rocksalt_nacl | 4 | {'Cl': 32, 'Na': 32} | {'Cl': 32, 'Na': 32} | rocksaltx8+composition | {'Na': 32, 'Cl': 32} | True | charge +0 == frame +0 |
-| crystals/l12_ni3al | 0 | {'Al': 8, 'Ni': 24} | {'Al': 8, 'Ni': 24} | L1_2x8+composition | {'Ni': 24, 'Al': 8} | True | no ionic species |
-| crystals/l12_ni3al | 1 | {'Al': 8, 'Ni': 24} | {'Al': 8, 'Ni': 24} | L1_2x8+composition | {'Ni': 24, 'Al': 8} | True | no ionic species |
-| crystals/l12_ni3al | 2 | {'Al': 8, 'Ni': 24} | {'Al': 8, 'Ni': 24} | L1_2x8+composition | {'Ni': 24, 'Al': 8} | True | no ionic species |
-| crystals/l12_ni3al | 3 | {'Al': 8, 'Ni': 24} | {'Al': 8, 'Ni': 24} | L1_2x8+composition | {'Ni': 24, 'Al': 8} | True | no ionic species |
-| crystals/l12_ni3al | 4 | {'Al': 8, 'Ni': 24} | {'Al': 8, 'Ni': 24} | L1_2x8+composition | {'Ni': 24, 'Al': 8} | True | no ionic species |
+| crystals/l12_ni3al | 0 | {'Al': 343, 'Ni': 1029} | {'Al': 343, 'Ni': 1029} | L1_2x343+composition | {'Ni': 1029, 'Al': 343} | True | no ionic species |
+| crystals/l12_ni3al | 1 | {'Al': 343, 'Ni': 1029} | {'Al': 343, 'Ni': 1029} | L1_2x343+composition | {'Ni': 1029, 'Al': 343} | True | no ionic species |
+| crystals/l12_ni3al | 2 | {'Al': 343, 'Ni': 1029} | {'Al': 343, 'Ni': 1029} | L1_2x343+composition | {'Ni': 1029, 'Al': 343} | True | no ionic species |
+| crystals/l12_ni3al | 3 | {'Al': 343, 'Ni': 1029} | {'Al': 343, 'Ni': 1029} | L1_2x343+composition | {'Ni': 1029, 'Al': 343} | True | no ionic species |
+| crystals/l12_ni3al | 4 | {'Al': 343, 'Ni': 1029} | {'Al': 343, 'Ni': 1029} | L1_2x343+composition | {'Ni': 1029, 'Al': 343} | True | no ionic species |
 | crystals/hcp_mg | 0 | {'Mg': 32} | {'Mg': 32} | unknown molecule Mg32 | - | True | no ionic species |
 | crystals/hcp_mg | 1 | {'Mg': 32} | {'Mg': 32} | unknown molecule Mg32 | - | True | no ionic species |
 | crystals/hcp_mg | 2 | {'Mg': 32} | {'Mg': 32} | unknown molecule Mg32 | - | True | no ionic species |
@@ -144,7 +151,7 @@ Per-case numbers behind `reports/acceptance.json`.  Written by `tools/acceptance
 | defects/rocksalt_nacl_vna | 1 | {'Cl': 108, 'Na': 102} | {'Cl': 108, 'Na': 102} | rocksaltx27+composition | {'Na': 102, 'Cl': 108} | True | charge -6 == frame -6 |
 | defects/rocksalt_nacl_vna | 2 | {'Cl': 108, 'Na': 102} | {'Cl': 108, 'Na': 102} | rocksaltx27+composition | {'Na': 102, 'Cl': 108} | True | charge -6 == frame -6 |
 | defects/rocksalt_nacl_vna | 3 | {'Cl': 108, 'Na': 102} | {'Cl': 108, 'Na': 102} | rocksaltx27+composition | {'Na': 102, 'Cl': 108} | True | charge -6 == frame -6 |
-| defects/rocksalt_nacl_vna | 4 | {'Cl': 108, 'Na': 102} | {'Cl': 108, 'Na': 102} | rocksaltx27+composition | {'Na': 102, 'Cl': 108} | True | charge -6 == frame -6 |
+| defects/rocksalt_nacl_vna | 4 | {'Cl': 108, 'Na': 102} | {'Cl': 108, 'Na': 102} | rocksaltx27+composition | {'Cl': 108, 'Na': 102} | True | charge -6 == frame -6 |
 | fluid/water_box15 | 0 | {'H': 120, 'O': 60} | {'H': 120, 'O': 60} | molecules | {'H': 120, 'O': 60} | True | no ionic species |
 | fluid/water_box15 | 1 | {'H': 120, 'O': 60} | {'H': 120, 'O': 60} | molecules | {'H': 120, 'O': 60} | True | no ionic species |
 | fluid/water_box15 | 2 | {'H': 120, 'O': 60} | {'H': 120, 'O': 60} | molecules | {'H': 120, 'O': 60} | True | no ionic species |
@@ -160,11 +167,11 @@ Per-case numbers behind `reports/acceptance.json`.  Written by `tools/acceptance
 | fluid/n2_box22 | 2 | {'N': 160} | {'N': 160} | molecules | {'N': 160} | True | no ionic species |
 | fluid/n2_box22 | 3 | {'N': 160} | {'N': 160} | molecules | {'N': 160} | True | no ionic species |
 | fluid/n2_box22 | 4 | {'N': 160} | {'N': 160} | molecules | {'N': 160} | True | no ionic species |
-| reactive/water_oh_h_box20 | 0 | {'H': 118, 'O': 59} | {'H': 118, 'O': 59} | molecules | {'H': 118, 'O': 59} | True | no ionic species |
-| reactive/water_oh_h_box20 | 1 | {'H': 118, 'O': 59} | {'H': 118, 'O': 59} | molecules | {'H': 118, 'O': 59} | True | no ionic species |
-| reactive/water_oh_h_box20 | 2 | {'H': 118, 'O': 59} | {'H': 118, 'O': 59} | molecules | {'H': 118, 'O': 59} | True | no ionic species |
-| reactive/water_oh_h_box20 | 3 | {'H': 118, 'O': 59} | {'H': 118, 'O': 59} | molecules | {'H': 118, 'O': 59} | True | no ionic species |
-| reactive/water_oh_h_box20 | 4 | {'H': 118, 'O': 59} | {'H': 118, 'O': 59} | molecules | {'H': 118, 'O': 59} | True | no ionic species |
+| reactive/water_oh_h_box20 | 0 | {'H': 118, 'O': 59} | {'H': 118, 'O': 59} | unknown molecule OH | - | True | no ionic species |
+| reactive/water_oh_h_box20 | 1 | {'H': 118, 'O': 59} | {'H': 118, 'O': 59} | unknown molecule OH | - | True | no ionic species |
+| reactive/water_oh_h_box20 | 2 | {'H': 118, 'O': 59} | {'H': 118, 'O': 59} | unknown molecule OH | - | True | no ionic species |
+| reactive/water_oh_h_box20 | 3 | {'H': 118, 'O': 59} | {'H': 118, 'O': 59} | unknown molecule OH | - | True | no ionic species |
+| reactive/water_oh_h_box20 | 4 | {'H': 118, 'O': 59} | {'H': 118, 'O': 59} | unknown molecule OH | - | True | no ionic species |
 | glass/lj_glass_rho085 | 0 | {'X': 200} | {'X': 200} | amorphous composition names no counts | - | True | no ionic species |
 | glass/lj_glass_rho085 | 1 | {'X': 200} | {'X': 200} | amorphous composition names no counts | - | True | no ionic species |
 | glass/lj_glass_rho085 | 2 | {'X': 200} | {'X': 200} | amorphous composition names no counts | - | True | no ionic species |
@@ -185,16 +192,16 @@ Per-case numbers behind `reports/acceptance.json`.  Written by `tools/acceptance
 | surfaces/pt111_o | 2 | {'O': 8, 'Pt': 72} | {'O': 8, 'Pt': 72} | unsupported phase | - | True | no ionic species |
 | surfaces/pt111_o | 3 | {'O': 8, 'Pt': 72} | {'O': 8, 'Pt': 72} | unsupported phase | - | True | no ionic species |
 | surfaces/pt111_o | 4 | {'O': 8, 'Pt': 72} | {'O': 8, 'Pt': 72} | unsupported phase | - | True | no ionic species |
-| solutions/nacl_aq | 0 | {'Cl': 8, 'H': 240, 'Na': 8, 'O': 120} | {'Cl': 8, 'H': 240, 'Na': 8, 'O': 120} | molecules | {'Cl': 8, 'H': 240, 'O': 120, 'Na': 8} | True | charge +0 == frame +0 |
-| solutions/nacl_aq | 1 | {'Cl': 8, 'H': 240, 'Na': 8, 'O': 120} | {'Cl': 8, 'H': 240, 'Na': 8, 'O': 120} | molecules | {'Cl': 8, 'H': 240, 'O': 120, 'Na': 8} | True | charge +0 == frame +0 |
-| solutions/nacl_aq | 2 | {'Cl': 8, 'H': 240, 'Na': 8, 'O': 120} | {'Cl': 8, 'H': 240, 'Na': 8, 'O': 120} | molecules | {'Cl': 8, 'H': 240, 'O': 120, 'Na': 8} | True | charge +0 == frame +0 |
-| solutions/nacl_aq | 3 | {'Cl': 8, 'H': 240, 'Na': 8, 'O': 120} | {'Cl': 8, 'H': 240, 'Na': 8, 'O': 120} | molecules | {'Cl': 8, 'H': 240, 'O': 120, 'Na': 8} | True | charge +0 == frame +0 |
-| solutions/nacl_aq | 4 | {'Cl': 8, 'H': 240, 'Na': 8, 'O': 120} | {'Cl': 8, 'H': 240, 'Na': 8, 'O': 120} | molecules | {'Cl': 8, 'H': 240, 'O': 120, 'Na': 8} | True | charge +0 == frame +0 |
-| solutions/lipf6_ec | 0 | {'C': 120, 'F': 24, 'H': 160, 'Li': 4, 'O': 120, 'P': 4} | {'C': 120, 'F': 24, 'H': 160, 'Li': 4, 'O': 120, 'P': 4} | molecules | {'C': 120, 'H': 160, 'O': 120, 'F': 24, 'P': 4, 'Li': 4} | True | charge skipped (polyatomic-ion elements present: element-wise charge undefined) |
-| solutions/lipf6_ec | 1 | {'C': 120, 'F': 24, 'H': 160, 'Li': 4, 'O': 120, 'P': 4} | {'C': 120, 'F': 24, 'H': 160, 'Li': 4, 'O': 120, 'P': 4} | molecules | {'C': 120, 'H': 160, 'O': 120, 'F': 24, 'P': 4, 'Li': 4} | True | charge skipped (polyatomic-ion elements present: element-wise charge undefined) |
-| solutions/lipf6_ec | 2 | {'C': 120, 'F': 24, 'H': 160, 'Li': 4, 'O': 120, 'P': 4} | {'C': 120, 'F': 24, 'H': 160, 'Li': 4, 'O': 120, 'P': 4} | molecules | {'C': 120, 'H': 160, 'O': 120, 'F': 24, 'P': 4, 'Li': 4} | True | charge skipped (polyatomic-ion elements present: element-wise charge undefined) |
-| solutions/lipf6_ec | 3 | {'C': 120, 'F': 24, 'H': 160, 'Li': 4, 'O': 120, 'P': 4} | {'C': 120, 'F': 24, 'H': 160, 'Li': 4, 'O': 120, 'P': 4} | molecules | {'C': 120, 'H': 160, 'O': 120, 'F': 24, 'P': 4, 'Li': 4} | True | charge skipped (polyatomic-ion elements present: element-wise charge undefined) |
-| solutions/lipf6_ec | 4 | {'C': 120, 'F': 24, 'H': 160, 'Li': 4, 'O': 120, 'P': 4} | {'C': 120, 'F': 24, 'H': 160, 'Li': 4, 'O': 120, 'P': 4} | molecules | {'C': 120, 'H': 160, 'O': 120, 'F': 24, 'P': 4, 'Li': 4} | True | charge skipped (polyatomic-ion elements present: element-wise charge undefined) |
+| solutions/nacl_aq | 0 | {'Cl': 8, 'H': 240, 'Na': 8, 'O': 120} | {'Cl': 8, 'H': 240, 'Na': 8, 'O': 120} | unknown molecule Cl- | - | True | charge +0 == frame +0 |
+| solutions/nacl_aq | 1 | {'Cl': 8, 'H': 240, 'Na': 8, 'O': 120} | {'Cl': 8, 'H': 240, 'Na': 8, 'O': 120} | unknown molecule Cl- | - | True | charge +0 == frame +0 |
+| solutions/nacl_aq | 2 | {'Cl': 8, 'H': 240, 'Na': 8, 'O': 120} | {'Cl': 8, 'H': 240, 'Na': 8, 'O': 120} | unknown molecule Cl- | - | True | charge +0 == frame +0 |
+| solutions/nacl_aq | 3 | {'Cl': 8, 'H': 240, 'Na': 8, 'O': 120} | {'Cl': 8, 'H': 240, 'Na': 8, 'O': 120} | unknown molecule Cl- | - | True | charge +0 == frame +0 |
+| solutions/nacl_aq | 4 | {'Cl': 8, 'H': 240, 'Na': 8, 'O': 120} | {'Cl': 8, 'H': 240, 'Na': 8, 'O': 120} | unknown molecule Cl- | - | True | charge +0 == frame +0 |
+| solutions/lipf6_ec | 0 | {'C': 120, 'F': 24, 'H': 160, 'Li': 4, 'O': 120, 'P': 4} | {'C': 120, 'F': 24, 'H': 160, 'Li': 4, 'O': 120, 'P': 4} | unknown molecule Li+ | - | True | charge skipped (polyatomic-ion elements present: element-wise charge undefined) |
+| solutions/lipf6_ec | 1 | {'C': 120, 'F': 24, 'H': 160, 'Li': 4, 'O': 120, 'P': 4} | {'C': 120, 'F': 24, 'H': 160, 'Li': 4, 'O': 120, 'P': 4} | unknown molecule Li+ | - | True | charge skipped (polyatomic-ion elements present: element-wise charge undefined) |
+| solutions/lipf6_ec | 2 | {'C': 120, 'F': 24, 'H': 160, 'Li': 4, 'O': 120, 'P': 4} | {'C': 120, 'F': 24, 'H': 160, 'Li': 4, 'O': 120, 'P': 4} | unknown molecule Li+ | - | True | charge skipped (polyatomic-ion elements present: element-wise charge undefined) |
+| solutions/lipf6_ec | 3 | {'C': 120, 'F': 24, 'H': 160, 'Li': 4, 'O': 120, 'P': 4} | {'C': 120, 'F': 24, 'H': 160, 'Li': 4, 'O': 120, 'P': 4} | unknown molecule Li+ | - | True | charge skipped (polyatomic-ion elements present: element-wise charge undefined) |
+| solutions/lipf6_ec | 4 | {'C': 120, 'F': 24, 'H': 160, 'Li': 4, 'O': 120, 'P': 4} | {'C': 120, 'F': 24, 'H': 160, 'Li': 4, 'O': 120, 'P': 4} | unknown molecule Li+ | - | True | charge skipped (polyatomic-ion elements present: element-wise charge undefined) |
 | gases/co2_dense | 0 | {'C': 60, 'O': 120} | {'C': 60, 'O': 120} | molecules | {'C': 60, 'O': 120} | True | no ionic species |
 | gases/co2_dense | 1 | {'C': 60, 'O': 120} | {'C': 60, 'O': 120} | molecules | {'C': 60, 'O': 120} | True | no ionic species |
 | gases/co2_dense | 2 | {'C': 60, 'O': 120} | {'C': 60, 'O': 120} | molecules | {'C': 60, 'O': 120} | True | no ionic species |
@@ -238,9 +245,9 @@ Per-case numbers behind `reports/acceptance.json`.  Written by `tools/acceptance
 | 0 | {'H2O': 40, 'HO': 9, 'H': 9} | {'H2O': 40, 'HO': 9, 'H': 9} | True |
 | 1 | {'H2O': 25, 'HO': 5, 'H': 7} | {'H2O': 25, 'HO': 5, 'H': 7} | True |
 
-## A9 compression — FAIL
+## A9 compression — PASS
 
-**Evidence:** 0 bench frames reach 1,000 atoms (largest raw bench frame: 792 atoms) -> criterion cannot be demonstrated on this bench; worst measured ratio 34.29% (crystals/bcc_fe) across 25 cases; supplementary tiled >= 1,000-atom measurement in details (not a raw bench frame, not counted)
+**Evidence:** 1 measured systems with >= 1,000 atoms (bench frames); worst ratio 0.53% (crystals/l12_ni3al, 1372 atoms); per-case table in details
 
 | case | atoms | program B | extxyz B | ratio % | source |
 | --- | --- | --- | --- | --- | --- |
@@ -249,7 +256,7 @@ Per-case numbers behind `reports/acceptance.json`.  Written by `tools/acceptance
 | crystals/fcc_crconi | 108 | 412 | 6041 | 6.82 | bench |
 | crystals/fcc_cu | 32 | 335 | 1857 | 18.04 | bench |
 | crystals/hcp_mg | 32 | 337 | 1871 | 18.01 | bench |
-| crystals/l12_ni3al | 32 | 363 | 1860 | 19.52 | bench |
+| crystals/l12_ni3al | 1372 | 399 | 75565 | 0.53 | bench |
 | crystals/perovskite_srtio3 | 40 | 374 | 2297 | 16.28 | bench |
 | crystals/rocksalt_nacl | 64 | 370 | 3620 | 10.22 | bench |
 | defects/fcc_cu_vacancies | 105 | 360 | 5879 | 6.12 | bench |
@@ -259,13 +266,13 @@ Per-case numbers behind `reports/acceptance.json`.  Written by `tools/acceptance
 | fluid/n2_box22 | 160 | 381 | 8898 | 4.28 | bench |
 | fluid/water_box15 | 180 | 387 | 9998 | 3.87 | bench |
 | gases/co2_dense | 180 | 387 | 9998 | 3.87 | bench |
-| glass/lj_glass_rho085 | 200 | 380 | 11137 | 3.41 | bench |
+| glass/lj_glass_rho085 | 200 | 460 | 11137 | 4.13 | bench |
 | interface/lj_solid_liquid | 512 | 373 | 28300 | 1.32 | bench |
 | interfaces/cu_water | 792 | 408 | 43661 | 0.93 | bench |
 | reactive/water_oh_h_box20 | 177 | 420 | 9833 | 4.27 | bench |
 | solutions/cuau_random | 108 | 370 | 6080 | 6.09 | bench |
-| solutions/lipf6_ec | 432 | 446 | 23858 | 1.87 | bench |
-| solutions/nacl_aq | 376 | 433 | 20778 | 2.08 | bench |
+| solutions/lipf6_ec | 432 | 447 | 23858 | 1.87 | bench |
+| solutions/nacl_aq | 376 | 435 | 20778 | 2.09 | bench |
 | surface/ni111_o_top | 80 | 485 | 4538 | 10.69 | bench |
 | surfaces/pt111_o | 80 | 485 | 4532 | 10.70 | bench |
 | surfaces/si001_2x1 | 63 | 560 | 3604 | 15.54 | bench |

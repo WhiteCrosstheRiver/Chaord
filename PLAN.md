@@ -528,7 +528,7 @@ v1.0 is accepted when all fourteen criteria pass on Chaord-Bench. The targets ar
 | --- | --- | --- | --- |
 | A1 | Parse and format | 100% of spec examples parse; `fmt` idempotent on 10,000 generated programs | property tests |
 | A2 | Canonical invariance | Byte-identical text under rotation, translation, re-ordering and re-imaging on 100% of crystal cases | invariance suite |
-| A3 | Exact round trip, ordered matter | Rebuilt structure matches the original (StructureMatcher: ltol 0.2, stol 0.3, angle 5°) on 100% of crystal cases | round-trip suite |
+| A3 | Exact round trip, ordered matter | Rebuilt structure matches the original (StructureMatcher: ltol 0.2, stol 0.3, angle 5°) on 100% of crystal cases. Random solid solutions (human approval 2026-09-29): text exact, structure matched species-blind, species arrangement judged by Warren-Cowley α against the relabeling noise floor | round-trip suite |
 | A4 | Defect recovery | Precision and recall ≥ 0.95 for planted point defects up to 0.8 of the melting temperature; net counts exact | planted-defect suite |
 | A5 | Statistical round trip | Held-out distances ≤ 1.5× the noise floor on ≥ 90% of fluid and interface cases and ≥ 80% of amorphous cases | nightly benchmark |
 | A6 | Conservation | Atoms per species and total charge in the program equal the input's on 100% of lifts | checked on every lift |

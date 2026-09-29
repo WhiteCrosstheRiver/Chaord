@@ -78,11 +78,10 @@ def test_no_burgers_in_perfect_crystal(metal):
 
 
 def test_sigma5_detected(metal):
-    # NOTE: the CSL detection algorithm uses a single deep reference atom
-    # whose sort-order tie-breaking is BLAS-sensitive; verified deterministic
-    # on Windows (10 seeds) but the reference selection can pick a
-    # boundary-adjacent atom on some Linux builds. This is a known limitation
-    # recorded in reports/gate_a_prime.md (detection robustness is the fix).
+    # CSL detection folds every first-shell in-plane bond angle of each grain
+    # mod 90 deg and reads the misorientation off the two histogram peaks;
+    # all atoms contribute, so no reference-atom sort tie-breaking (the old
+    # BLAS-sensitive path, see reports/gate_a_prime.md A2) is involved.
     frame = build_grain_boundary(_region(
         Statement(kind="build", key="lattice", values=[Name(text="fcc")]),
         Statement(kind="build", key="a", values=[Quantity(num="3.615")]),

@@ -73,6 +73,25 @@ def lift_amorphous(frame: Frame, dialect, backend="lj") -> Program:
         region_stmts.append(Statement(kind="build", key="composition", values=vals))
     region_stmts.append(Statement(kind="state", key="density",
                                   values=[Quantity(num=f"{rho:.4f}")]))
+    # the protocol is the shortest description of how a glass is made: the
+    # dialect's default melt-quench, in the backend's reduced units (LJ only)
+    if backend == "lj":
+        from ..lang.ir import Arrow
+        t_melt = float(dialect.threshold("glass_melt_T"))
+        n_melt = int(dialect.threshold("glass_melt_steps"))
+        t_q = float(dialect.threshold("glass_quench_T"))
+        n_q = int(dialect.threshold("glass_quench_steps"))
+        t_a = float(dialect.threshold("glass_anneal_T"))
+        n_a = int(dialect.threshold("glass_anneal_steps"))
+        rate = round((t_melt - t_q) / n_q, 6)  # dialect-exempt: numerical-guard: printable cooling rate, T per step
+        region_stmts.append(Statement(
+            kind="history", key="melt",
+            values=[Quantity(num=f"{t_melt:g}"), Name(text="for"),
+                    Quantity(num=str(n_melt)), Arrow(),
+                    Name(text="quench"), Name(text="to"), Quantity(num=f"{t_q:g}"),
+                    Name(text="at"), Quantity(num=f"{rate:g}"), Arrow(),
+                    Name(text="anneal"), Quantity(num=f"{t_a:g}"), Name(text="for"),
+                    Quantity(num=str(n_a))]))
     # held-out network statistics as asserts; placeholder species (X) use a
     # geometric cutoff (fraction of d_NN), real elements the dialect rule
     from ..cv.local import angle_mean, cn_mean

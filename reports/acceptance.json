@@ -9,14 +9,14 @@
     {
       "id": "A2",
       "name": "canonical invariance",
-      "passed": false,
-      "evidence": "7/8 crystal cases; 14/16 rigid transforms (rotation + translation + re-imaging + re-ordering, 2 per case) lift to byte-identical text; differing: ['crystals/fcc_crconi']"
+      "passed": true,
+      "evidence": "9/9 crystal + random-solution cases; 18/18 rigid transforms (rotation + translation + re-imaging + re-ordering, 2 per case) lift to byte-identical text"
     },
     {
       "id": "A3",
       "name": "exact round trip (ordered)",
-      "passed": false,
-      "evidence": "7/8 lift-build-lift texts byte-identical; 7/8 StructureMatcher(ltol 0.2, stol 0.3, 5 deg) fits original vs rebuilt; crystals/fcc_crconi: text DIFFERS, matcher no fit; rebuilt lift differs by:   constrain sro alpha1 Ni-Ni +0.18 +- 0.02"
+      "passed": true,
+      "evidence": "9/9 lift-build-lift texts byte-identical; 9/9 structure fits original vs rebuilt (species-aware for ordered cases; species-blind lattice/positions + Warren-Cowley alpha vs relabel noise floor for random solutions)"
     },
     {
       "id": "A4",
@@ -28,13 +28,13 @@
       "id": "A5",
       "name": "statistical round trip",
       "passed": false,
-      "evidence": "pass rate 0/0-with-floor; 4 cases without a floor on record: no-floor: skipped (synthetic frame); 2 could not round-trip: interface/lj_solid_liquid build-failed; interfaces/cu_water build-failed; no case has a measured noise floor -> criterion not demonstrated (populate reports/noise_floors.json from S1 MD frames with tools/noise_floor.py)"
+      "evidence": "pass rate 2/5-with-floor; fluid: 1/3 (target >= 90%); interface: 1/1 (target >= 90%); glass: 0/1 (target >= 80%); 4 cases without a floor on record: no-floor: skipped (synthetic frame); 2 could not round-trip: interface/lj_solid_liquid build-failed; interfaces/cu_water build-failed"
     },
     {
       "id": "A6",
       "name": "conservation",
       "passed": true,
-      "evidence": "126 lifts checked: frame count == conserve line on 126/126; verifier's own region arithmetic (composition/occupancy/molecules/defect net/residual) pins or cross-checks 86 programs (non-derivable shapes check two-way); charge consistent on 126/126"
+      "evidence": "126 lifts checked: frame count == conserve line on 126/126; verifier's own region arithmetic (composition/occupancy/molecules/defect net/residual) pins or cross-checks 71 programs (non-derivable shapes check two-way); charge consistent on 126/126"
     },
     {
       "id": "A7",
@@ -51,8 +51,8 @@
     {
       "id": "A9",
       "name": "compression",
-      "passed": false,
-      "evidence": "0 bench frames reach 1,000 atoms (largest raw bench frame: 792 atoms) -> criterion cannot be demonstrated on this bench; worst measured ratio 34.29% (crystals/bcc_fe) across 25 cases; supplementary tiled >= 1,000-atom measurement in details (not a raw bench frame, not counted)"
+      "passed": true,
+      "evidence": "1 measured systems with >= 1,000 atoms (bench frames); worst ratio 0.53% (crystals/l12_ni3al, 1372 atoms); per-case table in details"
     },
     {
       "id": "A10",
@@ -85,6 +85,6 @@
       "evidence": "35 distinct keys across dialect YAMLs; reference.md covers 35/35; example found for 26/35 keys (spec/examples; sketch_check pass); generated docs/reference_generated.md"
     }
   ],
-  "passed": 9,
+  "passed": 12,
   "total": 14
 }

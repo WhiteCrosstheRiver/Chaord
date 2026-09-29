@@ -52,6 +52,58 @@ def ideal_sites(name: str, a: float, box: np.ndarray, slot_species: tuple):
     return sites, species
 
 
+def _wrap_strict(pos: np.ndarray, L: np.ndarray) -> np.ndarray:
+    """Wrap into [0, L) with a strict upper edge (KD trees with `boxsize`)."""
+    out = np.mod(pos, L)
+    return np.minimum(out, L * (1 - 1e-9))  # dialect-exempt: numerical-guard: strict upper edge
+
+
+def _anchor_seed(frame: Frame, name: str, eff_slots: tuple,
+                 species_aware: bool, tree, tol: float, a0: float):
+    """Best lattice-translation seed for re-anchoring a re-imaged frame
+    (rule 3: identical text under translation and re-imaging).
+
+    `ideal_sites` generates origin-anchored sites; a rigidly transformed input
+    carries an arbitrary offset. Any atom of the anchor species (the species
+    of basis site 0, so the seed preserves the ordered species pattern) sits
+    on a basis site up to its own displacement, so a few spread over the
+    lexsorted anchor atoms seed candidate offsets; interstitials among them
+    lose on the gate. Returns the seed scoring best at the base lattice
+    estimate, or None when no seed brings sites near atoms."""
+    sites0, s_sp = ideal_sites(name, a0, frame.cell, eff_slots)
+    sym_arr = np.array(frame.symbols)
+    site_species = np.array(s_sp)
+    if species_aware:
+        pos = frame.pos[sym_arr == s_sp[0]]
+        if len(pos) == 0:
+            pos = frame.pos
+    else:
+        pos = frame.pos
+    order = np.lexsort((pos[:, 2], pos[:, 1], pos[:, 0]))  # content-fixed seeds
+    picks = pos[order[np.linspace(0, len(order) - 1, 4).astype(int)]]
+    L = frame.cell_diag
+    best = None
+    for s0 in picks:
+        sites = _wrap_strict(sites0 + s0, L)
+        d_site, i_atom = tree.query(sites)
+        near = d_site < tol
+        if species_aware:
+            near = near & (sym_arr[i_atom] == site_species)
+        if not near.any():
+            continue
+        key = (-float(near.mean()), float(d_site[near].mean()))
+        if best is None or key < best[0]:
+            best = (key, s0)
+    return None if best is None else best[1]
+
+
+def _anchored_sites(name: str, a: float, frame: Frame, eff_slots: tuple,
+                    shift: np.ndarray):
+    """Ideal sites of the candidate lattice, translated by the anchored shift."""
+    sites, s_sp = ideal_sites(name, a, frame.cell, eff_slots)
+    return _wrap_strict(sites + shift, frame.cell_diag), s_sp
+
+
 def fit_crystal(frame: Frame, dialect):
     """Best (name, a, slot_species|None, score, sites, site_species).
 
@@ -95,48 +147,46 @@ def fit_crystal(frame: Frame, dialect):
 
     def scan(name, eff_slots, species_aware):
         a0 = _A_FROM_DNN[name] * d_nn
-        best_local = None
         # interstitials shrink d_NN, so scan multiplicatively; rank candidates by
         # gate fraction (loose tol) then by mean matched distance (tight ranking:
         # the true lattice constant sits where sites coincide with atoms exactly)
         lo = float(dialect.threshold("lattice_scan_factor_lo"))
         hi = float(dialect.threshold("lattice_scan_factor_hi"))
         n_scan = int(dialect.threshold("lattice_scan_steps"))
-        for r in np.geomspace(lo, hi, n_scan):
-            aa = a0 * r
-            sites, s_sp = ideal_sites(name, aa, frame.cell, eff_slots)
-            if len(sites) < total * plausibility:
-                continue
-            d_site, i_atom = tree.query(sites)
-            near = d_site < tol
-            gate = float(near.mean())
-            if gate < float(dialect.threshold("lattice_fit_gate_min")):
-                continue
-            # atom coverage: every atom must sit near some site too, otherwise
-            # the candidate is a half-density sublattice of the true lattice
-            # (unary bcc/diamond degenerate to sc/fcc without this gate)
-            sites_wrapped = np.minimum(np.mod(sites, frame.cell_diag),
-                                       frame.cell_diag * (1 - 1e-9))  # dialect-exempt: numerical-guard: strict upper edge
-            d_atom, _ = cKDTree(sites_wrapped, boxsize=frame.cell_diag).query(
-                np.minimum(pos_wrapped, frame.cell_diag * (1 - 1e-9)))  # dialect-exempt: numerical-guard: strict upper edge
-            if float((d_atom < tol).mean()) < float(
-                    dialect.threshold("lattice_fit_gate_min")):
-                continue
-            if species_aware:
-                sym_arr = np.array(frame.symbols)
-                near = near & (sym_arr[i_atom] == np.array(s_sp))
-            mean_d = float(d_site[near].mean()) if near.any() else np.inf
-            # most species-correct sites first, then smallest mean distance
-            key = (-float(near.mean()), mean_d)
-            if best_local is None or key < best_local[1]:
-                best_local = (aa, key, sites, s_sp)
-        if best_local is None:
-            return None
-        aa, (_neg_ok, mean_d), sites, s_sp = best_local
-        sp_ok = -_neg_ok
-        # refine: two shrinking fine grids around the coarse best (deterministic)
-        def quality(aaa):
-            sites2, s_sp2 = ideal_sites(name, aaa, frame.cell, eff_slots)
+
+        def coarse(shift):
+            best_local = None
+            for r in np.geomspace(lo, hi, n_scan):
+                aa = a0 * r
+                sites, s_sp = _anchored_sites(name, aa, frame, eff_slots, shift)
+                if len(sites) < total * plausibility:
+                    continue
+                d_site, i_atom = tree.query(sites)
+                near = d_site < tol
+                if float(near.mean()) < float(dialect.threshold("lattice_fit_gate_min")):
+                    continue
+                # atom coverage: every atom must sit near some site too, otherwise
+                # the candidate is a half-density sublattice of the true lattice
+                # (unary bcc/diamond degenerate to sc/fcc without this gate)
+                sites_wrapped = np.minimum(np.mod(sites, frame.cell_diag),
+                                           frame.cell_diag * (1 - 1e-9))  # dialect-exempt: numerical-guard: strict upper edge
+                d_atom, _ = cKDTree(sites_wrapped, boxsize=frame.cell_diag).query(
+                    np.minimum(pos_wrapped, frame.cell_diag * (1 - 1e-9)))  # dialect-exempt: numerical-guard: strict upper edge
+                if float((d_atom < tol).mean()) < float(
+                        dialect.threshold("lattice_fit_gate_min")):
+                    continue
+                if species_aware:
+                    sym_arr = np.array(frame.symbols)
+                    near = near & (sym_arr[i_atom] == np.array(s_sp))
+                mean_d = float(d_site[near].mean()) if near.any() else np.inf
+                # most species-correct sites first, then smallest mean distance
+                key = (-float(near.mean()), mean_d)
+                if best_local is None or key < best_local[1]:
+                    best_local = (aa, key, sites, s_sp)
+            return best_local
+
+        def quality(aaa, sh):
+            sites2, s_sp2 = _anchored_sites(name, aaa, frame, eff_slots, sh)
             if len(sites2) < total * plausibility:
                 return np.inf, None, None
             d2, i2 = tree.query(sites2)
@@ -155,35 +205,73 @@ def fit_crystal(frame: Frame, dialect):
                 near2 = near2 & (sym_arr[i2] == np.array(s_sp2))
             return (float(d2[near2].mean()) if near2.any() else np.inf), sites2, s_sp2
 
-        refine_half = float(dialect.threshold("lattice_refine_half"))
-        half = refine_half
-        for _ in range(int(dialect.threshold("lattice_refine_passes"))):
-            for aaa in np.linspace(aa - half, aa + half, 11):
-                if aaa <= 0:
-                    continue
-                qc, sc, spc = quality(aaa)
-                if qc < mean_d:
-                    aa, mean_d, sites, s_sp = aaa, qc, sc, spc
-            half = refine_half / (4 ** (_ + 1))
-        return (aa, sp_ok, sites, s_sp)
+        def chain(shift):
+            """Coarse scan + shrinking refine grids for one site offset
+            (deterministic)."""
+            best_local = coarse(shift)
+            if best_local is None:
+                return None
+            aa, (_neg_gate, mean_d), sites, s_sp = best_local
+            refine_half = float(dialect.threshold("lattice_refine_half"))
+            half = refine_half
+            for _ in range(int(dialect.threshold("lattice_refine_passes"))):
+                for aaa in np.linspace(aa - half, aa + half, 11):
+                    if aaa <= 0:
+                        continue
+                    qc, sc, spc = quality(aaa, shift)
+                    if qc < mean_d:
+                        aa, mean_d, sites, s_sp = aaa, qc, sc, spc
+                half = refine_half / (4 ** (_ + 1))
+            return (-_neg_gate, mean_d, aa, sites, s_sp)
 
+        # translation re-anchoring (rule 3): the origin-anchored chain is the
+        # historical fit and stays in force unless the frame was re-imaged --
+        # detected by a re-anchored chain improving the mean matched distance
+        # by at least the dialect factor (a marginal improvement is thermal
+        # noise, not a translation, and must not move the fitted sites)
+        origin = chain(np.zeros(3))
+        reanchored = None
+        seed = _anchor_seed(frame, name, eff_slots, species_aware, tree,
+                            tol, a0)
+        if seed is not None and not np.array_equal(seed, np.zeros(3)):
+            reanchored = chain(seed)
+        improvement = float(dialect.threshold("lattice_anchor_improvement"))
+        if origin is None:
+            chosen = reanchored
+        elif (reanchored is not None
+              and reanchored[1] <= improvement * origin[1]):
+            chosen = reanchored
+        else:
+            chosen = origin
+        if chosen is None:
+            return None
+        gate, mean_d, aa, sites, s_sp = chosen
+        return (aa, gate, sites, s_sp, mean_d)
+
+    # candidates are ranked by species-aware gate; exact gate ties are broken
+    # by the mean matched distance, so a re-anchored tied-slot permutation
+    # (species-swapped pattern re-anchored onto the atoms, a looser fit) loses
+    # to the correctly assigned origin-anchored candidate
     best_multi = None
     for name, slot_species in candidates:
         r = scan(name, slot_species, species_aware=True)
-        if r and r[1] > plausibility and (best_multi is None or r[1] > best_multi[3]):
-            best_multi = (name, r[0], slot_species, r[1], r[2], r[3])
+        if r and r[1] > plausibility and (
+                best_multi is None
+                or (r[1], -r[4]) > (best_multi[3], -best_multi[6])):
+            best_multi = (name, r[0], slot_species, r[1], r[2], r[3], r[4])
     pref_min = float(dialect.threshold("stoichiometric_preference_min"))
     if best_multi is not None and best_multi[3] >= pref_min:
-        return best_multi
+        return best_multi[:6]
 
     best = None
     for name in unary:                        # occupancy mode: any species count
         r = scan(name, (pops[0],), species_aware=False)
-        if r and r[1] > plausibility and (best is None or r[1] > best[3]):
-            best = (name, r[0], None, r[1], r[2], r[3])
+        if r and r[1] > plausibility and (
+                best is None or (r[1], -r[4]) > (best[3], -best[6])):
+            best = (name, r[0], None, r[1], r[2], r[3], r[4])
     if best is None:
         raise ChaordError("no cubic prototype fits the frame (M2 supports cubic defect hosts)")
-    return best
+    return best[:6]
 
 
 def defect_diff(frame: Frame, sites, site_species, dialect, occupancy=False):

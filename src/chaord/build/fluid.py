@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from ..build.molecules import TEMPLATES, molecular_mass, pack_molecules
+from ..build.molecules import TEMPLATES, pack_molecules, species_mass
 from ..io.frames import Frame
 from ..lang.errors import ChaordError
 from ..lang.ir import Program
@@ -32,15 +32,20 @@ def _molecule_counts(region) -> dict[str, int]:
     return counts
 
 
+def _packs_monatomic(dialect) -> bool:
+    """Does the dialect pack monatomic ion templates with the census-safe
+    molecular rule? (Molecular yes; reduced-unit dialects such as lj place
+    them with their own rsa hard core instead.)"""
+    try:
+        dialect.threshold("packing_contact_margin")
+    except ChaordError:
+        return False
+    return True
+
+
 def _box_from_density(counts, density_stmt, program) -> np.ndarray:
     """Cubic box edge from mass and target g/cm3 density (auto cell)."""
-    from ase.data import atomic_masses, chemical_symbols
-    total_mass = 0.0  # dialect-exempt: numerical-guard: accumulator init
-    for name, n in counts.items():
-        if name in TEMPLATES:
-            total_mass += molecular_mass(name) * n
-        else:
-            total_mass += atomic_masses[chemical_symbols.index(name)] * n
+    total_mass = sum(species_mass(name) * n for name, n in counts.items())
     rho = _num(density_stmt.values[0])  # g/cm3
     vol_amu = total_mass / rho / 0.6022140857  # A^3  # dialect-exempt: exact-geometry
     edge = float(vol_amu ** (1 / 3))
@@ -88,13 +93,7 @@ def build_fluid(program: Program, dialect, rng, physics=True, md_steps=None) -> 
     dens = next((s for s in region.statements if s.kind == "state" and s.key == "density"), None)
     if dens is not None and dens.values and dens.values[0].t == "q" and (
             dens.values[0].unit == "g/cm3"):
-        from ase.data import atomic_masses, chemical_symbols
-        total_mass = 0.0  # dialect-exempt: numerical-guard: accumulator init
-        for name, n in counts.items():
-            if name in TEMPLATES:
-                total_mass += molecular_mass(name) * n
-            else:
-                total_mass += atomic_masses[chemical_symbols.index(name)] * n
+        total_mass = sum(species_mass(name) * n for name, n in counts.items())
         rho = total_mass / float(np.prod(L)) / 0.6022140857  # dialect-exempt: exact-geometry
         stated = _num(dens.values[0])
         tol = float(dialect.threshold("density_match_tolerance"))
@@ -103,25 +102,36 @@ def build_fluid(program: Program, dialect, rng, physics=True, md_steps=None) -> 
                 f"stated density {stated:.3f} g/cm3 does not match the cell "
                 f"({rho:.3f} g/cm3); impossible density (A12)")
 
-    known = {k: v for k, v in counts.items() if k in TEMPLATES and len(TEMPLATES[k]["symbols"]) > 1}
-    atomic = {k: v for k, v in counts.items() if k not in known}
-    frame = pack_molecules(known, L, rng, dialect) if known else None
+    # every named species with a template packs together (monatomic ions
+    # included: their template pins the element and the census-safe contact);
+    # only template-less names (bare elements of hand-written programs) fall
+    # through to the atomic hard-core rule. Monatomic templates under a
+    # dialect without the molecular packing rule (lj: covalent radii are
+    # Angstrom-based, meaningless in sigma) also use the hard-core rule with
+    # that dialect's own rsa dmin.
+    mono_packs = _packs_monatomic(dialect)
+    templated = {k: v for k, v in counts.items()
+                 if k in TEMPLATES and (len(TEMPLATES[k]["symbols"]) > 1 or mono_packs)}
+    atomic = {k: v for k, v in counts.items() if k not in templated}
+    frame = pack_molecules(templated, L, rng, dialect) if templated else None
 
     if atomic:
         # atomic species: place with the hard-core rule (M0 rsa)
         from .slab import rsa
+        # the frame carries element symbols: every placed name must be one
+        for s in atomic:
+            species_mass(s)  # raises ChaordError for non-element names
+        atomic_syms = [s for s, n in atomic.items() for _ in range(n)]
         dmin = float(dialect.threshold("fluid_rsa_dmin"))
         existing = frame.pos if frame is not None else np.zeros((0, 3))
         n_atomic = sum(atomic.values())
         pos = rsa(existing, L, float(L[2] / 2), float(L[2] / 2), n_atomic, dmin, rng)
-        syms = []
-        for s, n in atomic.items():
-            syms.extend([s] * n)
         if frame is not None:
             frame = Frame(pos=np.vstack([frame.pos, pos]), cell=np.diag(L),
-                          symbols=frame.symbols + syms, pbc=(True, True, True))
+                          symbols=frame.symbols + atomic_syms, pbc=(True, True, True))
         else:
-            frame = Frame(pos=pos, cell=np.diag(L), symbols=syms, pbc=(True, True, True))
+            frame = Frame(pos=pos, cell=np.diag(L), symbols=atomic_syms,
+                          pbc=(True, True, True))
 
     if not physics:
         return frame

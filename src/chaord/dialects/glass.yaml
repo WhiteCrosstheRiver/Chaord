@@ -32,6 +32,14 @@ thresholds:
   md_reference_T: 0.65            # starting Langevin temperature for protocol/restraint runs
   protocol_init_T: 0.1            # temperature of the initial protocol velocities
   quench_default_rate: 0.001      # cooling rate when the program omits `at <rate>`
+  # default melt-quench-anneal history the amorphous lifter states (rebuild
+  # protocol, LJ reduced units; quench is linear over glass_quench_steps)
+  glass_melt_T: 2.0
+  glass_melt_steps: 3000
+  glass_quench_T: 0.01
+  glass_quench_steps: 6000
+  glass_anneal_T: 0.01
+  glass_anneal_steps: 2000
   # deposit protocol (sigma units)
   deposit_T: 0.65                 # Langevin temperature while depositing (liquid branch:
                                  # cold deposition collapses the voids a 0.9-sigma gap needs)

@@ -1032,7 +1032,8 @@ LIQUID_CASES = [
             residual none
             """),
         statements=("molecules H2O 100 Na+ 10 Cl- 10", "conserve charge 0"),
-        build=True, atoms={"H": 200, "O": 100, "Na+": 10, "Cl-": 10}),
+        # the built frame carries element symbols (Na/Cl), not species names
+        build=True, atoms={"H": 200, "O": 100, "Na": 10, "Cl": 10}),
     Case(
         pid="P28", family="liquid",
         prompt="Liquid argon in Lennard-Jones reduced units: 108 atoms in a "
@@ -1824,7 +1825,8 @@ ELECTROLYTE_CASES = [
             residual none
             """),
         statements=("molecules H2O 70 Li+ 7 Cl- 7"),
-        build=True, atoms={"H": 140, "O": 70, "Li+": 7, "Cl-": 7}),
+        # the built frame carries element symbols (Li/Cl), not species names
+        build=True, atoms={"H": 140, "O": 70, "Li": 7, "Cl": 7}),
     Case(
         pid="P50", family="electrolyte",
         prompt="Carbonated water (soda): 50 H2O and 5 CO2 molecules in a "

@@ -88,7 +88,14 @@ def _deposit_atom(r, v, L, gap, T, rng, lj, max_attempts):
 
 
 def run_protocol(frame: Frame, steps, dialect, rng, backend="lj") -> Frame:
-    """Execute protocol steps with the LJ backend (reduced units)."""
+    """Execute protocol steps with the LJ backend (reduced units).
+
+    The protocol tracks the temperature it is at: `quench to T` (parsed as
+    T_hi == T_lo) quenches from wherever the protocol currently is down to T,
+    because the parser cannot know the running temperature. MD here runs
+    uncapped (except `deposit`): a force cap lets hot pairs tunnel through the
+    repulsive core, and the overlaps it leaves behind freeze a stressed,
+    wrong-peaked glass (A5)."""
     if backend != "lj":
         raise NotImplementedError("history protocols run on the LJ backend in core; "
                                   "MACE/LAMMPS are optional extras")
@@ -98,7 +105,8 @@ def run_protocol(frame: Frame, steps, dialect, rng, backend="lj") -> Frame:
     skin = float(md["skin"])
     L = frame.cell_diag
     r = np.mod(frame.pos, L)
-    v = rng.normal(size=r.shape) * np.sqrt(float(dialect.threshold("protocol_init_T")))
+    T_cur = float(dialect.threshold("protocol_init_T"))
+    v = rng.normal(size=r.shape) * np.sqrt(T_cur)
     lj = LJ(L, rc=float(md["relax_rc"]), skin=skin)
     fcap = float(md["fcap"])
     symbols = list(frame.symbols)
@@ -106,18 +114,23 @@ def run_protocol(frame: Frame, steps, dialect, rng, backend="lj") -> Frame:
         kind = step[0]
         if kind == "melt":
             _, T, n = step
-            r, v = run_md(r, v, L, int(n), dt, T, gamma, rng, lj=lj, fcap=fcap)
+            r, v = run_md(r, v, L, int(n), dt, T, gamma, rng, lj=lj)
+            T_cur = float(T)
         elif kind == "quench":
             _, T_hi, T_lo, rate = step
+            if T_hi == T_lo:  # `quench to T`: start from the current temperature
+                T_hi = T_cur
             n = int(max(abs(T_hi - T_lo) / max(rate, 1e-6), 1))  # dialect-exempt: numerical-guard: divide-by-zero guard on the rate
             n = min(n, int(md["quench_max_steps"]))
             Ts = np.linspace(T_hi, T_lo, n)
             for T in Ts[::max(n // 200, 1)]:
                 r, v = run_md(r, v, L, max(n // 200, 1), dt, float(T), gamma, rng,
                               lj=lj)
+            T_cur = float(T_lo)
         elif kind == "anneal":
             _, T, n = step
             r, v = run_md(r, v, L, int(n), dt, T, gamma, rng, lj=lj)
+            T_cur = float(T)
         elif kind == "deposit":
             _, species, count, nsteps = step
             gap = float(dialect.threshold("deposit_min_gap"))

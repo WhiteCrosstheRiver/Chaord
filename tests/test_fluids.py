@@ -62,6 +62,66 @@ def test_packing_no_molecular_merges(mol_dialect):
     assert molecule_census(f, mol_dialect) == {"H2O": 80}
 
 
+def _hydration_shell_frame():
+    """Two waters + Na+/Cl- at real-MD solvation distances (nacl_aq geometry).
+
+    Na+-O 2.35 A and the Na+-Cl- contact 2.70 A both sit inside the covalent
+    window 1.25 x (r_Na + r_O) = 2.90 A, so the plain covalent rule would
+    merge the ion with its hydration shell into one H10NaO5-like component."""
+    t = TEMPLATES["H2O"]["rel"]
+    pos, syms = [], []
+    for o in (np.array([3.0, 3.0, 3.0]), np.array([9.0, 9.0, 9.0])):
+        pos.append(o[None, :] + t)
+        syms += ["O", "H", "H"]
+    # water 1's oxygen atom, then the solvation contacts off it
+    o1 = np.array([3.0, 3.0, 3.0]) + t[0]
+    na = o1 + np.array([2.35, 0.0, 0.0])
+    cl = na + np.array([0.0, 2.70, 0.0])
+    pos += [na[None, :], cl[None, :]]
+    syms += ["Na", "Cl"]
+    return Frame(pos=np.vstack(pos), cell=np.diag([14.0] * 3), symbols=syms,
+                 pbc=(True, True, True))
+
+
+def test_census_splits_ion_hydration_shells(mol_dialect):
+    """Ions stay monatomic in the census even at solvation contact."""
+    frame = _hydration_shell_frame()
+    assert molecule_census(frame, mol_dialect) == {"H2O": 2, "Na": 1, "Cl": 1}
+
+
+def test_solution_round_trip_from_solvation_geometry(mol_dialect):
+    """lift -> build of a solvation-geometry frame conserves every atom.
+
+    The A5 failure of bench/reference/nacl_aq: the lifted program carried the
+    merged hydration-shell formula, which the builder could neither mass-look-
+    up nor pack; the display-named species (Na+/Cl-) must build back exactly."""
+    from chaord.build import build_program
+    from chaord.lang.parser import parse_text
+    frame = _hydration_shell_frame()
+    text = format_program(lift_frame(frame, mol_dialect, mode="fluid"))
+    assert "molecules H2O 2" in text
+    assert "molecules Na+ 1" in text
+    assert "molecules Cl- 1" in text
+    assert "conserve atoms Cl 1 H 4 Na 1 O 2" in text
+    rebuilt = build_program(parse_text(text), mol_dialect,
+                            rng=np.random.default_rng(3), physics=False)
+    assert len(rebuilt) == len(frame)
+    assert molecule_census(rebuilt, mol_dialect) == {"H2O": 2, "Na": 1, "Cl": 1}
+
+
+def test_packing_reaches_true_liquid_density(mol_dialect):
+    """256 H2O at 0.997 g/cm3 (the water_tip4p macrostate) must be packable.
+
+    The census-safe contact keeps the effective RSA volume fraction well below
+    the ~0.38 jamming limit; the old covalent-extent + gap contact (2.78 A)
+    sat at the limit and the packer gave up after 102400 tries."""
+    edge = (256 * molecular_mass("H2O") / 0.997 / 0.6022140857) ** (1 / 3)
+    f = pack_molecules({"H2O": 256}, [edge] * 3, np.random.default_rng(7),
+                       mol_dialect)
+    assert len(f) == 768
+    assert molecule_census(f, mol_dialect) == {"H2O": 256}
+
+
 def test_water_lift_round_trip_conserves(mol_dialect, tmp_path):
     rng = np.random.default_rng(13)
     f = pack_molecules({"H2O": 60}, [15.0] * 3, rng, mol_dialect)

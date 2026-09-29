@@ -130,10 +130,14 @@ def lift_fluid(frame: Frame, dialect, T=None, backend=None) -> Program:
     region_stmts = []
     phase = "liquid"
     if molecular:
+        from .reactive import display_name
         for formula in sorted(census):
+            # census keys are Hill formulas (monatomic ions appear as bare
+            # elements): programs name species conventionally (Na -> Na+)
             region_stmts.append(Statement(
                 kind="build", key="molecules",
-                values=[Name(text=formula), Quantity(num=str(census[formula]))]))
+                values=[Name(text=display_name(formula, dialect)),
+                        Quantity(num=str(census[formula]))]))
         from ase.data import atomic_masses, chemical_symbols
         total_mass = sum(atomic_masses[chemical_symbols.index(s)] for s in frame.symbols)
         rho_g = total_mass / float(np.prod(L)) / 0.6022140857  # u/A^3 -> g/cm3  # dialect-exempt: exact-geometry

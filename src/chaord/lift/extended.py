@@ -251,70 +251,80 @@ def burgers_vector(frame: Frame, dialect) -> np.ndarray | None:
                 vector=vec, method=method)
 
 
-def _in_plane_vectors(pos, L, k=8, p0=None):
-    """The k shortest xy-dominant lattice vectors around a reference atom.
+def _folded_shell_angles(half, L, dnn, dialect):
+    """First-shell in-plane bond angles of one grain, folded into [0, 45] deg.
 
-    p0 defaults to the mid-grain atom; the caller may pin a reference away
-    from the grain boundary (boundary atoms see both lattices and their
-    "shortest vectors" mix nets on some BLAS builds)."""
-    pos = np.minimum(np.mod(pos, L), L * (1 - 1e-9))  # dialect-exempt: numerical-guard: strict upper edge for KD trees
-    if p0 is None:
-        z = pos[:, 2]
-        p0 = pos[np.argsort(np.abs(z - np.median(z)))[0]]
-    cand = []
-    for q in pos:
-        v = q - p0
-        v -= L * np.round(v / L)
-        n = np.linalg.norm(v)
-        if n > 0.5 and abs(v[2]) < 0.2 * n:  # dialect-exempt: numerical-guard: in-plane filter (sub-noise / out-of-plane rejection)
-            cand.append((n, v))
-    cand.sort(key=lambda x: x[0])
-    return [v for _n, v in cand[:k]]
+    Every atom of the half contributes, not one reference atom: the pair set
+    of a KD-tree radius query is a function of the geometry alone, so no sort
+    order or tie-breaking enters anywhere (the single-reference enumeration
+    was BLAS-sensitive through exactly that tie-break).  In-plane vectors
+    connect atoms of one z layer and each layer belongs wholly to one grain,
+    so even boundary-adjacent atoms cannot mix the two lattices into one
+    angle; the fold is mod 90 (the [001] four-fold period) into half a
+    quadrant, its fundamental domain."""
+    cn_cut = float(dialect.threshold("slab_cn_factor")) * dnn
+    tree = cKDTree(_wrap(half, L), boxsize=L)
+    pairs = tree.query_pairs(cn_cut, output_type="ndarray")
+    d = half[pairs[:, 1]] - half[pairs[:, 0]]
+    d -= L * np.round(d / L)
+    in_plane = np.abs(d[:, 2]) < 0.2 * np.linalg.norm(d, axis=1)  # dialect-exempt: numerical-guard: in-plane filter (out-of-plane shell rejection)
+    a = np.degrees(np.arctan2(d[in_plane, 1], d[in_plane, 0])) % 90.0  # dialect-exempt: numerical-guard: fold into one [001] quadrant
+    return np.where(a > 45.0, 90.0 - a, a)  # dialect-exempt: numerical-guard: fold into half a quadrant
+
+
+def _dominant_angle(angs):
+    """Peak position of the folded-angle histogram, refined inside the bin.
+
+    fcc/bcc [001] first shells are discrete directions, so a grain's angles
+    pile into one sharp mode; the histogram peak (not a correlation search)
+    locates it, and the mean inside the peak bin recovers sub-bin resolution."""
+    if len(angs) < 20:
+        return None
+    edges = np.arange(0, 46)  # integer grid: exact bin edges over [0, 45] deg
+    hist, _ = np.histogram(angs, bins=edges)
+    k = int(np.argmax(hist))
+    centre = (edges[k] + edges[k + 1]) / 2  # dialect-exempt: numerical-guard: peak-bin centre
+    sel = angs[np.abs(angs - centre) <= 1]  # dialect-exempt: numerical-guard: one-bin refinement window, deg
+    return float(sel.mean()) if len(sel) else None
 
 
 def grain_boundary_sigma(frame: Frame, dialect) -> int | None:
-    """Misorientation between z-half grains -> the [001] CSL Sigma."""
+    """Misorientation between z-half grains -> the [001] CSL Sigma.
+
+    The first-shell in-plane bond angles of each grain form a four-fold
+    distribution (fcc/bcc [001]: a single peak at 45 deg); a CSL rotation
+    rigidly shifts one grain's whole distribution, so the offset between the
+    two histogram peaks is the misorientation.  All atoms of each half
+    contribute, which makes the estimate a property of the geometry rather
+    than of one reference atom's neighbour sort order (the cause of the old
+    Linux/BLAS flake)."""
     L = frame.cell_diag
     zmid = 0.5 * L[2]  # dialect-exempt: numerical-guard: box mid-plane
-    pos = np.minimum(np.mod(frame.pos, L), L * (1 - 1e-9))  # dialect-exempt: numerical-guard: strict upper edge for KD trees
+    pos = _wrap(frame.pos, L)
     lower = pos[pos[:, 2] < zmid]
     upper = pos[pos[:, 2] >= zmid]
     if len(lower) < 20 or len(upper) < 20:
         return None
-    def _deep_reference(half):
-        z = half[:, 2]
-        mid = 0.5 * (z.min() + z.max())  # dialect-exempt: numerical-guard: mid-height
-        depth = np.abs(z - mid)
-        return half[np.argsort(depth)[:max(len(half) // 4, 8)]]
-
-    va = _in_plane_vectors(lower, L, p0=_deep_reference(lower)[0])
-    vb = _in_plane_vectors(upper, L, p0=_deep_reference(upper)[0])
-    if not va or not vb:
+    from ..build.defects import typical_neighbor_distance
+    dnn = typical_neighbor_distance(frame)
+    pa = _dominant_angle(_folded_shell_angles(lower, L, dnn, dialect))
+    pb = _dominant_angle(_folded_shell_angles(upper, L, dnn, dialect))
+    if pa is None or pb is None:
         return None
-    # compare only first-shell in-plane vectors: both grains' shortest set
-    a = min(np.linalg.norm(v) for v in va)
-    shell_tol = float(dialect.threshold("gb_shell_length_tol"))
-    ang = lambda v: np.degrees(np.arctan2(v[1], v[0]))
-    theta = 90.0  # dialect-exempt: numerical-guard: [001] quadrant span, deg
-    for x in va:
-        if abs(np.linalg.norm(x) - a) > shell_tol * a:
-            continue
-        for y_ in vb:
-            if abs(np.linalg.norm(y_) - a) > shell_tol * a:
-                continue
-            d = abs(ang(y_) - ang(x)) % 90.0  # dialect-exempt: numerical-guard: fold into one [001] quadrant
-            if d > 45.0:  # dialect-exempt: numerical-guard: fold into half a quadrant
-                d = 90.0 - d  # dialect-exempt: numerical-guard: fold into half a quadrant
-            theta = min(theta, d)
+    theta = abs(pa - pb)
     # CSL [001]: theta = 2 atan(n/m), Sigma = m^2 + n^2 (coprime m, n)
+    from math import gcd
     tol = float(dialect.threshold("csl_angle_tol"))
     best = None
     for m in range(1, 16):
         for n in range(1, 16):
-            from math import gcd
             if gcd(m, n) != 1:
                 continue
-            target = np.degrees(2 * np.arctan(n / m))
+            if (m, n) == (1, 1):
+                continue  # the identity rotation (Sigma 1): true of any crystal
+            target = np.degrees(2 * np.arctan(n / m)) % 90.0  # dialect-exempt: numerical-guard: fold into one [001] quadrant
+            if target > 45.0:  # dialect-exempt: numerical-guard: fold into half a quadrant
+                target = 90.0 - target  # dialect-exempt: numerical-guard: fold into half a quadrant
             if abs(theta - target) < tol:
                 # fcc/bcc [001]: the coincident-site lattice gains the
                 # half-cell translations, so both-odd (m, n) halves the Sigma

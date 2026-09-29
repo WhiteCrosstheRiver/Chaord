@@ -9,9 +9,47 @@ keys:
   region_gas: [molecules]
 
 thresholds:
-  bond_tolerance: 1.25            # bond length in units of covalent radii sums
+  bond_tolerance: 1.25            # bond length in units of covalent-radii sums
+  ion_solvation_elements: [Li, Na, K, Rb, Cs, Ag]
+                                    # elements whose near-neighbour contacts in a
+                                    # molecular fluid are ion solvation, not
+                                    # covalence: their tabulated covalent radii
+                                    # are metallic, so Na+-O at the hydration
+                                    # distance ~2.4 A falls inside
+                                    # bond_tolerance x (r_Na + r_O) = 2.9 A and
+                                    # the census would merge each cation with
+                                    # its hydration shell (H10NaO5). The bond
+                                    # graph never bonds through them. Halides
+                                    # are absent on purpose: their covalent
+                                    # radii are honest (Cl--O >= 2.8 A stays
+                                    # outside 1.25 x (r_Cl + r_O) = 2.1 A) and
+                                    # polyatomic
+                                    # anions (PF6-) bond through them.
+  monatomic_ion_names:             # census element -> program species name
+    Li: Li+                        # (the display names of the template
+    Na: Na+                        # registry): a monatomic census species of
+    K: K+                          # these elements is an ion, so lifted
+    Rb: Rb+                        # `molecules` statements name it Na+/Cl-
+    Cs: Cs+                        # rather than the bare element
+    Ag: Ag+
+    F: F-
+    Cl: Cl-
+    Br: Br-
+    I: I-
   packing_tolerance: 0.2          # Packmol tolerance, A
   packing_gap: 0.6                  # added to contact radii during packing, A
+                                    # (legacy extent-based packers, e.g. the
+                                    # reactive overlayer fixtures)
+  packing_contact_margin: 0.1     # numeric buffer on the census-safe contact
+                                    # distance used by pack_molecules, A: the
+                                    # bond tolerance is already inside the
+                                    # packing radius, so only a numerical
+                                    # margin is needed -- a covalent-extent gap
+                                    # of packing_gap's size on top of the
+                                    # radius put the water contact at 2.78 A,
+                                    # above the random-sequential jamming limit
+                                    # at 0.997 g/cm3 (eta ~ 0.38), and the
+                                    # packer could not place 256 H2O
   packing_max_tries: 400            # per-molecule placement attempts budget (x n)
   cn_cutoff_fluid: 3.10             # O-O first shell in water-like liquids, A
   gr_rmax_fluid: 6.0                # g(r) range for fluid asserts, A

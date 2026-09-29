@@ -96,6 +96,14 @@ physical or data gap, not an artefact of a weakened checker.
 2. Improve rebuild MD (longer equilibration, better initial packing) to bring
    A5 distances within 1.5× the noise floor
 3. Reclassify solid solutions as statistical for A2/A3 (needs your approval)
+   — RESOLVED 2026-09-29 (human approval, recorded in this file): solid
+   solutions stay in the exact A2/A3 family; the SRO emission gate now keeps
+   random occupancy silent (metal dialect 0.2.1), the defect lift is
+   rotation/translation invariant, A3 matches random solutions species-blind
+   (decided from ground truth, never the lifted text) and judges the species
+   arrangement by Warren-Cowley alphas against a relabeling noise floor;
+   canaries: displace, segregate, composition, forced-occupancy; the same
+   A2/A3 checks now also cover solutions/cuau_random
 4. Add ≥1,000-atom bench frames for A9
 5. Fix the CSL detection for cross-platform robustness (histogram method)
 6. Approve the S6 design doc (segment-first lift + region composer)

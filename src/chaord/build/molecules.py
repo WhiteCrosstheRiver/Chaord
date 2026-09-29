@@ -16,16 +16,18 @@ TEMPLATES: dict[str, dict] = {}
 # dialect-exempt-begin: exact-geometry
 
 
-def _register_mol(name, symbols, rel, charge=0):
+def _register_mol(name, symbols, rel, charge=0, pack_radius=None):
     from ase.data import covalent_radii, chemical_symbols
     rel = np.asarray(rel, float)
     rel = rel - rel.mean(axis=0)   # place the template at its centroid
-    # bonding extent: furthest atom centre plus its covalent radius, so packed
-    # neighbours stay outside the bond-graph threshold of this molecule
+    # bonding extent: furthest atom centre plus its covalent radius. Kept for
+    # the extent-based packers outside this module (overlayer fixtures, bench
+    # generation); pack_molecules itself packs with the tighter census-safe
+    # radius computed from the dialect's bond tolerance (see packing_radius)
     extent = max(float(np.linalg.norm(r)) + covalent_radii[chemical_symbols.index(s)]
                  for r, s in zip(rel, symbols))
     TEMPLATES[name] = dict(symbols=list(symbols), rel=rel, charge=charge,
-                           radius=extent)
+                           radius=extent, pack_radius=pack_radius)
 
 
 _register_mol("H2O", ["O", "H", "H"],
@@ -37,9 +39,12 @@ _register_mol("O2", ["O", "O"], [[0.0, 0.0, -0.605], [0.0, 0.0, 0.605]])  # 1.21
 _register_mol("CO2", ["O", "C", "O"],
               [[0.0, 0.0, -1.16], [0.0, 0.0, 0.0], [0.0, 0.0, 1.16]])
 _register_mol("Ar", ["Ar"], [[0.0, 0.0, 0.0]])
-_register_mol("Na+", ["Na"], [[0.0, 0.0, 0.0]], charge=1)
-_register_mol("Cl-", ["Cl"], [[0.0, 0.0, 0.0]], charge=-1)
-_register_mol("Li+", ["Li"], [[0.0, 0.0, 0.0]], charge=1)
+# monatomic ions pack at their Shannon (1976) CN6 ionic radius: the tabulated
+# covalent radii of the alkali metals are metallic lengths (see the dialect's
+# ion_solvation_elements), far too excluding for solvation-density packing
+_register_mol("Na+", ["Na"], [[0.0, 0.0, 0.0]], charge=1, pack_radius=1.02)
+_register_mol("Cl-", ["Cl"], [[0.0, 0.0, 0.0]], charge=-1, pack_radius=1.81)
+_register_mol("Li+", ["Li"], [[0.0, 0.0, 0.0]], charge=1, pack_radius=0.90)
 _register_mol("OH", ["O", "H"], [[0.0, 0.0, 0.0], [0.586, 0.757, 0.0]])  # O-H 0.9572 A
 _register_mol("H", ["H"], [[0.0, 0.0, 0.0]])
 # dialect-exempt-end
@@ -56,13 +61,42 @@ def random_rotation(rng):
     ])
 
 
+def packing_radius(name: str, dialect) -> float:
+    """Census-safe packing radius of a template molecule under `dialect`.
+
+    For every atom: its displacement from the centroid plus `bond_tolerance`
+    times its covalent radius. Two molecules whose centres are at least the
+    sum of their packing radii apart can never be perceived as bonded,
+    whatever their relative orientation: the worst case (both bonding atoms
+    aligned with the centre line) leaves that pair exactly at
+    bond_tolerance x (r_i + r_j). Putting the tolerance inside the radius (the
+    old extent added the bare covalent radii and a 0.6 A gap on top) keeps the
+    water contact near the O-O hard core instead of past the random-sequential
+    jamming limit, so true liquid densities are packable.
+
+    A template with a published `pack_radius` override (the monatomic ions:
+    Shannon ionic radii; the alkali covalent radii are metallic lengths, far
+    too excluding at solvation density) packs at that instead -- census safety
+    holds because the dialect's ion_solvation_elements rule never bonds those
+    elements anyway, and the shipped overrides (Cl- 1.81 > 1.25 x 1.02)
+    exceed the covalent rule for the rest."""
+    t = TEMPLATES[name]
+    if t.get("pack_radius") is not None:
+        return float(t["pack_radius"])
+    from ase.data import covalent_radii, chemical_symbols
+    tol = float(dialect.threshold("bond_tolerance"))
+    return max(float(np.linalg.norm(r)) + tol * covalent_radii[chemical_symbols.index(s)]
+               for r, s in zip(t["rel"], t["symbols"]))
+
+
 def pack_molecules(counts: dict[str, int], box, rng, dialect) -> Frame:
     """Random-sequential packing of rigid molecules into a fresh box.
 
-    Placement uses the molecular contact diameter (sum of template radii plus
-    the dialect's packing gap); the physics prior relaxes what remains."""
-    gap = float(dialect.threshold("packing_gap"))
+    Placement uses the census-safe contact distance (sum of packing radii plus
+    the dialect's numeric margin); the physics prior relaxes what remains."""
+    margin = float(dialect.threshold("packing_contact_margin"))
     L = np.asarray(box, float)
+    radii_of = {name: packing_radius(name, dialect) for name in counts}
     centers: list[np.ndarray] = []
     radii: list[float] = []
     syms: list[str] = []
@@ -73,6 +107,7 @@ def pack_molecules(counts: dict[str, int], box, rng, dialect) -> Frame:
             raise ChaordError(
                 f"no template for molecule {name!r}; known: {', '.join(sorted(TEMPLATES))}")
         t = TEMPLATES[name]
+        r_new = radii_of[name]
         placed = 0
         tries = 0
         max_tries = int(dialect.threshold("packing_max_tries"))
@@ -89,13 +124,13 @@ def pack_molecules(counts: dict[str, int], box, rng, dialect) -> Frame:
             for c2, r2 in zip(centers, radii):
                 d = c - c2
                 d -= L * np.round(d / L)
-                if np.linalg.norm(d) < t["radius"] + r2 + gap:
+                if np.linalg.norm(d) < r_new + r2 + margin:
                     ok = False
                     break
             if not ok:
                 continue
             centers.append(c)
-            radii.append(t["radius"])
+            radii.append(r_new)
             pos_list.append(atoms)
             syms.extend(t["symbols"])
             placed += 1
@@ -110,13 +145,47 @@ def molecular_mass(name: str) -> float:
     return float(sum(atomic_masses[chemical_symbols.index(s)] for s in t["symbols"]))
 
 
+def species_mass(name: str) -> float:
+    """Mass in u of a program species: a template molecule or a bare element.
+
+    Anything else (a census formula the builder has no species for, e.g. a
+    hydration shell 'H10NaO5') is a static error, not a KeyError/ValueError
+    from deep inside a mass table. The placeholder 'X' (LJ reduced units,
+    one particle kind) carries unit mass, as in the amorphous builder."""
+    from ase.data import atomic_masses, chemical_symbols
+    if name in TEMPLATES:
+        return molecular_mass(name)
+    if name == "X":
+        return 1.0  # dialect-exempt: numerical-guard: unit-mass placeholder species
+    if name in chemical_symbols:
+        return float(atomic_masses[chemical_symbols.index(name)])
+    raise ChaordError(
+        f"unknown species {name!r}; known molecules: "
+        f"{', '.join(sorted(TEMPLATES))}; otherwise a bare element symbol")
+
+
 # --------------------------------------------------------------- detection --
 
+def _ion_solvation_elements(dialect) -> frozenset[str]:
+    """Elements the dialect declares as solvation-shell ions (empty without the
+    rule, e.g. under the glass or lj dialects)."""
+    try:
+        return frozenset(dialect.threshold("ion_solvation_elements") or ())
+    except ChaordError:
+        return frozenset()
+
+
 def bond_graph(frame: Frame, dialect):
-    """Neighbour graph under covalent-radius bonding (molecular dialect rule)."""
+    """Neighbour graph under covalent-radius bonding (molecular dialect rule).
+
+    Elements named by the dialect's `ion_solvation_elements` never bond: in a
+    molecular fluid their contacts are ion solvation (their tabulated covalent
+    radii are metallic, so Na+-O at ~2.4 A would pass the covalent test and
+    merge the ion with its hydration shell in the census)."""
     from ase.data import covalent_radii, chemical_symbols
     from scipy.spatial import cKDTree
     tol = float(dialect.threshold("bond_tolerance"))
+    ions = _ion_solvation_elements(dialect)
     L = frame.cell_diag
     syms = frame.symbols
     pos = np.mod(frame.pos, L)
@@ -126,6 +195,8 @@ def bond_graph(frame: Frame, dialect):
     pairs = tree.query_pairs(rc_max, output_type="ndarray")
     edges = []
     for i, j in pairs:
+        if syms[i] in ions or syms[j] in ions:
+            continue  # ion--solvent contact: solvation, not covalence
         d = pos[j] - pos[i]
         d -= L * np.round(d / L)
         dist = float(np.linalg.norm(d))

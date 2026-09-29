@@ -41,6 +41,38 @@ def test_a3_round_trip_and_structure_matcher():
     assert not bad["passed"], bad["evidence"]
 
 
+def test_a3_random_solution_species_canaries():
+    """Random solid solutions are matched species-blind (the labeling is a
+    microstate); the species arrangement is judged by Warren-Cowley alphas
+    against the relabeling noise floor (human approval 2026-09-29).
+
+    segregate: sites and composition stay right, so the failure must come
+    from the species statistic itself."""
+    clean = acc.check_a3(case_filter="crconi")
+    assert clean["passed"], clean["evidence"]
+
+    bad = acc.check_a3(mutation="displace_rebuilt", case_filter="crconi")
+    assert not bad["passed"], bad["evidence"]
+
+    bad = acc.check_a3(mutation="segregate", case_filter="crconi")
+    assert not bad["passed"], bad["evidence"]
+    row = bad["details"]["rows"][0]
+    assert "EXCEEDS 1.5x floor" in row["note"], row["note"]
+    assert not row["geometry"], "species check must report the segregation"
+
+    bad = acc.check_a3(mutation="composition", case_filter="crconi")
+    assert not bad["passed"], bad["evidence"]
+
+
+def test_a3_ordered_case_forced_to_occupancy_still_fails():
+    """An ordered L1_2 program rewritten as random occupancy rebuilds with a
+    random species arrangement: the species-aware matcher must reject it."""
+    bad = acc.check_a3(mutation="force_occupancy", case_filter="l12_ni3al")
+    assert not bad["passed"], bad["evidence"]
+    row = bad["details"]["rows"][0]
+    assert not row["geometry"], "ordered cases keep the species-aware matcher"
+
+
 # --------------------------------------------------------------------- A4 ----
 def test_a4_defect_precision_and_recall():
     clean = acc.check_a4(temps=("room",))
