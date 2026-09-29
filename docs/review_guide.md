@@ -1,160 +1,126 @@
-# Chaord 审核指南（供远程评审）
+# Chaord 审核指南（供远程评审 · Gate A′ 版）
 
-> **状态：v0.1 prototype — 自测、CI 未绿、未经独立验证。**
-> 下文的 "A1–A14 全部通过" 指作者自跑的（弱于 PLAN 定义的）验收器；
-> 无序基准帧尚未来自独立 MD 引擎。外部评审（2026-09-28）指出的差距
-> 已列入执行计划，本指南的诚实版本以 reports/self_assessment 为准。
-
-日期：2026-09-28 · 分支 master · 17 个提交 · 自跑验收 A1–A14 全过（见上方状态声明）
+日期：2026-09-28 · 分支 master · 39 个提交 · 已全部推送
+仓库：https://github.com/WhiteCrosstheRiver/Chaord
 
 ---
 
-## 一、项目一句话
+## 一、当前状态（一句话）
 
-Chaord 是原子体系的领域语言：`chaord build` 把程序编译成坐标，`chaord lift`
-把坐标反编译回程序。一个程序描述宏观态（一族构型），坐标文件只是它的一个
-微观态采样；有序部分精确书写，无序部分用统计书写——从晶体到气体。
-**正确性判据是往返**：晶体要求字节级一致，流体/玻璃要求落在实测噪声底内。
+**v0.1 原型，诚实核心已建成并独立验证：9/14 验收通过、5 项真实物理/数据缺口如实报告。** 这不是"v1.0 完成"——前一轮外部评审正确地指出了自测验证的循环性，本轮全部修复，数字现在是真实的。
 
-## 二、完成状态总览
+## 二、两轮评审之间的变化
 
-| 里程碑 | 内容 | 状态 |
-| --- | --- | --- |
-| M0 | 语法（Lark）、Pydantic IR、规范化 fmt、方言加载器、CV 注册表、CLI、原型移植 | ✅ |
-| M1 | 13 种晶体原型、取向/超胞构建、不变性套件（旋转/平移/重排/重成像 → 字节一致） | ✅ |
-| M2 | Kröger–Vink 点缺陷（空位/反位/间隙/Frenkel）、SRO/SQS、植入缺陷验收 | ✅ |
-| M3 | 分子模板、RSA 堆积、流体 CV、噪声底库、统计往返（g(r) 1.1× 底） | ✅ |
-| M4 | 相分割（1-D 剖面 + 真 3-D 区域生长）、界面对象、Miller 表面、Wood 记号、吸附/覆盖度 | ✅ |
-| M5 | melt/quench/anneal/deposit 协议、约束（密度/SRO/cn）、环/Voronoi 统计、最短程序控制器 | ✅ |
-| M6 | 物种 census、反应界面端到端（dissociate 语句）、位错（Burgers 至机器精度）、CSL Σ 双晶 | ✅ |
-| M7 | Chaord-Bench 25 案例 × 5 帧、验收运行器 A1–A14、参考手册、三教程 | ✅ |
-| M8 | LLM JSON schema、脚本层、Laya 差分编码器、50 提示验证套件、主动学习钩子 | ✅ |
-| 补强波 | 解析式 Finnis–Sinclair EAM 后端（Cu/Fe/Ni）、电荷守恒检查、CI/LICENSE/nightly/许可审计 | ✅ |
+| 上一轮评审指出的问题 | 本轮处置 | 证据 |
+|---|---|---|
+| P0 "v1.0" 从未在干净环境验证，门被作者自己评 | 状态降级为 v0.1 原型；gate_b 改名为 self_assessment；打标签 v0.1-selftest 冻结 | README、reports/self_assessment_2026-09-28.md |
+| P0 无序基准帧不是物理的 | **6 案例 × 5 帧独立 MD 参考数据**（ASE 引擎 + 已发表势：LJ、TIP4P、SPC/E+Joung-Cheatham+Wolf/DSF、FBD-Cu EAM 从 NIST 下载带 sha256） | bench/reference/（生成代码禁 import chaord，有 grep 测试强制） |
+| P0 验证循环（自编自测） | 验收器独立实现（自带原子计数、自带 .chaord 文本解析、自带晶体学数据表）；**新 agent 独立验证报告** | tools/acceptance.py、reports/verification_2026-09-28.md |
+| P0 验收器弱于 PLAN 定义 | **逐字对齐 PLAN 的 A1–A14**；每条配变异测试（17/17 翻红） | tools/acceptance.py、tests/acceptance/test_mutations.py |
+| P1 守恒循环论证 | 三方校验（帧实数 vs 程序隐含计数 vs conserve 声明）；drop-atom 变异翻红 | src/chaord/check/statics.py、tests/test_conservation.py |
+| P1 打包/可移植性 | spglib+pymatgen 声明；bash shell；schedule；as_posix；双 OS 命令 | pyproject.toml、.github/workflows/ci.yml |
+| P2 阈值逃逸 | 153→134 豁免；真实容差迁入方言键；checker 扩到 cv/realize | tools/check_magic_numbers.py |
+| P2 观测太薄 | 偏 g(r)（分子内键剔除）、键角分布、密度剖面；暴力交叉验证 | src/chaord/cv/rich.py、tests/test_rich_observables.py |
+| P1 无通用架构 | 设计文档（只文档，待审批后才动代码） | docs/design/lift_build_v2.md（449 行三阶段方案） |
 
-**量化指标**：源码 ~7,560 行、测试 ~3,970 行（307 项测试：299 快 + 8 慢标记，
-全绿）；bench 125 帧带 ground truth；9 个规范示例全部字节稳定。
+## 三、诚实验收数字（独立验证者实测）
 
-## 三、证据地图（每个主张在哪里验证）
+**9/14 通过，5 项真实 FAIL**——每个 FAIL 是物理/数据缺口，不是检查器弱化：
 
-| 主张 | 证据 | 复现命令 |
-| --- | --- | --- |
-| 语法健全 + 规范形 | `tests/test_grammar_examples.py`（9 示例字节稳定、30 错误行号） | `python -m pytest tests/test_grammar_examples.py -q` |
-| fmt 幂等（10000 例性质测试） | `tests/test_fmt_property.py` | 同上换文件名 |
-| 不变性（旋转/平移/重排/重成像 → 同文本） | `tests/test_crystal.py::test_invariance_*` | `python -m pytest tests/test_crystal.py -q` |
-| 晶体精确往返（lift→build→lift 字节一致） | `tests/test_crystal.py::test_exact_round_trip`（12 原型参数化） | 同上 |
-| 植入缺陷召回 ≥0.95 | `tests/test_defects.py` + 真实 0.8·Tm 热回复（`tests/test_thermal_recovery.py`，recall 1.00） | `python -m pytest tests/test_defects.py tests/test_thermal_recovery.py -q -m slow` |
-| 统计往返 ≤1.5× 噪声底 | `tests/test_fluids.py`（g(r) 1.08×）、`tests/test_amorphous.py`（玻璃） | `python -m pytest tests -m slow` |
-| 守恒（原子/物种/电荷） | `src/chaord/check/statics.py`；每次 lift 后自动跑 | `python -m pytest tests/test_charge.py -q` |
-| 分割 ≥95% + 真 3-D | `tests/test_segment3d.py`（斜界面 3-D 1.000 vs 1-D 0.74） | `python -m pytest tests/test_segment3d.py -q` |
-| 反应 census 精确 + 端到端 | `tests/test_extended.py`、`tests/test_reactive_interface.py` | `python -m pytest tests/test_reactive_interface.py -q` |
-| 位错 Burgers 精确 | `tests/test_extended.py`（分量误差 ~1e-16·a） | `python -m pytest tests/test_extended.py -q` |
-| 压缩比 | 验收 A9：2 万原子 0.03%（限 2%） | `python tools/acceptance.py` |
-| 10 万原子性能 | `tests/test_thermal_recovery.py`：实测 3.5 s（限 120 s） | 同上 slow |
-| 阈值纪律（无魔法数） | `tools/check_magic_numbers.py`（CI 门禁） | `python tools/check_magic_numbers.py` |
-| LLM 套件 50 提示 | `tools/llm_prompt_suite.py`（确定性 writer 50/50） | `python tools/llm_prompt_suite.py` |
-| 总验收 | `reports/acceptance.json`（14/14）、`reports/nightly_2026-09-28.md`（Overall PASS） | `python tools/acceptance.py`、`python tools/nightly.py` |
+| ID | 结果 | 要点 |
+|---|---|---|
+| A1 语法与格式 | ✅ | 9 示例全过；10,000 生成程序幂等 |
+| A2 不变性 | ❌ | 7/8（fcc_crconi 随机固溶体破坏字节级不变性） |
+| A3 精确往返 | ❌ | 7/8（同因；pymatgen StructureMatcher 对 crconi 也不匹配） |
+| A4 缺陷恢复 | ❌ | 召回 22/22 全过；精确率 18/22（最差 0.09 @0.8Tm 间隙原子） |
+| A5 统计往返 | ❌ | 0/3 有底案例过（距噪声底 7–27×）；4 例 build 失败 |
+| A6 守恒 | ✅ | 126/126 三方计数+电荷精确 |
+| A7 相分割 | ✅ | 10/10 帧 ≥95%（最差 0.999） |
+| A8 反应 census | ✅ | 2 个独立构造案例精确 |
+| A9 压缩比 | ❌ | bench 无 ≥1000 原子帧（补充测量 0.74%，不计入） |
+| A10 确定性 | ✅ | 重复 lift 字节一致；同 seed build 坐标一致 |
+| A11 速度 | ✅ | 10 万原子 lift 3.9 秒（限 120 秒） |
+| A12 静态检查 | ✅ | 四类种子错误全捕获（含重叠、电荷失衡） |
+| A13 无崩溃 | ✅ | 125/125 帧零异常、零 residual 原子 |
+| A14 文档 | ✅ | 35/35 方言键覆盖；26/35 有示例 |
 
-## 四、建议的审核路线（按优先级）
+## 四、建议审核路线（按优先级）
 
-### P0 —— 核心设计规则是否兑现（AGENTS.md 十条）
+### P0 —— 核心诚实性（评审最关心的问题是否真的修了）
 
-1. **阈值只进方言**：抽查 `src/chaord/lift/`、`src/chaord/build/` 任何数值，
-   应全部经 `dialect.threshold("名字")` 或带 `# dialect-exempt: <理由>` 标注；
-   运行 `python tools/check_magic_numbers.py` 应输出 clean。
-2. **一结构一文本**：读 `src/chaord/lang/fmt.py`（规范化打印）+
-   `tests/test_crystal.py::test_invariance_rotation_translation_reorder_reimage`。
-3. **一个量一个定义**：CV 注册表 `src/chaord/cv/registry.py`（measure/restrain/
-   check 三用同源）；抽查 Warren–Cowley α₁ 在 `build/defects.py` 只定义一次。
-4. **不丢原子**：`check/statics.py::conservation_check`；residual 机制
-   （`lift/slab.py` 中未解释原子写入 residual 块）。
+1. **独立参考数据**：读 `bench/reference/*/provenance.json`（每案例记录
+   引擎/势+引用/协议/seed/帧时刻）；跑 `python bench/reference/check_sanity.py`
+   确认 5/6 过（Cu 诚实记为已知限制——FBD-Cu 熔体在完美 fcc 模板上
+   1–4ps 内外延再结晶，无法产出平衡两相帧）。
+2. **循环验证禁令**：`grep -r "import chaord" bench/reference/` 应为空
+   （有测试强制：tests/test_reference_data.py）。
+3. **独立验证报告**：读 `reports/verification_2026-09-28.md`——新 agent
+   写的（零代码作者权），含逐条 A1–A14 数字 + 独立 g(r) 复核（偏差 0.2%）。
+4. **变异测试**：`pytest tests/acceptance -q` 应 17/17——每条验收的
+   种子变异必须翻红，证明检查器本身可靠。
 
-### P0 —— 往返哲学的两个层级
+### P0 —— 验收数字是否真实
 
-5. **晶体层（精确）**：`tests/test_crystal.py` 的 exact round trip 与不变性；
-   注意其中 spglib 约定容差搜索（轴排列/原点平移/极性孪晶/平局物种）是难点所在。
-6. **统计层（噪声底）**：`src/chaord/cv/noise.py` 的设计——噪声底是同一模拟
-   两帧之间的距离，容差 = 1.5× 底，**从不拍脑袋**。对照
-   `tests/test_fluids.py::test_lj_liquid_statistical_round_trip` 的输出。
+5. 读 `reports/gate_a_prime.md`——Gate A′ 八项清单逐条打勾 + 5 个 FAIL
+   的物理解释 + 下一步优先级。
+6. 跑 `python tools/acceptance.py`（约 15–20 分钟，含子进程重建）确认
+   9/14 与报告一致。
 
-### P1 —— 关键数值证据
+### P1 —— 需要老师裁决的 3 件事
 
-7. 验收报告逐条读：`reports/acceptance.json`（14/14，每条带证据串）。
-8. 慢速统计套件：`python -m pytest tests -m slow`（约 5–8 分钟，7 项）。
-9. Gate B 报告：`reports/gate_b.md`（含 8 条如实记录的已知限制——请特别审
-   "Known limitations" 一节，这是诚实性声明）。
+7. **S6 设计审批**：`docs/design/lift_build_v2.md`（449 行）——segment-first
+   lift 统一管线 + build 的 region composer；三阶段迁移（每阶段保旧路径
+   开关、逐字节等价性测试、最后删旧路径）。**你批准后才动代码。**
+8. **S1 物理审核**：`bench/reference/*/provenance.json` 中的势函数选择
+   （TIP4P vs SPC/E、JC 离子参数、FBD-Cu EAM）、密度、温度是否合理。
+9. **A2/A3 固溶体裁定**：随机固溶体的 SRO 约束行（`constrain sro alpha1
+   Ni-Ni +0.18`）是测量值，随 seed 变化——字节级往返是错误判据。建议
+   归入统计判据（A5 家族）。需要你裁定。
 
-### P1 —— 工程纪律
+### P2 —— 抽查（可选）
 
-10. 随机性全部 seed（`np.random.default_rng`）；测试确定性：
-    `tests/test_bench.py` 有跨进程逐数组比对。
-11. CI：`.github/workflows/ci.yml`（PR 双 OS 矩阵 + nightly slow/acceptance）；
-    `tools/nightly.py` 已在本机全量跑通（报告见 reports/）。
-12. 许可：LICENSE（MIT）+ `docs/licenses.md` 第三方审计（OVITO 非商用限制、
-    MACE/icet 需人工确认两条已标出）。
+10. 真守恒：`tests/test_conservation.py` 的 drop-atom 变异（删帧原子 → FAIL）
+11. 阈值卫生：`python tools/check_magic_numbers.py` → clean
+12. 富观测：`tests/test_rich_observables.py`（偏 g(r) 文献首峰对照 + 暴力实现交叉验证）
 
-### P2 —— 扩展能力抽查（可选）
+## 五、已知限制（诚实声明）
 
-13. EAM 后端：`src/chaord/realize/eam.py`（解析式 FS，Cu/Fe/Ni 按
-    a/E_coh/B 标定，力经有限差分校验）+ `tests/test_eam.py`。
-14. 反应界面：`tests/test_reactive_interface.py`（rutile+水+OH/H 的完整 lift）。
-15. 最短程序控制器：`src/chaord/check/shortest.py`（贪心删除搜索，conserve
-    永不删）。
+| # | 限制 | 位置 |
+|---|---|---|
+| 1 | A5 重建帧距噪声底 7–27×（最深的物理缺口：RSA + 短 MD 不足以复现液体/玻璃/界面统计） | gate_a_prime.md |
+| 2 | A4 间隙原子 @0.8Tm 精确率 18/22（热抖动伪缺陷对） | 同上 |
+| 3 | CI Linux 偶发：CSL 检测的 BLAS 敏感性（Windows 10 种子全过） | tests/test_extended.py 注释 |
+| 4 | Cu 固液参考帧无法平衡（FBD-Cu 熔体外延再结晶） | bench/reference/cu_solid_liquid/provenance.json |
+| 5 | MACE/LAMMPS/PLUMED 属可选外接 | docs/licenses.md |
+| 6 | LLM 50 提示用确定性 writer（非真 LLM 评估） | tools/llm_prompt_suite.py |
+| 7 | bench 无 ≥1000 原子原始帧 | acceptance_details.md |
 
-## 五、需要老师裁决/签字的点（AGENTS.md 规定的人工审批项）
-
-| # | 事项 | 位置 | 需要的决定 |
-| --- | --- | --- | --- |
-| 1 | **Gate B 签字** | `reports/gate_b.md` | 按 AGENTS.md 由人类评审放行 v1.0 |
-| 2 | 方言阈值变更（三处） | `metal.yaml`（版本 0.1.0→0.2.0，新增 EAM 参数与 Burgers 行匹配阈值）、`glass.yaml`（新增 md 块与 deposit 键）、`lj.yaml`（lattice_scan_steps 17→57，热振动下 d_NN 中值下移 ~10% 的必要校准） | 批准与否 |
-| 3 | spec 扩充 | 第 8（deposit）、第 9（rutile 表面）示例；语法把 molecule/ion/atom 改为双栖终结符（修多原子 residual 不可重解析缺陷） | 批准与否 |
-| 4 | 发布动作 | PyPI/GitHub 组织/域名占位 | 人工执行 |
-| 5 | 真 LLM ≥90% 首试率 | `tools/llm_prompt_suite.py --writer file` | 接 API 后补测 |
-
-## 六、已知限制（诚实声明，全部在 gate_b.md）
-
-MACE 后端属外接；热弛豫位错核仍到家族级；大分子近液密度 RSA 饱和（物理先验
-负责弛豫）；表面 lift 内政识别限 fcc/bcc（diamond 走重构辅助路径）；反应界面
-程序可 parse/fmt 但尚无 crystal+liquid+vacuum 组合 builder；SiO₂/CuZr 玻璃与
-石墨烯/水 bench 需核心外势函数（记为 v1.0 范围外）；LLM 首试率用确定性 writer
-验证管线。
-
-## 七、复现命令总表
+## 六、复现命令
 
 ```bash
-# 环境
+git clone https://github.com/WhiteCrosstheRiver/Chaord.git && cd Chaord
 python -m venv .venv
 .venv/bin/python -m pip install -e .[test]        # Linux/macOS
 # Windows: .venv\Scripts\python -m pip install -e .[test]
 
 PY=.venv/bin/python        # Windows: .venv\Scripts\python
 
-# 快测（~2 分钟，299 项）
-$PY -m pytest tests -m "not slow"
-
-# 慢速统计往返（~5 分钟）
-$PY -m pytest tests -m slow
-
-# 验收 A1–A14（~15 分钟，写 reports/acceptance.json）
-$PY tools/acceptance.py
-
-# 夜间全量（慢测+验收 → reports/nightly_<date>.md）
-$PY tools/nightly.py
-
-# 门禁
-$PY tools/check_magic_numbers.py
+$PY -m pytest tests -m "not slow"              # 快测（~3 分钟，382 项）
+$PY -m pytest tests/acceptance -q              # 变异测试（17 项）
+$PY tools/acceptance.py                        # 验收 A1–A14（~20 分钟）
+$PY tools/check_magic_numbers.py               # 阈值纪律门禁
 $PY tools/sketch_check.py spec/examples/*.chaord
-$PY tools/llm_prompt_suite.py
+$PY bench/reference/check_sanity.py            # 参考数据物理健全性
 ```
 
-## 八、仓库结构速查
+## 七、给老师的关键文件入口
 
-```
-src/chaord/         lang(语法/IR/fmt) dialects(阈值YAML) cv build realize lift check io cli
-tests/              307 项（unit/property/golden/round-trip/acceptance/bench）
-bench/              generate.py + data/（25 案例 × 5 帧 + ground truth）
-docs/               reference.md reference manual / tutorials.md / licenses.md
-spec/               grammar.ebnf + 9 个示例程序
-prototype/          原始 LJ 演示（参考，不再扩展）
-reports/            acceptance.json / gate_b.md / nightly_*.md
-.github/workflows/  ci.yml（PR + nightly）
-```
+| 顺序 | 文件 | 内容 |
+|---|---|---|
+| 1 | `reports/gate_a_prime.md` | **主报告**：八项清单 + 验收数字 + FAIL 解释 + 下一步 |
+| 2 | `reports/verification_2026-09-28.md` | 独立验证者报告（逐条数字 + 独立 g(r) 复核） |
+| 3 | `docs/design/lift_build_v2.md` | 待审批的 v2 架构设计（449 行） |
+| 4 | `bench/reference/` | 独立 MD 参考数据（6 案例的 provenance.json 逐个审物理） |
+| 5 | `reports/self_assessment_2026-09-28.md` | 独立验证前的自评（含 Caveat 头） |
+| 6 | `reports/noise_floors.json` | 从 MD 帧测量的噪声底 |
+| 7 | `AGENTS.md` / `PLAN.md` | 本轮新增的两条规则（参考数据规则 + 主张-证据规则） |
