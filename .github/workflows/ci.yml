@@ -60,11 +60,12 @@ jobs:
           python-version: "3.11"
       - name: Install
         run: python -m pip install -e .[test]
-      - name: Statistical round-trip suite (slow)
-        run: python -m pytest tests -m "slow"
-      - name: Acceptance A1-A14
+      - name: Acceptance A1-A14 (clean machine)
         run: python tools/acceptance.py -o reports/acceptance.json
-      - uses: actions/upload-artifact@v4
+      - name: Upload clean-machine acceptance report
+        uses: actions/upload-artifact@v4
         with:
-          name: acceptance-report
+          name: clean-acceptance-report
           path: reports/
+      - name: Slow statistical suite
+        run: python -m pytest tests -m "slow" --tb=short
