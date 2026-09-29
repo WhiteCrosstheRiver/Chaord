@@ -100,10 +100,10 @@
 | 1 | cu_solid_liquid 参考帧固/液密度漂移 ±16%/±5%（共存 MD 相分数交换体积） | bench/reference sanity（记录在案 + 测试断言） |
 | 2 | 分子内排除后 A5 的 g(r) 不再抓水模型几何错误（由精确测试接管） | gate_a_prime.md trade-off 1 |
 | 3 | Cu-水界面不跨弛豫（无已发表跨项势） | gate_a_prime.md trade-off 2 |
-| 4 | `test_interface_width_within_noise_floor` 单帧噪声敏感（负载下 flaky，钉住的案例过） | tests/test_surfaces.py |
+| 4 | 界面宽度的单次重建是单次毛细波抽签；测试已改为 3 种子×双侧界面的 tanh 宽度中位数（实测偏差 0.02，门限内 30 倍裕量）。参考帧自带程序未表达的台阶粗糙度——语言只能声明分布中心 | tests/test_surfaces.py + gate 报告已知限制 2 |
 | 5 | MACE/LAMMPS/PLUMED 属可选外接 | docs/licenses.md |
 | 6 | LLM 50 提示用确定性 writer（非真 LLM 评估） | tools/llm_prompt_suite.py |
-| 7 | 干净机器验收靠 nightly workflow 产物（Actions artifact） | .github/workflows/ci.yml |
+| 7 | 干净机器验收 = nightly/dispatch 作业产物（Actions artifact） | .github/workflows/ci.yml |
 
 ## 七、复现命令
 

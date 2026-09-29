@@ -19,7 +19,7 @@ mutation canaries still flip every criterion.
 
 | # | Item | Status | Evidence |
 | --- | --- | --- | --- |
-| 1 | CI green on both OS, two consecutive pushes, fresh env | **partial** | a68e202..62708e3 green on both OS (CSL flake fixed: histogram method); nightly workflow runs the full acceptance on a clean Ubuntu machine and uploads the report as an artifact; this push re-runs it |
+| 1 | CI green on both OS, two consecutive pushes, fresh env | **yes** | push runs green on both OS at 62708e3 (#28) and 0a6c86a (#31, after two knife-edge test premises were made cross-platform robust); nightly/dispatch job runs the full acceptance on a clean Ubuntu machine and uploads the report as an artifact; its earlier failure at 62708e3 was the honest acceptance gate recording 13/14 pre-Wave-2 |
 | 2 | README/reports state status accurately; no "v1.0" | **yes** | README honestly describes v0.1 prototype; self_assessment separate from gate report |
 | 3 | ≥6 disordered benchmark cases from independent MD, provenance, sanity | **yes** | `bench/reference/`: 7 cases × 5–15 frames (ASE + published potentials: LJ, TIP4P, SPC/E+JC, FBD-Cu EAM); check_sanity 6/7 PASS (cu_solid_liquid honestly recorded as known-limitation: coexistence density drift) |
 | 4 | Generator code does not import chaord | **yes** | `grep -r "import chaord\|from chaord" bench/reference/` → empty; enforced by `tests/test_reference_data.py` |
@@ -137,13 +137,18 @@ pre-fix-failing reproduction test per AGENTS.md)
 1. cu_solid_liquid sanity: coexistence MD density drifts ±16%/±5% (solid/liquid
    windows) as phase fractions exchange volume — recorded failure, asserted in
    the sanity-CLI test.
-2. `test_surfaces.py::test_interface_width_within_noise_floor` is a noisy
-   single-frame observable (interface width of a prototype snapshot); it is
-   sensitive to MD draw and machine load. Pinned cases pass; the flake is
-   documented.
+2. ~~test_surfaces interface-width flake~~ REPAIRED (2026-09-29, 0a6c86a): the
+   assertion compared one capillary-wave draw against one reference crossing
+   and passed Windows by 0.011 of its gate while failing Ubuntu CI by 3× the
+   floor (draws 1.0–2.75 σ across seeds/platforms; runner ISA/BLAS divergence
+   is chaotic). It now asserts the tanh-width median over 3 seeds × both
+   interfaces against the reference mean (measured 0.02 apart, 30× inside the
+   gate). Related honest note: the reference frame carries interfacial step
+   disorder the perfect-slab program does not express — distribution centres
+   are what the language can claim today.
 3. The nightly clean-machine acceptance (GitHub Actions) is the fresh-env
-   evidence for checklist item 1; its artifact lands on the next scheduled or
-   push-triggered run.
+   evidence for checklist item 1; the workflow_dispatch-triggered run on
+   0a6c86a provides it (artifact: acceptance report).
 
 ## Next steps
 
