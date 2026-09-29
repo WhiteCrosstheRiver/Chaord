@@ -6,14 +6,15 @@ program describes a **macrostate** — a family of configurations; a coordinate
 file is one **microstate** of it. Order is written exactly where a system has
 it, statistics where it does not: from crystals to gases.
 
-Status: **v0.1 prototype: self-tested, CI failing, not independently
-verified.** The M0-M8 feature work exists (grammar/IR/fmt, crystal and defect
-lifting, fluids, surfaces, amorphous, extended defects, integrations), and the
-self-run acceptance report is in `reports/acceptance.json` with the honest
-self-assessment in `reports/self_assessment_2026-09-28.md` — but the
-benchmark's disordered frames are not yet produced by an independent MD
-engine, and no independent verifier has signed off. See
-`docs/review_guide.md` for what is solid and what is not.
+Status: **v0.1 prototype: independently verified at Gate A′ (partial).**
+The honest-core work is done — independent MD reference data (6 cases from
+published potentials), a strict acceptance runner with mutation tests, and a
+fresh-agent verification report. **Acceptance: 9/14 criteria PASS, 5 FAIL**
+(every FAIL is a genuine physics or data gap; see
+`reports/gate_a_prime.md` and `reports/verification_2026-09-28.md`). CI is
+green on Windows; a Linux-only CSL-detection flake is under investigation.
+The v1.0 self-assessment (pre-verification) is in
+`reports/self_assessment_2026-09-28.md`.
 
 ## Install (from this repository)
 
