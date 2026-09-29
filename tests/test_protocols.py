@@ -187,6 +187,14 @@ def test_cn_restraint_far_target(lj_liquid, lj_dialect):
 
 def test_cn_restraint_unreachable_raises(lj_liquid, lj_dialect):
     cn0 = measure("cn", lj_liquid, lj_dialect)
+    # the target must be unreachable by PHYSICS, not by trajectory luck: at
+    # fixed box/density (rho = 0.70) the mean cn at cn_cutoff = 1.5 sigma of
+    # even a fully random (ideal-gas) configuration is rho * 4/3*pi*rc^3 ~ 9.9,
+    # and the hot liquid measures 9.2-9.9; cn0 - 2.5 +- 0.5 needs cn <= ~7.9,
+    # a ~2-neighbour deficit no MD trajectory at this density can produce.
+    # (cn0 - 1.5 was reached on some CI runners: seeded MD is not
+    # bit-reproducible across runner ISAs, and that margin sat ~0.3 from
+    # reachable -- a platform-dependent premise, not a law.)
     with pytest.raises(ChaordError, match="cn restraint"):
-        restrained_sample(lj_liquid, "cn", cn0 - 1.5, 0.5, lj_dialect,
+        restrained_sample(lj_liquid, "cn", cn0 - 2.5, 0.5, lj_dialect,
                           np.random.default_rng(5))
