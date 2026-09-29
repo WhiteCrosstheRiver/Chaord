@@ -32,6 +32,132 @@ _A_FROM_DNN = {
 }
 # dialect-exempt-end
 
+# ---- thermal quench (review 2 root-cause fix, 2026-09-29) --------------------
+#
+# A frame at the 0.8 Tm thermal amplitude defeats the Wigner-Seitz diff in two
+# coupled ways: the displacement noise pushes on-site atoms past the
+# site-match tolerance, and a tolerance derived from the atom cloud (the
+# MINIMUM neighbour distance defect_diff used, or the median group_defects
+# guards against) is contaminated by the defects themselves -- planted
+# interstitials sit 0.4-0.6 d_NN from sites and thermal collisions shrink the
+# minimum well below the lattice spacing -- so the diff gets TIGHTER exactly
+# where it must not, and thermally displaced atoms read as vacancy +
+# interstitial (a spurious frenkel_pair; A4 precision 0.09 on
+# L12-NiAl/Ni_i at 0.8 Tm).
+#
+# The fix is the review-2 thermal quench, run inside defect_diff before the
+# comparison: relax a copy of the frame with the backend's Lennard-Jones pair
+# potential so the thermal noise (the deviation from the local minimum)
+# vanishes while the topological defects survive.  A FREE minimization
+# provably cannot do that with one species-blind sigma: the open hosts are
+# not even locally stable (an LJ diamond or simple-cubic site net
+# reconstructs), and a planted interstitial overlapping a site's own atom at
+# ~0.5 sigma carries a ~1e6 repulsion that expels the occupant and plants a
+# vacancy that was never there.  The quench therefore minimizes the LJ energy
+# RESTRAINED to the fitted lattice: every atom the fit matched to a site
+# carries a harmonic spring to that site and is boxed to +/-
+# thermal_quench_shift_fraction x d_NN around it (the box constraints of the
+# L-BFGS-B solve), while off-site atoms -- the interstitials -- stay frozen
+# (a free interstitial would relax into a dumbbell whose atoms sit within one
+# site's tolerance and the defect would vanish from the diff).  The
+# constraints, not the minimizer's convergence, pin the topology: every free
+# atom ends within sqrt(3) x shift_fraction x d_NN of its site, inside the
+# site-match tolerance, whatever a planted defect does to its neighbourhood.
+# The site-match tolerance itself is anchored to the FITTED site lattice's
+# nearest-neighbour distance, mirroring the dnn_lattice argument of
+# group_defects one function down.
+
+
+def _lj_energy_forces(r, L, rc):
+    """Lennard-Jones energy and forces (epsilon = sigma = 1, minimum image).
+
+    Self-contained twin of realize.lj.LJ.forces plus the energy the minimizer
+    needs; the neighbour list is rebuilt on every evaluation (no skin logic),
+    which keeps the quench deterministic under atom reordering.  The cutoff is
+    capped below half the smallest box edge: mic distances are only the true
+    minimum-image separation below L/2, and a quench of a small cell (2x2x2
+    rocksalt with rc = 2.5 sigma > L/2) would otherwise read wrong distances."""
+    L = np.asarray(L, float)
+    rc = min(float(rc), 0.5 * float(L.min()) - 1e-6)  # dialect-exempt: numerical-guard: minimum-image validity
+    pos = _wrap_strict(r, L)
+    pairs = cKDTree(pos, boxsize=L).query_pairs(rc, output_type="ndarray")
+    d = mic(pos[pairs[:, 1]] - pos[pairs[:, 0]], L)
+    r2 = np.einsum("ij,ij->i", d, d)
+    inv2 = 1.0 / r2                      # dialect-exempt: numerical-guard: reciprocal one
+    inv6 = inv2 ** 3                     # dialect-exempt: exact-geometry: LJ r^-6
+    energy = 4.0 * float((inv6 * inv6 - inv6).sum())  # dialect-exempt: exact-geometry: LJ 4eps
+    fs = 24.0 * inv2 * inv6 * (2.0 * inv6 - 1.0)     # dialect-exempt: exact-geometry: LJ pair force
+    fij = fs[:, None] * d
+    forces = np.empty_like(pos)
+    n = len(pos)
+    for k in range(3):
+        forces[:, k] = (np.bincount(pairs[:, 1], fij[:, k], n)
+                        - np.bincount(pairs[:, 0], fij[:, k], n))
+    return energy, forces
+
+
+def _quench_thermal(frame: Frame, sites, dnn_lattice: float, dialect) -> Frame:
+    """Relax thermal noise out of a copy of the frame before the Wigner-Seitz
+    diff: on-site atoms fall back onto their sites, interstitials stay frozen
+    in their interstices, vacancies stay empty (see the section comment).
+
+    L-BFGS-B minimization of the LJ energy (reduced units; sigma anchored to
+    the pair minimum at the lattice spacing -- the site restraints absorb the
+    few-percent lattice-sum pressure difference, so the exact equilibrium
+    anchor the free minimization needed is unnecessary here) plus harmonic
+    springs from every matched atom to its site, under per-axis box bounds
+    around each site.  Returns the input frame unchanged when there is nothing
+    to relax, the dialect disables the quench (steps 0), or the minimizer
+    fails (best effort: the unquenched diff is the historical path)."""
+    tol = float(dialect.threshold("site_match_tol_fraction")) * dnn_lattice
+    steps = int(dialect.threshold("thermal_quench_steps"))
+    if steps <= 0:
+        return frame
+    L = frame.cell_diag
+    pos = _wrap_strict(frame.pos, L)
+    sites_w = _wrap_strict(sites, L)
+    d_atom, i_site = cKDTree(sites_w, boxsize=L).query(pos)
+    free = d_atom < tol
+    if not free.any():
+        return frame
+    sigma = dnn_lattice / 2 ** (1 / 6)   # dialect-exempt: exact-geometry: LJ pair-minimum anchor
+    rc = float(dialect.threshold("thermal_quench_rc"))    # LJ cutoff, sigma units
+    spring = float(dialect.threshold("thermal_quench_spring"))
+    shift = float(dialect.threshold("thermal_quench_shift_fraction")) * dnn_lattice / sigma
+    L_red = L / sigma
+    r = pos / sigma
+    # spring anchor: the matched site of a free atom, the atom itself if frozen
+    anchors = np.where(free[:, None], sites_w[i_site], pos) / sigma
+    frozen = r[~free].copy()
+
+    def objective(x):
+        rr = np.empty_like(r)
+        rr[free] = x.reshape(-1, 3)
+        rr[~free] = frozen
+        energy, forces = _lj_energy_forces(rr, L_red, rc)
+        disp = mic(rr - anchors, L_red)
+        energy = energy + 0.5 * spring * float((disp[free] ** 2).sum())  # dialect-exempt: exact-geometry: harmonic energy 1/2 k x^2
+        grad = forces - spring * free[:, None] * disp
+        return energy, -grad[free].ravel()
+
+    lower = (anchors[free] - shift).ravel()
+    upper = (anchors[free] + shift).ravel()
+    try:
+        from scipy.optimize import minimize
+        result = minimize(objective, r[free].ravel(), jac=True, method="L-BFGS-B",
+                          bounds=list(zip(lower, upper)),
+                          options={"maxiter": steps,
+                                   "maxfun": 20 * steps})  # dialect-exempt: numerical-guard: line-search evaluation cap
+        if not np.all(np.isfinite(result.x)):
+            raise ValueError("quench produced non-finite positions")
+    except Exception:
+        return frame
+    out = np.empty_like(r)
+    out[free] = result.x.reshape(-1, 3)
+    out[~free] = frozen
+    return Frame(pos=_wrap_strict(out * sigma, L), cell=frame.cell,
+                 symbols=frame.symbols, pbc=frame.pbc, info=frame.info)
+
 
 def _box_is_cubic(frame: Frame, tol_frac=0.02) -> bool:  # dialect-exempt: numerical-guard: box-shape sanity heuristic (currently unused)
     L = frame.cell
@@ -275,11 +401,21 @@ def fit_crystal(frame: Frame, dialect):
 
 
 def defect_diff(frame: Frame, sites, site_species, dialect, occupancy=False):
-    """Classify every atom and site: vacancies, antisites, interstitials."""
-    d_nn = nearest_neighbor_distance(frame)
-    tol = float(dialect.threshold("site_match_tol_fraction")) * d_nn
+    """Classify every atom and site: vacancies, antisites, interstitials.
+
+    Thermal quench first (review 2 root-cause fix, see the section comment):
+    the site-match tolerance is anchored to the FITTED site lattice's own
+    nearest-neighbour distance -- never to a distance measured on the atom
+    cloud, which thermal collisions and planted interstitials shrink exactly
+    where the diff must not get tighter (the same contamination argument as
+    group_defects' dnn_lattice below)."""
     L = frame.cell_diag
-    site_tree = cKDTree(sites, boxsize=L)
+    sites_w = _wrap_strict(sites, L)
+    site_tree = cKDTree(sites_w, boxsize=L)
+    d_site_nn, _ = site_tree.query(sites_w, k=2)
+    d_nn = float(d_site_nn[:, 1].min())
+    frame = _quench_thermal(frame, sites_w, d_nn, dialect)
+    tol = float(dialect.threshold("site_match_tol_fraction")) * d_nn
     atom_tree = cKDTree(frame.pos, boxsize=L)
 
     d_site, i_atom = atom_tree.query(sites)       # per site: nearest atom

@@ -52,6 +52,20 @@ def _box_from_density(counts, density_stmt, program) -> np.ndarray:
     return np.array([edge, edge, edge])
 
 
+def _temperature_K(system) -> float | None:
+    """`state T` as Kelvin (an eV statement converts through ase); None when
+    the program states no temperature (the backend's reference default)."""
+    from ase import units
+    tstmt = system.get("T")
+    if tstmt is None:
+        return None
+    tv = tstmt.values[0]
+    T = _num(tv)
+    if getattr(tv, "unit", None) == "eV":
+        T = T / float(units.kB)
+    return T
+
+
 def build_fluid(program: Program, dialect, rng, physics=True, md_steps=None) -> Frame:
     regions = [b for b in program.blocks if b.t == "region"]
     if len(regions) != 1:
@@ -143,19 +157,46 @@ def build_fluid(program: Program, dialect, rng, physics=True, md_steps=None) -> 
         for s in physics_block.statements:
             if s.key == "backend":
                 backend = s.values[0].text
-    if backend not in ("lj", "eam"):
+    if backend not in ("lj", "eam", "classical"):
         # Review 2: no silent skip. A backend with no core realization is an
         # error; the packed frame is available through the explicit
         # physics=False opt-out, never by accident of the backend name.
         raise ChaordError(
-            f"no realize backend for {backend!r}; available: lj, eam "
-            f"(build with physics=False for the packed frame alone)")
+            f"no realize backend for {backend!r}; available: lj, eam, "
+            f"classical (build with physics=False for the packed frame alone)")
+
+    if backend == "classical":
+        # ASE realization (Review 2): TIP4P water for the molecular lifts;
+        # water + Joung-Cheatham ions for solutions. Rigid water is kept
+        # rigid; the calculator choice honours the dialect's ase_backend
+        # mapping and the protocol its ase_md section, when defined.
+        from ..realize.ase_backend import ASEBackend, wrap_molecular
+        L3 = frame.cell_diag
+        ase = ASEBackend(L3, frame.symbols, "classical", dialect=dialect)
+        r = wrap_molecular(ase.relax(np.mod(frame.pos, L3), rng,
+                                     T_K=_temperature_K(system),
+                                     md_steps=md_steps),
+                           frame.symbols, L3)
+        return Frame(pos=r, cell=frame.cell, symbols=frame.symbols,
+                     pbc=frame.pbc)
 
     if backend == "eam":
         # analytic Finnis-Sinclair relaxation (eV / A units, dialect parameters)
         from ..realize.eam import EAM
         from ..realize.lj import run_md
-        pots = dialect.threshold("eam_potentials")
+        try:
+            pots = dialect.threshold("eam_potentials")
+        except ChaordError:
+            # no analytic parameters in this dialect: tabulated ASE EAM on
+            # the shipped potential file (FIRE + Langevin, physical units)
+            from ..realize.ase_backend import ASEBackend
+            L3 = frame.cell_diag
+            ase = ASEBackend(L3, frame.symbols, "eam", dialect=dialect)
+            r = np.mod(ase.relax(np.mod(frame.pos, L3), rng,
+                                 T_K=_temperature_K(system),
+                                 md_steps=md_steps), L3)
+            return Frame(pos=r, cell=frame.cell, symbols=frame.symbols,
+                         pbc=frame.pbc)
         present = sorted(set(frame.symbols))
         unknown = [s for s in present if s not in pots]
         if unknown:

@@ -21,7 +21,7 @@ One row per statement key declared in `src/chaord/dialects/*.yaml`, with a passi
 | `history` | glass:region_amorphous | `history melt 3000 K for 20 ps -> quench to 300 K at 1 K/ps -> anneal 300 K for 50 ps` | 04_amorphous_si.chaord | yes |
 | `lattice` | metal:region_crystal | `lattice fcc` | 01_solid_liquid_lifted.chaord | yes |
 | `lift_version` | core:provenance | `(no example in spec/examples/ - add one)` | - | yes |
-| `model` | core:physics | `model "mace-mp-0"` | 03_solid_solution_sro.chaord | yes |
+| `model` | core:physics, molecular:physics | `model "mace-mp-0"` | 03_solid_solution_sro.chaord | yes |
 | `molecules` | molecular:region_gas, molecular:region_liquid | `molecules EC 600 Li+ 45 PF6- 45  # about 1 M` | 05_electrolyte.chaord | yes |
 | `nanotube` | carbon:region_crystal | `(no example in spec/examples/ - add one)` | - | yes |
 | `note` | core:provenance | `(no example in spec/examples/ - add one)` | - | yes |

@@ -1,14 +1,24 @@
 """Generate the Chaord reference data for disordered systems (bench/reference).
 
-Six cases, each >= 5 decorrelated equilibrium frames, produced with ASE as an
+Seven cases, each >= 5 decorrelated equilibrium frames, produced with ASE as an
 independent MD engine and published potentials:
 
   lj_liquid          Lennard-Jones liquid          rho*=0.85, T*=0.72
-  lj_glass           Lennard-Jones glass           melt T*=2.0 -> quench -> anneal
+  lj_liquid_large    Lennard-Jones liquid, N=2048  same state point (A9 case)
+  lj_glass           Lennard-Jones glass           3 independent quenches
+                                                   (cross-quench noise floor)
   lj_solid_liquid    LJ solid/liquid interface     fcc bottom half + melted top
   water_tip4p        rigid TIP4P water             rho=0.997 g/cm3, 300 K
   nacl_aq            1 M NaCl in rigid SPC/E       Joung-Cheatham ions, Wolf/DSF
   cu_solid_liquid    fcc Cu solid/liquid interface FBD-1986 EAM (NIST Cu_u3)
+
+Review 2 (2026-09-29) protocol notes: the glass noise floor must come from
+FRAMES OF DIFFERENT QUENCHES (two frames of one quench share the anneal
+basin, so their spacing underestimates the distance an independent rebuild
+sits at); liquid frames must be spaced beyond the correlation time (water
+>= 5 ps); ionic solutions need longer equilibration (nacl_aq 10 ps) before
+ion pairing settles; and A9 needs at least one >= 2000-atom case
+(lj_liquid_large, N=2048).
 
 Frames are stored as frame_<k>.npz with arrays r (N,3), L (3,) and symbols
 (U8); every case directory also holds provenance.json recording engine,
@@ -58,6 +68,7 @@ POT_DIR = HERE / "potentials"
 CU_EAM = POT_DIR / "Cu_u3.eam"
 
 N_FRAMES = 5
+N_QUENCHES = 3                     # independent glass quenches (Review 2)
 WATER_MASS_AMU = 18.01528
 KB = units.kB                      # eV/K
 AMU_PER_A3_PER_G_CM3 = 1.66053906660
@@ -99,15 +110,21 @@ def lj_units_block(temperatures_star: dict) -> dict:
 
 
 def write_case(out: Path, case: str, frames, steps, provenance: dict,
-               wall_s: float):
-    """frames: list of (positions, L, symbols) sampled at equilibrium."""
+               wall_s: float, quenches=None):
+    """frames: list of (positions, L, symbols) sampled at equilibrium.
+
+    quenches: optional per-frame quench index (the glass case stores frames
+    of several independent quenches); recorded in provenance next to step."""
     d = out / case
     d.mkdir(parents=True, exist_ok=True)
     records = []
     for k, (pos, L, symbols) in enumerate(frames):
         f = d / f"frame_{k}.npz"
         rc.save_frame(f, pos, L, symbols)
-        records.append({"file": f.name, "step": int(steps[k])})
+        rec = {"file": f.name, "step": int(steps[k])}
+        if quenches is not None:
+            rec["quench"] = int(quenches[k])
+        records.append(rec)
     provenance["case"] = case
     provenance["wall_clock_s"] = round(wall_s, 1)
     provenance["frames"] = records
@@ -302,36 +319,119 @@ def case_lj_liquid(out: Path, seed: int):
     write_case(out, "lj_liquid", frames, steps, prov, time.time() - t0)
 
 
+def case_lj_liquid_large(out: Path, seed: int):
+    """N=2048 LJ liquid at the standard state point (A9 needs a >= 2000-atom
+    reference case; Review 2, 2026-09-29).
+
+    Same state point, potential and sampling stride as lj_liquid; only the
+    cell is bigger (fcc 8x8x8, L=13.51 sigma > 2 x rc). Equilibration is
+    2x longer than lj_liquid: the cell starts as a perfect fcc crystal and
+    must lose lattice memory by homogeneous melting, and in the 4x larger
+    cell the melt front has 1.7x farther to travel."""
+    t0 = time.time()
+    n, rho_star, t_star = 2048, 0.85, 0.72
+    T_K = t_star / KB
+    atoms, a0 = lj_fcc(8, 8, 8, rho_star)
+    L = np.array(atoms.cell.lengths())
+    atoms.calc = LennardJones(epsilon=1.0, sigma=1.0, rc=2.5, smooth=False)
+    thermalize(atoms, T_K, rng_for(seed, "vel"))
+    equil, stride = 4000, 1000
+    run_langevin(atoms, equil, T_K, 0.005, 0.5,
+                 rng_for(seed, "md"), label="equil")
+    frames, steps = [], []
+    for k in range(N_FRAMES):
+        run_langevin(atoms, stride, T_K, 0.005, 0.5,
+                     rng_for(seed, "samp", k), label=f"sample {k}")
+        steps.append(equil + (k + 1) * stride)
+        frames.append((atoms.positions.copy(), L, ["X"] * n))
+    prov = {
+        "engine": engine_block(),
+        "potential": {
+            "name": "Lennard-Jones 12-6",
+            "implementation": "ase.calculators.lj.LennardJones",
+            "citation": ("Lennard-Jones potential as implemented in ASE "
+                         "(https://ase-lib.org); original: J. E. Jones, "
+                         "Proc. R. Soc. Lond. A 106, 463 (1924)"),
+            "parameters": {"epsilon_eV": 1.0, "sigma_A": 1.0,
+                           "rc_sigma": 2.5, "smooth": False,
+                           "truncation": "energy-shifted at rc=2.5 sigma, "
+                                         "forces truncated (ASE default)"},
+        },
+        "units": lj_units_block({"equilibrium": t_star}),
+        "protocol": {
+            "description": (
+                "N=2048 fcc start (8x8x8 cells, L=13.51 sigma) at rho*=0.85 "
+                "(identical state point to lj_liquid; exists so the bench "
+                "has a >= 2000-atom reference case, A9), Maxwell velocities "
+                "at T*, Langevin NVT (gamma*=0.5/tau) equilibration for 4000 "
+                "steps (20 tau; 2x lj_liquid because the perfect crystal "
+                "must melt homogeneously and the melt front travels farther "
+                "in the 4x larger cell), then 5 frames at 1000-step (5 tau) "
+                "intervals; dt*=0.005"),
+            "ensemble": "NVT (Langevin, ase.md.langevin, fixcm=False)",
+            "steps": {"equilibration": equil, "sampling_stride": stride},
+            "friction_per_tau": 0.5,
+        },
+        "seed": seed,
+        "sanity": {
+            "density": [{"region": "bulk", "target": rho_star,
+                         "tolerance_pct": 2.0,
+                         "note": "atom number density, sigma units"}],
+            "min_pairs": [{"elements": ["X"], "floor": 0.8,
+                           "note": "0.8 sigma hard core"}],
+            "gr_peaks": [{"elements": ["X"], "window": [1.05, 1.12],
+                          "rmax": 2.5,
+                          "note": "LJ liquid at rho*=0.85, T*~0.7: literature "
+                                  "first peak 1.05-1.12 sigma"}],
+        },
+    }
+    write_case(out, "lj_liquid_large", frames, steps, prov, time.time() - t0)
+
+
 def case_lj_glass(out: Path, seed: int):
+    """Three independent quenches of the identical melt-quench protocol.
+
+    Review 2 (2026-09-29): the glass noise floor must be built from pairs of
+    frames of DIFFERENT quenches. Two frames of one anneal segment share the
+    amorphous basin they were quenched into, so their spacing measures only
+    thermal noise around that basin, not the basin-to-basin distance an
+    independent rebuild (itself a fresh quench) would sit at. Each quench
+    starts from the same fcc configuration but carries its own seed
+    (velocities + Langevin noise), so after the T*=2.0 melt the quenches are
+    statistically independent; the anneal never crosses basins at T*=0.01.
+    Frames are stored quench-major: frame 5*q+k is frame k of quench q."""
     t0 = time.time()
     n, rho_star = 500, 0.85
     t_melt, t_end, t_anneal = 2.0, 0.01, 0.01
-    atoms, a0 = lj_fcc(5, 5, 5, rho_star)
-    L = np.array(atoms.cell.lengths())
-    atoms.calc = LennardJones(epsilon=1.0, sigma=1.0, rc=2.5, smooth=False)
-    thermalize(atoms, t_melt / KB, rng_for(seed, "vel"))
-
     melt, quench, anneal_eq, stride = 1500, 3000, 1000, 500
-    run_langevin(atoms, melt, t_melt / KB, 0.005, 0.5,
-                 rng_for(seed, "melt"), label="melt")
-    # linear quench: lower the Langevin bath linearly every step
-    t1 = time.time()
-    atoms.set_constraint()
-    rng_q = rng_for(seed, "quench")
-    for s in range(quench):
-        T_s = t_melt + (t_end - t_melt) * (s + 1) / quench
-        Langevin(atoms, 0.005, temperature_K=T_s / KB, friction=0.5,
-                 rng=rng_q, fixcm=False).run(1)
-    print(f"    quench: {quench} steps in {time.time()-t1:.0f}s")
-    run_langevin(atoms, anneal_eq, t_anneal / KB, 0.005, 0.5,
-                 rng_for(seed, "anneal"), label="anneal")
-    frames, steps = [], []
-    step0 = melt + quench + anneal_eq
-    for k in range(N_FRAMES):
-        run_langevin(atoms, stride, t_anneal / KB, 0.005, 0.5,
-                     rng_for(seed, "samp", k), label=f"sample {k}")
-        steps.append(step0 + (k + 1) * stride)
-        frames.append((atoms.positions.copy(), L, ["X"] * n))
+    quench_seeds = [seed + q for q in range(N_QUENCHES)]
+    frames, steps, quench_ids = [], [], []
+    for q, qs in enumerate(quench_seeds):
+        print(f"  quench {q} (seed {qs})")
+        atoms, a0 = lj_fcc(5, 5, 5, rho_star)
+        L = np.array(atoms.cell.lengths())
+        atoms.calc = LennardJones(epsilon=1.0, sigma=1.0, rc=2.5, smooth=False)
+        thermalize(atoms, t_melt / KB, rng_for(qs, "vel"))
+        run_langevin(atoms, melt, t_melt / KB, 0.005, 0.5,
+                     rng_for(qs, "melt"), label="melt")
+        # linear quench: lower the Langevin bath linearly every step
+        t1 = time.time()
+        atoms.set_constraint()
+        rng_q = rng_for(qs, "quench")
+        for s in range(quench):
+            T_s = t_melt + (t_end - t_melt) * (s + 1) / quench
+            Langevin(atoms, 0.005, temperature_K=T_s / KB, friction=0.5,
+                     rng=rng_q, fixcm=False).run(1)
+        print(f"    quench: {quench} steps in {time.time()-t1:.0f}s")
+        run_langevin(atoms, anneal_eq, t_anneal / KB, 0.005, 0.5,
+                     rng_for(qs, "anneal"), label="anneal")
+        step0 = melt + quench + anneal_eq
+        for k in range(N_FRAMES):
+            run_langevin(atoms, stride, t_anneal / KB, 0.005, 0.5,
+                         rng_for(qs, "samp", k), label=f"sample {k}")
+            steps.append(step0 + (k + 1) * stride)
+            frames.append((atoms.positions.copy(), L, ["X"] * n))
+            quench_ids.append(q)
     rate = (t_melt - t_end) / (quench * 0.005)
     prov = {
         "engine": engine_block(),
@@ -348,16 +448,30 @@ def case_lj_glass(out: Path, seed: int):
                                  "anneal": t_anneal}),
         "protocol": {
             "description": (
-                "N=500 fcc start at rho*=0.85; melt at T*=2.0 (1500 steps); "
-                "linear quench T*=2.0 -> 0.01 over 3000 steps (rate "
-                f"{rate:.4f} T*/tau); anneal at T*=0.01 for 1000 steps; 5 "
-                "frames at 500-step intervals of the anneal segment; "
-                "dt*=0.005, Langevin gamma*=0.5"),
+                f"{N_QUENCHES} independent quenches (distinct seeds, identical "
+                "protocol; frames stored quench-major: frame 5*q+k = frame k "
+                "of quench q), each: N=500 fcc start at rho*=0.85; melt at "
+                "T*=2.0 (1500 steps); linear quench T*=2.0 -> 0.01 over 3000 "
+                f"steps (rate {rate:.4f} T*/tau); anneal at T*=0.01 for 1000 "
+                "steps; 5 frames at 500-step intervals of the anneal segment; "
+                "dt*=0.005, Langevin gamma*=0.5. The pairwise noise floor "
+                "recorded in reports/noise_floors.json is the mean over "
+                "cross-quench frame pairs (see cross_quench note)"),
             "ensemble": "NVT (Langevin, fixcm=False)",
+            "cross_quench": True,
+            "cross_quench_note": (
+                "the glass noise floor uses pairs of frames from different "
+                "quenches; within-one-quench frame pairs share the amorphous "
+                "basin and sit systematically closer (measured Review 2: "
+                "cross-quench gr_rms ~0.17 vs within-quench ~0.10), so a "
+                "within-quench floor is too tight for an independent rebuild"),
             "quench_rate_Tstar_per_tau": round(rate, 5),
+            "n_quenches": N_QUENCHES,
+            "quench_seeds": quench_seeds,
             "steps": {"melt": melt, "quench": quench,
                       "anneal_equilibration": anneal_eq,
-                      "sampling_stride": stride},
+                      "sampling_stride": stride,
+                      "frames_per_quench": N_FRAMES},
             "friction_per_tau": 0.5,
         },
         "seed": seed,
@@ -372,7 +486,8 @@ def case_lj_glass(out: Path, seed: int):
                           "note": "LJ glass first peak ~1.1 sigma"}],
         },
     }
-    write_case(out, "lj_glass", frames, steps, prov, time.time() - t0)
+    write_case(out, "lj_glass", frames, steps, prov, time.time() - t0,
+               quenches=quench_ids)
 
 
 def case_lj_solid_liquid(out: Path, seed: int):
@@ -493,9 +608,9 @@ def case_water_tip4p(out: Path, seed: int):
                  rng_for(seed, "equil"),
                  keep_constraints=True, label="equil")
     frames, steps = [], []
-    stride = 1500                      # 1.5 ps between frames
-    step0 = 5000
-    for k in range(N_FRAMES):
+    stride = 5000                      # 5 ps between frames (Review 2: the
+    step0 = 5000                       # 1.5 ps spacing left frames partly
+    for k in range(N_FRAMES):          # correlated -> too-tight floor)
         run_langevin(atoms, stride, 300.0, 1 * units.fs, 0.05,
                      rng_for(seed, "samp", k),
                      keep_constraints=True, label=f"sample {k}")
@@ -537,10 +652,12 @@ def case_water_tip4p(out: Path, seed: int):
                 "rigid orientations; FIRE relaxation (fmax 0.05 eV/A); "
                 "Langevin NVT dt=1 fs, friction 0.05 per ASE time unit: "
                 "2.5 ps at 350 K (melt-in), 2.5 ps at 300 K, then 5 frames "
-                "at 1.5 ps intervals at 300 K"),
+                "at 5 ps intervals at 300 K (frame spacing beyond the water "
+                "structural relaxation time so the pairwise noise floor is "
+                "not shrunk by residual correlation; Review 2)"),
             "ensemble": "NVT (Langevin, rigid constraints, fixcm=False)",
             "steps": {"hot_350K": 2500, "equil_300K": 2500,
-                      "sampling_stride": 1500},
+                      "sampling_stride": 5000},
             "dt_fs": 1.0,
         },
         "seed": seed,
@@ -617,15 +734,19 @@ def case_nacl_aq(out: Path, seed: int):
     atoms.set_constraint(RigidWater(nw))
     relax_fire(atoms, fmax=0.05, steps=800, label="solution")
     thermalize(atoms, 300.0, rng_for(seed, "vel"))
-    run_langevin(atoms, 1500, 350.0, 1 * units.fs, 0.05,
+    # 10 ps total equilibration before sampling (Review 2: 3.5 ps left the
+    # ion shells / pairing statistics still drifting; Na-Cl contact-pair
+    # exchange needs the longer run)
+    hot, equil = 1500, 8500
+    run_langevin(atoms, hot, 350.0, 1 * units.fs, 0.05,
                  rng_for(seed, "hot"),
                  keep_constraints=True, label="hot 350K")
-    run_langevin(atoms, 2000, 300.0, 1 * units.fs, 0.05,
+    run_langevin(atoms, equil, 300.0, 1 * units.fs, 0.05,
                  rng_for(seed, "equil"),
                  keep_constraints=True, label="equil")
     frames, steps = [], []
     stride = 1000
-    step0 = 3500
+    step0 = hot + equil
     for k in range(N_FRAMES):
         run_langevin(atoms, stride, 300.0, 1 * units.fs, 0.05,
                      rng_for(seed, "samp", k),
@@ -686,10 +807,11 @@ def case_nacl_aq(out: Path, seed: int):
                 "and the nearest neighbour, placed at the midpoint so the "
                 "anion starts with a ~3.2 A cavity); FIRE (fmax 0.05 eV/A); "
                 "Langevin NVT dt=1 fs, friction 0.05 per ASE time unit: "
-                "1.5 ps at 350 K, 2 ps at 300 K, then 5 frames at 1 ps "
-                "intervals at 300 K"),
+                "1.5 ps at 350 K, 8.5 ps at 300 K (10 ps total "
+                "equilibration, Review 2: ion pairing needs longer than the "
+                "previous 3.5 ps), then 5 frames at 1 ps intervals at 300 K"),
             "ensemble": "NVT (Langevin, rigid water, fixcm=False)",
-            "steps": {"hot_350K": 1500, "equil_300K": 2000,
+            "steps": {"hot_350K": 1500, "equil_300K": 8500,
                       "sampling_stride": 1000},
             "dt_fs": 1.0,
         },
@@ -853,6 +975,7 @@ def case_cu_solid_liquid(out: Path, seed: int):
 
 CASES = {
     "lj_liquid": case_lj_liquid,
+    "lj_liquid_large": case_lj_liquid_large,
     "lj_glass": case_lj_glass,
     "lj_solid_liquid": case_lj_solid_liquid,
     "water_tip4p": case_water_tip4p,

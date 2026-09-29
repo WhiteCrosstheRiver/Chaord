@@ -42,16 +42,26 @@ def observables(frame: Frame, dialect, rmax=None, bins=None,
     coordination histogram.  Selection groups add the rich observables of
     chaord.cv.rich on top (they never change the legacy keys):
 
-      "gr"        — g(r), bin centres, mean cn, cn histogram (legacy keys)
-      "partial_gr" — one g(r) per unordered species pair present, keyed
+    ``"gr"``        — g(r), bin centres, mean cn, cn histogram (legacy keys).
+                     Under a dialect that sets
+                     ``partial_gr_exclude_intramolecular`` (the molecular
+                     dialect -- the same switch the partial g(r) uses),
+                     same-molecule pairs are dropped: the intramolecular
+                     peaks are exact geometry constants pinned by the water
+                     ``model`` statement, not thermal statistics, and a
+                     rigid delta-peak on a histogram bin edge (SPC/E
+                     r_OH = 1.0000 A) is unreproducible by any deterministic
+                     rebuild. Atomic dialects keep the raw atom pair list.
+    ``"partial_gr"`` — one g(r) per unordered species pair present, keyed
                     ``gr_<a>-<b>`` with bin centres ``rm_<a>-<b>``
-      "angle"     — bond-angle density ``angle`` with centres ``angle_centers``
-      "density"   — per-bin number density along z, key ``density``
+    ``"angle"``     — bond-angle density ``angle`` with centres ``angle_centers``
+    ``"density"``   — per-bin number density along z, key ``density``
     """
     from scipy.spatial import cKDTree
     groups = _resolve_selection(selection)
     out: dict = {}
     if "gr" in groups:
+        from .rich import _molecule_ids
         L = frame.cell_diag
         pos = np.mod(frame.pos, L)
         rmax = float(rmax if rmax is not None else dialect.threshold("gr_rmax_fluid"))
@@ -60,6 +70,12 @@ def observables(frame: Frame, dialect, rmax=None, bins=None,
         tree = cKDTree(pos, boxsize=L)
 
         pairs = tree.query_pairs(rmax, output_type="ndarray")
+        mol = _molecule_ids(frame, dialect)
+        if mol is not None and len(pairs):
+            # dialect-gated intramolecular exclusion, see the docstring: the
+            # switch is the molecular dialect's own
+            # partial_gr_exclude_intramolecular, never a core default
+            pairs = pairs[mol[pairs[:, 0]] != mol[pairs[:, 1]]]
         d = pos[pairs[:, 1]] - pos[pairs[:, 0]]
         d -= L * np.round(d / L)
         r = np.linalg.norm(d, axis=1)

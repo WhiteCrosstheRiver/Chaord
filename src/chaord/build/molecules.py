@@ -33,7 +33,16 @@ def _register_mol(name, symbols, rel, charge=0, pack_radius=None):
 _register_mol("H2O", ["O", "H", "H"],
               [[0.0, 0.0, 0.0],
                [0.586, 0.757, 0.0],    # O-H 0.9572 A, H-O-H angle 104.52 deg
-               [0.586, -0.757, 0.0]])
+               [0.586, -0.757, 0.0]])  # (TIP4P, the dialect default water model)
+_register_mol("H2O/spce", ["O", "H", "H"],
+              [[0.0, 0.0, 0.0],
+               [0.57735, 0.81650, 0.0],   # O-H 1.0000 A, H-O-H 109.47 deg
+               [0.57735, -0.81650, 0.0]])  # (SPC/E: Berendsen, Grigera &
+                                          # Straatsma, J. Phys. Chem. 91,
+                                          # 6269 (1987); the model-qualified
+                                          # template name the fluid lift uses
+                                          # for non-default water models -- see
+                                          # the dialect's water_models table)
 _register_mol("N2", ["N", "N"], [[0.0, 0.0, -0.55], [0.0, 0.0, 0.55]])   # 1.10 A
 _register_mol("O2", ["O", "O"], [[0.0, 0.0, -0.605], [0.0, 0.0, 0.605]])  # 1.21 A
 _register_mol("CO2", ["O", "C", "O"],
@@ -48,6 +57,100 @@ _register_mol("Li+", ["Li"], [[0.0, 0.0, 0.0]], charge=1, pack_radius=0.90)
 _register_mol("OH", ["O", "H"], [[0.0, 0.0, 0.0], [0.586, 0.757, 0.0]])  # O-H 0.9572 A
 _register_mol("H", ["H"], [[0.0, 0.0, 0.0]])
 # dialect-exempt-end
+
+
+# --------------------------------------------------------------- water models --
+
+def water_model_table(dialect) -> dict:
+    """The dialect's ``water_models`` table (published rigid water models:
+    geometry, classification windows, realization parameters).
+
+    One canonical source: the molecular dialect's table. Dialect
+    combinations that do not ship one (e.g. core+metal realizing a
+    water/metal interface, whose liquid region still runs the classical
+    backend) resolve the molecular table rather than a per-dialect copy of
+    the published data -- two copies could fork, one cannot."""
+    if dialect is None:
+        raise ChaordError(
+            "no dialect: water models resolve through the molecular "
+            "dialect's water_models table")
+    try:
+        table = dialect.threshold("water_models")
+    except ChaordError:
+        from ..dialects import load_dialect
+        table = load_dialect(("core", "molecular")).threshold("water_models")
+    if not isinstance(table, dict):
+        raise ChaordError(
+            "the water_models threshold must be a table of models "
+            "(see the molecular dialect)")
+    return table
+
+
+def classify_water_model(dialect, r_oh_median) -> str | None:
+    """Which rigid water model does a median O-H distance belong to?
+
+    One definition, used by both directions: the fluid lift classifies a
+    frame with it and the classical realization picks its potential with it.
+    A model claims the window ``r_oh_A +- classify_half_width_A``; exactly one
+    window may match. None means the geometry is no known rigid model
+    (non-rigid water, a mixture, or an unknown potential) and the chain falls
+    back to the table's default."""
+    matches = [name for name, spec in water_model_table(dialect).items()
+               if isinstance(spec, dict)
+               and abs(float(r_oh_median) - float(spec["r_oh_A"]))
+               <= float(spec["classify_half_width_A"])]
+    return matches[0] if len(matches) == 1 else None
+
+
+def default_water_model(dialect) -> str:
+    return str(water_model_table(dialect)["default"])
+
+
+def water_template_name(model: str, dialect) -> str:
+    """Program species name of a water model's template: ``H2O`` for the
+    table's default model (byte-identical to the pre-model-statement
+    programs), ``H2O/<model>`` for any other (the builder's template
+    selector: `H2O` packs the default geometry, `H2O/spce` the SPC/E one)."""
+    if model == default_water_model(dialect):
+        return "H2O"
+    return f"H2O/{model}"
+
+
+def measure_water_oh_median(frame: Frame, dialect) -> float | None:
+    """Median minimum-image O-H distance over the frame's water molecules
+    (bond-graph H2O components).
+
+    Rigid MD conserves every O-H bond length, so this median is a frame
+    invariant that names the water model (``classify_water_model``); flexible
+    water or a geometry mixture spreads it and classification honestly
+    fails. None when the frame has no H2O component."""
+    from scipy.sparse import coo_matrix
+    from scipy.sparse.csgraph import connected_components
+    edges = bond_graph(frame, dialect)
+    n = len(frame)
+    if not edges:
+        return None
+    rows = [e[0] for e in edges] + [e[1] for e in edges]
+    cols = [e[1] for e in edges] + [e[0] for e in edges]
+    _, labels = connected_components(
+        coo_matrix((np.ones(len(rows)), (rows, cols)), shape=(n, n)),
+        directed=False)
+    L = frame.cell_diag
+    pos = np.mod(frame.pos, L)
+    d_oh = []
+    for g in range(labels.max() + 1):
+        idx = np.where(labels == g)[0]
+        syms = [frame.symbols[i] for i in idx]
+        if sorted(syms) != ["H", "H", "O"]:
+            continue
+        o = idx[[frame.symbols[i] == "O" for i in idx]][0]
+        for h in idx:
+            if h == o:
+                continue
+            d = pos[h] - pos[o]
+            d -= L * np.round(d / L)
+            d_oh.append(float(np.linalg.norm(d)))
+    return float(np.median(d_oh)) if d_oh else None
 
 
 def random_rotation(rng):

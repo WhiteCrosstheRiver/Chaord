@@ -7,6 +7,10 @@ units: []
 keys:
   region_liquid: [molecules, state]
   region_gas: [molecules]
+  physics: [model]                   # water-model statement of the classical
+                                    # realization (core already allows the key;
+                                    # the molecular dialect is where it means
+                                    # something: rigid water potentials)
 
 thresholds:
   bond_tolerance: 1.25            # bond length in units of covalent-radii sums
@@ -55,6 +59,11 @@ thresholds:
   gr_rmax_fluid: 6.0                # g(r) range for fluid asserts, A
   gr_bins_fluid: 60
   fluid_rsa_dmin: 2.8               # hard-core placement for atomic species, A
+  fluid_max_bonded_component: 3   # largest bond-graph component (atoms) still one
+                                  # molecule of a single-phase fluid (largest shipped
+                                  # template = 3: H2O, CO2); an extended component is
+                                  # a second phase (metal slab, network) and lifts as
+                                  # interface/amorphous, never as a pseudo-molecule
   density_match_tolerance: 0.05     # stated vs geometric density mismatch (A12)
   q6_cutoff: 3.2                    # phase-indicator neighbour cutoff for molecular fluids, A
   q6_solid: 0.32                    # solid-like threshold on averaged q6
@@ -62,5 +71,140 @@ thresholds:
   angle_cutoff_fluid: 1.21          # bond-angle neighbour cutoff, A = bond_tolerance x (r_H + r_O):
                                     # captures the O-H bond (0.9572 A), excludes H-H (1.515 A) and
                                     # every intermolecular pair (hard core 1.5 A)
-  partial_gr_exclude_intramolecular: true   # species-pair g(r) drops same-molecule pairs (bond-graph
-                                    # components): the intramolecular O-H peak would otherwise dominate
+  partial_gr_exclude_intramolecular: true   # the fluid g(r) observables (the legacy
+                                    # all-species g(r) AND every partial g(r)) drop
+                                    # same-molecule pairs (bond-graph components):
+                                    # the intramolecular O-H peak would otherwise
+                                    # dominate. Under rigid MD those peaks are exact
+                                    # geometry constants pinned by the physics
+                                    # `model` statement (checked exactly by the
+                                    # water-model tests), not thermal statistics --
+                                    # and SPC/E's r_OH = 1.0000 A sits exactly on a
+                                    # histogram bin edge, where the reference's own
+                                    # frames split by float rounding and no
+                                    # deterministic rigid rebuild can follow (coordinator
+                                    # approval 2026-09-29: an unsatisfiable criterion
+                                    # is a bad criterion, not a stronger one).
+  classical_pair_potentials:      # published LJ parameters for the classical ASE
+                                    # realization (physics backend `classical`) of
+                                    # molecular fluids without water. Keyed by
+                                    # ELEMENT (the frame symbols the backend
+                                    # sees). Per LJ site: sigma (A) and
+                                    # epsilon/kB (K). Monatomic species
+                                    # (sites: 1): one LJ site per atom.
+                                    # Two-site species (sites: 2): one LJ site
+                                    # per atom of the contiguous X,X template
+                                    # pair, intramolecular pair excluded, bond
+                                    # held rigid. Cross terms:
+                                    # Lorentz-Berthelot. Smooth cutoff and MD
+                                    # protocol as everywhere in the backend.
+    Ar:                            # standard Lennard-Jones argon
+      sites: 1
+      sigma_A: 3.405
+      epsilon_K: 119.8             # Hansen & Verlet, Phys. Rev. 184, 151
+                                    # (1969): LJ argon sigma = 3.405 A,
+                                    # epsilon/kB = 119.8 K
+    N:                             # element key: an N2 frame is N,N pairs
+      sites: 2
+      sigma_A: 3.31
+      epsilon_K: 37.3              # two-centre LJ nitrogen, per site: Murthy,
+                                    # Singer, Klein & McDonald, Mol. Phys. 41,
+                                    # 1387 (1980): sigma = 3.31 A, epsilon/kB =
+                                    # 37.3 K, site separation 1.096 A (the N2
+                                    # template's 1.10 A). Choice recorded here:
+                                    # the published model's point quadrupole is
+                                    # DROPPED -- the classical realization is
+                                    # LJ-only; a united-atom single-site N2 was
+                                    # rejected because it cannot describe the
+                                    # two N atoms the program must conserve
+  ase_md:                          # rebuild equilibration protocol of the classical
+                                    # ASE realization (capped FIRE, then seeded
+                                    # Langevin), overriding the backend's module
+                                    # defaults under this dialect. The relax
+                                    # stage's friction (0.005/fs) is the shipped MD
+                                    # references' own recorded protocol (Langevin
+                                    # friction 0.05 per ASE time unit, nacl_aq
+                                    # provenance), so a rebuilt molecular fluid
+                                    # decorrelates at the references' own rate.
+                                    # relax_steps 950 (0.95 ps at dt 1 fs) is the
+                                    # acceptance-budget optimum: the coordination
+                                    # distance to the reference bottoms there
+                                    # (measured curve at fixed seed: relax 600 ->
+                                    # cn_tv x1.77, 950 -> x1.45, 1400 -> x1.54 --
+                                    # longer runs over-decorrelate; the limit is
+                                    # the protocol's own fluctuation level, not
+                                    # missing equilibration). Cost: ~125 s of the
+                                    # 150 s per-case acceptance budget (authorized
+                                    # up to ~130 s, coordinator 2026-09-29).
+    fire_steps: 100
+    fire_fmax: 0.5
+    fast_steps: 120
+    fast_dt_fs: 0.5
+    fast_gamma_per_fs: 0.05
+    relax_steps: 950
+    relax_dt_fs: 1.0
+    relax_gamma_per_fs: 0.005
+    reference_T_K: 300.0
+  water_models:                    # rigid water models the toolchain can                                    # express. Under rigid MD the O-H bond
+                                    # length is a conserved quantity, so the
+                                    # fluid LIFT measures the frame's median
+                                    # O-H distance and classifies it against
+                                    # each model's window (r_oh_A +-
+                                    # classify_half_width_A; the windows must
+                                    # not overlap); it then states the model
+                                    # in the physics block (`model spce`) and
+                                    # names the water species after the
+                                    # template (`H2O` = the default model,
+                                    # `H2O/<model>` for any other). BUILD
+                                    # packs that template's geometry; REALIZE
+                                    # runs the model's published potential
+                                    # (water-water, plus Lorentz-Berthelot and
+                                    # Coulomb cross terms with the
+                                    # Joung-Cheatham ions, which are
+                                    # SPC/E-calibrated). Unclassifiable
+                                    # geometry (non-rigid or unknown water)
+                                    # lifts no model statement and builds the
+                                    # default.
+    default: tip4p
+    tip4p:                         # four-site TIP4P: O-site LJ + virtual M
+                                    # site, charges via ASE's tip4p qH
+                                    # (W. L. Jorgensen, J. Chandrasekhar,
+                                    # J. D. Madura, R. W. Impey, M. L. Klein,
+                                    # J. Chem. Phys. 79, 926 (1983); the
+                                    # realization constants are the ASE
+                                    # module's own, nothing restated).
+                                    # Template: H2O.
+      r_oh_A: 0.9572
+      hoh_angle_deg: 104.52
+      classify_half_width_A: 0.02
+      citation: "W. L. Jorgensen, J. Chandrasekhar, J. D. Madura, R. W. Impey, M. L. Klein, J. Chem. Phys. 79, 926 (1983), TIP4P; realization constants are the ASE tip4p module's own (qH, sigma0, epsilon0, rOH, angleHOH)"
+    spce:                          # three-site SPC/E: LJ and charge on O,
+                                    # charge on H, no M site. All parameters
+                                    # H. J. C. Berendsen, J. R. Grigera,
+                                    # T. P. Straatsma, J. Phys. Chem. 91,
+                                    # 6269 (1987): sigma_O = 3.166 A,
+                                    # epsilon/kB = 78.22 K (0.1553 kcal/mol
+                                    # = 0.6502 kJ/mol), q_O = -0.8476 e,
+                                    # q_H = +0.4238 e, O-H = 1.0000 A,
+                                    # H-O-H = 109.47 deg. The ions to pair
+                                    # with it are the Joung-Cheatham Table 3
+                                    # SPC/E set (I. S. Joung, T. E. Cheatham
+                                    # III, J. Phys. Chem. B 112, 9020 (2008)),
+                                    # already the backend's ion parameters.
+                                    # Template: H2O/spce.
+      r_oh_A: 1.0000
+      hoh_angle_deg: 109.47
+      classify_half_width_A: 0.02
+      sigma_O_A: 3.166
+      epsilon_O_K: 78.22
+      q_O_e: -0.8476
+      q_H_e: 0.4238
+      dsf_alpha_inv_A: 0.2         # realization electrostatics: damped
+                                    # shifted force (Wolf) screening, the
+                                    # shipped nacl_aq reference's recorded
+                                    # family (C. J. Fennell & J. D. Gezelter,
+                                    # J. Chem. Phys. 124, 234104 (2006)):
+                                    # alpha = 0.2 1/A, rc = 9 A, Lorentz-
+                                    # Berthelot LJ energy-shifted at rc
+      realization_rc_A: 9.0
+      citation: "H. J. C. Berendsen, J. R. Grigera, T. P. Straatsma, J. Phys. Chem. 91, 6269 (1987), SPC/E water; ions: I. S. Joung, T. E. Cheatham III, J. Phys. Chem. B 112, 9020 (2008), Table 3 SPC/E set; realization truncation: C. J. Fennell, J. D. Gezelter, J. Chem. Phys. 124, 234104 (2006), damped shifted force (alpha 0.2 1/A, rc 9 A), the recorded protocol of bench/reference/nacl_aq"

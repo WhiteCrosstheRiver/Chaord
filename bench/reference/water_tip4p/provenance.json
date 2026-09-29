@@ -36,12 +36,12 @@
     "note": "physical units; rigid water constrained with ase.constraints.FixBondLengths (O-H, O-H, H-H per molecule; vectorized as RigidWater, same SHAKE iteration) following the ASE water tutorial"
   },
   "protocol": {
-    "description": "N=256 TIP4P waters at rho=0.997 g/cm3 (L=19.7308 A): O sites on a 7^3 grid subset with random rigid orientations; FIRE relaxation (fmax 0.05 eV/A); Langevin NVT dt=1 fs, friction 0.05 per ASE time unit: 2.5 ps at 350 K (melt-in), 2.5 ps at 300 K, then 5 frames at 1.5 ps intervals at 300 K",
+    "description": "N=256 TIP4P waters at rho=0.997 g/cm3 (L=19.7308 A): O sites on a 7^3 grid subset with random rigid orientations; FIRE relaxation (fmax 0.05 eV/A); Langevin NVT dt=1 fs, friction 0.05 per ASE time unit: 2.5 ps at 350 K (melt-in), 2.5 ps at 300 K, then 5 frames at 5 ps intervals at 300 K (frame spacing beyond the water structural relaxation time so the pairwise noise floor is not shrunk by residual correlation; Review 2)",
     "ensemble": "NVT (Langevin, rigid constraints, fixcm=False)",
     "steps": {
       "hot_350K": 2500,
       "equil_300K": 2500,
-      "sampling_stride": 1500
+      "sampling_stride": 5000
     },
     "dt_fs": 1.0
   },
@@ -98,27 +98,27 @@
     ]
   },
   "case": "water_tip4p",
-  "wall_clock_s": 569.2,
+  "wall_clock_s": 1236.0,
   "frames": [
     {
       "file": "frame_0.npz",
-      "step": 6500
+      "step": 10000
     },
     {
       "file": "frame_1.npz",
-      "step": 8000
+      "step": 15000
     },
     {
       "file": "frame_2.npz",
-      "step": 9500
+      "step": 20000
     },
     {
       "file": "frame_3.npz",
-      "step": 11000
+      "step": 25000
     },
     {
       "file": "frame_4.npz",
-      "step": 12500
+      "step": 30000
     }
   ]
 }

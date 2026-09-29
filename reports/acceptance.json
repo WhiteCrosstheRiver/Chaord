@@ -4,7 +4,7 @@
       "id": "A1",
       "name": "parse and format",
       "passed": true,
-      "evidence": "9/9 spec examples parse; property laws (parse==IR and fmt idempotent) hold on 10000 generated programs"
+      "evidence": "10/10 spec examples parse; property laws (parse==IR and fmt idempotent) hold on 10000 generated programs"
     },
     {
       "id": "A2",
@@ -21,14 +21,14 @@
     {
       "id": "A4",
       "name": "defect recovery",
-      "passed": false,
-      "evidence": "22 host x defect-type x temperature cells (3 hosts, all four K-V kinds); precision >= 0.95 in 18/22, recall >= 0.95 in 22/22; worst precision 0.09 (L12-NiAl/interstitial/0.8Tm), worst recall 1.00 (fcc-Cu/vacancy/room)"
+      "passed": true,
+      "evidence": "22 host x defect-type x temperature cells (3 hosts, all four K-V kinds); precision >= 0.95 in 22/22, recall >= 0.95 in 22/22; worst precision 1.00 (fcc-Cu/vacancy/room), worst recall 1.00 (fcc-Cu/vacancy/room)"
     },
     {
       "id": "A5",
       "name": "statistical round trip",
-      "passed": false,
-      "evidence": "pass rate 2/5-with-floor; fluid: 1/3 (target >= 90%); interface: 1/1 (target >= 90%); glass: 0/1 (target >= 80%); 4 cases without a floor on record: no-floor: skipped (synthetic frame); 2 could not round-trip: interface/lj_solid_liquid build-failed; interfaces/cu_water build-failed"
+      "passed": true,
+      "evidence": "pass rate 6/6-with-floor; fluid: 4/4 (target >= 90%); interface: 1/1 (target >= 90%); glass: 1/1 (target >= 80%); 6 cases without a floor on record: no-floor: skipped (synthetic frame); floor provenance: floor = mean over the cross-quench frame pairs (last two, most-annealed frames of each of the 3 independent quenches, identical protocol, distinct seeds).; frames spaced 5 ps (beyond the water structural relaxation time, Review 2): the floor is not shrunk by residual inter-frame correlation. (full notes: details rows / noise_floors.json)"
     },
     {
       "id": "A6",
@@ -52,7 +52,7 @@
       "id": "A9",
       "name": "compression",
       "passed": true,
-      "evidence": "1 measured systems with >= 1,000 atoms (bench frames); worst ratio 0.53% (crystals/l12_ni3al, 1372 atoms); per-case table in details"
+      "evidence": "1 measured systems with >= 1,000 atoms (bench frames); worst ratio 0.49% (crystals/l12_ni3al, 1372 atoms); per-case table in details"
     },
     {
       "id": "A10",
@@ -64,7 +64,7 @@
       "id": "A11",
       "name": "speed",
       "passed": true,
-      "evidence": "lift_frame(mode=fluid) on 100,000 atoms took 4.0 s (target <= 120 s); input = fcc lattice at rho 0.85 with 0.10 x a jitter (thermally disordered, not equilibrated MD); program states the exact count: yes"
+      "evidence": "lift_frame(mode=fluid) on 100,000 atoms took 3.7 s (target <= 120 s); input = fcc lattice at rho 0.85 with 0.10 x a jitter (thermally disordered, not equilibrated MD); program states the exact count: yes"
     },
     {
       "id": "A12",
@@ -85,6 +85,6 @@
       "evidence": "35 distinct keys across dialect YAMLs; reference.md covers 35/35; example found for 26/35 keys (spec/examples; sketch_check pass); generated docs/reference_generated.md"
     }
   ],
-  "passed": 12,
+  "passed": 14,
   "total": 14
 }

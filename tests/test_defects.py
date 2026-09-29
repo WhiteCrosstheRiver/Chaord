@@ -109,6 +109,64 @@ def test_precision_recall_thermal(dialect):
     assert precision >= 0.95
 
 
+def _precision_recall(detected, planted_token, planted_n):
+    """Precision/recall of one planted defect cell (verifier arithmetic:
+    every token other than the planted one is a false positive)."""
+    det = dict(detected)
+    relevant = det.pop(planted_token, 0)
+    tp = min(relevant, planted_n)
+    fn = planted_n - tp
+    fp = relevant - tp + sum(det.values())
+    prec = tp / (tp + fp) if (tp + fp) else 1.0
+    rec = tp / (tp + fn) if (tp + fn) else 1.0
+    return prec, rec
+
+
+def test_l12_interstitial_08tm_no_false_frenkel(dialect):
+    """Root-cause reproducer (review 2, 2026-09-29): A4 precision 0.09.
+
+    L1_2 Ni3Al with 3 planted Ni_i shaken at the 0.8 Tm thermal amplitude
+    lifted with mode=defects.  The thermal noise itself produces NO real
+    vacancy, yet the lift reported ~30 spurious frenkel_pair statements:
+    on-site atoms thermally displaced past the site-match tolerance were read
+    as vacancy+interstitial pairs (defect_diff anchors its tolerance to the
+    noisy frame's shrunk minimum NN distance).  Energy-minimizing the frame
+    before the Wigner-Seitz diff (thermal quench) must relax every on-site
+    atom back onto its site, so precision AND recall are >= 0.95 with only
+    Ni_i 3 in the output.  This test failed before the quench (precision
+    ~0.09)."""
+    rng = np.random.default_rng(20260929)
+    f = build_conventional("L1_2", {"a": 3.572}, ("Ni", "Al"), (4, 4, 4))
+    fd = apply_defects(f, [_kv("Ni_i", 3)], rng, dialect)
+    d_nn = nearest_neighbor_distance(f)
+    amp = float(dialect.threshold("thermal_test_amplitude")) * d_nn
+    hot = Frame(pos=np.mod(fd.pos + rng.normal(size=fd.pos.shape) * amp,
+                           fd.cell_diag),
+                cell=fd.cell, symbols=fd.symbols, pbc=fd.pbc)
+    text = format_program(lift_frame(hot, dialect, mode="defects"))
+    prec, rec = _precision_recall(_defect_lines(text), "Ni_i", 3)
+    assert rec >= 0.95, _defect_lines(text)
+    assert prec >= 0.95, _defect_lines(text)
+
+
+def test_l12_vacancy_08tm_no_false_frenkel(dialect):
+    """Same root cause, second failing A4 cell (precision 0.50): 3 planted V_Ni
+    at 0.8 Tm came back with spurious frenkel_pair statements.  Failed before
+    the quench with {'V_Ni': 3, 'frenkel_pair': 1} (precision 0.75)."""
+    rng = np.random.default_rng(3)
+    f = build_conventional("L1_2", {"a": 3.572}, ("Ni", "Al"), (4, 4, 4))
+    fd = apply_defects(f, [_kv("V_Ni", 3)], rng, dialect)
+    d_nn = nearest_neighbor_distance(f)
+    amp = float(dialect.threshold("thermal_test_amplitude")) * d_nn
+    hot = Frame(pos=np.mod(fd.pos + rng.normal(size=fd.pos.shape) * amp,
+                           fd.cell_diag),
+                cell=fd.cell, symbols=fd.symbols, pbc=fd.pbc)
+    text = format_program(lift_frame(hot, dialect, mode="defects"))
+    prec, rec = _precision_recall(_defect_lines(text), "V_Ni", 3)
+    assert rec >= 0.95, _defect_lines(text)
+    assert prec >= 0.95, _defect_lines(text)
+
+
 def test_defect_round_trip_text_stable(dialect, tmp_path):
     rng = np.random.default_rng(29)
     f = build_conventional("L1_2", {"a": 3.572}, ("Ni", "Al"), (3, 3, 3))

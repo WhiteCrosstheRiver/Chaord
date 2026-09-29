@@ -1,0 +1,25 @@
+chaord 0.1
+dialect core + molecular
+
+system {
+  cell 25.465 25.465 25.465
+  pbc xyz
+  state T 300 K
+  conserve atoms Cl 10 H 1080 Na 10 O 540
+}
+
+physics {
+  backend classical
+  model spce  # rigid water model: O-H 1.0000 A, H-O-H 109.47 deg (Berendsen 1987)
+}
+
+liquid brine : all {  # 1 M NaCl(aq): SPC/E water + Joung-Cheatham SPC/E ions
+  molecules Cl- 10
+  molecules H2O/spce 540  # the model's template: packed and kept rigid at SPC/E geometry
+  molecules Na+ 10
+  state density 1.037 g/cm3
+  assert cn 3.6 +- 1.1 cutoff 3.10 A
+  assert gr_peak 2.85 A height 2.50
+}
+
+residual none

@@ -1,6 +1,6 @@
 # metal dialect — metals and ordered intermetallics (M1+).
 name: metal
-version: "0.2.2"
+version: "0.2.4"
 
 units: []
 
@@ -76,6 +76,11 @@ thresholds:
                                  # densities jam above this; close contacts are capped by
                                  # eam_md.fcap during the fast relaxation stage)
   density_match_tolerance: 0.05  # stated vs geometric density mismatch (A12)
+  fluid_max_bonded_component: 3   # largest bond-graph component (atoms) still one
+                                  # molecule of a single-phase fluid (largest shipped
+                                  # template = 3: H2O, CO2); an extended component is
+                                  # a second phase (metal slab, network) and lifts as
+                                  # interface/amorphous, never as a pseudo-molecule
   # --- M2 defect and solid-solution passes (fractions of the NN distance) ---
   site_match_tol_fraction: 0.35   # atom counts as on-site below this fraction of d_NN
   interstitial_distance_fraction: 0.60
@@ -91,6 +96,13 @@ thresholds:
   defect_stoichiometry_slack: 0.10   # counts may deviate from slot ratio by this fraction
   stoichiometric_preference_min: 0.90 # species-aware fit score to prefer a stoichiometric host
   thermal_test_amplitude: 0.06      # displacement amplitude as fraction of d_NN (0.8 Tm-ish)
+  thermal_quench_steps: 100         # max L-BFGS-B iterations of the defect-lift thermal
+                                   # quench (review 2, 2026-09-29); 0 disables the quench
+  thermal_quench_rc: 2.5            # LJ cutoff of the quench potential, sigma units
+  thermal_quench_spring: 400        # harmonic site restraint of the quench, epsilon/sigma^2
+  thermal_quench_shift_fraction: 0.15  # per-axis box bound around each matched site,
+                                   # x d_NN: keeps free atoms inside the site-match
+                                   # tolerance next to unrelaxed planted defects
   lattice_scan_factor_lo: 0.70
   lattice_scan_factor_hi: 2.40
   lattice_scan_steps: 29
@@ -130,3 +142,56 @@ thresholds:
   burgers_row_angle_tol: 5.0        # degrees: lattice-repeat parallelism for row chains
   burgers_step_band: 0.25           # accepted row-step magnitudes, fraction around family |b|
   frenkel_pair_rc_fraction: 0.80  # max vacancy-interstitial separation named frenkel_pair, x d_NN
+  # --- interface slab lift and build (M4; A5 fix, 2026-09-29) ---
+  # The slab lifter (lift/slab.py decompile) and slab builder (build/slab.py)
+  # read their thresholds by name; until 0.2.4 the metal dialect defined none
+  # of them and any metal-frames interface lift died on the first read. The
+  # values are the lj dialect's semantics converted from sigma to Angstrom at
+  # the Cu scale: the LJ fcc solid has a = 1.609 sigma, so d_nn = a/sqrt(2) =
+  # 1.138 sigma (1 sigma = 0.879 d_nn); Cu fcc a = 3.615 A gives
+  # d_nn = 2.556 A, i.e. 1 sigma ~= 2.246 A. lj values x 2.246 A:
+  bulk_margin: 5.6                  # distance kept from interface centres for bulk
+                                    # statistics (lj 2.5 sigma = 2.2 d_nn = 5.62 A;
+                                    # ~2 Cu nearest-neighbour shells)
+  gr_rmax: 5.6                      # g(r) range of the liquid asserts (lj 2.5 sigma
+                                    # = 2.2 d_nn; first + second Cu shell)
+  gr_bins: 100                      # g(r) bins (as lj)
+  angle_hist_bin: 5                 # bond-angle histogram bin width, degrees (as lj)
+  defect_cluster_rc: 2.9            # linking distance for empty-site/off-lattice
+                                    # complexes (lj 1.3 sigma = 1.14 d_nn = 2.92 A)
+  thin_slab_margin_fraction: 0.8    # thin-film degradation (same rule as lj): when
+                                    # bulk_margin + gr_rmax does not fit in the
+                                    # liquid half-slab, both shrink proportionally
+                                    # until they cover at most this fraction of it;
+                                    # gr_rmax never drops below cn_cutoff, then the
+                                    # margin drops to zero; the shrink is stated as
+                                    # a comment on the liquid block
+  printed_strain_tolerance: 0.2     # tolerance printed on the strain constrain line, %
+                                    # (as lj; percent is dimensionless)
+  rsa_dmin: 2.0                     # hard-core distance for random sequential packing
+                                    # of atomic species (lj 0.90 sigma = 0.79 d_nn =
+                                    # 2.02 A; same rule as fluid_rsa_dmin above)
+  rsa_max_packing_fraction: 0.36    # highest hard-sphere volume fraction the RSA
+                                    # packer may target (monodisperse RSA saturates
+                                    # near 0.38); above it the hard core shrinks to
+                                    # the feasible value and eam_md.fcap relaxes the
+                                    # closer contacts (same rule as lj)
+  rsa_max_tries: 2000000            # total RSA placement attempts before an honest
+                                    # ChaordError (never an unbounded spin)
+  liquid_margin_shrink: 0.7         # shrink of the liquid half-slab used for packing
+                                    # (lj 0.3 sigma = 0.264 d_nn = 0.67 A)
+  md_reference_T: 300               # metadata temperature (Kelvin) stated when the
+                                    # caller gives none (lj states 0.65 reduced; metal
+                                    # physical; same value as eam_md.reference_T_K)
+  lattice_spacing_scan: [1.2, 2.4, 0.001]
+                                    # (lo, hi, step) of layer-spacing candidates for
+                                    # the z-lattice fit, A. core's sigma-scaled
+                                    # [0.6, 1.1, 0.0005] covers the LJ fcc(100)
+                                    # spacing a/2 = 0.80 sigma; scaled x 2.25 for Cu
+                                    # (a/2 = 1.8075 A) and widened to also cover
+                                    # fcc(111) 2.09 A and bcc(110) Fe 2.03 A
+  slab_packing_margin: 0.05         # atom-atom contact buffer when RSA-packing a
+                                    # molecular region against the crystal and itself
+                                    # (bench generator protocol: reject below
+                                    # bond_tolerance x covalent-radii sum + this), A
+  slab_packing_max_tries: 400       # per-molecule RSA placement budget (x n molecules)

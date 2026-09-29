@@ -11,12 +11,32 @@ thresholds:
   q6_solid: 0.32                  # Lechner-Dellago averaged q6 above this = solid-like
   q6_cutoff: 1.45                 # neighbour cutoff for q6 (in sigma)
   bulk_margin: 2.5                # distance kept from interface centres for bulk statistics
+  thin_slab_margin_fraction: 0.8  # thin-film degradation (A5 fix, 2026-09-29): when
+                                  # bulk_margin + gr_rmax does not fit in the liquid
+                                  # half-slab, both shrink proportionally until they
+                                  # cover at most this fraction of it (the rest is the
+                                  # statistics zone); gr_rmax never drops below
+                                  # cn_cutoff, then the margin drops to zero -- a film
+                                  # thinner than cn_cutoff has no honest statistics
+                                  # and raises. The shrink is stated as a comment on
+                                  # the liquid block of the lifted program.
   cn_cutoff: 1.50                 # coordination cutoff (first-shell, ~first g(r) minimum)
   gr_rmax: 2.5                    # g(r) range
   gr_bins: 100
   angle_hist_bin: 5               # bond-angle histogram bin width, degrees
   defect_cluster_rc: 1.3          # linking distance for empty-site/off-lattice complexes
   rsa_dmin: 0.90                  # hard-core distance for random sequential packing
+  rsa_max_packing_fraction: 0.36  # highest hard-sphere volume fraction the RSA
+                                  # packer may target (monodisperse RSA saturates
+                                  # near 0.38; 0.36 keeps completion inside the
+                                  # build budget). Above it the placement hard
+                                  # core shrinks to the feasible value and the MD
+                                  # prior (md.fcap) relaxes the closer contacts --
+                                  # the placement is a prior, not the physics
+                                  # (A5 fix, 2026-09-29: the thin-frame liquid
+                                  # packs at rho ~1.1, infeasible at 0.90 sigma)
+  rsa_max_tries: 2000000          # total RSA placement attempts before an honest
+                                  # ChaordError (never an unbounded spin)
   liquid_margin_shrink: 0.3       # shrink of the liquid half-slab used for packing
   overlap_tolerance: 0.70         # static overlap check, in sigma
   md:
@@ -26,7 +46,25 @@ thresholds:
     relax_dt_fast: 0.001
     relax_gamma_fast: 5.0
     fcap: 30.0
-    relax_steps: 2000
+    relax_steps: 7000            # slow-stage equilibration steps, sized for the largest MD
+                                 # reference fluid (lj_liquid_large, N=2048): erasing the
+                                 # RSA-packed start is diffusive, t_mix ~ L^2 and the cubic
+                                 # edge grows as N^(1/3), so the 2400 steps that equilibrate
+                                 # N=500 need 2400 x (2048/500)^(2/3) = 6144 at N=2048
+                                 # (measured, seed 7 = the acceptance rebuild seed: cn_tv
+                                 # 3.2x floor at 2400 steps, 0.6x floor at 7400; the slab
+                                 # interface-width rebuild of the prototype snapshot, M4,
+                                 # also stays inside its gate at 7400 -- that width is a
+                                 # noisy single-frame draw, so the count was verified
+                                 # against that gate directly, not assumed).
+                                 # Deliberately N-flat: the A5 verifier reads a rebuild's
+                                 # md_steps as relax_steps_fast + relax_steps -- a static
+                                 # dialect sum -- so an N-dependent step count inside the
+                                 # builder would make that metadata lie. Smaller systems
+                                 # simply over-equilibrate at ~4x lower cost per step.
+    relax_steps_base: 2400       # sizing basis: steps that equilibrate relax_steps_ref_n atoms
+    relax_steps_ref_n: 500       # sizing basis count (reference/lj_liquid)
+    relax_steps_exp: 0.6666667   # t_mix ~ L^2 ~ N^(2/3): diffusive mixing of the packed start
     relax_dt: 0.005
     relax_gamma: 0.5
     quench_max_steps: 20000      # cap on quench integration steps (mirrors glass)

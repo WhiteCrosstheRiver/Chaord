@@ -42,11 +42,14 @@ def load_frame(path: Path):
 
 
 def load_case_frames(case_dir: Path):
+    """All stored frames frame_<k>.npz in index order.
+
+    Cases with frames of several independent quenches (lj_glass since
+    Review 2: 3 quenches x 5 frames) have the sanity checks run over every
+    quench, not just the first N_FRAMES_MIN frames."""
     frames = []
-    for k in range(N_FRAMES_MIN):
-        p = case_dir / f"frame_{k}.npz"
-        if not p.is_file():
-            break
+    for p in sorted(case_dir.glob("frame_*.npz"),
+                    key=lambda p: int(p.stem.split("_")[-1])):
         frames.append(load_frame(p))
     return frames
 

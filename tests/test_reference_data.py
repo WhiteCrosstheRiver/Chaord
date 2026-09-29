@@ -1,6 +1,6 @@
 """Acceptance tests for the bench/reference independent-MD reference data.
 
-Six disordered-system cases generated with ASE + published potentials
+Seven disordered-system cases generated with ASE + published potentials
 (bench/reference/generate_reference.py, which is forbidden to import
 chaord; this test file is the consumer and MAY import chaord).
 
@@ -11,6 +11,14 @@ the physical sanity CLI (check_sanity.py) passing, independent re-assertion
 of the literature sanity bounds from its report, rigid-water geometry, and
 the pairwise noise floor of every case written to reports/noise_floors.json
 using chaord's own observables.
+
+Review 2 (2026-09-29) hardened the protocols: lj_glass stores frames of
+THREE independent quenches and its noise floor is the mean over cross-quench
+frame pairs (two frames of one quench share the anneal basin and sit closer
+than independent quenches, so a within-quench floor is too tight for a
+perfect independent rebuild); water frames are spaced 5 ps (beyond the
+structural relaxation time); nacl_aq equilibrates 10 ps before sampling
+(ion pairing); and lj_liquid_large provides a >= 2000-atom liquid (A9).
 """
 import json
 import subprocess
@@ -29,13 +37,17 @@ ROOT = Path(__file__).parent.parent
 REF = ROOT / "bench" / "reference"
 NOISE_FLOORS = ROOT / "reports" / "noise_floors.json"
 
-CASES = ["lj_liquid", "lj_glass", "lj_solid_liquid",
+CASES = ["lj_liquid", "lj_liquid_large", "lj_glass", "lj_solid_liquid",
          "water_tip4p", "nacl_aq", "cu_solid_liquid"]
 FRAMES_PER_CASE = 5
+# lj_glass stores 5 frames of EACH of its 3 independent quenches (Review 2)
+N_FRAMES = {case: FRAMES_PER_CASE for case in CASES}
+N_FRAMES["lj_glass"] = 15
 # dialect used by chaord's fluid observables per case (lj thresholds are in
 # sigma = A for the LJ cases; molecular thresholds in A for the rest)
 DIALECTS = {
     "lj_liquid": ("core", "lj"),
+    "lj_liquid_large": ("core", "lj"),
     "lj_glass": ("core", "glass"),       # glass lifts as amorphous (Review 2)
     "lj_solid_liquid": ("core", "lj"),
     "water_tip4p": ("core", "molecular"),
@@ -46,6 +58,7 @@ DIALECTS = {
 # independent re-assertion of the task's literature bounds
 GR_PEAK_BOUNDS = {
     "lj_liquid": ("gr_peak:X", [1.05, 1.12]),
+    "lj_liquid_large": ("gr_peak:X", [1.05, 1.12]),
     "lj_glass": ("gr_peak:X", [1.05, 1.16]),
     "lj_solid_liquid": ("gr_peak:X@solid", [1.08, 1.20]),
     "water_tip4p": ("gr_peak:O-O", [2.75, 2.90]),
@@ -54,6 +67,7 @@ GR_PEAK_BOUNDS = {
 }
 MIN_PAIR_BOUNDS = {
     "lj_liquid": {"min_pair:X": 0.80},
+    "lj_liquid_large": {"min_pair:X": 0.80},
     "lj_glass": {"min_pair:X": 0.80},
     "lj_solid_liquid": {"min_pair:X": 0.80},
     "water_tip4p": {"min_pair:O-O": 2.40},
@@ -67,11 +81,22 @@ def _provenance(case):
     return json.loads((REF / case / "provenance.json").read_text("utf-8"))
 
 
+def _frame_quench_groups(case):
+    """{quench_id: [frame indices]} from provenance ([] if single run)."""
+    prov = _provenance(case)
+    groups = {}
+    for f, rec in enumerate(prov["frames"]):
+        if "quench" in rec:
+            groups.setdefault(rec["quench"], []).append(f)
+    return groups
+
+
 # ------------------------------------------------------------ frames/prov --
 
 @pytest.mark.parametrize("case", CASES)
 def test_frames_present_readable_and_consistent(case):
-    for k in range(FRAMES_PER_CASE):
+    n_frames = N_FRAMES[case]
+    for k in range(n_frames):
         p = REF / case / f"frame_{k}.npz"
         assert p.is_file(), f"{case}: missing frame_{k}.npz"
         with np.load(p) as z:
@@ -88,7 +113,7 @@ def test_frames_present_readable_and_consistent(case):
             assert np.allclose(L, L0), f"{case}: cell changed between frames"
     # frames must be independent: no two identical coordinate sets
     seen = set()
-    for k in range(FRAMES_PER_CASE):
+    for k in range(n_frames):
         with np.load(REF / case / f"frame_{k}.npz") as z:
             key = z["r"].tobytes()
             assert key not in seen, f"{case}: frame {k} duplicates an earlier"
@@ -98,6 +123,7 @@ def test_frames_present_readable_and_consistent(case):
 @pytest.mark.parametrize("case", CASES)
 def test_provenance_records_everything(case):
     prov = _provenance(case)
+    n_frames = N_FRAMES[case]
     assert prov["case"] == case
     eng = prov["engine"]
     assert eng["name"] == "ASE" and eng["version"] and eng["integrator"]
@@ -106,16 +132,27 @@ def test_provenance_records_everything(case):
     assert "protocol" in prov and prov["protocol"]["steps"]
     assert isinstance(prov["seed"], int)
     frames = prov["frames"]
-    assert len(frames) == FRAMES_PER_CASE
+    assert len(frames) == n_frames
     assert [f["file"] for f in frames] == \
-        [f"frame_{k}.npz" for k in range(FRAMES_PER_CASE)]
-    steps = [f["step"] for f in frames]
-    assert len(set(steps)) == FRAMES_PER_CASE and steps == sorted(steps)
+        [f"frame_{k}.npz" for k in range(n_frames)]
+    groups = _frame_quench_groups(case)
+    if groups:
+        # multi-quench case (lj_glass): sampling steps repeat per quench, so
+        # distinctness/monotonicity are asserted within each quench
+        assert sum(len(g) for g in groups.values()) == n_frames
+        for q, idx in groups.items():
+            steps = [frames[f]["step"] for f in idx]
+            assert len(set(steps)) == len(idx) and steps == sorted(steps), \
+                f"{case} quench {q}: steps not distinct and increasing"
+    else:
+        steps = [f["step"] for f in frames]
+        assert len(set(steps)) == n_frames and steps == sorted(steps)
     san = prov["sanity"]
     assert san["density"] and san["min_pairs"] and san["gr_peaks"]
 
 
-@pytest.mark.parametrize("case", ["lj_liquid", "lj_glass", "lj_solid_liquid"])
+@pytest.mark.parametrize("case", ["lj_liquid", "lj_liquid_large", "lj_glass",
+                                  "lj_solid_liquid"])
 def test_lj_unit_mapping_recorded_and_correct(case):
     u = _provenance(case)["units"]
     tau = u["tau_fs"]
@@ -128,6 +165,40 @@ def test_lj_unit_mapping_recorded_and_correct(case):
         assert t_K == pytest.approx(t_K, abs=1e-3)
         break
     assert u["temperatures_K"]
+
+
+# ----------------------------------------------- Review 2 protocol hardening --
+
+def test_lj_glass_floor_comes_from_independent_quenches():
+    """Review 2: the glass floor must be built from frames of >= 3
+    independent quenches (distinct seeds, identical protocol), >= 5 frames
+    per quench, and the provenance must say so (cross_quench)."""
+    prov = _provenance("lj_glass")
+    proto = prov["protocol"]
+    assert proto["cross_quench"] is True, \
+        "lj_glass provenance must record the cross-quench protocol"
+    seeds = proto["quench_seeds"]
+    assert len(seeds) >= 3, "need >= 3 quench seeds"
+    assert len(set(seeds)) == len(seeds), "quench seeds must be distinct"
+    assert isinstance(prov["seed"], int) and prov["seed"] not in seeds[1:]
+    groups = _frame_quench_groups("lj_glass")
+    assert len(groups) >= 3, "frames must span >= 3 quenches"
+    for q, idx in groups.items():
+        assert len(idx) >= FRAMES_PER_CASE, \
+            f"quench {q}: only {len(idx)} frames, need >= {FRAMES_PER_CASE}"
+    # frame files are quench-major: the block [q*5, q*5+5) belongs to quench q
+    for q, idx in sorted(groups.items()):
+        assert idx == list(range(q * FRAMES_PER_CASE,
+                                 (q + 1) * FRAMES_PER_CASE)), \
+            f"quench {q} frames {idx} are not a contiguous quench-major block"
+
+
+def test_lj_liquid_large_has_at_least_2000_atoms():
+    """Review 2 / A9: the bench needs a >= 2000-atom reference case; every
+    lj_liquid_large frame must carry it (constant N is checked separately)."""
+    for k in range(N_FRAMES["lj_liquid_large"]):
+        with np.load(REF / "lj_liquid_large" / f"frame_{k}.npz") as z:
+            assert len(z["r"]) >= 2000, f"frame {k}: {len(z['r'])} atoms"
 
 
 # ------------------------------------------------------ circular ban/CLI --
@@ -232,33 +303,99 @@ def test_rigid_water_geometry_preserved(case, roh):
 
 # ------------------------------------------------------------- noise floor --
 
-def test_pairwise_noise_floors_written():
-    """Noise floor between every pair of frames of each case, with chaord's
-    own fluid observables, written to reports/noise_floors.json."""
-    floors = {}
-    for case in CASES:
-        dialect = load_dialect(DIALECTS[case])
-        frames = [read_frame(REF / case / f"frame_{k}.npz")
-                  for k in range(FRAMES_PER_CASE)]
-        obs = [observables(f, dialect) for f in frames]
-        pairs = []
-        for i, j in combinations(range(FRAMES_PER_CASE), 2):
-            d = distance(obs[i], obs[j])
-            assert np.isfinite(d["gr_rms"]) and np.isfinite(d["cn_tv"])
-            pairs.append({"frames": [i, j], "gr_rms": d["gr_rms"],
-                          "cn_tv": d["cn_tv"]})
-        gr = [p["gr_rms"] for p in pairs]
-        tv = [p["cn_tv"] for p in pairs]
-        assert min(gr) > 0.0, f"{case}: frames not decorrelated (gr_rms 0)"
-        floors[case] = {
-            "dialect": " + ".join(DIALECTS[case]),
-            "n_pairs": len(pairs),
+# the single-quench glass floor before Review 2 (gr_rms mean 0.0999): the
+# regenerated floor must clear it, i.e. it really measures quench-to-quench
+PRE_REVIEW2_GLASS_FLOOR = 0.0999
+
+
+def _floor_summary(pairs):
+    gr = [p["gr_rms"] for p in pairs]
+    tv = [p["cn_tv"] for p in pairs]
+    return {"n_pairs": len(pairs),
             "gr_rms_mean": float(np.mean(gr)),
             "gr_rms_max": float(np.max(gr)),
             "cn_tv_mean": float(np.mean(tv)),
             "cn_tv_max": float(np.max(tv)),
-            "pairs": pairs,
-        }
+            "pairs": pairs}
+
+
+def test_pairwise_noise_floors_written():
+    """Noise floor between every pair of frames of each case, with chaord's
+    own fluid observables, written to reports/noise_floors.json.
+
+    lj_glass (Review 2): the floor is the mean over CROSS-QUENCH frame pairs
+    (last two, most-annealed frames of each of the 3 independent quenches);
+    the within-one-quench pairs of the same selected frames are recorded in
+    `intra_quench` and must sit closer -- two frames of one anneal segment
+    share the amorphous basin, an independent rebuild does not."""
+    floors = {}
+    for case in CASES:
+        dialect = load_dialect(DIALECTS[case])
+        n = N_FRAMES[case]
+        frames = [read_frame(REF / case / f"frame_{k}.npz")
+                  for k in range(n)]
+        obs = [observables(f, dialect) for f in frames]
+        if case == "lj_glass":
+            groups = _frame_quench_groups(case)
+            quench_of = {f: q for q, idx in groups.items() for f in idx}
+            # two frames per quench: the LAST two of its anneal segment. The
+            # earliest post-quench frames still age (the fast quench leaves
+            # relaxation drift that is a transient, not the equilibrium
+            # fluctuation a noise floor measures; measured: first-vs-last
+            # within-quench gr_rms up to 0.51 vs 0.10 between the last two
+            # frames), so the floor is built on the most-annealed frames
+            sel = [i for idx in groups.values()
+                   for i in (idx[-2], idx[-1])]     # 2 frames per quench
+            cross, intra = [], []
+            for i, j in combinations(sel, 2):
+                d = distance(obs[i], obs[j])
+                entry = {"frames": [i, j], "gr_rms": d["gr_rms"],
+                         "cn_tv": d["cn_tv"]}
+                (cross if quench_of[i] != quench_of[j] else intra).append(entry)
+            assert min(p["gr_rms"] for p in cross) > 0.0, \
+                "cross-quench frames not distinct"
+            floors[case] = {
+                "dialect": " + ".join(DIALECTS[case]),
+                "cross_quench": True,
+                "note": ("floor = mean over the cross-quench frame pairs "
+                         "(last two, most-annealed frames of each of the 3 "
+                         "independent quenches, identical protocol, distinct "
+                         "seeds). Within-one-quench pairs of the same frames "
+                         "(intra_quench below) share the anneal basin and "
+                         "sit closer; a floor built from them is too tight "
+                         "for a perfect independent rebuild (Review 2)."),
+                **_floor_summary(cross),
+                "intra_quench": _floor_summary(intra),
+            }
+            # the floor must now reflect basin-to-basin distance: larger than
+            # the shared-basin spacing AND larger than the pre-Review 2 floor
+            assert floors[case]["gr_rms_mean"] > \
+                floors[case]["intra_quench"]["gr_rms_mean"], \
+                ("cross-quench floor not above the within-quench spacing "
+                 "(gr_rms)")
+            assert floors[case]["cn_tv_mean"] > \
+                floors[case]["intra_quench"]["cn_tv_mean"], \
+                "cross-quench floor not above the within-quench spacing (cn_tv)"
+            assert floors[case]["gr_rms_mean"] > PRE_REVIEW2_GLASS_FLOOR, (
+                "glass floor still at the single-quench level "
+                f"{floors[case]['gr_rms_mean']:.4f} <= "
+                f"{PRE_REVIEW2_GLASS_FLOOR}")
+        else:
+            pairs = []
+            for i, j in combinations(range(n), 2):
+                d = distance(obs[i], obs[j])
+                assert np.isfinite(d["gr_rms"]) and np.isfinite(d["cn_tv"])
+                pairs.append({"frames": [i, j], "gr_rms": d["gr_rms"],
+                              "cn_tv": d["cn_tv"]})
+            assert min(p["gr_rms"] for p in pairs) > 0.0, \
+                f"{case}: frames not decorrelated (gr_rms 0)"
+            floors[case] = {"dialect": " + ".join(DIALECTS[case]),
+                            **_floor_summary(pairs)}
+            if case == "water_tip4p":
+                floors[case]["note"] = (
+                    "frames spaced 5 ps (beyond the water structural "
+                    "relaxation time, Review 2): the floor is not shrunk by "
+                    "residual inter-frame correlation")
     NOISE_FLOORS.parent.mkdir(parents=True, exist_ok=True)
     NOISE_FLOORS.write_text(json.dumps(floors, indent=2), encoding="utf-8")
     assert set(floors) == set(CASES)

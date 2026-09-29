@@ -55,11 +55,11 @@
     "note": "rigid SPC/E water on the same machinery as water_tip4p; SPC/E is the solvent the Joung-Cheatham ion parameters were fitted for"
   },
   "protocol": {
-    "description": "540 rigid SPC/E waters + 10 Na+ + 10 Cl- (1.03 M), rho=1.037 g/cm3 (L=25.4652 A): water O on a 9^3 grid subset with random orientations; each Na+ replaces one grid water, each Cl- replaces two (its site and the nearest neighbour, placed at the midpoint so the anion starts with a ~3.2 A cavity); FIRE (fmax 0.05 eV/A); Langevin NVT dt=1 fs, friction 0.05 per ASE time unit: 1.5 ps at 350 K, 2 ps at 300 K, then 5 frames at 1 ps intervals at 300 K",
+    "description": "540 rigid SPC/E waters + 10 Na+ + 10 Cl- (1.03 M), rho=1.037 g/cm3 (L=25.4652 A): water O on a 9^3 grid subset with random orientations; each Na+ replaces one grid water, each Cl- replaces two (its site and the nearest neighbour, placed at the midpoint so the anion starts with a ~3.2 A cavity); FIRE (fmax 0.05 eV/A); Langevin NVT dt=1 fs, friction 0.05 per ASE time unit: 1.5 ps at 350 K, 8.5 ps at 300 K (10 ps total equilibration, Review 2: ion pairing needs longer than the previous 3.5 ps), then 5 frames at 1 ps intervals at 300 K",
     "ensemble": "NVT (Langevin, rigid water, fixcm=False)",
     "steps": {
       "hot_350K": 1500,
-      "equil_300K": 2000,
+      "equil_300K": 8500,
       "sampling_stride": 1000
     },
     "dt_fs": 1.0
@@ -196,27 +196,27 @@
     ]
   },
   "case": "nacl_aq",
-  "wall_clock_s": 1112.1,
+  "wall_clock_s": 1918.7,
   "frames": [
     {
       "file": "frame_0.npz",
-      "step": 4500
+      "step": 11000
     },
     {
       "file": "frame_1.npz",
-      "step": 5500
+      "step": 12000
     },
     {
       "file": "frame_2.npz",
-      "step": 6500
+      "step": 13000
     },
     {
       "file": "frame_3.npz",
-      "step": 7500
+      "step": 14000
     },
     {
       "file": "frame_4.npz",
-      "step": 8500
+      "step": 15000
     }
   ]
 }

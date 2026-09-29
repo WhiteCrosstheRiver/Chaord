@@ -5,6 +5,7 @@ import numpy as np
 
 from ..build.molecules import molecular_mass, molecule_census
 from ..io.frames import Frame
+from ..lang.errors import ChaordError
 from ..lang.ir import (
     GeoChain, Name, PhysicsBlock, Program, ProvenanceBlock, Quantity,
     RegionBlock, ResidualBlock, ShAll, Statement, StrVal, SystemBlock, Tol,
@@ -18,12 +19,32 @@ def _all_elements(frame: Frame) -> bool:
     return all(s in chemical_symbols and s != "X" for s in frame.symbols)
 
 
+def bonded_single_phase(frame: Frame, edges, dialect) -> bool:
+    """A bonded frame is one molecular fluid only if every bond-graph
+    component is a small molecule (dialect bound, atoms).
+
+    An extended component -- a metal slab under a molecular-containing
+    dialect, an amorphous network -- is a second phase and must lift as an
+    interface or network program. The M3 shortcut (any bonds -> fluid) predates
+    interface segmentation and absorbed whole crystals as pseudo-molecule
+    census blobs (e.g. 'Cu384')."""
+    from scipy.sparse import coo_matrix
+    from scipy.sparse.csgraph import connected_components
+    n = len(frame)
+    rows = [e[0] for e in edges] + [e[1] for e in edges]
+    cols = [e[1] for e in edges] + [e[0] for e in edges]
+    _, labels = connected_components(
+        coo_matrix((np.ones(len(rows)), (rows, cols)), shape=(n, n)),
+        directed=False)
+    largest = int(np.bincount(labels).max())
+    return largest <= int(dialect.threshold("fluid_max_bonded_component"))
+
+
 def is_single_phase(frame: Frame, dialect) -> bool:
     """Should this frame lift as one homogeneous fluid?
 
-    Atomic frames use the dialect's q6 solid-like rule. Molecular frames pass
-    for M3: ordered molecular systems are captured earlier by the crystal and
-    defect paths, and molecular interface segmentation arrives in M4."""
+    Atomic frames use the dialect's q6 solid-like rule. Molecular frames use
+    the component-size rule above (every bonded component a small molecule)."""
     try:
         if not _all_elements(frame):
             edges = []
@@ -31,7 +52,7 @@ def is_single_phase(frame: Frame, dialect) -> bool:
             from ..build.molecules import bond_graph
             edges = bond_graph(frame, dialect)
         if edges:
-            return True
+            return bonded_single_phase(frame, edges, dialect)
         rc = float(dialect.threshold("q6_cutoff"))
         thr = float(dialect.threshold("q6_solid"))
         q6, _, _ = qbar(np.mod(frame.pos, frame.cell_diag), frame.cell_diag, rc=rc)
@@ -119,6 +140,24 @@ def lift_fluid(frame: Frame, dialect, T=None, backend=None) -> Program:
     cn, cn_sd, cn_cut = (_cn_stats_centers(frame, centers, dialect)
                          if centers is not None else _cn_stats(frame, dialect))
 
+    # water model: rigid MD conserves the O-H bond length, so the frame's
+    # median O-H names the model (dialect water_models table). The physics
+    # block states it (`model spce`) and the water species names the model's
+    # template (H2O = the default); unclassifiable geometry states nothing
+    # (the default applies) and the measured median goes to provenance.
+    water_model = None
+    water_oh = None
+    if molecular and "H2O" in census:
+        from ..build.molecules import (
+            classify_water_model, measure_water_oh_median,
+        )
+        water_oh = measure_water_oh_median(frame, dialect)
+        if water_oh is not None:
+            try:
+                water_model = classify_water_model(dialect, water_oh)
+            except ChaordError:
+                water_model = None
+
     # conserve per element for molecular systems, per species for atomic ones
     counts: dict[str, int] = {}
     for s in frame.symbols:
@@ -134,9 +173,13 @@ def lift_fluid(frame: Frame, dialect, T=None, backend=None) -> Program:
         for formula in sorted(census):
             # census keys are Hill formulas (monatomic ions appear as bare
             # elements): programs name species conventionally (Na -> Na+)
+            name = display_name(formula, dialect)
+            if formula == "H2O" and water_model is not None:
+                from ..build.molecules import water_template_name
+                name = water_template_name(water_model, dialect)
             region_stmts.append(Statement(
                 kind="build", key="molecules",
-                values=[Name(text=display_name(formula, dialect)),
+                values=[Name(text=name),
                         Quantity(num=str(census[formula]))]))
         from ase.data import atomic_masses, chemical_symbols
         total_mass = sum(atomic_masses[chemical_symbols.index(s)] for s in frame.symbols)
@@ -180,22 +223,35 @@ def lift_fluid(frame: Frame, dialect, T=None, backend=None) -> Program:
         system_stmts.append(Statement(kind="state", key="T", values=[Quantity(num=f"{T:.2f}")]))
     system_stmts.append(Statement(kind="conserve", key="atoms", values=conserve_values))
 
+    physics_stmts = [
+        Statement(kind="build", key="backend", values=[Name(text=backend)])]
+    if water_model is not None:
+        physics_stmts.append(Statement(
+            kind="build", key="model", values=[Name(text=water_model)]))
+
+    provenance_stmts = [
+        Statement(kind="build", key="dialects",
+                  values=[StrVal(text=dialect.version_string)]),
+        Statement(kind="build", key="lift_version",
+                  values=[StrVal(text="0.1.0")]),
+    ]
+    if molecular and "H2O" in census and water_model is None and water_oh is not None:
+        # honest record when no table entry claims the geometry
+        note = (f"water r_OH median {water_oh:.4f} A matches no water_models "
+                f"entry; the default applies")
+        provenance_stmts.append(Statement(
+            kind="build", key="note", values=[StrVal(text=note)]))
+
     return Program(
         version="0.1", dialects=list(dialect.names),  # dialect-exempt: numerical-guard: language version constant
         blocks=[
             SystemBlock(statements=system_stmts),
-            PhysicsBlock(statements=[
-                Statement(kind="build", key="backend", values=[Name(text=backend)])]),
+            PhysicsBlock(statements=physics_stmts),
             RegionBlock(phase=phase, name="fluid",
                         geometry=GeoChain(parts=[ShAll()], ops=[]),
                         statements=region_stmts),
             ResidualBlock(none=True),
-            ProvenanceBlock(statements=[
-                Statement(kind="build", key="dialects",
-                          values=[StrVal(text=dialect.version_string)]),
-                Statement(kind="build", key="lift_version",
-                          values=[StrVal(text="0.1.0")]),
-            ]),
+            ProvenanceBlock(statements=provenance_stmts),
         ])
 
 
