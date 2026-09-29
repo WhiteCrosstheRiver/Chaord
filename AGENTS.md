@@ -56,3 +56,5 @@ and a decompiler (`chaord lift`: coordinates → program). A program describes a
     python tools/sketch_check.py spec/examples/*.chaord      # structural check of example programs
     cd prototype && python make_snapshot.py                  # regenerate the LJ solid–liquid snapshot (~1 min)
     cd prototype && python roundtrip.py                      # decompile -> compile -> decompile, compare (~40 s)
+- A root cause named in a report or PR description must come with a test that
+  reproduces the failure and fails before the fix (post Review 2, 2026-09-29).

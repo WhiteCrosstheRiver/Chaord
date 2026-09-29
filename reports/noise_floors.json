@@ -90,7 +90,7 @@
     ]
   },
   "lj_glass": {
-    "dialect": "core + lj",
+    "dialect": "core + glass",
     "n_pairs": 10,
     "gr_rms_mean": 0.09987872807378959,
     "gr_rms_max": 0.15097651275359605,
@@ -450,7 +450,7 @@
     ]
   },
   "cu_solid_liquid": {
-    "dialect": "core + molecular",
+    "dialect": "core + metal",
     "n_pairs": 10,
     "gr_rms_mean": 0.06120774075563964,
     "gr_rms_max": 0.07585381668358633,

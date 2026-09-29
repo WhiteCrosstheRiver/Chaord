@@ -447,3 +447,16 @@ Verdict: yes — stage 1 is additive except for the `lift/__init__.py` routing,
 four dialect keys, and six public-name promotions (renames, no logic change).
 No existing test may be edited; the equivalence suite is written first and
 must pass before `mode="auto"` flips.
+
+
+## Approved changes (2026-09-29, Review 2)
+
+The design is approved with these three binding changes:
+
+1. **Region names must not depend on atom indices.** Section 2.7's
+   "smallest atom index" ordering breaks re-ordering invariance; use
+   composition + geometry-derived names instead.
+2. **Build must realize with the program's physics and never skip silently.**
+   An unknown backend or a missing history raises, not returns.
+3. **Fluid construction uses grid placement plus minimisation**, not random
+   packing at full density.
