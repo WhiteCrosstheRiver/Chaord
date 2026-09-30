@@ -170,13 +170,10 @@ def test_crystal_thermal_rigid_transform_invariant_text_and_a(cid, fk):
             f"orientation-dependent (F1)")
 
 
-# ---- category 4 (other class): hcp_mg is the F2 misroute, not a cell bug ====
+# ---- category 4 (other class): hcp_mg was the F2 misroute, not a cell bug ====
+# (the F2 stream landed hcp support: this now runs green; the xfail marker was
+# removed when it started XPASSing)
 
-@pytest.mark.xfail(strict=False, reason="F2 (reports/redteam_findings.md): "
-                                        "orthohexagonal hcp prototype "
-                                        "recognition + cascade misroute; owned "
-                                        "by the F2 stream, not the cell "
-                                        "contract fixed here")
 @pytest.mark.parametrize("fk", FRAMES)
 def test_hcp_thermal_frame_lifts_as_crystal_program(fk):
     """The hcp_mg thermal frames are the OTHER failure class of the 18: the
