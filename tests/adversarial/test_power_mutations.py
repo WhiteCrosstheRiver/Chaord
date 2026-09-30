@@ -27,6 +27,8 @@ Index (full write-ups in reports/redteam_findings.md):
 """
 import re
 
+import numpy as np
+
 import pytest
 
 from chaord.build import build_program
@@ -86,11 +88,10 @@ def test_a4_mixed_cell_mutation():
     )
 
 
-@pytest.mark.xfail(strict=False, reason=(
-    "waiting W1-A/W1-B: the SRO/defect lift (lift/defect_program, "
-    "lift/defects, lift/extended) is being reworked by the parallel repair "
-    "streams; recorded as the measured pre-fix state, not as a red test "
-    "against their in-flight work"))
+# (the waiting marker was removed once the SRO cutoff fix landed and this
+# test XPASSed: the thermal-frame SRO round trip now holds within the
+# relabelling floor, which is the green regression asset this always wanted
+# to be)
 def test_sro_hot_frame_power_mutation():
     """A3's species check for random solutions runs on perfect rebuilds; on
     the STORED thermal fcc_crconi frame the round trip's species arrangement

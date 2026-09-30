@@ -86,8 +86,8 @@ written approval)
 | 3 | ≥6 disordered benchmark cases from independent MD, provenance, sanity | **yes** | `bench/reference/`: 7 cases × 5–15 frames (ASE + published potentials: LJ, TIP4P, SPC/E+JC, FBD-Cu EAM); check_sanity 6/7 PASS (cu_solid_liquid honestly recorded as known-limitation: coexistence density drift) |
 | 4 | Generator code does not import chaord | **yes** | `grep -r "import chaord\|from chaord" bench/reference/` → empty; enforced by `tests/test_reference_data.py` |
 | 5 | Acceptance runner implements A1–A14 exactly per PLAN, whole bench | **yes** | `tools/acceptance.py`: independent atom counting, own .chaord parser, pymatgen StructureMatcher for A3, precision+recall for A4, MD noise floors for A5, physics=True rebuilds with per-row T/backend/md_steps |
-| 6 | Every criterion has a mutation test that makes it fail | **yes** | `tests/acceptance/`: 22/22 pass (each seeds a fault that must flip the criterion; re-run on the final tree) |
-| 7 | Independent verifier's report with per-criterion numbers | **yes** | `reports/verification_2026-09-28.md` (fresh agent, no code authorship); Wave-2 numbers re-measured by four repair agents that did not author the code they fixed |
+| 6 | Every criterion has a mutation test that makes it fail | **yes** | `tests/acceptance/`: 24/24 pass (22 mutation canaries + 2 floor tests; the suite now includes the ±20% temperature power mutations) |
+| 7 | Independent verifier's report with per-criterion numbers | **yes** | `reports/verification_2026-09-28.md` (Review-2 phase) and `reports/verification_2026-09-30.md` (this phase: fresh agent, 14/14 reproduced, A5 temperature power and A4 mixed cells re-derived with independently written planters, thermal-frame round trip byte-identical) |
 | 8 | Segment-first lift + region-composer design approved | **yes** | `docs/design/lift_build_v2.md` approved 2026-09-29 with 3 binding changes (no atom-index names, no silent physics skip, grid+minimise packing); stage 1 landed as `lift/pipeline.py` behind `mode="pipeline"` — byte-identical to the legacy arm on 9/9 frames |
 
 ## Acceptance results (final run, reports/acceptance.json)
@@ -97,7 +97,7 @@ written approval)
 | A1 parse & format | **PASS** | 10/10 examples; 10,000 generated programs idempotent |
 | A2 canonical invariance | **PASS** | 9/9 (incl. random solutions); 18/18 transforms byte-identical |
 | A3 exact round trip | **PASS** | 9/9 text byte-identical; 9/9 structure+species fit (species-blind+WC-alpha for random solutions per approval) |
-| A4 defect recovery | **PASS** | 22/22 cells precision ≥0.95 and recall ≥0.95; all 22 cells P=R=1.000 (constrained thermal quench before Wigner-Seitz) |
+| A4 defect recovery | **PASS** | 26/26 cells precision ≥0.95 and recall ≥0.95 (two mixed-type cells added post Review 3); all 26 cells P=R=1.000 (constrained thermal quench before Wigner-Seitz; verifier re-planted with fresh seeds, still exact) |
 | A5 statistical round trip | **PASS** | 6/6 with-floor cases inside 1.5×; fluid 4/4, interface 1/1, glass 1/1; zero build failures (12/12 rebuild cases round-trip; 6 synthetic no-floor cases build and are skipped honestly) |
 | A6 conservation | **PASS** | 126/126 lifts: three-way count + charge exact |
 | A7 phase segmentation | **PASS** | 10/10 frames ≥95% correct (worst 0.999) |
@@ -226,6 +226,19 @@ pre-fix-failing reproduction test per AGENTS.md)
 | FAIL fixes | F1–F4 | A2/A3 significance+invariance; A9 1372 atoms; CSL histogram; physics=True rebuilds |
 | Review 2 W1 | T1–T4 | A5 harness honesty; exact join-count (Cliff-Ord); Σ5 commensurate bicrystal; no silent physics skips |
 | Review 2 W2 | T5–T8 + A5 repairs | ASE molecular backend; reference data v2 (cross-quench glass floor, 5/10 ps spacing, 2048-atom case); thermal defect quench (A4 22/22); pipeline stage 1 (byte-identical); multi-species interfaces; published Ar/N2/SPC/E potentials; equilibration sizing |
+
+## Verifier observations recorded (2026-09-30, all from
+reports/verification_2026-09-30.md §5)
+
+1. A2/A3 acceptance evidence runs on rebuilt perfect frames; the thermal-frame
+   invariance and round trip are guarded by the adversarial suite (green) and
+   were independently confirmed by the verifier -- switching the criteria's
+   own inputs to the stored thermal frames is a candidate next change.
+2. PLAN A8's second half ("adsorption sites >= 90% correct") is still
+   unenforced by check_a8 (census half only) -- open coverage item since
+   2026-09-28.
+3. The A5 temperature evidence rests on the >= 2,000-atom case; the 500-atom
+   lj_liquid does not separate at x0.8 T (documented honest residual).
 
 ## Remaining known limitations (recorded, not hidden)
 
