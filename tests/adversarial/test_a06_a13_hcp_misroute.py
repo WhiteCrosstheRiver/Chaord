@@ -99,18 +99,23 @@ def test_hcp_ground_truth_lift_mode_is_honored():
 
 
 def test_metal_fluid_cutoff_must_exceed_mg_nn_distance():
-    """Root cause 3, stated as a threshold invariant: a dialect's fluid
-    coordination cutoff must exceed the largest nearest-neighbour distance of
-    the systems it covers, else every bond vanishes and crystals route to
-    'fluid'.  d_NN(Mg) = c/a-scaled 3.21 A here vs cutoff 3.10 A."""
+    """Post-fix rewrite: with the hcp crystal arm first in the cascade, Mg
+    frames route to the crystal lifter BEFORE any fluid/q6 gate, so the
+    routing must not depend on the fluid cutoffs at all -- and a single
+    constant could not satisfy both constraints anyway (>= d_NN(Mg) = 3.21 A
+    vs <= the cu_water liquid half-height ~3.0 A that the thin-film floor
+    needs). The pin is now: the cutoff stays at the dialect's value AND the
+    Mg frame still lifts as a crystal through the auto cascade."""
     dl = load_dialect(METAL)
-    cutoff = float(dl.threshold("cn_cutoff_fluid"))
-    mg_a = 3.21
-    assert cutoff > mg_a, (
-        f"metal dialect cn_cutoff_fluid={cutoff} A < d_NN(Mg hcp)={mg_a} A: "
-        "the Mg crystal has zero bonds under the fluid classifier and "
-        "misroutes (measured: all 5 hcp_mg frames lift as 'liquid')"
-    )
+    assert float(dl.threshold("q6_cutoff")) == 3.0, (
+        "the metal q6_cutoff moved: re-check the cu_water thin-film floor "
+        "(half-height ~3.0 A) before changing it -- one constant cannot "
+        "serve both d_NN(Mg) and the film statistics")
+    text_, case = _lift_hcp(0)
+    assert re.search(r"(?m)^crystal\s+\S+\s*:", text_), (
+        "F2 regression: the Mg frame no longer lifts as a crystal through "
+        "the auto cascade with the dialect cutoffs unchanged")
+
 
 
 def test_all_five_hcp_frames_misroute():

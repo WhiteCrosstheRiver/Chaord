@@ -123,19 +123,15 @@ thresholds:
                                    # (8 left a +/-27% error on the null std, enough to
                                    #  flip the emission decision between orderings)
   sro_bootstrap_seed: 20260927
-  q6_cutoff: 3.3                    # phase-indicator neighbour cutoff for metals, A.
-                                    # 3.0 < d_NN(Mg) = 3.21 A gave Mg frames ZERO
-                                    # neighbours, so a crystal read as "not solid"
-                                    # and the auto-cascade fell through to the
-                                    # fluid lifter (red team F2). 3.3 clears the
-                                    # largest close-packed metal d_NN while staying
-                                    # inside the Cu first shell (2.556 A x 1.29).
-                                    # VALUE CHANGE pending human approval (AGENTS:
-                                    # dialect thresholds), post Review 3, 2026-09-30
-  cn_cutoff_fluid: 3.5              # overrides core's 3.10 for the metal stack: same
-                                    # reason as q6_cutoff (3.10 < d_NN(Mg) zero-bonded
-                                    # the fluid census path); aligned with cn_cutoff.
-                                    # VALUE CHANGE pending human approval, 2026-09-30
+  # q6_cutoff / cn_cutoff_fluid deliberately UNCHANGED (3.0 / core 3.10): a
+  # single constant cannot both exceed d_NN(Mg) = 3.21 A (the naive reading of
+  # red team F2) and stay below the cu_water liquid half-height ~3.0 A that
+  # the thin-film statistics floor needs. With the hcp crystal arm landed
+  # first in the cascade, Mg frames route to the crystal lifter BEFORE any
+  # fluid/q6 gate, so the routing no longer depends on these cutoffs at all;
+  # the extended-component census guard backstops any future mis-route
+  # loudly. See tests/adversarial/test_a06_a13_hcp_misroute.py (rewritten pin).
+  q6_cutoff: 3.0                    # phase-indicator neighbour cutoff for metals, A
   q6_solid: 0.32
   dislocation_core_radius: 1.2     # inside this the Volterra field is unset, A
   burgers_tol: 0.25                # lattice-step tolerance for the circuit closure
