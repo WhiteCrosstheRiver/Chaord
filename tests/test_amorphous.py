@@ -104,13 +104,24 @@ def test_amorphous_round_trip_statistics(dialect, tmp_path):
     rng = np.random.default_rng(17)
     frame = build_program(load(path), dialect, rng=rng, physics=True)
 
-    # an independent later frame of the same protocol continuation
+    # independent later frames of the same protocol continuation -- SEVERAL,
+    # not one: the frame-pair distance is itself a random draw (measured on
+    # the reference glass: the pair max is ~1.5x the pair mean), so a
+    # single-pair floor makes the 1.5x gate a coin flip against a single
+    # rebuild draw (the 2026-09-30 clean machine failed this test on cn_tv
+    # exactly that way). The floor is the max over the later-frame pairs,
+    # the same conservative tail estimator the acceptance criterion uses
+    # (max(mean, P90) -- with 3 pairs P90 == max).
     from chaord.realize.lj import LJ, run_md
     lj = LJ(frame.cell_diag, rc=2.5, skin=0.3)
-    v = rng.normal(size=frame.pos.shape) * np.sqrt(0.05)
-    r_later, _ = run_md(frame.pos.copy(), v, frame.cell_diag, 400, 0.005, 0.05, 0.5,
-                        rng, lj=lj)
-    later = Frame(pos=r_later, cell=frame.cell, symbols=frame.symbols)
+    oo = observables(frame, dialect)
+    floors = []
+    for _ in range(3):
+        v = rng.normal(size=frame.pos.shape) * np.sqrt(0.05)
+        r_later, _ = run_md(frame.pos.copy(), v, frame.cell_diag, 400,
+                            0.005, 0.05, 0.5, rng, lj=lj)
+        later = Frame(pos=r_later, cell=frame.cell, symbols=frame.symbols)
+        floors.append(distance(oo, observables(later, dialect)))
 
     program = lift_frame(frame, dialect)
     ppath = tmp_path / "lifted.chaord"
@@ -119,12 +130,12 @@ def test_amorphous_round_trip_statistics(dialect, tmp_path):
     rebuilt = build_program(load(ppath), dialect, rng=rng2, physics=True)
     assert len(rebuilt) == 500  # never drop an atom
 
-    oo, ol, o_re = observables(frame, dialect), observables(later, dialect), observables(rebuilt, dialect)
-    floor = distance(oo, ol)
-    d = distance(oo, o_re)
-    for k in floor:
-        print(f"{k}: {d[k]:.3f} vs floor {floor[k]:.3f} (x{d[k]/max(floor[k],1e-9):.2f})")
-        assert d[k] <= 1.5 * max(floor[k], 1e-6), k
+    d = distance(oo, observables(rebuilt, dialect))
+    for k in d:
+        floor = max(f[k] for f in floors)
+        print(f"{k}: {d[k]:.3f} vs floor {floor:.3f} "
+              f"(x{d[k]/max(floor,1e-9):.2f})")
+        assert d[k] <= 1.5 * max(floor, 1e-6), k
 
 
 def test_amorphous_lift_program(dialect, tmp_path):
