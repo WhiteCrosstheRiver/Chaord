@@ -20,7 +20,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 CHILD = r"""
 import sys
-sys.path.insert(0, {root!r}/src)
+sys.path.insert(0, {root!r} + "/src")
 sys.path.insert(0, {root!r})
 import numpy as np
 from chaord.dialects import load_dialect
@@ -30,14 +30,17 @@ from tools import acceptance as acc
 
 good = read_frame(acc.case_by_id("crystals/fcc_cu")["frames"][0])
 dl = load_dialect(("core",))
-probe = {probe}
-if probe == "nan_pos":
-    f = Frame(pos=np.full((8, 3), np.nan), cell=good.cell,
-              symbols=["Cu"] * 8, pbc=good.pbc)
-else:
-    f = Frame(pos=np.full((8, 3), 5.0), cell=np.diag([np.nan] * 3),
-              symbols=["Cu"] * 8, pbc=good.pbc)
+probe = {probe!r}
 try:
+    # the F10 fix validates finiteness at the io Frame boundary (the entry
+    # point read_frame, from_ase and lift all share), so the refusal fires
+    # at construction -- inside this try, not before it
+    if probe == "nan_pos":
+        f = Frame(pos=np.full((8, 3), np.nan), cell=good.cell,
+                  symbols=["Cu"] * 8, pbc=good.pbc)
+    else:
+        f = Frame(pos=np.full((8, 3), 5.0), cell=np.diag([np.nan] * 3),
+                  symbols=["Cu"] * 8, pbc=good.pbc)
     lift_frame(f, dl)
     print("returned")
 except Exception as e:

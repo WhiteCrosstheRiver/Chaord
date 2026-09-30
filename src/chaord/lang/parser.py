@@ -226,14 +226,26 @@ def _statement(tree: Tree, comments: dict[int, str], units: frozenset) -> Statem
 
 
 def _unquote(s: str) -> str:
+    """Decode the body of a STRING token.
+
+    Exactly two escapes are recognised: ``\\\\`` -> ``\\`` and ``\\"`` -> ``"``
+    (the exact inverse of fmt's _quote, so parse(fmt(x)) == x). Every other
+    backslash sequence is preserved literally: a Windows path like
+    ``C:\\data\\x.xyz`` survives parsing and ``\\t``/``\\n`` no longer decode
+    to TAB/LF inside file references. (F7, red team 2026-09-30: the old table
+    mapped unrecognized escapes to the bare character, silently deleting
+    backslashes, and mapped \\t/\\n to control characters -- the A1 round-trip
+    laws then held on the already-corrupted value. Control characters are not
+    representable in string literals; _quote still emits grammar-safe \\n/\\t
+    for programmatic values containing them.)"""
     body = s[1:-1]
+    if "\\" not in body:
+        return body
     out, i = [], 0
     while i < len(body):
         c = body[i]
-        if c == "\\" and i + 1 < len(body):
-            nxt = body[i + 1]
-            mapped = {"n": "\n", "t": "\t", '"': '"', "\\": "\\"}.get(nxt, nxt)
-            out.append(mapped)
+        if c == "\\" and i + 1 < len(body) and body[i + 1] in ('"', "\\"):
+            out.append(body[i + 1])
             i += 2
         else:
             out.append(c)

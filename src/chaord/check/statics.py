@@ -24,10 +24,72 @@ class CheckResult:
     detail: str = ""
 
 
+# F6 (red team, 2026-09-30): the static overlap check never sits below the
+# repo's own reference-data sanity hard core -- AGENTS.md/PLAN.md: "no pair
+# closer than 0.8 sigma (or the potential's hard core)". A dialect's
+# overlap_tolerance may be tighter but never looser than this fraction of the
+# system's natural length scale (1 sigma in LJ reduced units; the reference
+# nearest-neighbour distance of a pure-metal frame). Dialect owners can move
+# the fraction through the (approval-gated) overlap_sanity_fraction key.
+_SANITY_HARD_CORE_FRACTION = 0.8
+
+
+def _sanity_fraction(dialect) -> float:
+    try:
+        return float(dialect.threshold("overlap_sanity_fraction"))
+    except ChaordError:
+        return _SANITY_HARD_CORE_FRACTION
+
+
+def _sanity_scale(dialect, symbols) -> float | None:
+    """Length scale the sanity fraction multiplies, or None when the dialect
+    stack defines no atomic scale for this frame.
+
+    LJ reduced units: one length unit is one sigma. Metal: the
+    nearest-neighbour distance implied by each calibrated eam_potentials
+    entry (fcc a/sqrt(2), bcc a*sqrt(3)/2) for the elements present -- the
+    anonymous atom X (the npz default symbol) falls back to the largest
+    calibrated d_NN. Frames containing species outside the dialect's atomic
+    tables (e.g. water against a metal slab under core+metal) get None:
+    their intramolecular bond lengths are legal distances below any atomic
+    hard-sphere floor, so those frames run on the dialect tolerance alone."""
+    names = set(getattr(dialect, "names", ()) or ())
+    if "lj" in names:
+        return 1.0                      # LJ reduced units: 1 length unit = 1 sigma
+    try:
+        pots = dict(dialect.threshold("eam_potentials"))   # metal dialect
+    except ChaordError:
+        return None
+
+    def dnn(entry):
+        a = float(entry["a_ref"])
+        lattice = str(entry.get("lattice", ""))
+        if lattice == "fcc":
+            return a / np.sqrt(2.0)
+        if lattice == "bcc":
+            return a * np.sqrt(3.0) / 2.0
+        return None
+
+    present = set(symbols)
+    if present - set(pots) - {"X"}:
+        return None                     # bonded/molecular species present
+    covered = [d for d in (dnn(pots[e]) for e in present if e in pots)
+               if d is not None]
+    if not covered:                     # only the anonymous atom X
+        covered = [d for d in (dnn(p) for p in pots.values()) if d is not None]
+    return max(covered) if covered else None
+
+
 def overlap_check(frame: Frame, dialect) -> CheckResult:
-    tol = float(dialect.threshold("overlap_tolerance"))
+    dialect_tol = float(dialect.threshold("overlap_tolerance"))
+    tol = dialect_tol
+    floor = None
     if len(frame) < 2:
         return CheckResult("overlap", True, "fewer than two atoms")
+    scale = _sanity_scale(dialect, frame.symbols)
+    if scale is not None:
+        floor = _sanity_fraction(dialect) * scale
+        tol = max(tol, floor)
     from scipy.spatial import cKDTree
     from ..realize.lj import wrap
     L = frame.cell_diag
@@ -35,7 +97,12 @@ def overlap_check(frame: Frame, dialect) -> CheckResult:
     d, _ = tree.query(wrap(frame.pos, L), k=2)
     dmin = float(d[:, 1].min())
     ok = dmin >= tol
-    return CheckResult("overlap", ok, f"min pair distance {dmin:.3f} vs tolerance {tol}")
+    detail = f"min pair distance {dmin:.3f} vs tolerance {tol:.3f}"
+    if floor is not None and floor > dialect_tol:
+        detail += (f" (dialect tolerance {dialect_tol:.3f} raised to the "
+                   "sanity hard core, AGENTS.md: no pair closer than "
+                   "0.8 sigma / 0.8 d_NN)")
+    return CheckResult("overlap", ok, detail)
 
 
 def conservation_check(program: Program, frame: Frame, dialect=None) -> CheckResult:
@@ -414,14 +481,56 @@ def implied_atom_count(program: Program) -> dict[str, int]:
 
 # ---------------------------------------------------------------- charge ----
 # Charge sources, lowest priority first: a dialect's `formal_charges` table
-# (ionic.yaml, keyed by species name) is overridden by the program's species
-# block `ion` definitions. Within an ion, the template charge in
-# build.molecules.TEMPLATES (exact published data) wins over the name; without a
-# template the charge is the trailing sign run of the name (`Li+` +1, `PF6-`
-# -1, `O2-` -1: digits before the signs are stoichiometry, not the magnitude).
+# (ionic.yaml, keyed by species name), then the check module's common-valence
+# table below (multivalent extension, ionic stacks only), are overridden by
+# the program's species block `ion` definitions. Within an ion, the charge and
+# composition of a name resolve as:
+#
+#   1. the template entry in build.molecules.TEMPLATES (exact published data);
+#   2. the _COMMON_ION_VALENCES table (published valences, including the
+#      flattened polyatomic names whose notation is ambiguous, e.g. SO42-);
+#   3. monatomic ion notation: <El>[n]<m><sign> -- the LAST digit before the
+#      sign run is the charge magnitude m, any earlier digits the atom count n
+#      (`Ca2+` = one Ca of +2, `Fe3+` +3, `Hg22+` = two Hg of +2);
+#   4. everything else with a trailing sign run: charge = the bare sign run
+#      (magnitude 1, `Li+` +1, an untemplated `PF6-` -1: its digits are
+#      stoichiometry, not a magnitude-6 charge), composition = the
+#      sign-stripped name parsed as a formula (`PF6-` -> P + 6 F, `C2H4+` ->
+#      2 C + 4 H). Names that parse to no plain formula are refused (None):
+#      an uncountable species must be an error, not a molecule guess.
+#
+# F5 (red team, 2026-09-30): the digits-before-sign used to be read as pure
+# stoichiometry (`Ca2+` = the molecule Ca2, charge +1), which made a correct
+# CaCl2 program fail the charge check and an absurd one (physical charge +5)
+# pass it.
 
-_SIGN_RUN = re.compile(r"([+\-]+)\Z")
+_CHARGE_TAIL = re.compile(r"(\d*)([+\-]+)\Z")
 _FORMULA_TOKEN = re.compile(r"([A-Z][a-z]?)(\d*)")
+
+# Common fixed-valent ions: species name -> (charge in e, element multiset).
+# The multivalent half of the formal-charge fallback, applied when the ionic
+# dialect is loaded and the program names no species-block entry for the
+# species. Source: the common oxidation states and formulae tabulated per
+# element in Greenwood & Earnshaw, "Chemistry of the Elements", 2nd ed.
+# (1997). Only species whose ionic charge is effectively fixed are listed;
+# variable-valence elements (Fe, Cu, Mn, O, S, N, Sn, Pb, ...) stay
+# program-decided (species block + conserve charge), matching the design note
+# in ionic.yaml's formal_charges -- a bare O atom in an ionic frame must not
+# silently become an oxide ion.
+_COMMON_ION_VALENCES: dict[str, tuple[int, tuple[str, ...]]] = {
+    "Ca2+": (2, ("Ca",)), "Mg2+": (2, ("Mg",)), "Sr2+": (2, ("Sr",)),
+    "Ba2+": (2, ("Ba",)), "Be2+": (2, ("Be",)),
+    "Zn2+": (2, ("Zn",)), "Cd2+": (2, ("Cd",)),
+    "Al3+": (3, ("Al",)), "Ga3+": (3, ("Ga",)), "In3+": (3, ("In",)),
+    "Sc3+": (3, ("Sc",)), "Y3+": (3, ("Y",)), "La3+": (3, ("La",)),
+    "Ti4+": (4, ("Ti",)), "Zr4+": (4, ("Zr",)), "Hf4+": (4, ("Hf",)),
+    "Ce4+": (4, ("Ce",)),
+    # flattened polyatomic names the monatomic rule cannot parse
+    "SO42-": (-2, ("S", "O", "O", "O", "O")),          # sulfate
+    "CO32-": (-2, ("C", "O", "O", "O")),               # carbonate
+    "PO43-": (-3, ("P", "O", "O", "O", "O")),          # phosphate
+    "NH4+": (1, ("N", "H", "H", "H", "H")),            # ammonium
+}
 
 
 @lru_cache(maxsize=8)
@@ -432,34 +541,73 @@ def _formal_charges_section(dialect_name: str) -> tuple[tuple[str, int], ...]:
     return tuple((str(k), int(v)) for k, v in table.items())
 
 
+def _monatomic_reading(name: str):
+    """(<element>, atom count n, charge magnitude m, sign>) of a monatomic ion
+    name <El>[n]<m><sign> (last digit = magnitude, earlier digits = atom
+    count), or None when the name is not of that shape (polyatomic, bare sign
+    run, no sign, absurd digits)."""
+    m = _CHARGE_TAIL.search(name)
+    if not m:
+        return None
+    digits, run = m.group(1), m.group(2)
+    if len(run) != 1 or len(digits) > 2 or (digits and digits[-1] == "0"):
+        return None                     # sign runs and absurd magnitudes
+    base = name[:m.start()]
+    tok = _FORMULA_TOKEN.fullmatch(base) if base else None
+    if not tok or tok.group(2):
+        return None                     # not exactly one bare element symbol
+    from ase.data import chemical_symbols
+    if base not in chemical_symbols:
+        return None
+    n = int(digits[:-1]) if len(digits) == 2 else 1
+    mag = int(digits[-1]) if digits else 1
+    return base, n, mag, run
+
+
 def _ion_charge(name: str) -> int:
-    """Charge of a species name: template charge when known, else sign count."""
+    """Charge of a species name: template or table charge when known, else the
+    monatomic notation magnitude (`Ca2+` +2, `Fe3+` +3), else the sign run
+    (`Li+` +1, `PF6-` -1)."""
     from ..build.molecules import TEMPLATES
     if name in TEMPLATES:
         return int(TEMPLATES[name]["charge"])
-    m = _SIGN_RUN.search(name)
+    if name in _COMMON_ION_VALENCES:
+        return int(_COMMON_ION_VALENCES[name][0])
+    reading = _monatomic_reading(name)
+    if reading is not None:
+        _el, _n, mag, sign = reading
+        return mag if sign == "+" else -mag
+    m = _CHARGE_TAIL.search(name)
     if not m:
         return 0
-    run = m.group(1)
+    run = m.group(2)
     return len(run) if run[0] == "+" else -len(run)
 
 
 def _ion_composition(name: str) -> tuple[str, ...] | None:
-    """Element multiset behind a species name: template symbols when the name is
-    a known molecule, else the charge-stripped name parsed as a formula
-    (`PF6-` -> P + 6 F). None when the name is not a plain formula."""
+    """Element multiset behind a species name: template or table composition
+    when known, else the monatomic notation (<El>[n]<m><sign> -> n atoms),
+    else the sign-stripped formula (`PF6-` -> P + 6 F). None when the name is
+    not a plain formula (rule 4 above: an uncountable species is refused, not
+    guessed)."""
     from ..build.molecules import TEMPLATES
     if name in TEMPLATES:
         return tuple(TEMPLATES[name]["symbols"])
-    base = _SIGN_RUN.sub("", name)
+    if name in _COMMON_ION_VALENCES:
+        return tuple(_COMMON_ION_VALENCES[name][1])
+    reading = _monatomic_reading(name)
+    if reading is not None:
+        el, n, _mag, _sign = reading
+        return (el,) * n
+    base = re.sub(r"[+\-]+\Z", "", name)   # rule 4: strip the sign run only
     symbols: list[str] = []
     pos = 0
     while pos < len(base):
-        m = _FORMULA_TOKEN.match(base, pos)
-        if not m:
+        tok = _FORMULA_TOKEN.match(base, pos)
+        if not tok:
             return None
-        symbols.extend([m.group(1)] * (int(m.group(2)) if m.group(2) else 1))
-        pos = m.end()
+        symbols.extend([tok.group(1)] * (int(tok.group(2)) if tok.group(2) else 1))
+        pos = tok.end()
     if not symbols:
         return None
     from ase.data import chemical_symbols
@@ -469,9 +617,10 @@ def _ion_composition(name: str) -> tuple[str, ...] | None:
 
 
 def _charge_sources(program: Program, dialect) -> dict[str, dict]:
-    """canonical formula -> {name, charge, element}. The program's species-block
-    ions override the dialects' formal-charge table (dialects overlay in load
-    order, later wins)."""
+    """canonical formula -> {name, charge, element}. The dialects'
+    formal-charge tables, then the check module's common-valence table
+    (ionic stacks), are overridden by the program's species-block ions
+    (dialects overlay in load order, later wins)."""
     sources: dict[str, dict] = {}
     from ..build.molecules import _formula
 
@@ -481,10 +630,14 @@ def _charge_sources(program: Program, dialect) -> dict[str, dict]:
             return
         sources[_formula(list(comp))] = dict(
             name=name, charge=charge, single=len(comp) == 1,
-            element=comp[0] if len(comp) == 1 else None)
+            element=comp[0] if len(comp) == 1 else None,
+            elements=tuple(comp))
 
     for dialect_name in getattr(dialect, "names", ()) or ():
         for name, charge in _formal_charges_section(dialect_name):
+            add(name, charge)
+    if "ionic" in (getattr(dialect, "names", ()) or ()):
+        for name, (charge, _comp) in _COMMON_ION_VALENCES.items():
             add(name, charge)
     for b in program.blocks:
         if b.t != "species":
@@ -518,10 +671,17 @@ def charge_check(program: Program, frame: Frame, dialect) -> CheckResult:
     stated = _stated_charge(program)
     sources = _charge_sources(program, dialect)
     charged = {f: info for f, info in sources.items() if info["charge"]}
+    syms = frame.symbols
+    # a multi-atom ion (PF6-, SO42-, ...) carries its charge as a molecule;
+    # the census is only needed when the frame actually contains all elements
+    # of one (fallback-table entries for absent species must not force it)
+    syms_set = set(syms)
+    multi_hits = [f for f, info in charged.items()
+                  if not info["single"] and set(info["elements"]) <= syms_set]
     present: dict[str, tuple[int, int]] = {}
-    if any(not info["single"] for info in charged.values()):
-        # a multi-atom ion (PF6-, ...) carries its charge as a molecule: count
-        # species with the bond-graph census every source is canonicalised to
+    if multi_hits:
+        # count species with the bond-graph census every source is
+        # canonicalised to
         from ..build.molecules import molecule_census
         try:
             census = molecule_census(frame, dialect)
@@ -531,7 +691,6 @@ def charge_check(program: Program, frame: Frame, dialect) -> CheckResult:
         present = {f: (census[f], info["charge"])
                    for f, info in charged.items() if census.get(f)}
     else:
-        syms = frame.symbols
         present = {f: (syms.count(info["element"]), info["charge"])
                    for f, info in charged.items() if info["element"] in syms}
     total = sum(n * q for n, q in present.values())

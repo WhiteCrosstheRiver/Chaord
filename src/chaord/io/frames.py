@@ -6,6 +6,8 @@ from pathlib import Path
 
 import numpy as np
 
+from ..lang.errors import ChaordError
+
 
 @dataclass
 class Frame:
@@ -14,6 +16,26 @@ class Frame:
     symbols: list
     pbc: tuple = (True, True, True)
     info: dict = field(default_factory=dict)
+
+    def __post_init__(self):
+        # F10 (red team, 2026-09-30): a NaN in pos or cell reached scipy's
+        # cKDTree inside the lift and crashed the interpreter natively
+        # (SIGSEGV, exit 139) instead of refusing. Every entry point
+        # (read_frame, from_ase, direct construction) shares this
+        # constructor, so refuse non-finite input here with a ChaordError.
+        pos = np.asarray(self.pos, float)
+        if pos.size and not np.isfinite(pos).all():
+            n_bad = int((~np.isfinite(pos)).sum())
+            raise ChaordError(
+                f"frame positions contain {n_bad} non-finite value(s) "
+                "(NaN or infinity); refusing the frame")
+        cell = np.asarray(self.cell, float)
+        if cell.size and not np.isfinite(cell).all():
+            n_bad = int((~np.isfinite(cell)).sum())
+            raise ChaordError(
+                f"frame cell contains {n_bad} non-finite entr"
+                f"{'y' if n_bad == 1 else 'ies'} (NaN or infinity); "
+                "refusing the frame")
 
     @property
     def cell_diag(self) -> np.ndarray:
