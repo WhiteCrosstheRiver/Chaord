@@ -1,6 +1,14 @@
 """Red-team follow-up for A5: would an averaged-observable gate separate a
 wrong-temperature rebuild from a correct one?
 
+SUPERSEDED as a gate proposal (2026-09-30): this ablation ran on the
+500-atom lj_liquid case, where even the averaged gate at 1.5x the
+split-half floor could not separate the x1.25-T systematic -- kept as the
+measured HONEST MARGIN of that case (see reports/redteam_findings.md, F3).
+The criterion's temperature evidence now lives in the review-3 averaged
+protocol on lj_liquid_large (a5_temperature_experiment.py); no test reads
+this module's cache anymore.
+
 The current gate compares ONE reference frame against ONE rebuild draw
 (median of 2 draws).  The temperature experiment (a5_temperature_experiment)
 showed both 0.8x and 1.25x-T rebuilds PASS that gate while their systematic

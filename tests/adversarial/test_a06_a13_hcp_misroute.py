@@ -82,19 +82,50 @@ def test_hcp_conservation_row_holds_for_the_right_reason():
 
 def test_hcp_ground_truth_lift_mode_is_honored():
     """The bench records lift_mode 'crystal' for hcp_mg; the acceptance
-    bench-frame loop must lift with it (today lift_all_bench_frames always
-    uses auto).  Lifting with the recorded mode raises a raw ValueError
-    today, which is itself an A13-class defect (non-ChaordError)."""
+    bench-frame loop must lift with it (it used to ignore the recorded mode
+    and lift everything auto, so the routing contract in the bench metadata
+    was never exercised -- red team F2).  Since the orthohexagonal hcp
+    prototype recognition landed, mode='crystal' SUCCEEDS; if it ever
+    refuses again, the refusal must escape as a ChaordError (W2-C wrapped
+    the pinned arm), never a raw ValueError -- and the loop exercises every
+    recorded mode that names a real lift mode, recording refusals as routing
+    diagnostics rather than silently swallowing them."""
     case = acc.case_by_id("crystals/hcp_mg")
     assert case["mode"] == "crystal"
     frame = read_frame(case["frames"][0])
     dl = load_dialect(METAL)
+    try:
+        text = acc.format_program_text(lift_frame(frame, dl, mode="crystal"))
+    except ValueError as exc:
+        # a bare ValueError is an A13-class defect: the pinned arm must
+        # refuse with ChaordError (W2-C), never leak an engine exception
+        pytest.fail(f"bare {type(exc).__name__} escaped mode='crystal' on "
+                    f"hcp_mg frame_0: {exc}")
+    phases = re.findall(r"(?m)^(crystal|liquid|gas|fluid|amorphous)\s+\S+\s*:",
+                        text)
+    assert phases == ["crystal"], (
+        f"A6/A13 RED: the recorded mode 'crystal' on hcp_mg lifts as "
+        f"{phases}"
+    )
+    # the acceptance bench loop honours the recorded mode, frame by frame
+    recs = [r for r in acc.lift_all_bench_frames()
+            if r["case"] == case["id"]]
+    assert recs and all(r["ok"] and r["mode"] == "crystal"
+                        for r in recs), (
+        f"A6/A13 RED: the bench loop must lift hcp_mg with its recorded "
+        f"mode='crystal' (got {[(r['mode'], r['ok']) for r in recs]})"
+    )
+    # and a genuine refusal of a recorded mode stays a ChaordError: the
+    # random-alloy case records mode 'crystal' but its thermal frames
+    # standardise to no prototype -- the pinned arm must refuse loudly
+    other = acc.case_by_id("solutions/cuau_random")
     with pytest.raises(Exception) as ei:
-        lift_frame(frame, dl, mode="crystal")
+        lift_frame(read_frame(other["frames"][0]),
+                   load_dialect(("core", "metal")), mode=other["mode"])
     assert type(ei.value).__name__ == "ChaordError", (
-        f"A13 RED: mode='crystal' on hcp_mg frame_0 escapes as a raw "
+        f"A13 RED: a pinned-mode refusal escapes as a raw "
         f"{type(ei.value).__name__} ('{str(ei.value)[:60]}'), not a "
-        "ChaordError refusal"
+        "ChaordError"
     )
 
 

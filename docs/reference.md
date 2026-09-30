@@ -39,7 +39,7 @@ statement carries a kind: **build** (no keyword), **state**, **constrain**,
 | key | example | meaning |
 | --- | --- | --- |
 | `backend` | `backend lj` | the compile target: `lj`, `eam`, `mlp`, `classical` |
-| `epsilon` / `sigma` / `cutoff` | `epsilon 1` | LJ parameters |
+| `epsilon` / `sigma` / `cutoff` | `epsilon 1`, `sigma 1`, `cutoff 2.5` | LJ parameters |
 | `potential` | `potential "NiAl.eam.alloy"` | backend-specific files |
 | `model` | `model "mace-mp-0"` | machine-learned potential tag |
 | `model` | `model spce` | rigid water model of the `classical` realization (molecular dialect: `tip4p` default, `spce`; see below) |
@@ -58,12 +58,12 @@ statement carries a kind: **build** (no keyword), **state**, **constrain**,
 | `lattice` | `lattice fcc` | unary prototype: sc, bcc, fcc, hcp, diamond |
 | `prototype` | `prototype L1_2` | multi-species: rocksalt, cscl, zincblende, wurtzite, fluorite, perovskite, L1_2, rutile |
 | `composition` | `composition Ni3Al` | slot species by reduced counts |
-| `a` / `c` | `a 3.572 A` | lattice parameters |
+| `a` / `c` | `a 3.572 A`, `c 2.959 A` | lattice parameters |
 | `orient` | `orient x [100] y [010] z [001]` | integer directions/families |
 | `occupancy` | `occupancy Cr 1/3 Co 1/3 Ni 1/3` | solid solution fractions |
 | `defect` | `defect V_Ni count 1` | Kröger-Vink: `V_X` vacancy, `A_B` antisite, `A_i` interstitial, `frenkel_pair` |
 | | `defect V_Ni count 2 depth 6.1` | depth targets the M0 slab builder |
-| `surface` | `surface (111) top` | Miller cut + side (surface dialect) |
+| `surface` | `surface (110) top` | Miller cut + side (surface dialect) |
 | `termination` | `termination bridging_O` | top-layer element (compound names resolve the cut) |
 | `reconstruction` | `reconstruction p(2x1)` | Wood notation: p(nx m), c(nx m), (rkxrk)R30 |
 | `adsorb` | `adsorb O count 4 site top coverage 0.25 ML` | top / bridge / hollow |
@@ -74,8 +74,8 @@ statement carries a kind: **build** (no keyword), **state**, **constrain**,
 | `state T` / `state P` | `state T 300 K` | equilibrium state metadata |
 | `constrain strain` | `constrain strain zz +0.9 % +- 0.2` | held deformation |
 | `constrain sro` | `constrain sro alpha1 Cr-Cr +0.10 +- 0.02` | Warren-Cowley first shell |
-| `history` | `history melt 1.2 for 500 -> quench to 0.01 at 0.002 -> anneal 0.01 for 300` | protocol = shortest description |
-| | `history ... -> deposit X 20 for 400` | growth: insert atoms during the run |
+| `history` | `history melt 3000 K for 20 ps -> quench to 300 K at 1 K/ps -> anneal 300 K for 50 ps` | protocol = shortest description |
+| | `history melt 1.2 for 300 -> deposit X 20 for 400 -> anneal 0.01 for 200` | growth: insert atoms during the run |
 | `assert cn` | `assert cn 4.0 +- 0.1 cutoff 2.85 A` | measured, never enforced |
 | `assert gr_peak` | `assert gr_peak 1.06 height 3.07` | first rdf peak |
 | `assert sites_matched` | `assert sites_matched 99.2 %` | site-lattice coverage |
@@ -101,7 +101,7 @@ statement carries a kind: **build** (no keyword), **state**, **constrain**,
 | --- | --- |
 | `at` | `at z 12.3` |
 | `width` | `width 1.1` |
-| `dissociate` | `dissociate H2O -> OH @ surface + H @ surface count 9` |
+| `dissociate` | `dissociate H2O -> OH @ Ti_5c + H @ O_br count 9` |
 | `atom` | `atom X 1.02 3.40 5.60` (residual only) |
 
 ## geometry

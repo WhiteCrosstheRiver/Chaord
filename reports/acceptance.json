@@ -22,7 +22,7 @@
       "id": "A4",
       "name": "defect recovery",
       "passed": true,
-      "evidence": "22 host x defect-type x temperature cells (3 hosts, all four K-V kinds); precision >= 0.95 in 22/22, recall >= 0.95 in 22/22; worst precision 1.00 (fcc-Cu/vacancy/room), worst recall 1.00 (fcc-Cu/vacancy/room)"
+      "evidence": "26 host x defect-type x temperature cells (3 hosts, all four K-V kinds plus one mixed-kind cell on fcc-Cu and L12-NiAl); precision >= 0.95 in 26/26, recall >= 0.95 in 26/26; worst precision 1.00 (fcc-Cu/vacancy/room), worst recall 1.00 (fcc-Cu/vacancy/room)"
     },
     {
       "id": "A5",
@@ -34,13 +34,13 @@
       "id": "A6",
       "name": "conservation",
       "passed": true,
-      "evidence": "126 lifts checked: frame count == conserve line on 126/126; verifier's own region arithmetic (composition/occupancy/molecules/defect net/residual) pins or cross-checks 71 programs (non-derivable shapes check two-way); charge consistent on 126/126"
+      "evidence": "126 lifts checked: frame count == conserve line on 126/126; verifier's own region arithmetic (composition/occupancy/molecules/defect net/residual) pins or cross-checks 81 programs (non-derivable shapes check two-way); charge consistent on 126/126"
     },
     {
       "id": "A7",
       "name": "phase segmentation",
       "passed": true,
-      "evidence": "10/10 interface frames (2 cases x 5 frames; interface band of 2 x d_NN excluded, d_NN = verifier's median nearest-neighbour distance) labelled >= 95% correct; worst 0.999 (interfaces/cu_water frame 3)"
+      "evidence": "10/10 interface frames (2 cases x 5 frames; interface band of 2 x d_NN excluded around every interface plane, d_NN = verifier's median nearest-neighbour distance) labelled >= 95% correct; worst 0.999 (interfaces/cu_water frame 3); judged fraction disclosed per frame -- interface/lj_solid_liquid: judged 0.355-0.395 of atoms (core-scope gate >= 90% x geometry-implied availability held); interfaces/cu_water: judged 0.854-0.874 of atoms (core-scope gate >= 90% x geometry-implied availability held)"
     },
     {
       "id": "A8",
@@ -52,7 +52,7 @@
       "id": "A9",
       "name": "compression",
       "passed": true,
-      "evidence": "1 measured systems with >= 1,000 atoms (bench frames); worst ratio 0.49% (crystals/l12_ni3al, 1372 atoms); per-case table in details"
+      "evidence": "4 measured systems with >= 1,000 atoms (bench frames + independent-MD reference frames); worst ratio 0.55% (reference/lj_solid_liquid, 2304 atoms); worst crystal-class 0.49% (crystals/l12_ni3al, 1372 atoms); worst heterogeneous-class 0.55% (reference/lj_solid_liquid, 2304 atoms); the >= 1,000-atom gate is evidenced on heterogeneous systems (2 of 4 gated measurements); reference frames not liftable (recorded, not gated): reference/cu_solid_liquid ChaordError: extended bonded component (832 Cu atoms): not a molecular fl; per-case table in details"
     },
     {
       "id": "A10",
@@ -64,7 +64,7 @@
       "id": "A11",
       "name": "speed",
       "passed": true,
-      "evidence": "lift_frame(mode=fluid) on 100,000 atoms took 6.6 s (target <= 120 s); input = fcc lattice at rho 0.85 with 0.10 x a jitter (thermally disordered, not equilibrated MD); program states the exact count: yes"
+      "evidence": "lift_frame(mode=fluid) on 100,000 atoms took 6.5 s (target <= 120 s); input = fcc lattice at rho 0.85 with 0.10 x a jitter (thermally disordered, not equilibrated MD); program states the exact count: yes"
     },
     {
       "id": "A12",
@@ -76,13 +76,13 @@
       "id": "A13",
       "name": "no crashes",
       "passed": true,
-      "evidence": "125/125 bench frames lift without any exception; 0 atoms placed in residual blocks across successful lifts"
+      "evidence": "125/125 bench frames lift without any exception; 0 atoms placed in residual blocks across successful lifts; 61 frames carry routing diagnostics (recorded lift_mode refused or names a bench category; lifted auto)"
     },
     {
       "id": "A14",
       "name": "documentation",
       "passed": true,
-      "evidence": "35 distinct keys across dialect YAMLs; reference.md covers 35/35; example found for 26/35 keys (spec/examples; sketch_check pass); generated docs/reference_generated.md"
+      "evidence": "35 distinct keys across dialect YAMLs; reference.md covers 35/35 with structured entries (code span / heading / table row + an actual spec/examples line cited; prose is not coverage); example citation gated for 26/35 keys (9 keys have no example anywhere in spec/examples/ -- reported, nothing to cite: atom, chirality, dialects, lift_version, nanotube, note, reconstruction, source, stacking); sketch_check pass; generated docs/reference_generated.md"
     }
   ],
   "passed": 14,

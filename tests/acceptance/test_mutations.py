@@ -180,6 +180,21 @@ def test_a7_phase_labels():
     assert not bad["passed"], bad["evidence"]
 
 
+def test_a7_core_scope_gate():
+    """Red team F9: the judged core must not silently shrink.  Every clean
+    row reports its judged fraction, and the criterion FAILS when a frame's
+    judged fraction drops below 90% of what its interface geometry leaves
+    available (the widen_band seeded fault halves the available core)."""
+    clean = acc.check_a7(frames=(0,))
+    for row in clean["details"]["rows"]:
+        assert "judged_frac" in row and "geo_floor" in row
+        assert row["judged_frac"] >= 0.9 * row["geo_floor"]
+    assert "judged fraction disclosed per frame" in clean["evidence"]
+    bad = acc.check_a7(mutation="widen_band", frames=(0,))
+    assert not bad["passed"], bad["evidence"]
+    assert "SCOPE VIOLATIONS" in bad["evidence"]
+
+
 # --------------------------------------------------------------------- A8 ----
 def test_a8_reactive_census_independent_construction():
     clean = acc.check_a8()
@@ -236,16 +251,47 @@ def test_a13_no_crashes():
 
 
 # -------------------------------------------------------------------- A14 ----
+def _structured_reference(keys):
+    """A reference that covers every key the structured way: an
+    entry-shaped heading plus an ACTUAL spec/examples line where one exists
+    (red team F8: prose word occurrences are not coverage)."""
+    import re
+    examples = {}
+    for p in sorted((acc.ROOT / "spec" / "examples").glob("*.chaord")):
+        for line in p.read_text(encoding="utf-8").splitlines():
+            m = re.match(r"^\s*((?:(?:state|constrain|assert|history|"
+                         r"conserve)\s+)?)([A-Za-z_][A-Za-z0-9_]*)\b", line)
+            if not m:
+                continue
+            kind, key = m.group(1).strip(), m.group(2)
+            for token in ((kind, key) if kind else (key,)):
+                examples.setdefault(token, line.strip())
+    out = []
+    for k in keys:
+        out.append(f"### `{k}`")
+        out.append(f"{k}: definition line.")
+        if k in examples:
+            out.append(f"example: `{examples[k]}`")
+    return "\n".join(out)
+
+
 def test_a14_reference_coverage():
     base = acc.check_a14()
     keys = base["details"]["keys"]
     assert keys, "no dialect keys found"
-    full_reference = " ".join(keys)       # a reference that covers every key
+    full_reference = _structured_reference(keys)
     clean = acc.check_a14(reference_text=full_reference)
     assert clean["passed"], clean["evidence"]
     bad = acc.check_a14(mutation="hide_key", reference_text=full_reference)
     assert not bad["passed"], bad["evidence"]
     assert "epsilon" in bad["details"]["missing"]
+    # prose is not coverage (red team F8): bare words in sentences must fail
+    prose = " ".join(f"We {k} things carefully." for k in keys)
+    prose_result = acc.check_a14(reference_text=prose)
+    assert not prose_result["passed"], prose_result["evidence"]
+    assert len(prose_result["details"]["missing"]) == len(keys)
+    # leave docs/reference_generated.md regenerated against the real doc
+    acc.check_a14()
 
 
 # ------------------------------------------------------------- runner shape --

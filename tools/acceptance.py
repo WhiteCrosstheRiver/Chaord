@@ -255,6 +255,33 @@ def _gcd(*vals):
     return out
 
 
+# verifier-side molar masses (g/mol) for the density audit of molecular slab
+# regions (CODATA rounded); only elements of MOLECULE_TABLE appear
+MOLAR_MASS = {"H": 1.008, "O": 15.999, "N": 14.007, "C": 12.011,
+              "Ar": 39.948, "Na": 22.990, "Cl": 35.45, "Li": 6.94,
+              "F": 18.998, "P": 30.974}
+AVOGADRO = 6.02214076e23
+# the lift states the density it measured on the frame; a region whose
+# molecules line is off by more than this from its own density statement is
+# internally inconsistent (red team F4: -30 of 136 waters = -22 %)
+DENSITY_REL_TOL = 0.05
+
+_RE_SLAB_Z = re.compile(r"slab\s+z\s+(" + _RE_NUM + r")\s*\.\.\s*(" + _RE_NUM
+                        + r")")
+
+
+def _slab_z_span(geometry: str, lz: float):
+    """z-extent (start, length) of a `slab z A .. B` region in a cell whose
+    z edge is `lz` (B < A wraps through z = 0).  None when the region is not
+    a z-slab."""
+    m = _RE_SLAB_Z.search(geometry)
+    if m is None:
+        return None
+    a, b = float(m.group(1)), float(m.group(2))
+    length = (b - a) if b >= a else (lz - a) + b
+    return a, length
+
+
 def derive_counts(parsed: dict):
     """Atom counts implied by the region statements of a lifted program.
 
@@ -262,32 +289,66 @@ def derive_counts(parsed: dict):
     conventional-cell multiplicity implied by the stated cell, minus the defect
     net, plus residual atom lines; molecular regions expand the verifier's
     formula table.  Returns (dict, how) on success, ({'__expected_total__': n},
-    how) when only the site total is pinned, or (None, reason) when the program
-    shape does not pin the counts (slab/interface programs, atomic fluids,
-    amorphous composition without counts).
-    """
+    how) when only the site total is pinned, ({'__partial__': note, ...counts},
+    how) when only some regions pin counts (slab/interface programs: molecular
+    regions expand, crystal-slab regions do not -- their printed bounds are
+    fitted interface planes, not exact lattice arithmetic), and (None, reason)
+    when the program shape does not pin the counts.
+
+    Slab/interface programs (red team F4, 2026-09-30): molecular slab regions
+    are expanded against the verifier's formula table AND audited against
+    their own `state density` via the slab volume from the system cell -- a
+    molecules line that lost water while the conserve line kept the frame
+    counts used to degrade the A6 three-way claim to two-way silently."""
     regions = parsed["regions"]
     if not regions:
         return None, "no region"
     if any(r["phase"] not in ("crystal", "liquid", "gas", "fluid", "amorphous")
            for r in regions):
         return None, "unsupported phase"
-    if any(any(w in r["geometry"] for w in ("slab", "box", "sphere", "cylinder"))
+    if any(any(w in r["geometry"] for w in ("box", "sphere", "cylinder"))
            for r in regions):
         return None, "non-trivial region geometry (counts not derivable)"
     total: dict[str, int] = {}
     how = []
+    unpinned: list[str] = []
+    violations: list[str] = []
     cell = parsed["cell"]
     for r in regions:
         st = r["stmts"]
+        slab = (_slab_z_span(r["geometry"], cell[2])
+                if cell is not None and len(cell) == 3 else None)
         if "molecules" in st:
+            mol_counts: dict[str, int] = {}
             for line in st["molecules"]:
                 for name, n in re.findall(r"(\S+)\s+(" + _RE_NUM + r")", line):
                     if name not in MOLECULE_TABLE:
                         return None, f"unknown molecule {name}"
                     for el, k in MOLECULE_TABLE[name].items():
                         total[el] = total.get(el, 0) + k * int(round(_as_float(n)))
+                    mol_counts[name] = (mol_counts.get(name, 0)
+                                        + int(round(_as_float(n))))
             how.append("molecules")
+            # density audit (molecular slab region with a g/cm3 statement):
+            # n x M / (N_A x slab volume) must match the stated density
+            dens_line = _stmt(r, "density")
+            m_d = (re.match(r"\s*(" + _RE_NUM + r")\s*g/cm3\s*$", dens_line)
+                   if dens_line is not None else None)
+            if (m_d is not None and slab is not None
+                    and cell is not None and len(cell) == 3):
+                stated = float(m_d.group(1))
+                cross = float(cell[0]) * float(cell[1])
+                vol_cm3 = cross * slab[1] * 1e-24
+                mass_g = sum(n * sum(MOLAR_MASS.get(el, 0) * k for el, k in
+                                     MOLECULE_TABLE[name].items())
+                             for name, n in mol_counts.items()) / AVOGADRO
+                if vol_cm3 > 0 and mass_g > 0:
+                    implied = mass_g / vol_cm3
+                    if abs(implied - stated) > DENSITY_REL_TOL * stated:
+                        violations.append(
+                            f"region density {stated:g} g/cm3 contradicts its "
+                            f"own molecules line ({implied:.3f} g/cm3 from "
+                            f"{mol_counts} in the stated slab volume)")
             continue
         if r["phase"] == "amorphous":
             comp_line = _stmt(r, "composition")
@@ -304,6 +365,14 @@ def derive_counts(parsed: dict):
         if r["phase"] in ("liquid", "gas", "fluid"):
             return None, "atomic fluid region (no composition statement)"
         # crystal regions
+        if slab is not None:
+            # crystal slab: the printed bounds are fitted interface planes,
+            # not exact lattice arithmetic -- the site count is not pinned
+            # (recorded, never silently dropped)
+            unpinned.append(
+                f"crystal slab region ({r['geometry']}): fitted bounds do "
+                f"not pin the site count")
+            continue
         proto_line = _stmt(r, "prototype") or _stmt(r, "lattice")
         if proto_line is None:
             return None, "crystal region without lattice/prototype"
@@ -377,6 +446,11 @@ def derive_counts(parsed: dict):
     total = {k: v for k, v in total.items() if v}
     if not total:
         return None, "derivation produced no counts"
+    if violations:
+        total["__violations__"] = violations
+    if unpinned:
+        total["__partial__"] = "; ".join(unpinned)
+        return total, "+".join(how + unpinned)
     return total, "+".join(how)
 
 
@@ -478,14 +552,27 @@ def case_by_id(cid: str) -> dict:
 _LIFT_CACHE: dict = {}
 
 
+# lift_frame's own mode vocabulary.  Bench ground truths additionally
+# record category names ('interface', 'reactive') that are NOT lift modes --
+# those name the case, not a routing instruction (red team F2: the loop used
+# to ignore the recorded mode entirely, so the routing contract in the bench
+# metadata was never exercised)
+_LIFT_FRAME_MODES = {"pipeline", "crystal", "defects", "amorphous", "surface",
+                     "fluid", "slab"}
+
+
 def lift_all_bench_frames(frame_limit: int | None = None):
-    """Lift every bench frame once (mode auto, dialect from ground truth).
+    """Lift every bench frame once with the mode the ground truth records
+    (dialect from ground truth; auto where the recorded value names the bench
+    category, or when the recorded mode refuses -- the refusal is RECORDED as
+    a routing diagnostic, never silently swallowed).
 
     Cached: A6, A9 and A13 all consume the same loop."""
     if frame_limit in _LIFT_CACHE:
         return _LIFT_CACHE[frame_limit]
     from chaord.dialects import load_dialect
     from chaord.io.frames import read_frame
+    from chaord.lang.errors import ChaordError
     from chaord.lift import lift_frame
     dialects: dict = {}
     records = []
@@ -497,16 +584,36 @@ def lift_all_bench_frames(frame_limit: int | None = None):
                 return records
             frame = read_frame(path)
             t0 = time.perf_counter()
+            routing = None
+            used_mode = case["mode"]
             try:
-                text = format_program_text(lift_frame(frame, dl))
+                if used_mode in _LIFT_FRAME_MODES:
+                    try:
+                        program = lift_frame(frame, dl, mode=used_mode)
+                    except ChaordError as exc:
+                        # a refusal of the RECORDED mode is a routing fact:
+                        # record it and lift auto (which is what the legacy
+                        # cascade would have done, minus the silence)
+                        routing = (f"recorded lift_mode '{used_mode}' refused "
+                                   f"({str(exc)[:70]}); lifted auto")
+                        used_mode = "auto"
+                        program = lift_frame(frame, dl)
+                else:
+                    routing = (f"recorded lift_mode '{used_mode}' names the "
+                               "bench category, not a lift mode; lifted auto")
+                    used_mode = "auto"
+                    program = lift_frame(frame, dl)
+                text = format_program_text(program)
                 rec = dict(case=case["id"], frame=k, ok=True, text=text,
                            error=None, error_type=None,
-                           seconds=time.perf_counter() - t0)
+                           seconds=time.perf_counter() - t0,
+                           mode=used_mode, routing=routing)
             except Exception as exc:                        # noqa: BLE001
                 rec = dict(case=case["id"], frame=k, ok=False, text=None,
                            error=f"{type(exc).__name__}: {exc}",
                            error_type=type(exc).__name__,
-                           seconds=time.perf_counter() - t0)
+                           seconds=time.perf_counter() - t0,
+                           mode=used_mode, routing=routing)
             records.append(rec)
     _LIFT_CACHE[frame_limit] = records
     return records
@@ -920,12 +1027,19 @@ A4_HOSTS = [
     ("NaCl", "rocksalt", {"a": 5.64}, ("Na", "Cl"), (3, 3, 3)),
 ]
 A4_PLANS = {
-    "fcc-Cu": [("vacancy", "V_Cu", 6), ("interstitial", "Cu_i", 4),
-               ("frenkel", "frenkel_pair", 4)],
-    "L12-NiAl": [("vacancy", "V_Ni", 3), ("antisite", "Al_Ni", 4),
-                 ("interstitial", "Ni_i", 3), ("frenkel", "frenkel_pair", 3)],
-    "NaCl": [("vacancy", "V_Na", 6), ("antisite", "Cl_Na", 4),
-             ("interstitial", "Na_i", 3), ("frenkel", "frenkel_pair", 3)],
+    "fcc-Cu": [("vacancy", {"V_Cu": 6}), ("interstitial", {"Cu_i": 4}),
+               ("frenkel", {"frenkel_pair": 4}),
+               # red team F12 (2026-09-30): a MIXED cell -- two defect kinds
+               # in one cell, planted separated (>= 2 d_NN) so they are
+               # distinct events, never frenkel pairs
+               ("mixed", {"V_Cu": 3, "Cu_i": 3})],
+    "L12-NiAl": [("vacancy", {"V_Ni": 3}), ("antisite", {"Al_Ni": 4}),
+                 ("interstitial", {"Ni_i": 3}), ("frenkel", {"frenkel_pair": 3}),
+                 # red team F12: the red-team planting itself (three kinds in
+                 # one cell) is now part of the acceptance grid
+                 ("mixed", {"V_Ni": 3, "Al_Ni": 4, "Ni_i": 3})],
+    "NaCl": [("vacancy", {"V_Na": 6}), ("antisite", {"Cl_Na": 4}),
+             ("interstitial", {"Na_i": 3}), ("frenkel", {"frenkel_pair": 3})],
 }
 # 0.8 Tm anchor: the metal dialect documents thermal_test_amplitude = 0.06 d_NN
 # as "0.8 Tm-ish"; room temperature follows the sqrt(T) law for a ~1358 K
@@ -994,32 +1108,122 @@ def _plant_defects(frame, dtype: str, token: str, count: int, d_nn: float, rng):
     return Frame(pos=pos, cell=frame.cell, symbols=syms, pbc=frame.pbc)
 
 
-def _pr_for_cell(dtype: str, planted_token: str, planted_n: int,
-                 detected: dict[str, int]):
+def _kv_kind(token: str) -> str:
+    """Kröger-Vink token -> defect kind (verifier's own reading of the
+    notation: V_X vacancy, X_i interstitial, A_B antisite, frenkel_pair)."""
+    if token == "frenkel_pair":
+        return "frenkel"
+    if token.startswith("V_"):
+        return "vacancy"
+    if token.endswith("_i"):
+        return "interstitial"
+    return "antisite"
+
+
+def _plant_defects_mixed(frame, plan: list[tuple[str, str, int]], d_nn: float, rng):
+    """Verifier-side planter for MIXED cells (red team F12): several defect
+    kinds in ONE cell, the realistic case the single-type plans could not
+    express.  Vacancies first (mutually separated 2 d_NN, positions kept),
+    then antisites on surviving sites of the target species (separated from
+    the vacancy sites), then interstitials near surviving parents kept
+    >= 2 d_NN from every vacancy site so they stay distinct events rather
+    than frenkel pairs."""
+    pos = frame.pos.copy()
+    syms = list(frame.symbols)
+    L = frame.cell_diag
+    vac_sites: list = []
+
+    def _near_vacancy(p) -> bool:
+        return (bool(vac_sites)
+                and np.min(np.linalg.norm(np.vstack(vac_sites) - p, axis=1))
+                < 2.0 * d_nn)
+
+    for dtype, token, count in plan:
+        if dtype == "vacancy":
+            site_sp = token[2:]
+            idx = _pick_separated(pos, syms, site_sp, count, 2.0 * d_nn, rng,
+                                  return_idx=True)
+            vac_sites.append(pos[idx].copy())
+            keep = np.zeros(len(pos), bool)
+            keep[idx] = True
+            pos, syms = pos[~keep], [s for i, s in enumerate(syms) if not keep[i]]
+        elif dtype == "antisite":
+            on_sp, site_sp = token.split("_")
+            cand = [i for i, s in enumerate(syms) if s == site_sp]
+            picked = []
+            for i in rng.permutation(cand):
+                if _near_vacancy(pos[i]):
+                    continue
+                if picked and np.min(
+                        np.linalg.norm(pos[picked] - pos[i], axis=1)) < 2.0 * d_nn:
+                    continue
+                picked.append(int(i))
+                if len(picked) == count:
+                    break
+            if len(picked) < count:
+                raise RuntimeError("could not place separated antisites")
+            for i in picked:
+                syms[i] = on_sp
+        elif dtype == "interstitial":
+            sp = token.split("_")[0]
+            parents = []
+            for i in rng.permutation(len(pos)):
+                if _near_vacancy(pos[i]):
+                    continue
+                parents.append(int(i))
+                if len(parents) == count:
+                    break
+            if len(parents) < count:
+                raise RuntimeError("could not place separated interstitials")
+            offs = _random_unit(rng, count) * (0.60 * d_nn)
+            pos = np.vstack([pos, np.mod(pos[parents] + offs, L)])
+            syms += [sp] * count
+        else:
+            raise ValueError(dtype)
+    from chaord.io.frames import Frame
+    return Frame(pos=pos, cell=frame.cell, symbols=syms, pbc=frame.pbc)
+
+
+def _pr_for_cell(planted: dict[str, int], detected: dict[str, int]):
     """Verifier's precision/recall over defect events for one planted cell.
 
-    A frenkel_pair detection (species-less in the lift) pairs with any planted
-    frenkel; an ungrouped V_X + X_i pair also counts as one found pair."""
-    det = dict(detected)
-    tp = fp = fn = 0
-    if dtype == "frenkel":
-        grouped = min(det.pop("frenkel_pair", 0), planted_n)
-        vac = sum(n for t, n in det.items() if t.startswith("V_"))
-        inter = sum(n for t, n in det.items() if t.endswith("_i"))
-        pairs = grouped + min(vac, inter)
-        tp = min(pairs, planted_n)
-        fn = planted_n - tp
-        fp = (max(pairs - tp, 0) + max(vac - inter, 0) + max(inter - vac, 0)
-              + sum(n for t, n in det.items()
-                    if not t.startswith("V_") and not t.endswith("_i")))
-    else:
-        relevant = det.pop(planted_token, 0)
-        tp = min(relevant, planted_n)
-        fn = planted_n - tp
-        fp = relevant - tp + sum(det.values())
+    Criterion semantics, unchanged: P = correct detections / total
+    detections, R = correct detections / total planted, events bound per
+    Kroger-Vink token.  The planted side is the FULL multiset of the cell
+    (red team F12, 2026-09-30: the perfect mixed lift {V_Ni: 3, Al_Ni: 4,
+    Ni_i: 3} scored P = 0.30/0.40/0.30 under the one-token-per-cell view
+    because every other planted type's true detection counted as a false
+    positive -- mixed cells were outside the metric's expressive range, not
+    the lift's).
+
+    Frenkel bookkeeping: a frenkel_pair detection matches a planted frenkel
+    token-exactly; V_X / X_i detections LEFT OVER after the planted vacancy
+    and interstitial tokens are matched pair 1:1 with planted frenkel events
+    still unexplained (the ungrouped report of the same net event).  Anything
+    still unmatched on the detection side is a false positive."""
+    det = {t: int(c) for t, c in detected.items()}
+    pl = {t: int(c) for t, c in planted.items()}
+    tp = fn = 0
+    matched: dict[str, int] = {}
+    for tok, n in pl.items():
+        m = min(det.get(tok, 0), n)
+        matched[tok] = m
+        tp += m
+        fn += n - m
+    left = {t: c - matched.get(t, 0) for t, c in det.items()}
+    left = {t: c for t, c in left.items() if c > 0}
+    fp = sum(left.values())
+    unexplained = pl.get("frenkel_pair", 0) - matched.get("frenkel_pair", 0)
+    if unexplained > 0:
+        vac = sum(c for t, c in left.items() if t.startswith("V_"))
+        inter = sum(c for t, c in left.items() if t.endswith("_i"))
+        pairs = min(vac, inter, unexplained)
+        tp += pairs
+        fn -= pairs
+        fp -= 2 * pairs
     prec = tp / (tp + fp) if (tp + fp) else 1.0
     rec = tp / (tp + fn) if (tp + fn) else 1.0
-    return prec, rec, dict(tp=tp, fp=fp, fn=fn)
+    return prec, rec, dict(tp=tp, fp=max(fp, 0), fn=max(fn, 0))
 
 
 def check_a4(mutation: str | None = None, temps=("room", "0.8Tm")):
@@ -1040,11 +1244,18 @@ def check_a4(mutation: str | None = None, temps=("room", "0.8Tm")):
         tag, name, params, slots, reps = host
         perfect = build_conventional(name, params, slots, reps)
         d_nn = median_nn_distance(perfect.pos, perfect.cell_diag)
-        for dtype, token, n_planted in A4_PLANS[tag]:
+        for dtype, planting in A4_PLANS[tag]:
             for temp in temps:
                 seed = _stable_seed(f"{tag}|{dtype}|{temp}")
                 rng = np.random.default_rng(seed)
-                frame = _plant_defects(perfect, dtype, token, n_planted, d_nn, rng)
+                if dtype == "mixed":
+                    frame = _plant_defects_mixed(
+                        perfect, [(_kv_kind(tok), tok, n)
+                                  for tok, n in planting.items()], d_nn, rng)
+                else:
+                    (token, n_planted), = planting.items()
+                    frame = _plant_defects(perfect, dtype, token, n_planted,
+                                           d_nn, rng)
                 amp = (hot_frac if temp == "0.8Tm" else ROOM_T_AMP_FACTOR) * d_nn
                 hot = Frame(
                     pos=np.mod(frame.pos + rng.normal(size=frame.pos.shape) * amp,
@@ -1054,10 +1265,11 @@ def check_a4(mutation: str | None = None, temps=("room", "0.8Tm")):
                 detected = {t: int(c) for t, c in
                             re.findall(r"defect (\S+) count (\d+)", text)}
                 if mutation == "false_defect" and dtype == "vacancy":
+                    token, _n = next(iter(planting.items()))
                     detected[token] = detected.get(token, 0) + 1  # seeded fault
-                prec, rec, counts = _pr_for_cell(dtype, token, n_planted, detected)
+                prec, rec, counts = _pr_for_cell(planting, detected)
                 rows.append(dict(host=tag, type=dtype, temp=temp,
-                                 planted=n_planted, detected=detected,
+                                 planted=dict(planting), detected=detected,
                                  precision=prec, recall=rec, **counts))
     ok = all(r["precision"] >= 0.95 and r["recall"] >= 0.95 for r in rows)
     n_p = sum(r["precision"] >= 0.95 for r in rows)
@@ -1065,7 +1277,8 @@ def check_a4(mutation: str | None = None, temps=("room", "0.8Tm")):
     worst_p = min(rows, key=lambda r: r["precision"])
     worst_r = min(rows, key=lambda r: r["recall"])
     ev = (f"{len(rows)} host x defect-type x temperature cells ({len(A4_HOSTS)} "
-          f"hosts, all four K-V kinds); precision >= 0.95 in {n_p}/{len(rows)}, "
+          f"hosts, all four K-V kinds plus one mixed-kind cell on fcc-Cu and "
+          f"L12-NiAl); precision >= 0.95 in {n_p}/{len(rows)}, "
           f"recall >= 0.95 in {n_r}/{len(rows)}; worst precision "
           f"{worst_p['precision']:.2f} ({worst_p['host']}/{worst_p['type']}/"
           f"{worst_p['temp']}), worst recall {worst_r['recall']:.2f} "
@@ -1606,10 +1819,28 @@ def _conservation_row(case_id: str, frame_k: int, symbols, text: str) -> dict:
                 if deriv_ok else
                 f" [total {sum(frame_counts.values())} != {expected_total}]")
         derived = None                # species split comes from conserve only
+    elif derived is not None and "__partial__" in derived:
+        # slab/interface program (red team F4): the regions that pin counts
+        # are cross-checked species-by-species against the frame census; the
+        # unpinned regions (crystal slabs with fitted bounds) are recorded in
+        # the derivation string, never silently dropped
+        partial_note = derived.pop("__partial__")
+        violations = derived.pop("__violations__", [])
+        pinned = {k: v for k, v in derived.items()}
+        deriv_ok = bool(pinned) and all(
+            frame_counts.get(s, 0) == n for s, n in pinned.items())
+        how += (f" [partial: {pinned} vs frame"
+                f"{' OK' if deriv_ok else ' MISMATCH'}; {partial_note}]")
+        if violations:
+            deriv_ok = False
+            how += " [INTERNAL INCONSISTENCY: " + "; ".join(violations) + "]"
     elif derived is None:
         deriv_ok = True               # not derivable: two-way check only
     else:
-        deriv_ok = derived == frame_counts
+        violations = derived.pop("__violations__", [])
+        deriv_ok = derived == frame_counts and not violations
+        if violations:
+            how += " [INTERNAL INCONSISTENCY: " + "; ".join(violations) + "]"
     if charge_checkable(symbols) and _charge_audited(symbols):
         charge_frame = frame_charge(symbols)
         has_h = "H" in symbols
@@ -1705,9 +1936,52 @@ def _drop_one_cl(frame):
 
 
 # ---- A7 ----------------------------------------------------------------------
+# core-scope gate (red team F9): a frame's judged fraction must reach this
+# fraction of what its own interface geometry leaves available -- a core that
+# audits less (band inflated, interior excluded) is insufficient evidence and
+# FAILS the criterion instead of silently narrowing the >= 95% claim
+A7_JUDGED_FLOOR_FRAC = 0.90
+
+
+def _a7_core_mask(z, lz, boundary, band, pbc_z):
+    """Judged core (verifier's own mask, red team F9, 2026-09-30): exclude
+    exactly the 2 x d_NN band around EVERY interface plane -- the ground-truth
+    boundary and, in a periodic two-phase slab cell (phases in half cells),
+    its translate at boundary +- L_z/2, the second solid-liquid plane -- plus,
+    only where z is NOT periodic, the outermost bands (real free surfaces).
+    No atom of the solid or liquid interior beyond those bands is excluded;
+    the pre-fix mask cut z > band and z < L - band unconditionally, which for
+    a periodic cell is the same cut only by coincidence of the case geometry.
+
+    Returns (core mask, geometry-implied judged-fraction floor)."""
+    planes = [boundary]
+    n_bands = 1
+    if pbc_z:
+        planes.append((boundary + lz / 2) % lz)
+        n_bands = 2
+    else:
+        n_bands = 3               # the interface plane + both real surfaces
+    core = np.ones(len(z), bool)
+    for p in planes:
+        dz = np.abs(z - p)
+        dz = np.minimum(dz, lz - dz)
+        core &= dz > band
+    if not pbc_z:
+        core &= (z > band) & (z < lz - band)
+    floor = max(1.0 - n_bands * 2.0 * band / lz, 0.0)
+    return core, floor
+
+
 def check_a7(mutation: str | None = None, frames=(0, 1, 2, 3, 4)):
     """Per-atom phase labels >= 95% correct against planted ground truth on the
-    interface cases (chaord.lift.segment labels), outside the interface band."""
+    interface cases (chaord.lift.segment labels), outside the interface band.
+
+    Every row reports the judged fraction (the >= 95% claim states its
+    coverage; it never silently means '95% of 35.5%'), and the criterion
+    FAILS any frame whose judged fraction drops below 90% of the fraction its
+    own interface geometry leaves available -- a silent scope shrink is
+    insufficient evidence (red team F9).  The widen_band mutation (band x 2)
+    demonstrates that gate."""
     from chaord.dialects import load_dialect
     from chaord.io.frames import read_frame
     from chaord.lift.segment import phase_labels
@@ -1740,19 +2014,43 @@ def check_a7(mutation: str | None = None, frames=(0, 1, 2, 3, 4)):
                 labels[flip] = ~labels[flip]
             d_nn = median_nn_distance(frame.pos, L)
             z = frame.pos[:, 2]
-            band = 2.0 * d_nn
-            core = ((np.abs(z - boundary) > band) & (z > band)
-                    & (z < L[2] - band))
-            acc = float((labels[core] == (~truth[core])).mean())
-            rows.append(dict(case=cid, frame=k, accuracy=acc,
-                             core_atoms=int(core.sum())))
-    ok = all(r["accuracy"] >= 0.95 for r in rows) and rows
+            band_phys = 2.0 * d_nn
+            band = band_phys * 2.0 if mutation == "widen_band" else band_phys
+            # the scope floor is anchored to the PHYSICAL band (2 x d_NN):
+            # the mutation must not drag its own reference along
+            core, _ = _a7_core_mask(z, float(L[2]), float(boundary), band,
+                                    bool(frame.pbc[2]))
+            _, geo_floor = _a7_core_mask(z, float(L[2]), float(boundary),
+                                         band_phys, bool(frame.pbc[2]))
+            judged_frac = float(core.mean())
+            if core.any():
+                acc_ = float((labels[core] == (~truth[core])).mean())
+            else:
+                acc_ = 0.0          # an empty core has no accuracy to report
+            scope_ok = judged_frac >= A7_JUDGED_FLOOR_FRAC * geo_floor
+            rows.append(dict(case=cid, frame=k, accuracy=acc_,
+                             core_atoms=int(core.sum()),
+                             judged_frac=round(judged_frac, 4),
+                             geo_floor=round(geo_floor, 4),
+                             scope_ok=bool(scope_ok)))
+    ok = all(r["accuracy"] >= 0.95 and r["scope_ok"] for r in rows) and rows
     worst = min(rows, key=lambda r: r["accuracy"])
+    by_case = {c: [r["judged_frac"] for r in rows if r["case"] == c]
+               for c in {r["case"] for r in rows}}
+    scope_txt = "; ".join(
+        f"{c}: judged {min(v):.3f}-{max(v):.3f} of atoms "
+        f"(core-scope gate >= {A7_JUDGED_FLOOR_FRAC:.0%} x geometry-implied "
+        f"availability held)"
+        for c, v in by_case.items())
     ev = (f"{sum(r['accuracy'] >= 0.95 for r in rows)}/{len(rows)} interface "
           f"frames (2 cases x {len(frames)} frames; interface band of 2 x d_NN "
-          f"excluded, d_NN = verifier's median nearest-neighbour distance) "
-          f"labelled >= 95% correct; worst {worst['accuracy']:.3f} "
-          f"({worst['case']} frame {worst['frame']})")
+          f"excluded around every interface plane, d_NN = verifier's median "
+          f"nearest-neighbour distance) labelled >= 95% correct; worst "
+          f"{worst['accuracy']:.3f} ({worst['case']} frame {worst['frame']}); "
+          f"judged fraction disclosed per frame -- {scope_txt}"
+          + ("" if all(r["scope_ok"] for r in rows) else
+             f"; SCOPE VIOLATIONS: "
+             f"{[(r['case'], r['frame'], r['judged_frac']) for r in rows if not r['scope_ok']]}"))
     return record("A7", "phase segmentation", ok, ev, dict(rows=rows))
 
 
@@ -1849,9 +2147,32 @@ def _random_rotation(rng):
 
 
 # ---- A9 ----------------------------------------------------------------------
+# verifier-side table for the independent-MD reference systems
+# (bench/reference/*): lift dialect and evidence class.  The reference frames
+# belong to the A9 gated measurement set (red team F11, 2026-09-30): the
+# >= 1,000-atom gate used to be evidenced by one perfect crystal only, while
+# compression is hardest on heterogeneous systems; lj_solid_liquid (2,304
+# atoms, solid-liquid interface) and nacl_aq (1,640 atoms, ionic solution)
+# are heterogeneous and >= 1,000 atoms.
+REFERENCE_CASES = {
+    "lj_liquid": (("core", "lj"), "fluid"),
+    "lj_liquid_large": (("core", "lj"), "fluid"),
+    "lj_glass": (("core", "glass"), "glass"),
+    "lj_solid_liquid": (("core", "lj"), "interface"),
+    "cu_solid_liquid": (("core", "metal"), "interface"),
+    "water_tip4p": (("core", "molecular"), "fluid"),
+    "nacl_aq": (("core", "molecular"), "solution"),
+}
+A9_HETEROGENEOUS_CLASSES = {"interface", "interfaces", "solution", "solutions",
+                            "surface", "surfaces", "reactive"}
+A9_CRYSTAL_CLASSES = {"crystals", "defects"}
+
+
 def check_a9(mutation: str | None = None, cases_override=None):
     """Program <= 2% of the coordinate file for systems of >= 1,000 atoms;
-    every bench case measured, worst value gated on the >= 1,000-atom ones."""
+    every bench case AND every independent-MD reference frame measured, worst
+    value gated on the >= 1,000-atom ones, worst crystal-class and worst
+    heterogeneous-class ratios reported separately (red team F11)."""
     from chaord.io.frames import write_frame
 
     measurements = []
@@ -1877,27 +2198,53 @@ def check_a9(mutation: str | None = None, cases_override=None):
                 prog_bytes = len(rec["text"].encode("utf-8"))
                 measurements.append(dict(
                     case=cid, n_atoms=len(frame), prog_bytes=prog_bytes,
-                    xyz_bytes=xyz_bytes,
-                    ratio=100.0 * prog_bytes / xyz_bytes, source="bench"))
+                    xyz_bytes=xyz_bytes, source="bench",
+                    category=case["category"],
+                    ratio=100.0 * prog_bytes / xyz_bytes))
             supp = _tiled_supplementary(td)
             if supp is not None:
                 measurements.append(supp)
+            ref_rows, ref_failures = _reference_compression_measurements(td)
+            measurements.extend(ref_rows)
+            measurements.extend(ref_failures)
     if mutation == "inflate_program":
         # seeded fault: a bloated program text (comment padding counts too)
         for m in measurements:
             m["prog_bytes"] += 20000
             m["ratio"] = 100.0 * m["prog_bytes"] / m["xyz_bytes"]
     raw = [m for m in measurements if m["source"] == "bench"]
-    pool = raw or measurements
+    pool = ([m for m in measurements
+             if m["source"] in ("bench", "reference") and "ratio" in m]
+            if raw else measurements)
     big_pool = [m for m in pool if m["n_atoms"] >= 1000]
     worst = max(pool, key=lambda m: m["ratio"]) if pool else None
+    ref_failures = [m for m in measurements if m.get("lift_failed")]
     if big_pool:
         worst_big = max(big_pool, key=lambda m: m["ratio"])
         ok = worst_big["ratio"] <= 2.0
         ev = (f"{len(big_pool)} measured systems with >= 1,000 atoms "
-              f"({'bench frames' if raw else 'override cases'}); worst ratio "
+              f"(bench frames + independent-MD reference frames); worst ratio "
               f"{worst_big['ratio']:.2f}% ({worst_big['case']}, "
-              f"{worst_big['n_atoms']} atoms); per-case table in details")
+              f"{worst_big['n_atoms']} atoms)")
+        for label, classes in (("crystal-class", A9_CRYSTAL_CLASSES),
+                               ("heterogeneous-class",
+                                A9_HETEROGENEOUS_CLASSES)):
+            sub = [m for m in big_pool if m.get("category") in classes]
+            if sub:
+                w = max(sub, key=lambda m: m["ratio"])
+                ev += (f"; worst {label} {w['ratio']:.2f}% ({w['case']}, "
+                       f"{w['n_atoms']} atoms)")
+        het = [m for m in big_pool
+               if m.get("category") in A9_HETEROGENEOUS_CLASSES]
+        ev += ("; the >= 1,000-atom gate is evidenced on heterogeneous "
+               f"systems ({len(het)} of {len(big_pool)} gated measurements)"
+               if het else
+               "; NO heterogeneous system in the gated set (red team F11)")
+        if ref_failures:
+            ev += ("; reference frames not liftable (recorded, not gated): "
+                   + "; ".join(f"{m['case']} {m['lift_failed']}"
+                               for m in ref_failures))
+        ev += "; per-case table in details"
     else:
         ok = False
         n_max = max((m["n_atoms"] for m in raw), default=0)
@@ -1947,7 +2294,45 @@ def _tiled_supplementary(td: str):
                      "(supplementary, not a raw bench frame)",
                 n_atoms=len(tiled), prog_bytes=prog_bytes,
                 xyz_bytes=xyz_bytes, ratio=100.0 * prog_bytes / xyz_bytes,
-                source="tiled-supplementary")
+                source="tiled-supplementary", category="defects")
+
+
+def _reference_compression_measurements(td: str):
+    """A9 measurements on the independent-MD reference frames
+    (bench/reference/*, frame 0 each): the gated >= 1,000-atom set gains the
+    heterogeneous classes the bench alone could not supply (red team F11).
+    A frame whose lift refuses is recorded as a disclosed non-measurement,
+    never silently dropped."""
+    from chaord.dialects import load_dialect
+    from chaord.io.frames import read_frame, write_frame
+    from chaord.lift import lift_frame
+
+    rows, failures = [], []
+    ref_root = ROOT / "bench" / "reference"
+    for name, (names, cls) in sorted(REFERENCE_CASES.items()):
+        case_dir = ref_root / name
+        frames = sorted(
+            case_dir.glob("frame_*.npz"),
+            key=lambda p: int(re.search(r"(\d+)$", p.stem).group(1)))
+        if not frames:
+            continue
+        frame = read_frame(frames[0])
+        try:
+            text = format_program_text(lift_frame(frame, load_dialect(names)))
+        except Exception as exc:                                # noqa: BLE001
+            failures.append(dict(case=f"reference/{name}", source="reference",
+                                 category=cls, lift_failed=(
+                                     f"{type(exc).__name__}: {str(exc)[:60]}")))
+            continue
+        q = Path(td) / f"ref_{name}.extxyz"
+        write_frame(q, frame)
+        rows.append(dict(case=f"reference/{name}", n_atoms=len(frame),
+                         prog_bytes=len(text.encode("utf-8")),
+                         xyz_bytes=q.stat().st_size, source="reference",
+                         category=cls,
+                         ratio=100.0 * len(text.encode("utf-8"))
+                         / q.stat().st_size))
+    return rows, failures
 
 
 # ---- A10 ---------------------------------------------------------------------
@@ -2148,10 +2533,18 @@ def check_a13(mutation: str | None = None, frame_limit: int | None = None):
     ok_lifts = [r for r in recs if r["ok"]]
     n_residual_atoms = sum(len(parse_program_text(r["text"])["residual_atoms"])
                            for r in ok_lifts)
+    routed = [r for r in recs if r.get("routing")]
     ok = n_ok == len(recs)
     ev = (f"{n_ok}/{len(recs)} bench frames lift without any exception; "
           f"{n_residual_atoms} atoms placed in residual blocks across "
           f"successful lifts")
+    if routed:
+        # the recorded lift_mode is exercised, and every fallback is a
+        # recorded routing diagnostic (red team F2: the cascade used to
+        # swallow these silently)
+        ev += (f"; {len(routed)} frames carry routing diagnostics "
+               f"(recorded lift_mode refused or names a bench category; "
+               "lifted auto)")
     if refused:
         ev += (f"; {len(refused)} frames refused with ChaordError (a lift "
                f"refusal is still a failed lift for this criterion): "
@@ -2170,10 +2563,40 @@ def check_a13(mutation: str | None = None, frame_limit: int | None = None):
 
 
 # ---- A14 ---------------------------------------------------------------------
+def _a14_example_lines(examples: dict, key: str) -> list[str]:
+    """Every actual spec/examples line the inventory holds for a key."""
+    return [ex for ex, _src in examples.get(key, [])]
+
+
+def _a14_covered(ref: str, key: str, example_lines: list[str]):
+    """Structured coverage of one key (red team F8, 2026-09-30): a prose word
+    occurrence does NOT count.  A key is covered when the reference carries an
+    entry-shaped mention -- the key as a whole word inside a code span
+    (`` `state T` `` covers ``T``), a heading or a table row -- AND, when
+    spec/examples has example lines for the key, at least one ACTUAL example
+    line is cited somewhere in the reference (a fabricated example that
+    matches no spec line leaves the entry uncovered).  Keys with no example
+    anywhere in spec/examples cannot cite one; they stay reported, not gated.
+
+    Returns (covered: bool, reason: str)."""
+    entry = re.search(r"`[^`\n]*\b" + re.escape(key) + r"\b[^`\n]*`", ref)
+    if entry is None:
+        return False, "no entry (code span / heading / table row)"
+    if not example_lines:
+        return True, "entry; no example exists in spec/examples (reported)"
+    cited = next((ex for ex in example_lines if ex in ref), None)
+    if cited is None:
+        return False, "entry cites no actual spec/examples line"
+    return True, f"entry + cited example `{cited}`"
+
+
 def check_a14(mutation: str | None = None, reference_text: str | None = None):
     """Every statement key defined by a dialect YAML has a reference entry
-    (text-coverage check against docs/reference.md); docs/reference_generated.md
-    is (re)generated with one line + example per key."""
+    (structured coverage against docs/reference.md: one parseable entry per
+    key -- an entry-shaped mention plus a cited example drawn from an actual
+    spec/examples line; prose sentences are not coverage, red team F8);
+    docs/reference_generated.md is (re)generated with one line + example per
+    key."""
     import yaml
 
     by_key: dict[str, list[str]] = {}
@@ -2183,7 +2606,7 @@ def check_a14(mutation: str | None = None, reference_text: str | None = None):
             for key in keys:
                 by_key.setdefault(key, []).append(f"{p.stem}:{scope}")
 
-    examples = {}
+    examples: dict[str, list[tuple[str, str]]] = {}
     for p in sorted((ROOT / "spec" / "examples").glob("*.chaord")):
         for line in p.read_text(encoding="utf-8").splitlines():
             m = re.match(r"^\s*((?:(?:state|constrain|assert|history|conserve)"
@@ -2194,8 +2617,7 @@ def check_a14(mutation: str | None = None, reference_text: str | None = None):
             # the leading kind word is itself a dialect key in some scopes
             # (e.g. glass region keys include `state` and `history`)
             for token in ((kind, key) if kind else (key,)):
-                if token not in examples:
-                    examples[token] = (line.strip(), p.name)
+                examples.setdefault(token, []).append((line.strip(), p.name))
 
     ref = reference_text if reference_text is not None else (
         REFERENCE_MD.read_text(encoding="utf-8") if REFERENCE_MD.exists() else "")
@@ -2205,21 +2627,28 @@ def check_a14(mutation: str | None = None, reference_text: str | None = None):
     lines = ["# Reference: generated key inventory (do not edit by hand)", "",
              "One row per statement key declared in `src/chaord/dialects/*.yaml`, "
              "with a passing example from `spec/examples/` where one exists and "
-             "a coverage verdict against `docs/reference.md`.  Regenerated by "
-             "`python tools/acceptance.py` (criterion A14).", "",
+             "a structured coverage verdict against `docs/reference.md` "
+             "(entry-shaped mention + cited actual example line; prose is not "
+             "coverage).  Regenerated by `python tools/acceptance.py` "
+             "(criterion A14).", "",
              "| key | defined in (dialect:scope) | example | example source | "
              "reference.md entry? |",
              "| --- | --- | --- | --- | --- |"]
     missing = []
+    no_example = []
     for key in sorted(by_key):
         srcs = ", ".join(sorted(set(by_key[key])))
-        ex, src = examples.get(key, ("(no example in spec/examples/ - add one)", "-"))
-        covered = bool(re.search(r"(?<![A-Za-z_])" + re.escape(key)
-                                 + r"(?![A-Za-z_])", ref))
+        ex_list = examples.get(key) or []
+        ex, src = (ex_list[0] if ex_list
+                   else ("(no example in spec/examples/ - add one)", "-"))
+        ex_lines = [e for e, _ in ex_list]
+        covered, reason = _a14_covered(ref, key, ex_lines)
+        if not ex_list:
+            no_example.append(key)
         if not covered:
             missing.append(key)
         lines.append(f"| `{key}` | {srcs} | `{ex}` | {src} | "
-                     f"{'yes' if covered else 'MISSING'} |")
+                     f"{'yes (' + reason + ')' if covered else 'MISSING: ' + reason} |")
     REFERENCE_GENERATED.parent.mkdir(exist_ok=True)
     REFERENCE_GENERATED.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
@@ -2233,16 +2662,22 @@ def check_a14(mutation: str | None = None, reference_text: str | None = None):
         sketch_ok = r.returncode == 0
         sketch_note = "pass" if sketch_ok else "FAIL"
 
-    n_with_example = sum(1 for k in by_key if k in examples)
+    n_with_example = len(by_key) - len(no_example)
     ok = not missing and sketch_ok
     ev = (f"{len(by_key)} distinct keys across dialect YAMLs; reference.md "
-          f"covers {len(by_key) - len(missing)}/{len(by_key)}"
+          f"covers {len(by_key) - len(missing)}/{len(by_key)} with structured "
+          f"entries (code span / heading / table row + an actual "
+          f"spec/examples line cited; prose is not coverage)"
           + (f" (missing entries: {', '.join(missing)})" if missing else "")
-          + f"; example found for {n_with_example}/{len(by_key)} keys "
-            f"(spec/examples; sketch_check {sketch_note}); generated "
+          + f"; example citation gated for {n_with_example}/{len(by_key)} keys "
+            f"({len(no_example)} keys have no example anywhere in "
+            f"spec/examples/ -- reported, nothing to cite: "
+            f"{', '.join(no_example) if no_example else 'none'})"
+            f"; sketch_check {sketch_note}; generated "
             f"docs/reference_generated.md")
     return record("A14", "documentation", ok, ev,
                   dict(missing=missing, keys=sorted(by_key),
+                       no_example=no_example,
                        generated=str(REFERENCE_GENERATED)))
 
 
@@ -2269,8 +2704,10 @@ def _md_report(results) -> str:
                     "| --- | --- | --- | --- | --- | --- | --- | --- |"]
             for m in d["matrix"]:
                 det = ",".join(f"{k}:{v}" for k, v in m["detected"].items()) or "-"
+                planted = "+".join(f"{k}:{v}"
+                                   for k, v in m["planted"].items()) or "-"
                 out.append(f"| {m['host']} | {m['type']} | {m['temp']} | "
-                           f"{m['planted']} | {det} | {m['precision']:.2f} | "
+                           f"{planted} | {det} | {m['precision']:.2f} | "
                            f"{m['recall']:.2f} | {m['tp']}/{m['fp']}/{m['fn']} |")
         if r["id"] == "A5" and d.get("rows"):
             out += ["| case | category | status | T | backend | md_steps | "
@@ -2313,10 +2750,11 @@ def _md_report(results) -> str:
                            f"{m['conserve']} | {m['derivation']} | {derived} | "
                            f"{ok_txt} | {m['charge_note']} |")
         if r["id"] == "A7" and d.get("rows"):
-            out += ["| case | frame | core atoms | accuracy |",
-                    "| --- | --- | --- | --- |"]
+            out += ["| case | frame | core atoms | judged frac | geo floor | "
+                    "accuracy |", "| --- | --- | --- | --- | --- | --- |"]
             for m in d["rows"]:
                 out.append(f"| {m['case']} | {m['frame']} | {m['core_atoms']} | "
+                           f"{m['judged_frac']:.3f} | {m['geo_floor']:.3f} | "
                            f"{m['accuracy']:.3f} |")
         if r["id"] == "A8" and d.get("rows"):
             out += ["| plan | expected | census | exact |", "| --- | --- | --- | --- |"]
@@ -2327,6 +2765,12 @@ def _md_report(results) -> str:
             out += ["| case | atoms | program B | extxyz B | ratio % | source |",
                     "| --- | --- | --- | --- | --- | --- |"]
             for m in d["measurements"]:
+                if "ratio" not in m:
+                    # a reference frame whose lift refused: a disclosed
+                    # non-measurement, not a gated row
+                    out.append(f"| {m['case']} | - | - | - | not liftable | "
+                               f"{m.get('lift_failed', '')[:80]} |")
+                    continue
                 out.append(f"| {m['case']} | {m['n_atoms']} | {m['prog_bytes']} | "
                            f"{m['xyz_bytes']} | {m['ratio']:.2f} | {m['source']} |")
         if r["id"] == "A13" and d.get("failures"):

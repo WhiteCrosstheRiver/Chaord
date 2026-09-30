@@ -47,30 +47,43 @@ def _detected(text):
 
 def test_a4_mixed_cell_mutation():
     """Power mutation for A4: plant MIXED defect types in one cell (the
-    realistic case; the acceptance plan plants exactly one type per cell).
-    The lift detects the planted multiset exactly (measured: V_Ni 3 +
-    Al_Ni 4 + Ni_i 3 -> identical dict, i.e. a perfect lift), but the
-    criterion's per-cell P/R arithmetic cannot score a mixed cell at all --
-    evaluating each type against the shared detection dict yields
-    P = 0.30/0.40/0.30 with R = 1.00 because every other type's true
-    detection counts as a false positive.  The criterion therefore cannot be
-    demonstrated on mixed cells even where the lift is perfect."""
+    realistic case; the acceptance plan used to plant exactly one type per
+    cell).  The lift detects the planted multiset exactly (measured:
+    V_Ni 3 + Al_Ni 4 + Ni_i 3 -> identical dict, a perfect lift), and since
+    the 2026-09-30 fix the criterion's per-cell P/R arithmetic scores the
+    planted MULTISET (P = correct detections / total detections,
+    R = correct detections / total planted, bound per Kröger-Vink token), so
+    the perfect mixed cell scores P = R = 1.0 instead of the pre-fix
+    P = 0.30/0.40/0.30 (every other type's true detection used to count as a
+    false positive).  The acceptance grid itself now carries mixed cells."""
     metal = load_dialect(METAL)
     frame, edge = mixed_l12_defects()
     d = acc.median_nn_distance(frame.pos, frame.cell_diag)
     hot = thermal(frame, float(metal.threshold("thermal_test_amplitude")) * d, 11)
     det = _detected(acc.format_program_text(lift_frame(hot, metal, mode="defects")))
     # lift side must be exact (this is the green half; see greens file)
-    assert det == {"V_Ni": 3, "Al_Ni": 4, "Ni_i": 3}, det
-    for tok, n, dtype in (("V_Ni", 3, "vacancy"), ("Al_Ni", 4, "antisite"),
-                          ("Ni_i", 3, "interstitial")):
-        p, r, _c = acc._pr_for_cell(dtype, tok, n, dict(det))
-        assert p >= 0.95 and r >= 0.95, (
-            f"A4 power mutation RED: the per-cell metric scores the perfectly "
-            f"detected mixed cell at P={p:.2f} R={r:.2f} for {tok} -- mixed "
-            "cells are outside the metric's expressive range, so the "
-            "criterion is only ever demonstrated on single-type plantings"
-        )
+    planted = {"V_Ni": 3, "Al_Ni": 4, "Ni_i": 3}
+    assert det == planted, det
+    p, r, counts = acc._pr_for_cell(planted, dict(det))
+    assert p >= 0.95 and r >= 0.95, (
+        f"A4 power mutation RED: the per-cell metric scores the perfectly "
+        f"detected mixed cell at P={p:.2f} R={r:.2f} -- mixed cells are "
+        "outside the metric's expressive range, so the criterion is only "
+        "demonstrated on single-type plantings"
+    )
+    # ...and the acceptance plan itself must plant mixed cells (F12's other
+    # half: the criterion must be DEMONSTRATED on mixed cells, not merely
+    # able to score them)
+    mixed_plans = [planting for host in acc.A4_HOSTS
+                   for dtype, planting in acc.A4_PLANS[host[0]]
+                   if dtype == "mixed"]
+    assert len(mixed_plans) >= 2, (
+        f"A4 RED: the acceptance grid plants {len(mixed_plans)} mixed cells; "
+        "the criterion must be demonstrated on mixed-kind plantings"
+    )
+    assert all(len(pl) >= 2 for pl in mixed_plans), (
+        "A4 RED: a 'mixed' cell in the acceptance grid plants a single kind"
+    )
 
 
 @pytest.mark.xfail(strict=False, reason=(

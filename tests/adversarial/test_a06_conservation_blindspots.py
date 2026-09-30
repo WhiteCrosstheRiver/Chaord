@@ -111,10 +111,25 @@ def test_a12_charge_balanced_but_physically_wrong_is_caught():
 
 
 def test_a06_acceptance_charge_arithmetic_covers_multivalent_elements():
+    """Post-fix rewrite (F5, 2026-09-30): the verifier's charge bookkeeping
+    covers the multivalent elements from BOTH of its tables -- ION_CHARGES
+    (cations) and OXIDE_ELEMENTS (O carries -2 exactly on frames without
+    hydrogen; water/hydroxide keep molecular bookkeeping).  The intent is
+    unchanged: the verifier's own arithmetic must assign these elements a
+    real charge, or a frame containing them passes the acceptance charge
+    check unaudited (both sides of the comparison read 0 for them)."""
+    audited = set(acc.ION_CHARGES) | set(acc.OXIDE_ELEMENTS)
     for el in ("Ca", "Mg", "Fe", "O"):
-        assert el in acc.ION_CHARGES or any(
-            el in k for k in acc.ION_CHARGES), (
-            f"A6 RED: element {el} is absent from the verifier's ION_CHARGES "
-            "table, so any frame containing it passes the acceptance charge "
-            "check unaudited (both sides of the comparison read 0 for it)"
+        assert el in audited, (
+            f"A6 RED: element {el} is absent from the verifier's charge "
+            f"tables (ION_CHARGES {sorted(acc.ION_CHARGES)} ∪ OXIDE_ELEMENTS "
+            f"{sorted(acc.OXIDE_ELEMENTS)}), so any frame containing it "
+            "passes the acceptance charge check unaudited (both sides of "
+            "the comparison read 0 for it)"
         )
+    # the O entry is the oxide-ion rule: it applies exactly when no hydrogen
+    # is present, and the audit predicate must agree with the arithmetic
+    assert acc.frame_charge(["O"]) == -2
+    assert acc.frame_charge(["H", "O"]) == 0      # molecular frame: not defined
+    assert not acc._charge_audited(["H", "O"])
+    assert acc._charge_audited(["O", "Ca"])

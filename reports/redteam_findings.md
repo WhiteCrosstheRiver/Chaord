@@ -15,6 +15,14 @@ Nothing here weakens, skips or deletes an existing test.
 **Totals: 43 tests — 32 RED (fooled), 10 GREEN (defended), 1 XFAIL
 (W1-waiting).**
 
+**Post-fix status (2026-09-30, acceptance-side verification stream): 11 of
+the 12 registry findings closed** — F3/A5 (4 ids), F4, F5's O half, F8, F9,
+F11, F12 and F2's lift_mode half now turn their adversarial tests green and
+their ids are out of `FOILED` (per-finding numbers in the Status lines
+below). Still open in the registry: F6/A12 overlap tolerance (dialect-side,
+owned by the dialects stream). The suite today: every formerly-RED
+acceptance-side test is a green regression asset.
+
 ---
 
 ## S1 — the evidence class itself is wrong (criterion "passes" on inputs it was never run on)
@@ -76,6 +84,23 @@ Nothing here weakens, skips or deletes an existing test.
   currently ignored — everything lifts auto); convert the cascade's swallowed
   exceptions into recorded routing diagnostics.
 
+**Status (2026-09-30, verification stream): the lift_mode half CLOSED**
+(the prototype recognition and cascade ordering were closed by the parallel
+streams; all five hcp frames lift as `crystal` with zero `Mg32` today).
+`lift_all_bench_frames` now lifts every bench frame with the mode its ground
+truth records when that name is a real lift mode (`crystal`, `defects`,
+`amorphous`, `surface`, `fluid`, `slab`): hcp_mg lifts `mode='crystal'`
+directly (all 5 frames, no fallback). A recorded mode that refuses (e.g.
+`crystal` on the random-alloy thermal frames — the pinned arm refuses loudly
+with ChaordError, never a bare ValueError) routes to auto with the refusal
+RECORDED as a routing diagnostic on the frame's record, and category names
+that are not lift modes (`interface`, `reactive`) are recorded as such; A13
+reports the routing-diagnostics count (61 frames) instead of the cascade
+silently swallowing them. The rewritten
+`test_hcp_ground_truth_lift_mode_is_honored` asserts the crystal-mode lift,
+the honoured bench-loop records, and that a pinned-mode refusal is a
+ChaordError. Registry id removed.
+
 ### F3. A5 wrong-temperature rebuilds PASS the gate — the known open item, now quantified · RED (partly known)
 
 - **Criterion**: A5 statistical round trip, 6/6 PASS.
@@ -116,6 +141,27 @@ Nothing here weakens, skips or deletes an existing test.
   the observable set to 5+-frame averages on both sides with more decorrelated
   reference frames; keep the P90 floor.
 
+**Status (2026-09-30): CLOSED for the gate's temperature evidence.** The
+review-3 protocol landed in `check_a5`: the lift states the PROVENANCE
+temperature (T\* = 0.72, never the 0.65 dialect default), the reference side
+is the mean over the floor record's `ref_frames` (>= 5 frames) and the
+rebuild side the mean of three draws (seeds 7/13/29), with `temp_lo` /
+`temp_hi` power mutations (state T rewritten to 0.8× / 1.25× of the
+provenance temperature) wired into the criterion. Measured on
+lj_liquid_large (N = 2,048, 10 reference frames; experiment cache
+`tests/adversarial/a5_temperature_results.json`, regenerated under the new
+protocol): ×0.8 → gr ×2.38 / cn ×1.87 of the averaged floor, ×1.25 → gr
+×1.91 / cn ×2.57 — both FAIL the 1.5× gate; the correct temperature sits at
+×0.67 / ×0.58. Reference-half sensitivity (judging the same draws against
+frames 0-4 vs 5-9): gr spread <= 0.0027 = 8% of the floor (the pre-fix
+single-frame gate moved 43%). **Honest margin, kept on record**: the
+500-atom lj_liquid case still does not separate under this protocol (×0.8
+at ~×1.1 the floor passes; ×1.25 at ~×1.6 with a 5% gate margin smaller
+than the documented runner ISA/BLAS draw divergence) — the criterion's
+temperature evidence comes from the >= 2,000-atom case, which is what
+`tests/acceptance/test_mutations.py::test_a5_temperature_power_mutations_fail`
+and the slow live canary exercise. All four registry ids removed.
+
 ---
 
 ## S2 — checker blind spots (a crafted wrong input passes)
@@ -134,6 +180,21 @@ Nothing here weakens, skips or deletes an existing test.
 - **Fix direction**: for slab programs, cross-check the molecules line against
   the frame census the way `derive_counts` does for `all`-geometry regions, or
   record the degraded check in the evidence string as a two-way check.
+
+**Status (2026-09-30): CLOSED.** `derive_counts` now derives slab/interface
+programs: molecular slab regions expand against the verifier's formula table
+AND are audited against their own `state density` via the slab volume from
+the system cell (n × M / (N_A × V) vs stated, 5% tolerance — the lift states
+the density it measured, so clean rows agree to ~0.2%); crystal-slab regions
+are recorded as unpinned (their printed bounds are fitted interface planes,
+not exact lattice arithmetic) and the derivation returns a partial
+cross-check of the pinned species against the frame census. The -30-water
+mutation: `derivation_ok=False` twice over (H 212≠272 / O 106≠136 AND the
+density line contradicts the molecules line: 0.725 vs 0.929 g/cm3 = -22%).
+Clean A6 row unchanged (PASS); programs pinned or cross-checked by the
+verifier's region arithmetic: 76 → 81 (the five cu_water frames). lj_solid_liquid
+stays an honest two-way row (atomic fluid region names no molecules) and says
+so in the derivation string.
 
 ### F5. A6/A12: multivalent-ion charges are outside every charge table · RED
 
@@ -154,8 +215,20 @@ Nothing here weakens, skips or deletes an existing test.
 - **Fix direction**: read the pre-sign digits as magnitude for the `ion` species
   grammar (`Ca2+` → +2), add the multivalent entries to `ionic.yaml` and to the
   verifier's table, and make `_ion_composition` refuse names whose
-  charge-stripped form contains digits (charge-stoichiography ambiguity should
+  charge-stripped form contains digits (charge-stoichiometry ambiguity should
   be an error, not a molecule guess).
+
+**Status (2026-09-30): CLOSED.** The species-grammar side (Ca2+ → +2, the
+charge-balanced-but-wrong program caught) was fixed by the parallel stream
+— `test_a12_multivalent_ion_charge` and
+`test_a12_charge_balanced_but_physically_wrong_is_caught` pass today. The
+acceptance-side half this suite owned: the verifier's charge bookkeeping
+covers Ca/Mg/Fe through `ION_CHARGES` and O through `OXIDE_ELEMENTS`
+(elemental O = −2 exactly on frames without hydrogen); the stale test
+assertion (`O in ION_CHARGES`) was updated to the semantic union
+`ION_CHARGES ∪ OXIDE_ELEMENTS` with the H-guard asserted
+(`frame_charge(['O']) = −2`, `frame_charge(['H','O']) = 0`,
+`_charge_audited` agrees). Registry id removed.
 
 ### F6. A12: overlap tolerance contradicts the repo's own sanity floor · RED
 
@@ -192,6 +265,21 @@ Nothing here weakens, skips or deletes an existing test.
 - **Fix direction**: require an entry-shaped pattern (heading, table row or
   `` `key` `` code span) and gate on the example column too.
 
+**Status (2026-09-30): CLOSED.** `check_a14` now decides coverage
+structurally: a key needs an entry-shaped mention (the key as a whole word
+inside a code span — `` `state T` `` covers ``T`` — a heading or table row)
+AND, when spec/examples has example lines for the key, at least one ACTUAL
+example line cited in the reference (a fabricated example that matches no
+spec line leaves the entry uncovered). Prose sentence attack: 35/35 covered
+→ **0/35, A14 FAIL** ("no entry" for every key). Six reference.md rows cited
+examples that were not real spec lines (`sigma`, `cutoff`, `c`, `history`,
+`surface`, `dissociate`) and now quote the actual lines. The 9 keys with no
+example anywhere in spec/examples cannot cite one and stay reported, not
+gated — disclosed in the criterion evidence ("9 keys have no example ...
+reported, nothing to cite") instead of silently passing. Registry id
+removed; the acceptance-side canary also gained the prose rejection
+(`test_a14_reference_coverage`).
+
 ### F9. A7: 64.5 % of atoms are outside the judged core · RED
 
 - **Repro**: `test_a07_judged_core_scope.py`.
@@ -206,6 +294,26 @@ Nothing here weakens, skips or deletes an existing test.
 - **Fix direction**: report the judged fraction in the evidence and cap the
   excluded fraction (or judge the band against a fuzzier truth), so the number
   on the gate report states its coverage.
+
+**Status (2026-09-30): CLOSED** (principled mask + disclosure + gate; the
+mask numbers themselves were already right — by accident). Measured root
+cause refinement: every mislabelled atom of all 10 interface frames lies
+within 2×d_NN of an interface plane (0 outside), and lj_solid_liquid has TWO
+planes (boundary 6.35 and its periodic translate at 0 ≡ 12.7 — the cell is
+solid half / liquid half), so the old unconditional `z > band & z < L - band`
+cut coincided with the plane-0 band on this case. `check_a7` now (1) builds
+the core by RULE — 2×d_NN around every interface plane, plus real surfaces
+only where z is not periodic (same numbers on the bench: judged 0.355-0.395
+on lj_solid_liquid — a 12.7 A cell where the two bands cover ~64% of the
+atoms — and 0.854-0.874 on cu_water); (2) discloses the judged fraction in
+every row and the criterion evidence ("95% correct" now states its
+coverage); (3) FAILS any frame whose judged fraction drops below 90% of the
+fraction its own interface geometry leaves available — the `widen_band`
+mutation (band ×2) collapses the core to 0.000/0.66-0.70 and fails with
+SCOPE VIOLATIONS, so a silent scope shrink cannot pass. The original
+targeted-corruption attack (flip every unjudged atom: core accuracy 1.000,
+overall 0.355) is preserved verbatim in the rewritten test as the premise
+the disclosure defends against. Registry id removed.
 
 ### F10. A13: NaN input segfaults the interpreter — no exception can record it · RED
 
@@ -236,6 +344,21 @@ Nothing here weakens, skips or deletes an existing test.
 - **Fix direction**: add an ≥1,000-atom heterogeneous bench case (interface or
   surface with adsorbates) to the gated set.
 
+**Status (2026-09-30): CLOSED.** `check_a9` measures the independent-MD
+reference frames (bench/reference/*) alongside the bench cases, so the gated
+>= 1,000-atom set is now 4 systems: crystals/l12_ni3al (1,372, perfect
+crystal, 0.49%), reference/lj_liquid_large (2,048, homogeneous liquid,
+0.40%), reference/lj_solid_liquid (2,304, heterogeneous solid-liquid
+interface, **0.55%**) and reference/nacl_aq (1,640, ionic solution, 0.51%).
+The evidence reports the worst crystal-class (0.49%) and worst
+heterogeneous-class (0.55%) ratios separately and states that the gate is
+evidenced on heterogeneous systems (2 of 4 gated measurements).
+reference/cu_solid_liquid (832 atoms) does not lift under any mode and is
+disclosed as "reference frames not liftable (recorded, not gated)" rather
+than silently dropped. Registry id removed (the slow
+`test_a09_gated_set_includes_a_heterogeneous_case` rewritten to inspect the
+criterion's own gated measurements).
+
 ### F12. A4: the metric cannot score mixed-defect cells — though the lift handles them perfectly · RED (metric) + GREEN (lift)
 
 - **Repro**: `test_power_mutations.py::test_a4_mixed_cell_mutation`,
@@ -250,6 +373,21 @@ Nothing here weakens, skips or deletes an existing test.
   them.
 - **Fix direction**: score mixed cells against the planted multiset
   (token-exact P/R over the union), and add one mixed cell to the A4 plan.
+
+**Status (2026-09-30): CLOSED.** `_pr_for_cell` now takes the planted
+MULTISET (criterion semantics unchanged: P = correct detections / total
+detections, R = correct detections / total planted, bound per Kröger-Vink
+token; frenkel bookkeeping preserved — a frenkel_pair detection matches a
+planted frenkel, leftover V_X/X_i detections pair with unexplained planted
+frenkels). The red-team mixed cell now scores **P = R = 1.0** (was
+P = 0.30/0.40/0.30, R = 1.00); all single-type and frenkel cases reproduce
+their old numbers (verified case-by-case). The A4 grid gained two mixed
+cells — fcc-Cu `V_Cu 3 + Cu_i 3` and L12-NiAl `V_Ni 3 + Al_Ni 4 + Ni_i 3`
+(the red-team planting itself), planted separated (>= 2 d_NN, interstitial
+parents kept away from vacancy sites so they stay distinct events) — and
+both lift to exact detection at room temperature AND 0.8 Tm. A4: 26/26
+cells, precision and recall >= 0.95 in 26/26 (worst 1.00); the
+false_defect mutation still flips the verdict. Registry id removed.
 
 ---
 
@@ -283,5 +421,8 @@ Nothing here weakens, skips or deletes an existing test.
     python -m pytest tests/adversarial -q            # ~50 s (fast set ~8 s
                                                      #  with -m "not slow")
 
-Today: **32 RED, 10 GREEN, 1 XFAIL** — every RED test is a measured hole; each
-turns green exactly when its criterion stops being fooled.
+Today (post-fix, 2026-09-30): **all acceptance-side reds green** — the
+formerly-RED tests for F3/A5, F4, F5-O, F8, F9, F11, F12 and F2/lift_mode
+pass as regression assets; the one remaining registry xfail is F6
+(A12 overlap tolerance, dialect-side) plus the W1-waiting SRO xfail
+(non-strict).
