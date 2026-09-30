@@ -40,9 +40,18 @@ NOISE_FLOORS = ROOT / "reports" / "noise_floors.json"
 CASES = ["lj_liquid", "lj_liquid_large", "lj_glass", "lj_solid_liquid",
          "water_tip4p", "nacl_aq", "cu_solid_liquid"]
 FRAMES_PER_CASE = 5
-# lj_glass stores 5 frames of EACH of its 3 independent quenches (Review 2)
+# lj_glass stores 5 frames of EACH of its 3 independent quenches (Review 2);
+# lj_liquid_large stores 5 frames of EACH of its 2 trajectories (2026-09-30:
+# the extra trajectory supplies independent pairs for the floor's upper
+# quantile -- an equilibrated liquid carries no preparation memory (measured:
+# cross vs within-trajectory +1%/+10%), so the pairs are POOLED, and the
+# quantile is what the 1.5x gate needs: the rebuild-vs-reference distance is
+# distributed like the frame-pair distances (measured), whose empirical max
+# is ~1.5x the mean, so a mean-based gate rejects ~20% of perfectly
+# equilibrated draws by construction)
 N_FRAMES = {case: FRAMES_PER_CASE for case in CASES}
 N_FRAMES["lj_glass"] = 15
+N_FRAMES["lj_liquid_large"] = 10
 # dialect used by chaord's fluid observables per case (lj thresholds are in
 # sigma = A for the LJ cases; molecular thresholds in A for the rest)
 DIALECTS = {
@@ -311,11 +320,18 @@ PRE_REVIEW2_GLASS_FLOOR = 0.0999
 def _floor_summary(pairs):
     gr = [p["gr_rms"] for p in pairs]
     tv = [p["cn_tv"] for p in pairs]
+
+    def q90(vals):
+        s = sorted(vals)
+        return float(s[max(0, int(np.ceil(0.9 * len(s))) - 1)])
+
     return {"n_pairs": len(pairs),
             "gr_rms_mean": float(np.mean(gr)),
             "gr_rms_max": float(np.max(gr)),
+            "gr_rms_q90": q90(gr),
             "cn_tv_mean": float(np.mean(tv)),
             "cn_tv_max": float(np.max(tv)),
+            "cn_tv_q90": q90(tv),
             "pairs": pairs}
 
 
@@ -380,6 +396,46 @@ def test_pairwise_noise_floors_written():
                 "glass floor still at the single-quench level "
                 f"{floors[case]['gr_rms_mean']:.4f} <= "
                 f"{PRE_REVIEW2_GLASS_FLOOR}")
+        elif case == "lj_liquid_large":
+            # two trajectories, frames trajectory-major: 5*t+k = frame k of
+            # trajectory t. Pool: within-trajectory decorrelated pairs (lag
+            # >= 2, the same rule as the single-trajectory cases) plus the
+            # cross pairs of each trajectory's decorrelated half. Cross pairs
+            # sit only +1%/+10% above within pairs (measured 2026-09-30: the
+            # equilibrated liquid forgot its preparation -- unlike the glass
+            # quenches), so pooling, not cross-only, is the honest estimator;
+            # the second trajectory exists to give the upper quantile enough
+            # independent pairs (6 -> 21).
+            def _decorr(i, j):
+                same_traj = (i // 5) == (j // 5)
+                if same_traj:
+                    return j - i >= 2
+                # cross pairs: only between each trajectory's decorrelated
+                # half (its last 3 frames), mirroring the sel rule
+                return (i % 5) >= 2 and (j % 5) >= 2
+            pairs = []
+            for i, j in combinations(range(n), 2):
+                if not _decorr(i, j):
+                    continue
+                d = distance(obs[i], obs[j])
+                pairs.append({"frames": [i, j], "gr_rms": d["gr_rms"],
+                              "cn_tv": d["cn_tv"]})
+            assert len(pairs) == 21, \
+                f"expected 21 pooled pairs, got {len(pairs)}"
+            assert min(p["gr_rms"] for p in pairs) > 0.0
+            floors[case] = {"dialect": " + ".join(DIALECTS[case]),
+                            **_floor_summary(pairs),
+                            "note": ("floor = pooled decorrelated frame "
+                                     "pairs of 2 independent trajectories "
+                                     "(within-trajectory lag >= 2 plus "
+                                     "cross pairs of the decorrelated "
+                                     "halves; cross sits only +1%/+10% "
+                                     "above within -- an equilibrated "
+                                     "liquid carries no preparation "
+                                     "memory, unlike the glass quenches; "
+                                     "the second trajectory supplies the "
+                                     "independent pairs the floor's upper "
+                                     "quantile needs)")}
         else:
             # Decorrelated half of the lags (Review 2 follow-up, 2026-09-29):
             # a floor mixing short-lag frame pairs is shrunk by residual

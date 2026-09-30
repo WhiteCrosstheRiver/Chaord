@@ -33,11 +33,18 @@
     "dt_fs": 0.050903
   },
   "protocol": {
-    "description": "N=2048 fcc start (8x8x8 cells, L=13.51 sigma) at rho*=0.85 (identical state point to lj_liquid; exists so the bench has a >= 2000-atom reference case, A9), Maxwell velocities at T*, Langevin NVT (gamma*=0.5/tau) equilibration for 4000 steps (20 tau; 2x lj_liquid because the perfect crystal must melt homogeneously and the melt front travels farther in the 4x larger cell), then 5 frames at 1000-step (5 tau) intervals; dt*=0.005",
+    "description": "2 independent trajectories (identical protocol, distinct seeds; frames stored trajectory-major: frame 5*t+k = frame k of trajectory t), each: N=2048 fcc start (8x8x8 cells, L=13.51 sigma) at rho*=0.85 (identical state point to lj_liquid; exists so the bench has a >= 2000-atom reference case, A9), Maxwell velocities at T*, Langevin NVT (gamma*=0.5/tau) equilibration for 4000 steps (20 tau; 2x lj_liquid because the perfect crystal must melt homogeneously and the melt front travels farther in the 4x larger cell), then 5 frames at 1000-step (5 tau) intervals; dt*=0.005",
     "ensemble": "NVT (Langevin, ase.md.langevin, fixcm=False)",
+    "n_trajectories": 2,
+    "trajectory_seeds": [
+      20260928,
+      20260929
+    ],
+    "second_trajectory_note": "calibration, not preparation memory: cross-trajectory pairs measure only +1%/+10% above within-trajectory pairs (an equilibrated liquid forgets its preparation, unlike the glass quenches); the extra trajectory supplies the independent pairs the floor's upper quantile needs (see reports/noise_floors.json)",
     "steps": {
       "equilibration": 4000,
-      "sampling_stride": 1000
+      "sampling_stride": 1000,
+      "frames_per_trajectory": 5
     },
     "friction_per_tau": 0.5
   },
@@ -75,27 +82,57 @@
     ]
   },
   "case": "lj_liquid_large",
-  "wall_clock_s": 569.3,
+  "wall_clock_s": 2506.3,
   "frames": [
     {
       "file": "frame_0.npz",
-      "step": 5000
+      "step": 5000,
+      "quench": 0
     },
     {
       "file": "frame_1.npz",
-      "step": 6000
+      "step": 6000,
+      "quench": 0
     },
     {
       "file": "frame_2.npz",
-      "step": 7000
+      "step": 7000,
+      "quench": 0
     },
     {
       "file": "frame_3.npz",
-      "step": 8000
+      "step": 8000,
+      "quench": 0
     },
     {
       "file": "frame_4.npz",
-      "step": 9000
+      "step": 9000,
+      "quench": 0
+    },
+    {
+      "file": "frame_5.npz",
+      "step": 5000,
+      "quench": 1
+    },
+    {
+      "file": "frame_6.npz",
+      "step": 6000,
+      "quench": 1
+    },
+    {
+      "file": "frame_7.npz",
+      "step": 7000,
+      "quench": 1
+    },
+    {
+      "file": "frame_8.npz",
+      "step": 8000,
+      "quench": 1
+    },
+    {
+      "file": "frame_9.npz",
+      "step": 9000,
+      "quench": 1
     }
   ]
 }

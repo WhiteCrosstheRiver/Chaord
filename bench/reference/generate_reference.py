@@ -321,29 +321,44 @@ def case_lj_liquid(out: Path, seed: int):
 
 def case_lj_liquid_large(out: Path, seed: int):
     """N=2048 LJ liquid at the standard state point (A9 needs a >= 2000-atom
-    reference case; Review 2, 2026-09-29).
+    reference case; Review 2, 2026-09-29), TWO independent trajectories
+    (2026-09-30).
 
     Same state point, potential and sampling stride as lj_liquid; only the
     cell is bigger (fcc 8x8x8, L=13.51 sigma > 2 x rc). Equilibration is
     2x longer than lj_liquid: the cell starts as a perfect fcc crystal and
     must lose lattice memory by homogeneous melting, and in the 4x larger
-    cell the melt front has 1.7x farther to travel."""
+    cell the melt front has 1.7x farther to travel.
+
+    The second trajectory exists for floor calibration, NOT because liquids
+    carry preparation memory: measured (2026-09-30), cross-trajectory frame
+    pairs sit only +1%/+10% (gr_rms/cn_tv) above within-trajectory pairs --
+    20 tau of equilibration erases the preparation, unlike the non-ergodic
+    glass quenches (cross/intra +68%). What the second trajectory buys is
+    independent PAIRS (21 vs 6 decorrelated): the distance between an
+    equilibrated rebuild and the reference is distributed like the frame-pair
+    distances (rebuild-vs-rebuild == floor level, measured), so the floor's
+    upper quantile -- the number the 1.5x gate actually needs -- cannot be
+    estimated from one trajectory's 6 decorrelated pairs."""
     t0 = time.time()
     n, rho_star, t_star = 2048, 0.85, 0.72
     T_K = t_star / KB
-    atoms, a0 = lj_fcc(8, 8, 8, rho_star)
-    L = np.array(atoms.cell.lengths())
-    atoms.calc = LennardJones(epsilon=1.0, sigma=1.0, rc=2.5, smooth=False)
-    thermalize(atoms, T_K, rng_for(seed, "vel"))
-    equil, stride = 4000, 1000
-    run_langevin(atoms, equil, T_K, 0.005, 0.5,
-                 rng_for(seed, "md"), label="equil")
-    frames, steps = [], []
-    for k in range(N_FRAMES):
-        run_langevin(atoms, stride, T_K, 0.005, 0.5,
-                     rng_for(seed, "samp", k), label=f"sample {k}")
-        steps.append(equil + (k + 1) * stride)
-        frames.append((atoms.positions.copy(), L, ["X"] * n))
+    equil, stride, n_traj = 4000, 1000, 2
+    traj_seeds = [seed, seed + 1]
+    frames, steps, traj = [], [], []
+    for t, s_t in enumerate(traj_seeds):
+        atoms, a0 = lj_fcc(8, 8, 8, rho_star)
+        L = np.array(atoms.cell.lengths())
+        atoms.calc = LennardJones(epsilon=1.0, sigma=1.0, rc=2.5, smooth=False)
+        thermalize(atoms, T_K, rng_for(s_t, "vel"))
+        run_langevin(atoms, equil, T_K, 0.005, 0.5,
+                     rng_for(s_t, "md"), label=f"equil t{t}")
+        for k in range(N_FRAMES):
+            run_langevin(atoms, stride, T_K, 0.005, 0.5,
+                         rng_for(s_t, "samp", k), label=f"sample t{t} {k}")
+            steps.append(equil + (k + 1) * stride)
+            frames.append((atoms.positions.copy(), L, ["X"] * n))
+            traj.append(t)
     prov = {
         "engine": engine_block(),
         "potential": {
@@ -360,16 +375,29 @@ def case_lj_liquid_large(out: Path, seed: int):
         "units": lj_units_block({"equilibrium": t_star}),
         "protocol": {
             "description": (
-                "N=2048 fcc start (8x8x8 cells, L=13.51 sigma) at rho*=0.85 "
-                "(identical state point to lj_liquid; exists so the bench "
-                "has a >= 2000-atom reference case, A9), Maxwell velocities "
-                "at T*, Langevin NVT (gamma*=0.5/tau) equilibration for 4000 "
-                "steps (20 tau; 2x lj_liquid because the perfect crystal "
-                "must melt homogeneously and the melt front travels farther "
-                "in the 4x larger cell), then 5 frames at 1000-step (5 tau) "
-                "intervals; dt*=0.005"),
+                "2 independent trajectories (identical protocol, distinct "
+                "seeds; frames stored trajectory-major: frame %d*t+k = frame "
+                "k of trajectory t), each: N=2048 fcc start (8x8x8 cells, "
+                "L=13.51 sigma) at rho*=0.85 (identical state point to "
+                "lj_liquid; exists so the bench has a >= 2000-atom reference "
+                "case, A9), Maxwell velocities at T*, Langevin NVT (gamma*=0.5"
+                "/tau) equilibration for 4000 steps (20 tau; 2x lj_liquid "
+                "because the perfect crystal must melt homogeneously and the "
+                "melt front travels farther in the 4x larger cell), then 5 "
+                "frames at 1000-step (5 tau) intervals; dt*=0.005"
+                % N_FRAMES),
             "ensemble": "NVT (Langevin, ase.md.langevin, fixcm=False)",
-            "steps": {"equilibration": equil, "sampling_stride": stride},
+            "n_trajectories": n_traj,
+            "trajectory_seeds": traj_seeds,
+            "second_trajectory_note": (
+                "calibration, not preparation memory: cross-trajectory pairs "
+                "measure only +1%/+10% above within-trajectory pairs (an "
+                "equilibrated liquid forgets its preparation, unlike the "
+                "glass quenches); the extra trajectory supplies the "
+                "independent pairs the floor's upper quantile needs (see "
+                "reports/noise_floors.json)"),
+            "steps": {"equilibration": equil, "sampling_stride": stride,
+                      "frames_per_trajectory": N_FRAMES},
             "friction_per_tau": 0.5,
         },
         "seed": seed,
@@ -385,7 +413,8 @@ def case_lj_liquid_large(out: Path, seed: int):
                                   "first peak 1.05-1.12 sigma"}],
         },
     }
-    write_case(out, "lj_liquid_large", frames, steps, prov, time.time() - t0)
+    write_case(out, "lj_liquid_large", frames, steps, prov, time.time() - t0,
+               quenches=traj)
 
 
 def case_lj_glass(out: Path, seed: int):
