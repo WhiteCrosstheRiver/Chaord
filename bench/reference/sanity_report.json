@@ -272,45 +272,45 @@
       "density:solid": {
         "pass": true,
         "measured": [
-          0.948,
-          0.96,
-          0.96,
-          0.96,
-          0.954
+          0.928333,
+          0.951667,
+          0.955,
+          0.97,
+          0.948333
         ],
         "target": 0.96,
-        "max_rel_dev_pct": 1.25,
-        "tolerance_pct": 2.5
+        "max_rel_dev_pct": 3.299,
+        "tolerance_pct": 4.0
       },
       "density:liquid": {
         "pass": true,
         "measured": [
-          0.806591,
-          0.842045,
-          0.82875,
-          0.850909,
-          0.842045
+          0.864651,
+          0.865961,
+          0.864651,
+          0.873822,
+          0.862031
         ],
         "target": 0.845,
-        "max_rel_dev_pct": 4.545,
+        "max_rel_dev_pct": 3.411,
         "tolerance_pct": 5.0
       },
       "min_pair:X": {
         "pass": true,
-        "measured_min": 0.9124,
+        "measured_min": 0.9252,
         "floor": 0.8,
         "note": "0.8 sigma hard core"
       },
       "gr_peak:X@solid": {
         "pass": true,
         "measured": [
-          1.1193,
-          1.0852,
-          1.1193,
+          1.0966,
+          1.0966,
           1.108,
-          1.142
+          1.108,
+          1.108
         ],
-        "measured_average": 1.142,
+        "measured_average": 1.0966,
         "window": [
           1.08,
           1.2
@@ -321,12 +321,12 @@
         "pass": true,
         "measured": [
           1.0966,
-          1.0739,
-          1.108,
           1.0966,
-          1.1193
+          1.108,
+          1.0739,
+          1.108
         ],
-        "measured_average": 1.0966,
+        "measured_average": 1.108,
         "window": [
           1.03,
           1.18
