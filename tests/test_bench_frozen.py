@@ -18,6 +18,17 @@ DATA = ROOT / "bench" / "data"
 MANIFEST = DATA / "checksums.json"
 
 
+def _content_hash(p: Path) -> str:
+    """Line-ending-agnostic content hash: git normalises CRLF to LF on
+    commit, so a Windows working tree and a Linux checkout must both verify
+    against the same manifest (only .json text is normalised; frames are
+    binary npz and hash raw)."""
+    data = p.read_bytes()
+    if p.suffix == ".json":
+        data = data.replace(b"\r\n", b"\n")
+    return hashlib.sha256(data).hexdigest()
+
+
 def test_bench_data_matches_frozen_checksums():
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
     shipped = sorted(str(p.relative_to(DATA)).replace("\\", "/")
@@ -28,7 +39,7 @@ def test_bench_data_matches_frozen_checksums():
         "its own reviewed commit if the change is intentional; the set of "
         f"files differs: {set(shipped) ^ set(manifest)}")
     for rel, want in manifest.items():
-        got = hashlib.sha256((DATA / rel).read_bytes()).hexdigest()
+        got = _content_hash(DATA / rel)
         assert got == want, (
             f"{rel} differs from the frozen manifest -- a code change must "
             "not silently rewrite synthetic bench inputs")
