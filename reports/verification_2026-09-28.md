@@ -6,8 +6,9 @@ mutation canaries and the fast test suite, and independently spot-check the
 noise-floor honesty. No repo file was modified by the verifier except this
 report; nothing was committed.
 
-**Environment.** Windows 10 (Git Bash), repo at
-`C:\Users\ZemengFeng\Desktop\codes\Chaord`, interpreter `.venv/Scripts/python.exe`.
+**Environment.** Windows 10 (Git Bash), repo at the repository root
+(local working path removed post Review 3 — reports must not carry
+machine-local paths), interpreter `.venv/Scripts/python.exe`.
 
 ## 1. Commands executed and top-line results
 

@@ -58,3 +58,17 @@ and a decompiler (`chaord lift`: coordinates → program). A program describes a
     cd prototype && python roundtrip.py                      # decompile -> compile -> decompile, compare (~40 s)
 - A root cause named in a report or PR description must come with a test that
   reproduces the failure and fails before the fix (post Review 2, 2026-09-29).
+- One stream, one PR. A stream's changes land behind their own pull request
+  (or, while the repository has a single developer, an equivalent per-stream
+  commit series) with the acceptance job run on that stream's ref before
+  merge; mixed-stream mega-commits are not acceptable (post Review 3,
+  2026-09-30: commit 615f2c0 mixed four streams and let one stream's number
+  reach a report while the integrated run failed).
+- Reports quote numbers only from clean-runner artifacts (the GitHub Actions
+  acceptance run), never from an author's local run; a local number may be
+  shown only as clearly-labelled bookkeeping (post Review 3, 2026-09-30).
+- Every criterion keeps a POWER MUTATION: the single most likely real error
+  for that criterion, injected on purpose, whose run must FAIL. A criterion
+  whose power mutation passes has no evidence value (post Review 3,
+  2026-09-30; the registry lives in tests/acceptance/test_mutations.py and
+  tests/adversarial/).
