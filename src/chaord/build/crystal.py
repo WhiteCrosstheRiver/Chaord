@@ -147,16 +147,20 @@ def build_conventional(name: str, params: dict, slots_species: tuple,
         pos_list.append(cand[keep])
         sym_list.extend([s] * int(keep.sum()))
     pos = np.vstack(pos_list)
-    # wrap into the half-open cell via FRACTIONAL coordinates (the cell may
-    # be tilted): the keep-window is open at -1e-9, so a basis point on the
-    # negative face of a tilted cell (the orthorhombic hcp basis lands at
-    # x = -8.9e-17) survives as a tiny-negative cartesian coordinate. A
-    # fraction that rounds to 1-1e-16 would map back to a cartesian value
-    # ~L + rounding, which cKDTree(boxsize=...) rejects -- collapse it to
-    # 0.0, the same periodic point on the canonical edge
-    f = np.mod(pos @ inv_cell, 1.0)
-    f[f > 1.0 - 1e-12] = 0.0        # dialect-exempt: numerical-guard: PBC edge collapse
-    pos = f @ cell
+    # wrap ONLY the rows outside the half-open cell: the keep-window is open
+    # at -1e-9, so a basis point on the negative face of a tilted cell (the
+    # orthorhombic hcp basis lands at x = -8.9e-17) survives as a tiny-
+    # negative coordinate that cKDTree(boxsize=...) rejects. Re-projecting
+    # every row would re-round all coordinates (ULP noise the 3-D mesh
+    # normals are sensitive to), so untouched rows keep their exact bits; a
+    # wrapped fraction that lands on 1-1e-16 collapses to 0.0 -- the same
+    # periodic point on the canonical edge
+    f = pos @ inv_cell
+    outside = np.any((f < 0.0) | (f >= 1.0), axis=1)  # dialect-exempt: numerical-guard: half-open unit interval
+    if outside.any():
+        f_fix = np.mod(f[outside], 1.0)  # dialect-exempt: numerical-guard: mod-1 fractional wrap
+        f_fix[f_fix > 1.0 - 1e-12] = 0.0  # dialect-exempt: numerical-guard: PBC edge collapse
+        pos[outside] = f_fix @ cell
 
     # canonical atom order: lexicographic in cartesian coordinates
     order = np.lexsort((pos[:, 2], pos[:, 1], pos[:, 0]))
