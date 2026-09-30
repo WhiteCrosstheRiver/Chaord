@@ -1,6 +1,6 @@
 # metal dialect — metals and ordered intermetallics (M1+).
 name: metal
-version: "0.2.4"
+version: "0.2.5"
 
 units: []
 
@@ -154,7 +154,6 @@ thresholds:
                                    # angles sit inside the peak window; below it the
                                    # half has no clear orientation (liquid, glass,
                                    # powder) and no grain_boundary is emitted
-  gb_shell_length_tol: 0.10        # first-shell vector length band (R2 reverted a68e202 widening)
                                    # as a fraction of the lattice constant
   gb_overlap_fraction: 0.8         # unrelaxed CSL bicrystals remove the upper-grain atom of any
                                    # cross-grain pair closer than this fraction of d_NN (the AGENTS
