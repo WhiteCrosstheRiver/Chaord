@@ -88,8 +88,16 @@ MOLECULE_TABLE = {
     "F6P":    {"F": 6, "P": 1},           # hexafluorophosphate
 }
 
-# monovalent formal charges for the verifier's charge bookkeeping
-ION_CHARGES = {"Na": 1, "Cl": -1, "Li": 1, "K": 1, "F": -1, "Cs": 1}
+# formal charges for the verifier's charge bookkeeping: monovalent ions plus
+# the common multivalent cations (post Review 3 red team F5: the verifier's
+# own arithmetic must not read Ca2+ as +1 -- a charge-balanced-but-wrong
+# program then passes unaudited)
+ION_CHARGES = {"Na": 1, "Cl": -1, "Li": 1, "K": 1, "F": -1, "Cs": 1,
+               "Ca": 2, "Mg": 2, "Fe": 3}
+# oxide ions only: elemental O carries -2 exactly when no hydrogen is present
+# (water/hydroxide frames keep their molecular bookkeeping, where element-wise
+# charge is undefined)
+OXIDE_ELEMENTS = {"O": -2}
 # elements that appear inside polyatomic ions (PF6-): element-wise charge is
 # undefined, so charge conservation is not checkable on such frames
 MOLECULAR_ION_ELEMENTS = {"F", "P"}
@@ -104,7 +112,18 @@ def count_species(symbols) -> dict[str, int]:
 
 def frame_charge(symbols) -> int:
     """Total formal charge from the verifier's own table (0 for unlisted)."""
-    return sum(ION_CHARGES.get(s, 0) for s in symbols)
+    has_h = "H" in symbols
+    q = sum(ION_CHARGES.get(s, 0) for s in symbols)
+    if not has_h:
+        q += sum(OXIDE_ELEMENTS.get(s, 0) for s in symbols)
+    return q
+
+
+def _charge_audited(symbols) -> bool:
+    """True when the verifier's table actually assigns a non-zero charge to
+    some species of the frame (otherwise the check compares 0 == 0)."""
+    keys = set(ION_CHARGES) | (set() if "H" in symbols else set(OXIDE_ELEMENTS))
+    return any(s in keys for s in symbols)
 
 
 def charge_checkable(symbols) -> bool:
@@ -302,7 +321,12 @@ def derive_counts(parsed: dict):
         a = params.get("a")
         c = params.get("c", a)
         v_conv = a * a * c * vfac
-        n_cells = int(round(float(np.prod(cell)) * vfac / v_conv))
+        # cell volume over conventional-cell volume; the vfac in v_conv already
+        # converts the a*a*c product to the conventional volume (e.g. the
+        # hexagonal orthorhombic representation), so the numerator must NOT
+        # carry it again -- the double multiply counted 14 cells (28 sites)
+        # where the 2a x 2*sqrt(3)a x 2c box holds exactly 8 (32 Mg atoms)
+        n_cells = int(round(float(np.prod(cell)) / v_conv))
         comp_line = _stmt(r, "composition")
         occ_line = _stmt(r, "occupancy", join=True)
         if comp_line is not None:
@@ -1586,9 +1610,13 @@ def _conservation_row(case_id: str, frame_k: int, symbols, text: str) -> dict:
         deriv_ok = True               # not derivable: two-way check only
     else:
         deriv_ok = derived == frame_counts
-    if charge_checkable(symbols) and any(s in ION_CHARGES for s in symbols):
+    if charge_checkable(symbols) and _charge_audited(symbols):
         charge_frame = frame_charge(symbols)
-        charge_prog = sum(ION_CHARGES.get(s, 0) * n for s, n in conserve.items())
+        has_h = "H" in symbols
+        charge_prog = sum(
+            (ION_CHARGES.get(s, 0)
+             + (0 if has_h else OXIDE_ELEMENTS.get(s, 0))) * n
+            for s, n in conserve.items())
         charge_ok = charge_frame == charge_prog
         charge_note = (f"charge {charge_prog:+d} == frame {charge_frame:+d}"
                        if charge_ok else

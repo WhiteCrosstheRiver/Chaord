@@ -59,18 +59,25 @@ def test_hcp_thermal_frame_lifts_as_crystal():
     )
 
 
-def test_hcp_misroute_conservation_row_is_blind():
-    """The garbage program must not satisfy A6's three-way check once the
-    census invents molecules.  Today it does (derive_counts: 'unknown
-    molecule Mg32' degrades to the two-way check; chaord's own
-    conservation_check formula-parses Mg32 as 32 Mg and agrees exactly)."""
+def test_hcp_conservation_row_holds_for_the_right_reason():
+    """Post-fix rewrite (the original F2 red test became obsolete): the lift
+    is a crystal program now, so the conservation row passing is CORRECT --
+    and it must hold through the sites-derived arithmetic (32 hcp sites),
+    never through an invented-molecule formula. A regression back to a
+    'molecules Mg32' text must fail the molecule-free assertion, and if the
+    census guard ever regresses the lift itself raises."""
     text, case = _lift_hcp(0)
+    assert "Mg32" not in text, (
+        "A6 RED: the census invented a pseudo-molecule again "
+        "('Mg32' present in the lifted text)")
     frame = read_frame(case["frames"][0])
     row = acc._conservation_row("hcp_mg", 0, frame.symbols, text)
-    assert not (row["counts_ok"] and row["derivation_ok"]), (
-        f"A6 RED: a 'liquid molecules Mg32' program of a crystal frame "
-        f"passes the conservation row ({row['derivation'][:60]})"
-    )
+    assert row["counts_ok"] and row["derivation_ok"], (
+        f"A6 regression: the correct crystal program fails its conservation "
+        f"row ({row['derivation'][:60]})")
+    assert "sites" in row["derivation"], (
+        "A6 RED: the row passes only via the degraded two-way check "
+        f"({row['derivation'][:60]})")
 
 
 def test_hcp_ground_truth_lift_mode_is_honored():

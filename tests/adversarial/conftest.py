@@ -28,7 +28,6 @@ FOILED = {
     "tests/adversarial/test_a05_temperature_and_averaging.py::test_a5_wrong_temperature_live_canary",
     "tests/adversarial/test_a05_temperature_and_averaging.py::test_a5_wrong_temperature_rebuild_must_fail_the_gate",
     "tests/adversarial/test_a06_a13_hcp_misroute.py::test_hcp_ground_truth_lift_mode_is_honored",
-    "tests/adversarial/test_a06_a13_hcp_misroute.py::test_metal_fluid_cutoff_must_exceed_mg_nn_distance",
     "tests/adversarial/test_a06_conservation_blindspots.py::test_a06_acceptance_charge_arithmetic_covers_multivalent_elements",
     "tests/adversarial/test_a06_conservation_blindspots.py::test_a6_slab_region_arithmetic_is_audited",
     "tests/adversarial/test_a07_judged_core_scope.py::test_a07_targeted_label_corruption_is_caught",
