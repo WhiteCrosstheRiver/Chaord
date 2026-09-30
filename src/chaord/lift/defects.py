@@ -22,6 +22,7 @@ from ..build.prototypes import PROTOTYPES, basis
 from ..io.frames import Frame
 from ..lang.errors import ChaordError
 from ..realize.lj import mic
+from .crystal import snap_a_to_cell
 
 # factor taking d_NN to the cubic lattice constant for each cubic prototype
 # dialect-exempt-begin: exact-geometry
@@ -254,19 +255,39 @@ def fit_crystal(frame: Frame, dialect):
     count_of = {s: int((syms == s).sum()) for s in uniq}
     total = len(syms)
     from itertools import permutations
+    from ase.data import chemical_symbols
+    z_of = {s: chemical_symbols.index(s) for s in uniq}
     for name, n_slots in multi.items():
         if n_slots != len(uniq):
             continue
         wc = want_counts[name]
         w_total = sum(wc)
         reps = max(1, round(total / w_total))
-        # counts must sit within the defect slack of the stoichiometric ratio
-        if all(any(abs(count_of[s] - w * reps) <= slack * w * reps
-                   for w in wc) for s in uniq):
-            # tied slots (equal want counts) cannot be told apart by population:
-            # try every distinct permutation; the species-aware score decides
-            for perm in set(permutations(pops)):
-                candidates.append((name, tuple(perm)))
+        # each slot takes a species whose count matches THAT slot's ratio
+        # (F1: the previous per-species `any(w in wc)` check let a 3:1
+        # minority species onto the majority slot and an O onto a
+        # single-count slot, so noise could pick antisite-riddled
+        # assignments -- Al3Ni with 686 Ni_Al, OTiSr3)
+        viable = [p for p in set(permutations(pops))
+                  if all(abs(count_of[s] - wc[i] * reps) <= slack * wc[i] * reps
+                         for i, s in enumerate(p))]
+        if not viable:
+            continue
+        if len(set(wc)) < len(wc):
+            # tied slots: the permutations are the same crystal up to origin
+            # (each anchors on its own sublattice), so NO fit score can
+            # separate them -- the scan's mean-distance noise decided and the
+            # composition line flipped under rotation (NaCl -> ClNa). The
+            # text follows the registry's notation instead: the prototype's
+            # default slots when the species set is the default one,
+            # otherwise ascending atomic number (the exact-crystal engine's
+            # own tie convention).
+            default = PROTOTYPES[name].default_slots
+            if set(default) == set(uniq):
+                viable = [default]
+            else:
+                viable = [min(viable, key=lambda p: tuple(z_of[s] for s in p))]
+        candidates.extend((name, p) for p in viable)
 
     fit_tol = float(dialect.threshold("lattice_fit_tol_fraction")) * d_nn
     plausibility = float(dialect.threshold("site_plausibility_floor"))
@@ -314,22 +335,30 @@ def fit_crystal(frame: Frame, dialect):
         def quality(aaa, sh):
             sites2, s_sp2 = _anchored_sites(name, aaa, frame, eff_slots, sh)
             if len(sites2) < total * plausibility:
-                return np.inf, None, None
+                return -1.0, np.inf, None, None  # dialect-exempt: numerical-guard: impossible-gate sentinel
             d2, i2 = tree.query(sites2)
             near2 = d2 < tol
             if float(near2.mean()) < float(dialect.threshold("lattice_fit_gate_min")):
-                return np.inf, None, None
+                return -1.0, np.inf, None, None  # dialect-exempt: numerical-guard: impossible-gate sentinel
             sites2_wrapped = np.minimum(np.mod(sites2, frame.cell_diag),
-                                        frame.cell_diag * (1 - 1e-9))  # dialect-exempt: numerical-guard: strict upper edge
+                                       frame.cell_diag * (1 - 1e-9))  # dialect-exempt: numerical-guard: strict upper edge
             d_atom2, _ = cKDTree(sites2_wrapped, boxsize=frame.cell_diag).query(
                 np.minimum(pos_wrapped, frame.cell_diag * (1 - 1e-9)))  # dialect-exempt: numerical-guard: strict upper edge
             if float((d_atom2 < tol).mean()) < float(
                     dialect.threshold("lattice_fit_gate_min")):
-                return np.inf, None, None
+                return -1.0, np.inf, None, None  # dialect-exempt: numerical-guard: impossible-gate sentinel
             if species_aware:
+                # the gate a species-aware candidate is ranked by counts
+                # SPECIES-CORRECT sites only: the blind fraction saturates at
+                # 1.0 for every anchored permutation, so the wrong assignment
+                # (Al on the 3:1 majority slot, 686 Ni_Al antisites) tied the
+                # correct one and the scan's distance noise picked the text
+                # (F1: composition Ni3Al -> Al3Ni under rotation)
                 sym_arr = np.array(frame.symbols)
                 near2 = near2 & (sym_arr[i2] == np.array(s_sp2))
-            return (float(d2[near2].mean()) if near2.any() else np.inf), sites2, s_sp2
+            return (float(near2.mean()),
+                    float(d2[near2].mean()) if near2.any() else np.inf,
+                    sites2, s_sp2)
 
         def chain(shift):
             """Coarse scan + shrinking refine grids for one site offset
@@ -344,10 +373,15 @@ def fit_crystal(frame: Frame, dialect):
                 for aaa in np.linspace(aa - half, aa + half, 11):
                     if aaa <= 0:
                         continue
-                    qc, sc, spc = quality(aaa, shift)
+                    _g, qc, sc, spc = quality(aaa, shift)
                     if qc < mean_d:
                         aa, mean_d, sites, s_sp = aaa, qc, sc, spc
                 half = refine_half / (4 ** (_ + 1))
+            # gate/mean/sites re-measured together at the final constant, so
+            # the candidate the caller ranks is the one it would rebuild
+            g_fin, mean_fin, sites_fin, sp_fin = quality(aa, shift)
+            if sites_fin is not None:
+                return (g_fin, mean_fin, aa, sites_fin, sp_fin)
             return (-_neg_gate, mean_d, aa, sites, s_sp)
 
         # translation re-anchoring (rule 3): the origin-anchored chain is the
@@ -363,21 +397,57 @@ def fit_crystal(frame: Frame, dialect):
             reanchored = chain(seed)
         improvement = float(dialect.threshold("lattice_anchor_improvement"))
         if origin is None:
-            chosen = reanchored
+            chosen, chosen_shift = reanchored, seed
         elif (reanchored is not None
               and reanchored[1] <= improvement * origin[1]):
-            chosen = reanchored
+            chosen, chosen_shift = reanchored, seed
         else:
-            chosen = origin
+            chosen, chosen_shift = origin, np.zeros(3)
         if chosen is None:
             return None
         gate, mean_d, aa, sites, s_sp = chosen
+        # F1 cell contract (reports/redteam_findings.md): the program states
+        # its build box, so when the box is an integer tiling of one lattice
+        # constant that constant IS the printed `a` -- a function of the box
+        # alone, exactly invariant under rigid transforms (the scan optimum
+        # is not: it drifted up to -4.3 % under rotation) and never in
+        # contradiction with the `cell` line the same program states. Sites
+        # are regenerated at the snapped constant so the Wigner-Seitz diff
+        # sees the lattice the program declares; frames whose box is not an
+        # integer tiling (clipped region slabs) keep the scanned value.
+        a_snapped = snap_a_to_cell(aa, frame.cell_diag, dialect)
+        if a_snapped is not None and a_snapped != aa:
+            gate2, mean_d2, sites2, s_sp2 = quality(a_snapped, chosen_shift)
+            if sites2 is not None and mean_d2 < np.inf:
+                gate, mean_d, aa, sites, s_sp = gate2, mean_d2, a_snapped, sites2, s_sp2
+        if not np.array_equal(chosen_shift, np.zeros(3)):
+            # a re-anchored (re-imaged) frame seeds the site offset from ONE
+            # atom's jittered position: that atom's own displacement offsets
+            # the whole site lattice and marginal atoms flip on/off their
+            # sites, so the same crystal read spurious frenkel pairs under
+            # rotation (F1, rule 3). Refine the offset by the minimum-image
+            # mean displacement of every matched atom-site pair -- the same
+            # information the quench springs use, averaged over the frame.
+            d_ref, i_ref = tree.query(sites)
+            near_ref = d_ref < tol
+            if species_aware:
+                near_ref = near_ref & (np.array(frame.symbols)[i_ref]
+                                       == np.array(s_sp))
+            if near_ref.any():
+                corr = mic(frame.pos[i_ref[near_ref]] - sites[near_ref],
+                           frame.cell_diag).mean(axis=0)
+                gate3, mean_d3, sites3, s_sp3 = quality(
+                    aa, chosen_shift + corr)
+                if sites3 is not None and mean_d3 < np.inf:
+                    gate, mean_d, sites, s_sp = gate3, mean_d3, sites3, s_sp3
         return (aa, gate, sites, s_sp, mean_d)
 
-    # candidates are ranked by species-aware gate; exact gate ties are broken
-    # by the mean matched distance, so a re-anchored tied-slot permutation
-    # (species-swapped pattern re-anchored onto the atoms, a looser fit) loses
-    # to the correctly assigned origin-anchored candidate
+    # candidates are ranked by the species-aware gate (fraction of sites
+    # matched with their OWN slot's species), exact ties broken by the mean
+    # matched distance. Tied-slot permutations never reach this comparison:
+    # they are origin-equivalent descriptions of one crystal (see the
+    # candidate construction above), so their scores tie only within noise
+    # and the noise -- not the frame -- decided the composition line (F1).
     best_multi = None
     for name, slot_species in candidates:
         r = scan(name, slot_species, species_aware=True)

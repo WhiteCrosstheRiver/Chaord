@@ -204,14 +204,20 @@ def build_crystal_region(region: RegionBlock, system: dict, dialect, rng=None) -
                     f"(best reps {reps.tolist()}, tolerance {tol})")
     frame = build_conventional(name, params, slots_species, tuple(int(r) for r in reps), T)
     if "cell" in system and reps.max() > 1:
-        # honour the stated cell exactly when it is an integer tiling
+        # honour the stated cell exactly when it is an integer tiling: the
+        # program's stated box IS the build box (F1 cell contract). The
+        # comparison is stated lengths vs the LENGTHS of the reps-scaled
+        # oriented cell rows -- the previous (3,) vs (3,3) broadcast compared
+        # the lengths against off-diagonal zeros and could never fire.
         cell_vals3 = [_num(v) for v in system["cell"].values if v.t == "q"]
         if len(cell_vals3) == 3:
             oriented = T @ cell_matrix(name, params)
             diag_ok = np.allclose(oriented, np.diag(np.diag(oriented)))
             stated = np.array(cell_vals3, float)
+            built_lengths = np.linalg.norm(
+                np.array([oriented[i] * reps[i] for i in range(3)]), axis=1)
             if diag_ok and np.allclose(
-                    stated, np.array([oriented[i] * reps[i] for i in range(3)]),
+                    stated, built_lengths,
                     atol=float(dialect.threshold("lattice_match_tolerance"))):
                 frame = Frame(pos=frame.pos,
                               cell=np.diag(stated) if np.allclose(

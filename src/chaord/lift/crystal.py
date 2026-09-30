@@ -247,6 +247,39 @@ def round_canonical(v: float, decimals_key: str, dialect) -> str:
     return f"{v:.{n}f}"
 
 
+def snap_a_to_cell(a_fit: float, box_lengths, dialect) -> float | None:
+    """Lattice constant that makes the stated cell an integer tiling of it.
+
+    A crystal program's `cell` statement IS its build box: the builder tiles
+    the conventional cell `reps` times and refuses any stated box that is not
+    that integer multiple within the dialect's `lattice_match_tolerance` (the
+    A12 static check, one definition on both sides, rule 7). The fitted
+    constant of a thermally jittered frame -- spglib idealisation or the
+    defect-path scan -- is only stable to a few percent under rigid
+    transforms, while the box lengths are exact rigid invariants; F1
+    (reports/redteam_findings.md) measured lifts whose copied `cell` and
+    fitted `a` disagreed by 0.012-0.028 A, programs the lift's own builder
+    refused, and a fitted `a` drifting -4.3 % under rotation.
+
+    So when every box axis is (within the builder's own tolerance) an integer
+    multiple of ONE lattice constant, that constant is the program's `a`:
+    derived from the box alone, it is exactly invariant under rotation,
+    translation and re-imaging, and the emitted `cell`/`a` pair can never
+    contradict each other. Returns None when the box is not such a tiling
+    (a clipped region slab, a strained frame): the caller keeps its fitted
+    value and the builder's honest refusal stands -- the acceptance checker
+    is never special-cased."""
+    box = np.asarray(box_lengths, float)
+    reps = np.rint(box / a_fit).astype(int)
+    if np.any(reps < 1):
+        return None
+    per_axis = box / reps
+    tol = float(dialect.threshold("lattice_match_tolerance"))
+    if float(np.max(np.abs(per_axis - per_axis.mean()))) > tol:
+        return None
+    return float(per_axis.mean())
+
+
 def lift_crystal(frame: Frame, dialect, backend="eam"):
     """Lift a defect-free crystal frame into a canonical Program."""
     cell, pos, numbers = standardize(frame, dialect)
@@ -257,6 +290,15 @@ def lift_crystal(frame: Frame, dialect, backend="eam"):
     proto = PROTOTYPES[name]
 
     L = np.linalg.norm(frame.cell, axis=1)
+    if proto.params == ("a",):
+        # F1 cell contract: the stated box is the build box, so the printed
+        # `a` must be an integer tiling of it (see snap_a_to_cell). No-op on
+        # the perfect frames this engine reduces exactly; two-parameter
+        # prototypes (hcp/wurtzite/rutile) are left to their setting-specific
+        # geometry -- their thermal frames do not reach this engine today.
+        a_snapped = snap_a_to_cell(params["a"], L, dialect)
+        if a_snapped is not None:
+            params = dict(params, a=a_snapped)
     n_atoms: dict[str, int] = {}
     for s in frame.symbols:
         n_atoms[s] = n_atoms.get(s, 0) + 1
