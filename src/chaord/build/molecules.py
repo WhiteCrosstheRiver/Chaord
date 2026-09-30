@@ -310,6 +310,88 @@ def bond_graph(frame: Frame, dialect):
     return edges
 
 
+def _component_percolates(pos, L, edges, member_set) -> bool:
+    """Does this bonded component wrap the periodic box?
+
+    Unwraps the component through its bonds (breadth-first, minimum-image
+    step vectors). A compact molecule closes every cycle with zero winding;
+    a component whose bonds span the box -- a crystal slab, a bonded solid,
+    a network -- reaches some atom twice at positions differing by a nonzero
+    lattice vector. Deterministic, no thresholds."""
+    from collections import defaultdict, deque
+    adj = defaultdict(list)
+    for i, j in edges:
+        if i in member_set and j in member_set:
+            adj[i].append(j)
+            adj[j].append(i)
+    start = next(iter(member_set))
+    unwrapped = {start: pos[start]}
+    queue = deque([start])
+    while queue:
+        i = queue.popleft()
+        for j in adj[i]:
+            step = pos[j] - pos[i]
+            step -= L * np.round(step / L)
+            candidate = unwrapped[i] + step
+            seen = unwrapped.get(j)
+            if seen is None:
+                unwrapped[j] = candidate
+                queue.append(j)
+                continue
+            diff = candidate - seen
+            winding = np.round(diff / L)
+            if np.any(winding != 0) and np.allclose(
+                    diff - winding * L, 0.0,               # dialect-exempt: numerical-guard: winding residue target is exactly zero
+                    atol=1e-6 * float(L.max())):  # dialect-exempt: numerical-guard: winding residue of exact float sums
+                return True
+    return False
+
+
+def _refuse_extended_components(frame: Frame, edges, labels, dialect) -> None:
+    """The pseudo-molecule guard (red team F2): a bonded component larger
+    than the dialect's `fluid_max_bonded_component` that PERCOLATES the
+    periodic box or holds at least half the frame's atoms is an extended
+    phase -- a bonded crystal (the 'Mg32' of hcp_mg), a metal slab (the
+    'Cu384' of the pre-M4 interface lift), an amorphous network -- not one
+    molecule of a molecular fluid. Naming it invents a formula whose counts
+    then agree exactly on every side (A6 three-way, A13 residual), so the
+    garbage passes every gate; the census refuses loudly instead.
+
+    A compact oversized molecule is NOT extended evidence: the shipped EC
+    solvent component (C3H4O3, 7 atoms) exceeds the 3-atom fluid bound of
+    the molecular dialect while being an ordinary molecule, so size alone
+    must not refuse it. Dialects without the bound (the concept is not
+    theirs to declare) keep the historical census."""
+    try:
+        limit = int(dialect.threshold("fluid_max_bonded_component"))
+    except ChaordError:
+        return
+    n_atoms = len(frame)
+    L = frame.cell_diag
+    pos = np.mod(frame.pos, L)
+    for g in range(labels.max() + 1):
+        idx = np.where(labels == g)[0]
+        n = len(idx)
+        if n <= limit:
+            continue
+        # extended-phase evidence: the component holds at least half the
+        # frame's atoms (it is the phase itself, not a molecule of it), or
+        # its bonds wrap the periodic box (a slab/solid/network). Wrapping
+        # is only testable on a fully periodic frame.
+        majority = 2 * n >= n_atoms  # dialect-exempt: numerical-guard: majority means the component is the phase, not a molecule of it
+        if not majority and (not all(frame.pbc)
+                             or not _component_percolates(pos, L, edges,
+                                                          set(idx.tolist()))):
+            continue
+        syms = {frame.symbols[i] for i in idx}
+        formula = _formula([frame.symbols[i] for i in idx])
+        desc = (f"{n} {sorted(syms)[0]} atoms" if len(syms) == 1
+                else f"{n} atoms ({formula})")
+        raise ChaordError(
+            f"extended bonded component ({desc}): not a molecular fluid; "
+            f"lift as crystal/amorphous")
+
+
 def molecule_census(frame: Frame, dialect) -> dict[str, int]:
     """Count molecules by canonical formula (connected components of the bond graph)."""
     from scipy.sparse import coo_matrix
@@ -321,6 +403,7 @@ def molecule_census(frame: Frame, dialect) -> dict[str, int]:
         cols = [e[1] for e in edges] + [e[0] for e in edges]
         _, labels = connected_components(
             coo_matrix((np.ones(len(rows)), (rows, cols)), shape=(n, n)), directed=False)
+        _refuse_extended_components(frame, edges, labels, dialect)
     else:
         labels = np.arange(n)
     counts: dict[str, int] = {}
