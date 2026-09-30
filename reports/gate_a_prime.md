@@ -19,7 +19,7 @@ mutation canaries still flip every criterion.
 
 | # | Item | Status | Evidence |
 | --- | --- | --- | --- |
-| 1 | CI green on both OS, two consecutive pushes, fresh env | **yes** | push runs green on both OS at 62708e3 (#28) and 0a6c86a (#31, after two knife-edge test premises were made cross-platform robust); nightly/dispatch job runs the full acceptance on a clean Ubuntu machine and uploads the report as an artifact; its earlier failure at 62708e3 was the honest acceptance gate recording 13/14 pre-Wave-2 |
+| 1 | CI green on both OS, two consecutive pushes, fresh env | **yes** | push runs green on both OS at 0a6c86a/fe0d326/238f2c8/13c2caf/ed85108; the workflow_dispatch clean-machine run on ed85108 (#39, 2026-09-30) is fully green: acceptance A1-A14 **14/14** on a fresh Ubuntu environment AND the slow statistical suite — the evidence artifact is uploaded by the nightly job |
 | 2 | README/reports state status accurately; no "v1.0" | **yes** | README honestly describes v0.1 prototype; self_assessment separate from gate report |
 | 3 | ≥6 disordered benchmark cases from independent MD, provenance, sanity | **yes** | `bench/reference/`: 7 cases × 5–15 frames (ASE + published potentials: LJ, TIP4P, SPC/E+JC, FBD-Cu EAM); check_sanity 6/7 PASS (cu_solid_liquid honestly recorded as known-limitation: coexistence density drift) |
 | 4 | Generator code does not import chaord | **yes** | `grep -r "import chaord\|from chaord" bench/reference/` → empty; enforced by `tests/test_reference_data.py` |
@@ -179,9 +179,11 @@ pre-fix-failing reproduction test per AGENTS.md)
    gate). Related honest note: the reference frame carries interfacial step
    disorder the perfect-slab program does not express — distribution centres
    are what the language can claim today.
-3. The nightly clean-machine acceptance (GitHub Actions) is the fresh-env
-   evidence for checklist item 1; the workflow_dispatch-triggered run on
-   0a6c86a provides it (artifact: acceptance report).
+3. The nightly clean-machine acceptance is green: run #39 on ed85108
+   (2026-09-30) reports 14/14 on a fresh Ubuntu machine with the slow
+   statistical suite; earlier dispatch failures (#35, #37) were the honest
+   gate recording under-calibrated estimators, each fixed with its root
+   cause and measurement chain in this file.
 
 ## Next steps
 
