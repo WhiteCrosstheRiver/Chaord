@@ -221,8 +221,12 @@ def burgers_vector(frame: Frame, dialect) -> np.ndarray | None:
     larger above the detection floor is reported with its direction."""
     from ..build.defects import typical_neighbor_distance
     L = frame.cell_diag
-    dnn = typical_neighbor_distance(frame)
+    # entry contract: wrap first -- typical_neighbor_distance and the KD trees
+    # below require positions inside the box, and callers hand in unwrapped
+    # (box-period-translated) coordinates (review 3)
     pos = _wrap(frame.pos, L)
+    dnn = typical_neighbor_distance(Frame(pos=pos, cell=frame.cell,
+                                          symbols=frame.symbols, pbc=frame.pbc))
     tree = cKDTree(pos, boxsize=L)
     family, a, b_fam = _family_and_a(frame, pos, L, tree, dnn, dialect)
 
@@ -251,8 +255,8 @@ def burgers_vector(frame: Frame, dialect) -> np.ndarray | None:
                 vector=vec, method=method)
 
 
-def _folded_shell_angles(half, L, dnn, dialect):
-    """First-shell in-plane bond angles of one grain, folded into [0, 45] deg.
+def _shell_angles(half, L, dnn, dialect):
+    """First-shell in-plane bond angles of one grain, mod 90 (deg).
 
     Every atom of the half contributes, not one reference atom: the pair set
     of a KD-tree radius query is a function of the geometry alone, so no sort
@@ -260,61 +264,64 @@ def _folded_shell_angles(half, L, dnn, dialect):
     was BLAS-sensitive through exactly that tie-break).  In-plane vectors
     connect atoms of one z layer and each layer belongs wholly to one grain,
     so even boundary-adjacent atoms cannot mix the two lattices into one
-    angle; the fold is mod 90 (the [001] four-fold period) into half a
-    quadrant, its fundamental domain."""
+    angle.  The angles are kept on the mod-90 circle (the [001] four-fold
+    period): the fold into [0, 45] waits until _dominant_angle, because a
+    grain sitting on the 45-deg fold edge must be averaged on the circle
+    first (see _dominant_angle)."""
     cn_cut = float(dialect.threshold("slab_cn_factor")) * dnn
     tree = cKDTree(_wrap(half, L), boxsize=L)
     pairs = tree.query_pairs(cn_cut, output_type="ndarray")
     d = half[pairs[:, 1]] - half[pairs[:, 0]]
     d -= L * np.round(d / L)
     in_plane = np.abs(d[:, 2]) < 0.2 * np.linalg.norm(d, axis=1)  # dialect-exempt: numerical-guard: in-plane filter (out-of-plane shell rejection)
-    a = np.degrees(np.arctan2(d[in_plane, 1], d[in_plane, 0])) % 90.0  # dialect-exempt: numerical-guard: fold into one [001] quadrant
-    return np.where(a > 45.0, 90.0 - a, a)  # dialect-exempt: numerical-guard: fold into half a quadrant
+    return np.degrees(np.arctan2(d[in_plane, 1], d[in_plane, 0])) % 90.0  # dialect-exempt: numerical-guard: one [001] quadrant
 
 
-def _dominant_angle(angs):
-    """Peak position of the folded-angle histogram, refined inside the bin.
+def _dominant_angle(angs, dialect):
+    """Peak of the mod-90 angle distribution, folded into [0, 45] deg.
 
-    fcc/bcc [001] first shells are discrete directions, so a grain's angles
-    pile into one sharp mode; the histogram peak (not a correlation search)
-    locates it, and the mean inside the peak bin recovers sub-bin resolution."""
+    The coarse mode comes from the integer-bin histogram: it is robust
+    against the few-percent satellite of cross-grain pairs that position
+    noise drags through the in-plane filter (they sit a misorientation away
+    from the peak and would pull any whole-sample average).  The estimate is
+    the four-fold circular mean of the angles inside a dialect-named window
+    around that mode: multiplying the angle by four maps the [001] period
+    onto the full circle, where the circular mean is unbiased wherever the
+    peak sits.  A plain mean is not -- at the 45-deg fold edge the fold maps
+    45 +/- delta onto 45 - |delta|, a half-normal biased low by 0.8 sigma
+    (the review-3 failure: 0.10 A of noise, sigma_angle ~ 3.2 deg, read
+    Sigma 17 as 233).  If the window holds less than the dialect's fraction
+    of all angles the half has no grain orientation at all and None is
+    returned, so liquids/glasses/powders never emit a Sigma."""
     if len(angs) < 20:
         return None
-    edges = np.arange(0, 46)  # integer grid: exact bin edges over [0, 45] deg
+    edges = np.arange(0, 92)  # integer grid: exact 1-deg bins over the mod-90 circle
     hist, _ = np.histogram(angs, bins=edges)
     k = int(np.argmax(hist))
     centre = (edges[k] + edges[k + 1]) / 2  # dialect-exempt: numerical-guard: peak-bin centre
-    sel = angs[np.abs(angs - centre) <= 1]  # dialect-exempt: numerical-guard: one-bin refinement window, deg
-    return float(sel.mean()) if len(sel) else None
-
-
-def grain_boundary_sigma(frame: Frame, dialect) -> int | None:
-    """Misorientation between z-half grains -> the [001] CSL Sigma.
-
-    The first-shell in-plane bond angles of each grain form a four-fold
-    distribution (fcc/bcc [001]: a single peak at 45 deg); a CSL rotation
-    rigidly shifts one grain's whole distribution, so the offset between the
-    two histogram peaks is the misorientation.  All atoms of each half
-    contribute, which makes the estimate a property of the geometry rather
-    than of one reference atom's neighbour sort order (the cause of the old
-    Linux/BLAS flake)."""
-    L = frame.cell_diag
-    zmid = 0.5 * L[2]  # dialect-exempt: numerical-guard: box mid-plane
-    pos = _wrap(frame.pos, L)
-    lower = pos[pos[:, 2] < zmid]
-    upper = pos[pos[:, 2] >= zmid]
-    if len(lower) < 20 or len(upper) < 20:
+    dev = (angs - centre + 45.0) % 90.0 - 45.0  # dialect-exempt: numerical-guard: signed distance on the mod-90 circle
+    window = float(dialect.threshold("csl_peak_window_deg"))
+    sel = angs[np.abs(dev) <= window]
+    if len(sel) < float(dialect.threshold("csl_peak_frac_min")) * len(angs):
         return None
-    from ..build.defects import typical_neighbor_distance
-    dnn = typical_neighbor_distance(frame)
-    pa = _dominant_angle(_folded_shell_angles(lower, L, dnn, dialect))
-    pb = _dominant_angle(_folded_shell_angles(upper, L, dnn, dialect))
-    if pa is None or pb is None:
-        return None
-    theta = abs(pa - pb)
-    # CSL [001]: theta = 2 atan(n/m), Sigma = m^2 + n^2 (coprime m, n)
+    psi = np.radians(4 * sel)  # dialect-exempt: exact-geometry: four-fold [001] period onto the full circle
+    z = np.cos(psi).mean() + 1j * np.sin(psi).mean()
+    p = float(np.degrees(np.angle(z) / 4)) % 90.0  # dialect-exempt: numerical-guard: fold into one [001] quadrant
+    return 90.0 - p if p > 45.0 else p  # dialect-exempt: numerical-guard: fold into half a quadrant
+
+
+def _csl_sigma_for_angle(theta, dialect):
+    """Nearest [001] CSL candidate for a detected misorientation (deg).
+
+    A candidate counts only inside BOTH windows: the dialect's flat angle
+    tolerance and the Brandon limit theta0/sqrt(Sigma) (Brandon, Acta Metall.
+    14, 1479 (1966)) -- a high-Sigma coincidence cell exists only inside an
+    ever narrower misorientation window, so a low-angle twist must not be
+    read off as a spurious large Sigma (the review-3 example: a 2.5-deg
+    twist matched Sigma 421, whose Brandon window is 0.73 deg)."""
     from math import gcd
     tol = float(dialect.threshold("csl_angle_tol"))
+    brandon = float(dialect.threshold("csl_brandon_theta0"))
     best = None
     for m in range(1, 16):
         for n in range(1, 16):
@@ -325,10 +332,43 @@ def grain_boundary_sigma(frame: Frame, dialect) -> int | None:
             target = np.degrees(2 * np.arctan(n / m)) % 90.0  # dialect-exempt: numerical-guard: fold into one [001] quadrant
             if target > 45.0:  # dialect-exempt: numerical-guard: fold into half a quadrant
                 target = 90.0 - target  # dialect-exempt: numerical-guard: fold into half a quadrant
-            if abs(theta - target) < tol:
-                # fcc/bcc [001]: the coincident-site lattice gains the
-                # half-cell translations, so both-odd (m, n) halves the Sigma
-                sigma = (m * m + n * n) // 2 if (m % 2 and n % 2) else m * m + n * n
+            # fcc/bcc [001]: the coincident-site lattice gains the
+            # half-cell translations, so both-odd (m, n) halves the Sigma
+            sigma = (m * m + n * n) // 2 if (m % 2 and n % 2) else m * m + n * n
+            if abs(theta - target) < min(tol, brandon / np.sqrt(sigma)):
                 if best is None or abs(theta - target) < best[1]:
                     best = (sigma, abs(theta - target))
     return best[0] if best else None
+
+
+def grain_boundary_sigma(frame: Frame, dialect) -> int | None:
+    """Misorientation between z-half grains -> the [001] CSL Sigma.
+
+    The first-shell in-plane bond angles of each grain form a four-fold
+    distribution (fcc/bcc [001]: a single peak at 45 deg); a CSL rotation
+    rigidly shifts one grain's whole distribution, so the offset between the
+    two peaks is the misorientation.  All atoms of each half contribute,
+    which makes the estimate a property of the geometry rather than of one
+    reference atom's neighbour sort order (the cause of the old Linux/BLAS
+    flake).  Positions are wrapped into the box at the entry (unwrapped
+    callers are box-period translations of a valid frame); a half without a
+    clear orientation peak, or a misorientation outside every candidate's
+    Brandon window, emits nothing."""
+    L = frame.cell_diag
+    # entry contract: wrap first -- typical_neighbor_distance builds its KD
+    # tree on the raw positions and rejects data outside the periodic box
+    # (review 3)
+    pos = _wrap(frame.pos, L)
+    zmid = 0.5 * L[2]  # dialect-exempt: numerical-guard: box mid-plane
+    lower = pos[pos[:, 2] < zmid]
+    upper = pos[pos[:, 2] >= zmid]
+    if len(lower) < 20 or len(upper) < 20:
+        return None
+    from ..build.defects import typical_neighbor_distance
+    dnn = typical_neighbor_distance(Frame(pos=pos, cell=frame.cell,
+                                          symbols=frame.symbols, pbc=frame.pbc))
+    pa = _dominant_angle(_shell_angles(lower, L, dnn, dialect), dialect)
+    pb = _dominant_angle(_shell_angles(upper, L, dnn, dialect), dialect)
+    if pa is None or pb is None:
+        return None
+    return _csl_sigma_for_angle(abs(pa - pb), dialect)

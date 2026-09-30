@@ -128,6 +128,24 @@ thresholds:
   dislocation_core_radius: 1.2     # inside this the Volterra field is unset, A
   burgers_tol: 0.25                # lattice-step tolerance for the circuit closure
   csl_angle_tol: 2.0               # degrees: misorientation to CSL match (R2 reverted a68e202 widening)
+  csl_brandon_theta0: 15.0         # Brandon criterion prefactor, degrees: a detected
+                                   # misorientation may sit at most theta0/sqrt(Sigma)
+                                   # from the candidate CSL angle, so a Sigma's
+                                   # acceptance window is min(csl_angle_tol, this /
+                                   # sqrt(Sigma)) -- large-Sigma cells exist only in
+                                   # ever narrower windows and a low-angle twist
+                                   # emits no Sigma at all.
+                                   # Source: Brandon, Acta Metall. 14, 1479 (1966).
+  csl_peak_window_deg: 10.0        # half-width of the first-shell angle peak window
+                                   # used to refine each grain's orientation, degrees:
+                                   # wide enough to average position noise symmetric,
+                                   # narrow enough to exclude the cross-grain
+                                   # satellite pairs near a boundary
+  csl_peak_frac_min: 0.75          # a grain orientation exists only if at least this
+                                   # fraction of the half's first-shell in-plane
+                                   # angles sit inside the peak window; below it the
+                                   # half has no clear orientation (liquid, glass,
+                                   # powder) and no grain_boundary is emitted
   gb_shell_length_tol: 0.10        # first-shell vector length band (R2 reverted a68e202 widening)
                                    # as a fraction of the lattice constant
   gb_overlap_fraction: 0.8         # unrelaxed CSL bicrystals remove the upper-grain atom of any
