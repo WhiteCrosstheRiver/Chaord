@@ -149,6 +149,56 @@
           "cn_tv": 0.06000000000000001
         }
       ]
+    },
+    "avg": {
+      "method": "floor of the frame-averaged statistic: per-frame observables averaged within disjoint frame groups, group-vs-group distance is one pair; A5 judges the ref_frames mean vs the mean of 3 rebuild draws at 1.5x max(mean, P90) of these pairs (review 3 / red-team F3)",
+      "ref_frames": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "note": "averaged floor = the two disjoint splits (2v3, 3v2) of the case's frames",
+      "n_pairs": 2,
+      "gr_rms_mean": 0.06547266011900443,
+      "gr_rms_max": 0.06816110262558103,
+      "gr_rms_q90": 0.06816110262558103,
+      "cn_tv_mean": 0.03466666666666668,
+      "cn_tv_max": 0.041666666666666685,
+      "cn_tv_q90": 0.041666666666666685,
+      "pairs": [
+        {
+          "groups": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3,
+              4
+            ]
+          ],
+          "gr_rms": 0.06816110262558103,
+          "cn_tv": 0.02766666666666668
+        },
+        {
+          "groups": [
+            [
+              0,
+              1,
+              2
+            ],
+            [
+              3,
+              4
+            ]
+          ],
+          "gr_rms": 0.06278421761242785,
+          "cn_tv": 0.041666666666666685
+        }
+      ]
     }
   },
   "lj_liquid_large": {
@@ -330,7 +380,112 @@
         "cn_tv": 0.01806640625
       }
     ],
-    "note": "floor = pooled decorrelated frame pairs of 2 independent trajectories (within-trajectory lag >= 2 plus cross pairs of the decorrelated halves; cross sits only +1%/+10% above within -- an equilibrated liquid carries no preparation memory, unlike the glass quenches; the second trajectory supplies the independent pairs the floor's upper quantile needs)"
+    "note": "floor = pooled decorrelated frame pairs of 2 independent trajectories (within-trajectory lag >= 2 plus cross pairs of the decorrelated halves; cross sits only +1%/+10% above within -- an equilibrated liquid carries no preparation memory, unlike the glass quenches; the second trajectory supplies the independent pairs the floor's upper quantile needs)",
+    "avg": {
+      "method": "floor of the frame-averaged statistic: per-frame observables averaged within disjoint frame groups, group-vs-group distance is one pair; A5 judges the ref_frames mean vs the mean of 3 rebuild draws at 1.5x max(mean, P90) of these pairs (review 3 / red-team F3)",
+      "ref_frames": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "note": "averaged floor = trajectory-vs-trajectory mean-observables pair (5v5) plus the 2v3/3v2 splits within each trajectory",
+      "n_pairs": 5,
+      "gr_rms_mean": 0.02515820597772333,
+      "gr_rms_max": 0.03343733112780189,
+      "gr_rms_q90": 0.03343733112780189,
+      "cn_tv_mean": 0.01360351562500001,
+      "cn_tv_max": 0.01700846354166665,
+      "cn_tv_q90": 0.01700846354166665,
+      "pairs": [
+        {
+          "groups": [
+            [
+              0,
+              1,
+              2,
+              3,
+              4
+            ],
+            [
+              5,
+              6,
+              7,
+              8,
+              9
+            ]
+          ],
+          "gr_rms": 0.01878649984423638,
+          "cn_tv": 0.01259765625000002
+        },
+        {
+          "groups": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3,
+              4
+            ]
+          ],
+          "gr_rms": 0.026033760007841758,
+          "cn_tv": 0.011718750000000017
+        },
+        {
+          "groups": [
+            [
+              0,
+              1,
+              2
+            ],
+            [
+              3,
+              4
+            ]
+          ],
+          "gr_rms": 0.02106390046469795,
+          "cn_tv": 0.010009765625000009
+        },
+        {
+          "groups": [
+            [
+              5,
+              6
+            ],
+            [
+              7,
+              8,
+              9
+            ]
+          ],
+          "gr_rms": 0.03343733112780189,
+          "cn_tv": 0.01700846354166665
+        },
+        {
+          "groups": [
+            [
+              5,
+              6,
+              7
+            ],
+            [
+              8,
+              9
+            ]
+          ],
+          "gr_rms": 0.02646953844403869,
+          "cn_tv": 0.016682942708333346
+        }
+      ]
+    }
   },
   "lj_glass": {
     "dialect": "core + glass",
@@ -473,6 +628,69 @@
           ],
           "gr_rms": 0.10122976069016679,
           "cn_tv": 0.066
+        }
+      ]
+    },
+    "avg": {
+      "method": "floor of the frame-averaged statistic: per-frame observables averaged within disjoint frame groups, group-vs-group distance is one pair; A5 judges the ref_frames mean vs the mean of 3 rebuild draws at 1.5x max(mean, P90) of these pairs (review 3 / red-team F3)",
+      "ref_frames": [
+        3,
+        4,
+        8,
+        9,
+        13,
+        14
+      ],
+      "note": "averaged floor = cross-quench pairs of the per-quench mean observables (last two, most-annealed frames of each of the 3 quenches) -- the annealed selection of the frame-pair floor, averaged",
+      "n_pairs": 3,
+      "gr_rms_mean": 0.15379434521769322,
+      "gr_rms_max": 0.2171964199940894,
+      "gr_rms_q90": 0.2171964199940894,
+      "cn_tv_mean": 0.06599999999999999,
+      "cn_tv_max": 0.08599999999999998,
+      "cn_tv_q90": 0.08599999999999998,
+      "pairs": [
+        {
+          "groups": [
+            [
+              3,
+              4
+            ],
+            [
+              8,
+              9
+            ]
+          ],
+          "gr_rms": 0.09760479209199424,
+          "cn_tv": 0.07099999999999998
+        },
+        {
+          "groups": [
+            [
+              3,
+              4
+            ],
+            [
+              13,
+              14
+            ]
+          ],
+          "gr_rms": 0.1465818235669961,
+          "cn_tv": 0.040999999999999995
+        },
+        {
+          "groups": [
+            [
+              8,
+              9
+            ],
+            [
+              13,
+              14
+            ]
+          ],
+          "gr_rms": 0.2171964199940894,
+          "cn_tv": 0.08599999999999998
         }
       ]
     }
@@ -627,6 +845,56 @@
           "cn_tv": 0.02994791666666667
         }
       ]
+    },
+    "avg": {
+      "method": "floor of the frame-averaged statistic: per-frame observables averaged within disjoint frame groups, group-vs-group distance is one pair; A5 judges the ref_frames mean vs the mean of 3 rebuild draws at 1.5x max(mean, P90) of these pairs (review 3 / red-team F3)",
+      "ref_frames": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "note": "averaged floor = the two disjoint splits (2v3, 3v2) of the case's frames",
+      "n_pairs": 2,
+      "gr_rms_mean": 0.025509132175855598,
+      "gr_rms_max": 0.029618360059998922,
+      "gr_rms_q90": 0.029618360059998922,
+      "cn_tv_mean": 0.016348379629629657,
+      "cn_tv_max": 0.020326967592592622,
+      "cn_tv_q90": 0.020326967592592622,
+      "pairs": [
+        {
+          "groups": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3,
+              4
+            ]
+          ],
+          "gr_rms": 0.021399904291712273,
+          "cn_tv": 0.020326967592592622
+        },
+        {
+          "groups": [
+            [
+              0,
+              1,
+              2
+            ],
+            [
+              3,
+              4
+            ]
+          ],
+          "gr_rms": 0.029618360059998922,
+          "cn_tv": 0.012369791666666692
+        }
+      ]
     }
   },
   "water_tip4p": {
@@ -777,6 +1045,56 @@
           ],
           "gr_rms": 0.06399106905888124,
           "cn_tv": 0.09114583333333333
+        }
+      ]
+    },
+    "avg": {
+      "method": "floor of the frame-averaged statistic: per-frame observables averaged within disjoint frame groups, group-vs-group distance is one pair; A5 judges the ref_frames mean vs the mean of 3 rebuild draws at 1.5x max(mean, P90) of these pairs (review 3 / red-team F3)",
+      "ref_frames": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "note": "averaged floor = the two disjoint splits (2v3, 3v2) of the case's frames",
+      "n_pairs": 2,
+      "gr_rms_mean": 0.03220367438206674,
+      "gr_rms_max": 0.03381361981771801,
+      "gr_rms_q90": 0.03381361981771801,
+      "cn_tv_mean": 0.04557291666666667,
+      "cn_tv_max": 0.052300347222222224,
+      "cn_tv_q90": 0.052300347222222224,
+      "pairs": [
+        {
+          "groups": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3,
+              4
+            ]
+          ],
+          "gr_rms": 0.03381361981771801,
+          "cn_tv": 0.03884548611111112
+        },
+        {
+          "groups": [
+            [
+              0,
+              1,
+              2
+            ],
+            [
+              3,
+              4
+            ]
+          ],
+          "gr_rms": 0.030593728946415478,
+          "cn_tv": 0.052300347222222224
         }
       ]
     }
@@ -931,6 +1249,56 @@
           "cn_tv": 0.04268292682926826
         }
       ]
+    },
+    "avg": {
+      "method": "floor of the frame-averaged statistic: per-frame observables averaged within disjoint frame groups, group-vs-group distance is one pair; A5 judges the ref_frames mean vs the mean of 3 rebuild draws at 1.5x max(mean, P90) of these pairs (review 3 / red-team F3)",
+      "ref_frames": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "note": "averaged floor = the two disjoint splits (2v3, 3v2) of the case's frames",
+      "n_pairs": 2,
+      "gr_rms_mean": 0.022835193438013414,
+      "gr_rms_max": 0.025568007113988107,
+      "gr_rms_q90": 0.025568007113988107,
+      "cn_tv_mean": 0.02494918699186992,
+      "cn_tv_max": 0.025,
+      "cn_tv_q90": 0.025,
+      "pairs": [
+        {
+          "groups": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3,
+              4
+            ]
+          ],
+          "gr_rms": 0.025568007113988107,
+          "cn_tv": 0.025
+        },
+        {
+          "groups": [
+            [
+              0,
+              1,
+              2
+            ],
+            [
+              3,
+              4
+            ]
+          ],
+          "gr_rms": 0.020102379762038717,
+          "cn_tv": 0.02489837398373984
+        }
+      ]
     }
   },
   "cu_solid_liquid": {
@@ -1081,6 +1449,56 @@
           ],
           "gr_rms": 0.03779856419686884,
           "cn_tv": 0.0300480769230769
+        }
+      ]
+    },
+    "avg": {
+      "method": "floor of the frame-averaged statistic: per-frame observables averaged within disjoint frame groups, group-vs-group distance is one pair; A5 judges the ref_frames mean vs the mean of 3 rebuild draws at 1.5x max(mean, P90) of these pairs (review 3 / red-team F3)",
+      "ref_frames": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "note": "averaged floor = the two disjoint splits (2v3, 3v2) of the case's frames",
+      "n_pairs": 2,
+      "gr_rms_mean": 0.0398189346026078,
+      "gr_rms_max": 0.041641973964095975,
+      "gr_rms_q90": 0.041641973964095975,
+      "cn_tv_mean": 0.04066506410256414,
+      "cn_tv_max": 0.048277243589743626,
+      "cn_tv_q90": 0.048277243589743626,
+      "pairs": [
+        {
+          "groups": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              3,
+              4
+            ]
+          ],
+          "gr_rms": 0.041641973964095975,
+          "cn_tv": 0.048277243589743626
+        },
+        {
+          "groups": [
+            [
+              0,
+              1,
+              2
+            ],
+            [
+              3,
+              4
+            ]
+          ],
+          "gr_rms": 0.037995895241119626,
+          "cn_tv": 0.03305288461538465
         }
       ]
     }

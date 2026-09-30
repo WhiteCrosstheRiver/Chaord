@@ -13,6 +13,14 @@ from ..lang.ir import (
 from .passes import pairs_within, qbar
 
 
+class AssumedT(float):
+    """A temperature the caller did NOT give: the dialect's md_reference_T
+    default, wrapped so the lifted program's provenance can say the value was
+    assumed rather than measured (external review 3, step 3: an assumed
+    dialect constant must not be laundered into a fact by the program text).
+    Behaves as a plain float everywhere else."""
+
+
 def _all_elements(frame: Frame) -> bool:
     from ase.data import chemical_symbols
     # chemical_symbols[0] is the placeholder 'X': not a bondable element
@@ -241,6 +249,13 @@ def lift_fluid(frame: Frame, dialect, T=None, backend=None) -> Program:
                 f"entry; the default applies")
         provenance_stmts.append(Statement(
             kind="build", key="note", values=[StrVal(text=note)]))
+    if isinstance(T, AssumedT):
+        # T metadata honesty (review 3, step 3): the `state T` line states a
+        # dialect default, not a measurement of this frame -- provenance says so
+        provenance_stmts.append(Statement(
+            kind="build", key="note",
+            values=[StrVal(text=(f"T assumed (dialect default {float(T):g}); "
+                                 "not measured from the frame"))]))
 
     return Program(
         version="0.1", dialects=list(dialect.names),  # dialect-exempt: numerical-guard: language version constant

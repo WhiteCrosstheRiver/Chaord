@@ -335,6 +335,79 @@ def _floor_summary(pairs):
             "pairs": pairs}
 
 
+def _mean_obs(obs_list):
+    """Frame-averaged observables (same bins: NVT cases)."""
+    out = {}
+    for k in obs_list[0]:
+        vals = [o[k] for o in obs_list]
+        out[k] = (float(np.mean(vals)) if not isinstance(vals[0], np.ndarray)
+                  else np.mean(vals, axis=0))
+    return out
+
+
+def _avg_floor(case, obs, n_frames):
+    """Floor of the FRAME-AVERAGED statistic (external review 3 / red-team
+    F3, 2026-09-30): split the case's frames into disjoint groups, average
+    the per-frame observables within each group, and take the group-vs-group
+    distance as one pair.  The A5 gate then compares the mean observables of
+    `ref_frames` (reference side, >= 5 frames) against the mean of 3 rebuild
+    draws, judged at 1.5x max(mean, P90) of these pairs -- the same
+    construction as the frame-pair floor, so microstate luck on either side
+    (reference frame luck 0.046 = 43% of the floor, rebuild seed luck 1.8x,
+    both measured) no longer sets the gate's scale.
+
+    Group rule per case shape:
+      * 5-frame single-run case: the two disjoint splits 2v3 and 3v2.
+      * lj_liquid_large (2 trajectories x 5): the 5v5 trajectory-average pair
+        plus the 2v3/3v2 splits within each trajectory.
+      * lj_glass (3 quenches x 5): the last two (most-annealed) frames of
+        each quench, one averaged pair per quench pair -- the same annealed
+        selection the cross-quench floor uses; early post-quench frames age.
+    """
+    groups = _frame_quench_groups(case)
+    if case == "lj_glass":
+        sel = {q: idx[-2:] for q, idx in groups.items()}   # annealed frames
+        ref_frames = sorted(i for idx in sel.values() for i in idx)
+        qs = sorted(sel)
+        splits = [(sel[qs[0]], sel[qs[1]]), (sel[qs[0]], sel[qs[2]]),
+                  (sel[qs[1]], sel[qs[2]])]
+        note = ("averaged floor = cross-quench pairs of the per-quench mean "
+                "observables (last two, most-annealed frames of each of the "
+                "3 quenches) -- the annealed selection of the frame-pair "
+                "floor, averaged")
+    elif groups and case == "lj_liquid_large":
+        ref_frames = list(range(n_frames))
+        t0, t1 = groups[0], groups[1]
+        splits = [(t0, t1)]
+        for t in (t0, t1):
+            splits += [(t[:2], t[2:]), (t[:3], t[3:])]
+        note = ("averaged floor = trajectory-vs-trajectory mean-observables "
+                "pair (5v5) plus the 2v3/3v2 splits within each trajectory")
+    else:
+        ref_frames = list(range(n_frames))
+        splits = [((0, 1), (2, 3, 4)), ((0, 1, 2), (3, 4))]
+        note = ("averaged floor = the two disjoint splits (2v3, 3v2) of the "
+                "case's frames")
+    pairs = []
+    for a, b in splits:
+        d = distance(_mean_obs([obs[i] for i in a]),
+                     _mean_obs([obs[i] for i in b]))
+        pairs.append({"groups": [list(a), list(b)],
+                      "gr_rms": d["gr_rms"], "cn_tv": d["cn_tv"]})
+    assert len(ref_frames) >= 5, \
+        f"{case}: averaged statistic needs >= 5 reference frames"
+    assert len(pairs) >= 2 and min(p["gr_rms"] for p in pairs) > 0.0
+    return {"method": ("floor of the frame-averaged statistic: per-frame "
+                       "observables averaged within disjoint frame groups, "
+                       "group-vs-group distance is one pair; A5 judges the "
+                       "ref_frames mean vs the mean of 3 rebuild draws at "
+                       "1.5x max(mean, P90) of these pairs (review 3 / "
+                       "red-team F3)"),
+            "ref_frames": ref_frames,
+            "note": note,
+            **_floor_summary(pairs)}
+
+
 def test_pairwise_noise_floors_written():
     """Noise floor between every pair of frames of each case, with chaord's
     own fluid observables, written to reports/noise_floors.json.
@@ -343,7 +416,13 @@ def test_pairwise_noise_floors_written():
     (last two, most-annealed frames of each of the 3 independent quenches);
     the within-one-quench pairs of the same selected frames are recorded in
     `intra_quench` and must sit closer -- two frames of one anneal segment
-    share the amorphous basin, an independent rebuild does not."""
+    share the amorphous basin, an independent rebuild does not.
+
+    Review 3 / red-team F3 (2026-09-30) adds, per case, the `avg` entry: the
+    floor of the FRAME-AVERAGED statistic (disjoint frame groups averaged
+    within, group-vs-group distance is one pair; >= 5 reference frames),
+    which the A5 harness gates the averaged round-trip protocol on.  The
+    frame-pair floor stays recorded unchanged alongside it."""
     floors = {}
     for case in CASES:
         dialect = load_dialect(DIALECTS[case])
@@ -474,6 +553,15 @@ def test_pairwise_noise_floors_written():
                     "; frames spaced 5 ps (beyond the water structural "
                     "relaxation time, Review 2): the floor is not shrunk by "
                     "residual inter-frame correlation")
+        # the averaged-observation floor (review 3 / red-team F3, 2026-09-30):
+        # coexists with the frame-pair floor above -- every case record keeps
+        # both, the A5 harness gates the averaged protocol on the `avg` entry
+        floors[case]["avg"] = _avg_floor(case, obs, n)
+        assert floors[case]["avg"]["gr_rms_mean"] <= floors[case]["gr_rms_mean"] + 1e-12, \
+            (f"{case}: averaged floor exceeds the single-frame floor -- "
+             "averaging decorrelated frames must not increase the noise")
     NOISE_FLOORS.parent.mkdir(parents=True, exist_ok=True)
     NOISE_FLOORS.write_text(json.dumps(floors, indent=2), encoding="utf-8")
     assert set(floors) == set(CASES)
+    for case in CASES:
+        assert "avg" in floors[case] and len(floors[case]["avg"]["pairs"]) >= 2

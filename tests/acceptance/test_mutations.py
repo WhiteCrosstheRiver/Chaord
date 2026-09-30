@@ -105,15 +105,21 @@ def test_a5_physics_off_rebuild_fails():
     """Review-2 mutation: rebuilding lj_liquid with physics=False (the packing
     prior alone, no MD relaxation) must FAIL A5, while the physics rebuild of
     the same scoped case passes.  Done when: the physics-off mutation fails;
-    lj_liquid is within 1.5x the floor on both observables."""
+    lj_liquid is within 1.5x the floor on both observables.  Review 3
+    (2026-09-30): the lift states the reference PROVENANCE temperature
+    (T* = 0.72, from units.temperatures_K.equilibrium 8355.256 K and
+    epsilon = 1 eV), not the dialect default 0.65; the verdict is the
+    averaged protocol (>= 5 reference frames, 3 rebuild draws)."""
     clean = acc.check_a5(case_filter="lj_liquid")
     row = next(r for r in clean["details"]["rows"]
                if r["case"] == "reference/lj_liquid")
     assert row["status"] == "pass", row["note"]
     assert row["backend"] == "lj"
-    assert row["temperature"] == 0.65          # program `state T`
+    assert row["temperature"] == pytest.approx(0.72)   # provenance T*, not the 0.65 default
     assert row["md_steps"] > 0                 # MD relaxation ran (physics on)
-    # both observables within 1.5x the floor
+    assert row["seeds"] == [7, 13, 29]         # 3-draw averaged protocol
+    assert len(row["ref_frames"]) >= 5         # >= 5-frame reference average
+    # both observables within 1.5x the averaged floor
     assert "cn_tv" in row["note"] and "gr_rms" in row["note"]
     assert "MUTATED" not in row["note"]
 
@@ -124,6 +130,38 @@ def test_a5_physics_off_rebuild_fails():
     assert row["md_steps"] == 0                # the MD prior really dropped
     assert "MUTATED(physics-off rebuild)" in row["note"]
     assert not bad["passed"], bad["evidence"]
+
+
+def test_a5_temperature_power_mutations_fail():
+    """Review-3 / red-team F3 power mutations: a physically wrong but
+    otherwise perfect rebuild -- the program's `state T` rewritten to 0.8x /
+    1.25x of the reference PROVENANCE temperature -- must FAIL A5, while the
+    correct-temperature rebuild of the same case passes.  Judged on
+    lj_liquid_large (2,048 atoms, 10 reference frames): with the averaged
+    protocol the wrong-temperature systematic no longer hides inside the
+    single-frame microstate noise (measured 2026-09-30, this machine:
+    correct T* = 0.72 -> gr x0.7 floor; x0.8 -> gr x2.4, cn x1.9 -> both
+    over the 1.5x gate; the 500-atom lj_liquid case has no robust power --
+    x0.8 passes at x1.1 the floor, x1.25 sits at x1.6 with a 5% gate margin
+    smaller than the documented ISA/BLAS draw divergence).  Runtime ~10 min:
+    three scoped runs x three rebuilds of a 2,048-atom system."""
+    clean = acc.check_a5(case_filter="lj_liquid_large")
+    row = next(r for r in clean["details"]["rows"]
+               if r["case"] == "reference/lj_liquid_large")
+    assert row["status"] == "pass", row["note"]
+    assert row["temperature"] == pytest.approx(0.72)   # provenance T*
+    assert row["seeds"] == [7, 13, 29]
+    assert len(row["ref_frames"]) >= 5
+
+    for mutation, tag in (("temp_lo", "MUTATED(T x0.8)"),
+                          ("temp_hi", "MUTATED(T x1.25)")):
+        bad = acc.check_a5(mutation=mutation, case_filter="lj_liquid_large")
+        row = next(r for r in bad["details"]["rows"]
+                   if r["case"] == "reference/lj_liquid_large")
+        assert row["status"] == "fail", row["note"]
+        assert tag in row["note"], row["note"]
+        assert row["temperature"] != pytest.approx(0.72)  # the T really moved
+        assert not bad["passed"], bad["evidence"]
 
 
 # --------------------------------------------------------------------- A6 ----

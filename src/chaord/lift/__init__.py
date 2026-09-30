@@ -15,7 +15,7 @@ from chaord.lift.crystal import lift_crystal  # noqa: F401
 from chaord.lift.passes import otsu, pairs_within, qbar  # noqa: F401
 from chaord.lift.slab import decompile, program_from_result  # noqa: F401
 from chaord.lift.defect_program import lift_crystal_defects  # noqa: F401
-from chaord.lift.fluid import lift_fluid  # noqa: F401
+from chaord.lift.fluid import AssumedT, lift_fluid  # noqa: F401
 
 
 def lift_frame(frame, dialect, T=None, mode="auto"):
@@ -27,7 +27,15 @@ def lift_frame(frame, dialect, T=None, mode="auto"):
     stays on the legacy cascade until the pipeline equivalence suite is green.
 
     T is metadata (stated in the program, never measured); when omitted it is
-    read from the dialect's md_reference_T."""
+    read from the dialect's md_reference_T and wrapped as an AssumedT so the
+    program's provenance block records "T assumed (dialect default ...)" --
+    the stated value is a dialect constant, not a fact about this frame
+    (external review 3, step 3)."""
+    if T is None:
+        try:
+            T = AssumedT(float(dialect.threshold("md_reference_T")))
+        except Exception:
+            T = None  # dialects without an MD default state no temperature
     if mode == "pipeline":
         from chaord.lift.pipeline import pipeline_lift_detailed
         program, unexplained = pipeline_lift_detailed(frame, dialect, T)

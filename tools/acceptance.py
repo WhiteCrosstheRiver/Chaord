@@ -1209,9 +1209,51 @@ def _a5_effective_floor(fl: dict) -> dict:
     return out
 
 
+def _mean_observables(obs_list: list) -> dict:
+    """Mean of per-frame observable dicts over frames (same bins: NVT cases).
+
+    The A5 reference side judges the ensemble average, not one microstate
+    (external review 3 / red-team F3: single-frame reference luck moved the
+    measured gr distance by 0.046 = 43% of the floor at wrong T)."""
+    out = {}
+    for k in obs_list[0]:
+        vals = [o[k] for o in obs_list]
+        out[k] = (float(np.mean(vals)) if not isinstance(vals[0], np.ndarray)
+                  else np.mean(vals, axis=0))
+    return out
+
+
+# temperature of a reference program's rebuild, from the reference provenance
+_AVG_TEMP_KEYS = ("equilibrium", "coexistence", "anneal")
+
+
+def _provenance_tstar(prov: dict):
+    """Equilibrium temperature of one reference simulation in the dialect's
+    state-T unit, from STRUCTURED provenance fields only:
+
+        T* = units.temperatures_K[key] * units.kB_eV_per_K
+             / potential.parameters.epsilon_eV
+
+    key preference: equilibrium, coexistence, anneal (a quench protocol's
+    `melt` temperature is not the sampled state).  None when the provenance
+    carries no structured temperature -- the lift then states the dialect
+    default and its provenance block records 'T assumed (dialect default)'
+    (review 3, step 3: the A5 rebuild must not launder an assumed dialect
+    constant into the reference's own temperature)."""
+    temps = (prov.get("units") or {}).get("temperatures_K") or {}
+    key = next((k for k in _AVG_TEMP_KEYS if k in temps), None)
+    if key is None:
+        return None
+    try:
+        kb = float(prov["units"]["kB_eV_per_K"])
+        eps = float(prov["potential"]["parameters"]["epsilon_eV"])
+    except (KeyError, TypeError, ValueError):
+        return None
+    return float(temps[key]) * kb / eps
+
+
 def _reference_cases(ref_root, floors):
     """MD reference cases that have a floor on record."""
-    import numpy as _np  # noqa: F401
     out = []
     if not ref_root.exists():
         return out
@@ -1219,7 +1261,11 @@ def _reference_cases(ref_root, floors):
         if not case_dir.is_dir():
             continue
         prov = case_dir / "provenance.json"
-        frames = sorted(case_dir.glob("frame_*.npz"))
+        # numeric frame order: frame_10 sorts before frame_2 lexically, and
+        # the averaged protocol indexes into this list (ref_frames)
+        frames = sorted(
+            case_dir.glob("frame_*.npz"),
+            key=lambda p: int(re.search(r"(\d+)$", p.stem).group(1)))
         if not prov.exists() or len(frames) < 2 or case_dir.name not in floors:
             continue
         data = json.loads(prov.read_text(encoding="utf-8"))
@@ -1229,6 +1275,7 @@ def _reference_cases(ref_root, floors):
         out.append({"id": f"reference/{case_dir.name}",
                     "dialect": [s.strip() for s in dial.split("+")],
                     "frames": [str(f) for f in frames],
+                    "t_provenance": _provenance_tstar(data),
                     "floor": floors[case_dir.name]})
     return out
 
@@ -1237,9 +1284,43 @@ def check_a5(mutation: str | None = None, floors=None,
              case_filter: str | None = None):
     """Held-out observable distance <= 1.5x the noise floor on >= 90% of fluid
     and interface cases and >= 80% of amorphous cases, per case, against the
-    noise floors on record (reports/noise_floors.json; from two frames of one
-    reference MD simulation).  Synthetic packed frames have no floor: recorded
-    as 'no-floor: skipped (synthetic frame)', never silently passed.
+    noise floors on record (reports/noise_floors.json).  Synthetic packed
+    frames have no floor: recorded as 'no-floor: skipped (synthetic frame)',
+    never silently passed.
+
+    Reference-case protocol (external review 3 / red-team F3, 2026-09-30):
+    the reference side is the MEAN of the per-frame observables over the
+    case's `avg.ref_frames` (>= 5 frames; the frame-pair floor of the old
+    single-frame statistic let a wrong-temperature rebuild hide: reference
+    frame luck alone moved gr by 0.046 = 43% of the floor); the rebuild side
+    is the mean of THREE independent draws (seeds 7/13/29 -- seed luck
+    spanned 1.8x); the floor is recomputed the same way (`avg` entry of the
+    case's noise_floors.json record: distances between frame-group averages)
+    and gated at the same 1.5x.  The lift states the reference provenance's
+    equilibrium temperature (T=<provenance T*>), so a rebuild is equilibrated
+    at the temperature the reference actually ran at, never at an assumed
+    dialect default.  Cases whose floor record predates the `avg` entry fall
+    back to the legacy single-frame protocol.
+
+    Mutations: physics_off (packing prior only), inflate_box, and the
+    temperature power mutations temp_lo / temp_hi (rebuild `state T` rewritten
+    to 0.8x / 1.25x of the provenance temperature -- a physically wrong but
+    otherwise perfect rebuild must FAIL, or the criterion has no temperature
+    evidence value).  Observable-set decision, measured 2026-09-30: the
+    legacy set already carries the temperature signal -- gr_rms is the RMS
+    over ALL bins (r > noise_gr_rmin) of the normalised g(r), so the
+    temperature-sensitive peak HEIGHT is inside it, and cn_tv adds the shell
+    occupancy.  On the averaged protocol the separation is gr x2.4 / cn x1.9
+    of the floor at 0.8x T and gr x1.9 / cn x2.6 at 1.25x T (lj_liquid_large,
+    N=2,048, 10 reference frames) while the correct temperature sits at
+    x0.6-0.7 -- no additional observable is needed, so none was added; the
+    bond-angle TV (angle_tv) was measured too (x1.4-1.8 of its floor at the
+    wrong temperatures) and left out as redundant.  The 500-atom lj_liquid
+    case does not carry robust temperature evidence (measured: x0.8 T sits at
+    x1.1 the floor and passes; x1.25 T at x1.6 -- a 5% margin over the gate,
+    smaller than the runner ISA/BLAS draw divergence documented in
+    red-team F3): the criterion's temperature evidence comes from the
+    >= 2,000-atom case.
 
     case_filter scopes BOTH the MD reference cases and the bench cases to ids
     containing it (the canary tests use it to flip one case PASS->FAIL).
@@ -1262,6 +1343,7 @@ def check_a5(mutation: str | None = None, floors=None,
     # synthetic bench/data frames cannot demonstrate the criterion (no floor)
     ref_root = ROOT / "bench" / "reference"
     physics_on = mutation != "physics_off"
+    temp_factor = {"temp_lo": 0.8, "temp_hi": 1.25}.get(mutation)
     with tempfile.TemporaryDirectory() as td:
         for case in _reference_cases(ref_root, floors):
             if case_filter is not None and case_filter not in case["id"]:
@@ -1269,27 +1351,65 @@ def check_a5(mutation: str | None = None, floors=None,
             dl = load_dialect(case["dialect"])
             frame = read_frame(case["frames"][0])
             try:
-                program = lift_frame(frame, dl)
+                # T from the reference provenance: the rebuild equilibrates at
+                # the temperature the reference MD actually ran at (review 3,
+                # step 3).  None -> the lift states the dialect default and
+                # flags it 'T assumed' in the program's provenance block.
+                program = lift_frame(frame, dl, T=case.get("t_provenance"))
                 program_text = format_program_text(program)
             except Exception as exc:                                # noqa: BLE001
                 rows.append(dict(case=case["id"], category="fluid",
                                  status="lift-failed", note=str(exc)[:80]))
                 continue
+            if temp_factor is not None:
+                # temperature power mutation: rewrite the program's state T to
+                # 0.8x / 1.25x of the stated (provenance) temperature.  With
+                # the provenance T wired in, this is exactly +-20%/+25% of the
+                # temperature the reference simulation ran at.
+                m_t = _RE_A5_T.search(program_text)
+                if m_t is None:
+                    rows.append(dict(case=case["id"], category="fluid",
+                                     status="lift-failed",
+                                     note=("temp mutation inapplicable: "
+                                           "program states no temperature")))
+                    continue
+                t_new = float(m_t.group(1)) * temp_factor
+                program_text = _RE_A5_T.sub(
+                    lambda m, t=t_new: m.group(0).replace(m.group(1),
+                                                          f"{t:.4g}"),
+                    program_text, count=1)
             pp = Path(td) / (case["id"].replace("/", "_") + ".chaord")
             pp.write_text(program_text, encoding="utf-8")
-            # TWO independent rebuild draws (seeds 7, 13), per-observable
-            # median: a physics rebuild from an RSA start is one chaotic MD
-            # draw (runner ISA/BLAS divergence is real -- the clean-machine
-            # run of 2026-09-29 tipped nacl_aq cn_tv from x1.44 to >x1.5 on a
-            # 4% margin), so the criterion is judged on the draws' centre,
-            # both draws recorded in the note. No threshold changes: the
-            # 1.5x-floor gate is exactly the PLAN's.
             meta = _a5_rebuild_meta(program_text, dl, physics_on)
+            # averaged protocol (floor record with an `avg` entry): reference
+            # side = mean observables over >= 5 stored frames; rebuild side =
+            # mean over THREE independent draws (seeds 7/13/29), per-draw
+            # distances and their median recorded in the note.  A physics
+            # rebuild from an RSA start is one chaotic MD draw (runner
+            # ISA/BLAS divergence is real -- the clean-machine run of
+            # 2026-09-29 tipped nacl_aq cn_tv from x1.44 to >x1.5 on a 4%
+            # margin), so both sides are averaged and judged on their centre;
+            # the single-draw protocol (median of 2 draws vs 1 reference
+            # frame) is the documented pre-review-3 fallback.  No threshold
+            # changes: the 1.5x-floor gate is exactly the PLAN's.
+            avg_fl = case["floor"].get("avg")
+            if avg_fl is not None:
+                seeds = (7, 13, 29)
+                o_ref = _mean_observables(
+                    [_a5_obs(read_frame(case["frames"][i]), dl)
+                     for i in avg_fl["ref_frames"]])
+                floor_src = avg_fl
+                ref_desc = (f"mean obs of frames {avg_fl['ref_frames']}")
+            else:
+                seeds = (7, 13)
+                o_ref = _a5_obs(frame, dl)
+                floor_src = case["floor"]
+                ref_desc = "single frame 0 (legacy floor record)"
             draws = []
             secs = 0.0
             note = ""
             physics_used = physics_on
-            for seed in (7, 13):
+            for seed in seeds:
                 rebuilt, s, n_, physics_used = _rebuild_in_subprocess(
                     program_text, dl.names, td,
                     case["id"].replace("/", "_") + f"_s{seed}",
@@ -1304,23 +1424,36 @@ def check_a5(mutation: str | None = None, floors=None,
                     rebuilt.pos *= 1.10
                 draws.append(rebuilt)
             else:
-                fl = case["floor"]
                 from chaord.cv.noise import observables, distance
-                o_ref = _a5_obs(frame, dl)
                 per_draw = [distance(o_ref, _a5_obs(rb, dl), dialect=dl)
                             for rb in draws]
-                dist = {k: float(np.median([d[k] for d in per_draw]))
-                        for k in per_draw[0]}
-                floor_eff = _a5_effective_floor(fl)
-                floor_mean = {k: fl[f"{k}_mean"] for k in ("gr_rms", "cn_tv")}
+                if avg_fl is not None:
+                    # the gated statistic: averaged reference vs the average
+                    # of the draws' observables -- the systematic (macrostate)
+                    # distance with the single-microstate noise of both sides
+                    # suppressed; per-draw distances (and their median) stay
+                    # in the evidence for transparency
+                    o_rb = _mean_observables([_a5_obs(rb, dl) for rb in draws])
+                    dist = distance(o_ref, o_rb, dialect=dl)
+                else:
+                    dist = {k: float(np.median([d[k] for d in per_draw]))
+                            for k in per_draw[0]}
+                floor_eff = _a5_effective_floor(floor_src)
+                floor_mean = {k: floor_src[f"{k}_mean"]
+                              for k in ("gr_rms", "cn_tv")}
                 ok = all(dist[k] <= 1.5 * max(floor_eff[k], 1e-6) for k in dist)
                 ev_ = "; ".join(
                     f"{k} {dist[k]:.3f} vs floor {floor_eff[k]:.3f} "
                     f"(x{dist[k] / max(floor_eff[k], 1e-6):.1f}; "
                     f"floor = max(mean {floor_mean[k]:.3f}, P90 "
-                    f"{floor_eff[k]:.3f}); draws "
+                    f"{floor_eff[k]:.3f}); ref = {ref_desc}; draws "
                     + "/".join(f"{d[k]:.3f}" for d in per_draw) + ")"
                     for k in sorted(dist))
+                if avg_fl is not None and len(per_draw) == 3:
+                    med = {k: float(np.median([d[k] for d in per_draw]))
+                           for k in per_draw[0]}
+                    ev_ += ("; per-draw median "
+                            + "/".join(f"{med[k]:.3f}" for k in sorted(med)))
                 if note:
                     ev_ += f"; rebuild: {note}"
                 if mutation == "inflate_box":
@@ -1331,10 +1464,12 @@ def check_a5(mutation: str | None = None, floors=None,
                     # seeded fault: the rebuild kept the packing prior but
                     # dropped the physics (MD) prior -- A5 must catch it
                     ev_ = "MUTATED(physics-off rebuild) " + ev_
+                if temp_factor is not None:
+                    ev_ = f"MUTATED(T x{temp_factor:g}) " + ev_
                 cat = ("glass" if "glass" in case["id"]
                        else "interface" if "solid_liquid" in case["id"] or "interface" in case["id"]
                        else "fluid")
-                floor_note = fl.get("note")
+                floor_note = case["floor"].get("note")
                 if cat == "glass" and not floor_note:
                     floor_note = ("glass floor measured within one quench "
                                   "(may be too tight)")
@@ -1343,7 +1478,10 @@ def check_a5(mutation: str | None = None, floors=None,
                 rows.append(dict(case=case["id"], category=cat,
                                  status="pass" if ok else "fail",
                                  rebuild_s=round(secs, 1),
-                                 note=ev_, floor_note=floor_note, **meta))
+                                 note=ev_, floor_note=floor_note,
+                                 ref_frames=(avg_fl["ref_frames"]
+                                             if avg_fl is not None else [0]),
+                                 seeds=list(seeds), **meta))
         for case in bench_cases():
             if case["category"] not in A5_CATEGORIES:
                 continue
