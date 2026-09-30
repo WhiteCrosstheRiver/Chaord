@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from ..build.defects import nearest_neighbor_distance, warren_cowley_alpha1
+from ..build.defects import warren_cowley_alpha1
 from ..io.frames import Frame
 from ..lang.ir import (
     GeoChain, KVDefect, Name, PhysicsBlock, Program, ProvenanceBlock, Quantity,
@@ -75,6 +75,31 @@ def _join_count_null(degrees, n_a: int) -> float:
     return float(np.sqrt(max(var_j, 0)) / e_j)
 
 
+def _sro_first_shell_cutoff(name: str, a: float, dialect) -> float:
+    """First-shell SRO cutoff from the FITTED lattice constant (review 3 fix).
+
+    `nearest_neighbor_distance` is the MINIMUM pair distance of the atom
+    cloud; on a thermally jittered frame that minimum collapses far below
+    the lattice spacing (bench fcc_crconi at the 0.8 Tm amplitude: 1.80 A
+    vs the 2.52 A ideal fcc spacing), so scaling it by sro_shell1_factor put
+    the cutoff below the first shell (2.16 A -> ~0.4 neighbours per atom
+    instead of 12) and every alpha1 read the sparse-graph artefact -1.0:
+    the SRO of every thermal frame was meaningless. The shell boundary is a
+    property of the lattice GEOMETRY, not of the atom cloud: d_NN comes
+    from the fitted lattice constant through the exact prototype factor
+    table, and the between-shells coefficient stays the dialect's
+    sro_shell1_factor (rule 5; for fcc 1.2 x d_NN = 0.85 a sits between the
+    first shell a/sqrt(2) and the second a). This is also the same boundary
+    the build side's SQS restraint uses on an exact frame, where the fitted
+    and cloud-derived d_NN coincide (rule 7)."""
+    from ..lang.errors import ChaordError
+    from .defects import _A_FROM_DNN
+    if name not in _A_FROM_DNN:
+        raise ChaordError(f"no d_NN factor for prototype {name!r}")
+    d_nn_lattice = a / _A_FROM_DNN[name]
+    return float(dialect.threshold("sro_shell1_factor")) * d_nn_lattice
+
+
 def _axis_canonical(frame: Frame) -> Frame:
     """Rotate an arbitrarily oriented orthogonal cell onto the coordinate axes.
 
@@ -132,9 +157,13 @@ def lift_crystal_defects(frame, dialect, backend="eam") -> tuple[Program, dict]:
                 fr = Fraction(n_atoms[s], sum(n_atoms.values())).limit_denominator(1000)
                 occ_values += [_n(s), Quantity(num=f"{fr.numerator}/{fr.denominator}")]
             region_stmts.append(Statement(kind="build", key="occupancy", values=occ_values))
-        # SRO: measure alpha1 per species pair; emit when it leaves the random band
-        d_nn = nearest_neighbor_distance(frame)
-        cutoff = float(dialect.threshold("sro_shell1_factor")) * d_nn
+        # SRO: measure alpha1 per species pair; emit when it leaves the random band.
+        # The cutoff comes from the FITTED lattice constant (review 3, issue 7):
+        # the atom cloud's minimum pair distance collapses under thermal jitter
+        # (jittered fcc_crconi: 1.80 A -> 0.4 first-shell neighbours per atom
+        # instead of 12, alpha1 = -1.0 on a random marking), while the fitted
+        # lattice's first shell is unaffected by the jitter.
+        cutoff = _sro_first_shell_cutoff(name, a, dialect)
         atom_species = sorted(n_atoms)
         # emission band from the EXACT join-count null: the like-neighbour
         # count of a random relabelling of the same composition has a
