@@ -39,7 +39,14 @@ def _lift_hcp_ortho(frame, dialect, backend="eam"):
         RegionBlock, ResidualBlock, ShAll, Statement, StrVal, SystemBlock,
     )
     from .crystal import round_canonical
+    from .defect_program import _axis_canonical
 
+    # rule 3 (identical text under rigid rotation): the fit measures the box
+    # through axis-aligned lengths, so a rotated orthogonal cell is rotated
+    # back first -- exactly the convention the defect pass uses. Without it
+    # a rotated hcp frame failed the fit, fell through the cascade and hit
+    # the census guard (found when A2 switched to the stored thermal frames)
+    frame = _axis_canonical(frame)
     fit = fit_orthohexagonal_hcp(frame, dialect)
     if fit is None:
         raise ChaordError(

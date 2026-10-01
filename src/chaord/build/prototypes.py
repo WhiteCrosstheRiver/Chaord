@@ -138,6 +138,10 @@ def _basis_raw(name: str, params: dict) -> tuple[np.ndarray, tuple]:
 
 _SQRT3 = np.sqrt(3)
 
+# hcp site-anchor seed budget: every atom is an anchor seed up to this many
+# (deterministic lexsort spread above it); a performance bound, not physics
+_HCP_SEED_CAP = 256
+
 
 @dataclass
 class OrthohcpFit:
@@ -241,8 +245,19 @@ def _hcp_site_score(pos, L, a, c, reps, tol_frac, gate):
     dnn_lat = min(a, float(np.sqrt(a * a / 3 + c * c / 4)))  # dialect-exempt: exact-geometry: hcp nearest-neighbour factor
     tol = tol_frac * dnn_lat
     atoms = cKDTree(pos, boxsize=L)
+    # seed from EVERY atom (lexicographic order: permutation-invariant), not
+    # four lexsort-spread picks: a single-atom anchor can lock into a
+    # half-density fixed point -- all four old picks landed in one for a
+    # rotated+re-imaged hcp frame (found when A2 switched to the stored
+    # thermal frames; measured: 16/32 coverage at every old seed, 32/32 from
+    # the full seed set on the same frame). Early exit once a seed clears
+    # both gates at 1.0 (the score cannot improve); frames above the cap use
+    # a deterministic lexsort spread (a performance bound, not physics)
     order = np.lexsort((pos[:, 2], pos[:, 1], pos[:, 0]))
-    picks = pos[order[np.linspace(0, len(pos) - 1, 4).astype(int)]]
+    if len(order) > _HCP_SEED_CAP:
+        order = order[np.linspace(0, len(order) - 1,
+                                  _HCP_SEED_CAP).astype(int)]
+    picks = pos[order]
 
     def _wrapped(p):
         w = np.mod(p, L)
@@ -279,6 +294,8 @@ def _hcp_site_score(pos, L, a, c, reps, tol_frac, gate):
         if got is not None and (best is None or (-min(got[0], got[1]), got[2])
                                 < (-min(best[0], best[1]), best[2])):
             best = got
+            if min(got[0], got[1]) >= 1.0:
+                break    # full bidirectional coverage: no seed can score higher
     return best
 
 
