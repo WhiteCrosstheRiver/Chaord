@@ -25,7 +25,7 @@ Per-case numbers behind `reports/acceptance.json`.  Written by `tools/acceptance
 
 ## A3 exact round trip (ordered) — PASS
 
-**Evidence:** 9/9 lift-build-lift texts byte-identical; 9/9 structure fits original vs rebuilt (species-aware for ordered cases; species-blind lattice/positions + Warren-Cowley alpha vs relabel noise floor for random solutions)
+**Evidence:** 9/9 lift-build-lift texts byte-identical; 9/9 structure fits original vs rebuilt ON THE STORED THERMAL FRAMES (p90 matched displacement vs 0.15 d_NN; PLAN's pymatgen matcher is inapplicable to jittered supercells -- deviation flagged for approval; species arrangement for random solutions still judged by Warren-Cowley alpha vs the relabel noise floor)
 
 | case | lift-build-lift text | StructureMatcher |
 | --- | --- | --- |
@@ -226,7 +226,7 @@ Per-case numbers behind `reports/acceptance.json`.  Written by `tools/acceptance
 
 ## A7 phase segmentation — PASS
 
-**Evidence:** 10/10 interface frames (2 cases x 5 frames; interface band of 2 x d_NN excluded around every interface plane, d_NN = verifier's median nearest-neighbour distance) labelled >= 95% correct; worst 0.999 (interfaces/cu_water frame 3); judged fraction disclosed per frame -- interface/lj_solid_liquid: judged 0.355-0.395 of atoms (core-scope gate >= 90% x geometry-implied availability held); interfaces/cu_water: judged 0.854-0.874 of atoms (core-scope gate >= 90% x geometry-implied availability held)
+**Evidence:** 10/10 interface frames (2 cases x 5 frames; interface band of 2 x d_NN excluded around every interface plane, d_NN = verifier's median nearest-neighbour distance) labelled >= 95% correct; worst 0.999 (interfaces/cu_water frame 3); judged fraction disclosed per frame -- interfaces/cu_water: judged 0.854-0.874 of atoms (core-scope gate >= 90% x geometry-implied availability held); interface/lj_solid_liquid: judged 0.355-0.395 of atoms (core-scope gate >= 90% x geometry-implied availability held)
 
 | case | frame | core atoms | judged frac | geo floor | accuracy |
 | --- | --- | --- | --- | --- | --- |
@@ -243,7 +243,7 @@ Per-case numbers behind `reports/acceptance.json`.  Written by `tools/acceptance
 
 ## A8 reactive census — PASS
 
-**Evidence:** plan 0: census {'H2O': 40, 'HO': 9, 'H': 9} == planted {'H2O': 40, 'HO': 9, 'H': 9} (147 atoms, coordinates written directly in numpy); plan 1: census {'H2O': 25, 'HO': 5, 'H': 7} == planted {'H2O': 25, 'HO': 5, 'H': 7} (92 atoms, coordinates written directly in numpy)
+**Evidence:** plan 0: census {'H2O': 40, 'HO': 9, 'H': 9} == planted {'H2O': 40, 'HO': 9, 'H': 9} (147 atoms, coordinates written directly in numpy); plan 1: census {'H2O': 25, 'HO': 5, 'H': 7} == planted {'H2O': 25, 'HO': 5, 'H': 7} (92 atoms, coordinates written directly in numpy); adsorption sites 100% correct (claims {'bridge': 3, 'top': 5} vs planted {'top': 5, 'bridge': 3}, 8 adsorbates on a raw-numpy Pt(111) slab; PLAN gate >= 90%)
 
 | plan | expected | census | exact |
 | --- | --- | --- | --- |
@@ -297,7 +297,7 @@ Per-case numbers behind `reports/acceptance.json`.  Written by `tools/acceptance
 
 ## A11 speed — PASS
 
-**Evidence:** lift_frame(mode=fluid) on 100,000 atoms took 6.5 s (target <= 120 s); input = fcc lattice at rho 0.85 with 0.10 x a jitter (thermally disordered, not equilibrated MD); program states the exact count: yes
+**Evidence:** lift_frame(mode=fluid) on 100,000 atoms took 6.6 s (target <= 120 s); input = fcc lattice at rho 0.85 with 0.10 x a jitter (thermally disordered, not equilibrated MD); program states the exact count: yes
 
 
 ## A12 static checks — PASS

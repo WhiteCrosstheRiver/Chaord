@@ -230,15 +230,23 @@ pre-fix-failing reproduction test per AGENTS.md)
 ## Verifier observations recorded (2026-09-30, all from
 reports/verification_2026-09-30.md §5)
 
-1. A2/A3 acceptance evidence runs on rebuilt perfect frames; the thermal-frame
-   invariance and round trip are guarded by the adversarial suite (green) and
-   were independently confirmed by the verifier -- switching the criteria's
-   own inputs to the stored thermal frames is a candidate next change.
-2. PLAN A8's second half ("adsorption sites >= 90% correct") is still
-   unenforced by check_a8 (census half only) -- open coverage item since
-   2026-09-28.
-3. The A5 temperature evidence rests on the >= 2,000-atom case; the 500-atom
-   lj_liquid does not separate at x0.8 T (documented honest residual).
+1. ~~A2/A3 on perfect frames~~ RESOLVED (2026-10-01): both criteria now
+   lift the bench cases' STORED THERMAL frames (A2 9/9 with 18/18 rigid
+   transforms byte-identical; A3 9/9 with a jitter-tolerant
+   species-aware assignment check -- PLAN's pymatgen matcher is
+   structurally inapplicable to jittered supercells, deviation flagged
+   for approval). The switch exposed and fixed a real bug the perfect
+   inputs had hidden: hcp site anchoring locked into half-density fixed
+   points on rotated frames (all-atom anchoring now).
+2. ~~A8 adsorption half unenforced~~ RESOLVED (2026-10-01): an
+   independently constructed Pt(111) slab + 8 O adsorbates (raw numpy,
+   stacking verified atom-for-atom against the published geometry) --
+   clean 100% correct, the wrong_site power mutation 50% -> FAIL, gate
+   >= 0.90 per PLAN's letter.
+3. The A5 temperature evidence rests on the >= 2,000-atom case; the
+   500-atom lj_liquid does not separate at x0.8 T (documented honest
+   residual -- stated on screen in tools/tutor_demo.py, which
+   demonstrates the powered case failing loudly).
 
 ## Remaining known limitations (recorded, not hidden)
 
