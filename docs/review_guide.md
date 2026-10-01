@@ -135,3 +135,17 @@ $PY bench/reference/check_sanity.py            # 参考数据物理健全性
 | 6 | `docs/reference.md` | 方言键文档（metal 0.2.4 换算表、水模型表、平衡协议） |
 | 7 | `src/chaord/lift/pipeline.py` | 段优先管线 stage 1（设计已批） |
 | 8 | `AGENTS.md` / `PLAN.md` | 规则与计划 |
+
+
+## 九、现场演示（评审 3 结尾要求的一条命令）
+
+```bash
+$PY tools/tutor_demo.py        # 约 5 分钟，退出码 0 = 三幕全部如所需
+```
+
+- **第 0 幕**（有序体系）：热 fcc Cu 帧 lift → build → lift **字节一致**（335 字符）——有序物质精确往返，热帧也不例外
+- **第 1 幕**（液体 lj_liquid）：同一往返在统计意义上成立——观测量落在噪声地板门内（assert 数值是混沌 MD 帧的测量值，字节一致属于第 0 幕的有序 regime）
+- **第 2 幕**：同一程序 physics=False 重建，**两个观测量都超出门限**（cn_tv 0.214、gr_rms 0.684 vs 门 0.114/0.161）
+- **第 3 幕**：在 0.8× 温度下重建（lj_liquid_large，带温度证据的案例；500 原子液体的 ±20% 功效缺口是记录在案的诚实余量），10 帧平均参考 × 3 种子协议下 **cn_tv/gr_rms 均超出门限**
+
+测试：`tests/test_tutor_demo.py`（快测钉住纯函数，慢测端到端断言退出码）。
