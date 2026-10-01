@@ -2175,11 +2175,112 @@ def check_a8(mutation: str | None = None):
         rows.append(dict(plan=i, expected=expected, census=census,
                          exact=bool(exact), n_atoms=len(frame)))
     ok = all(r["exact"] for r in rows)
+
+    # ---- PLAN A8's second half: adsorption sites >= 90% correct ----------
+    # an independently constructed Pt(111) slab with O adsorbates at KNOWN
+    # site types; the lifted program's `adsorb ... site <t>` claims are
+    # compared to the planted truth per site type
+    import re as _re
+    from chaord.lift import lift_frame
+    surf = load_dialect(("core", "metal", "surface"))
+    frame, truth = _plated_adsorbate_frame(
+        shift_tops=(1.0 if mutation == "wrong_site" else 0.0))
+    text = format_program_text(lift_frame(frame, surf))
+    claims = {}
+    for m in _re.finditer(r"adsorb (\S+) count (\d+) site (\S+)", text):
+        n, site = int(m.group(2)), m.group(3)
+        claims[site] = claims.get(site, 0) + n
+    n_total = sum(truth.values())
+    if not claims:
+        site_ok = False
+        site_note = "no adsorb statements in the lifted text"
+    else:
+        # correctness = fraction of adsorbates whose planted site type is
+        # claimed correctly: 1 - (total count disagreement)/(2N); N = planted
+        wrong = sum(abs(claims.get(s, 0) - truth.get(s, 0))
+                    for s in set(claims) | set(truth))
+        frac_correct = round(1.0 - wrong / (2.0 * max(n_total, 1)), 3)
+        site_ok = frac_correct >= 0.90
+        site_note = (f"adsorption sites {frac_correct:.0%} correct "
+                     f"(claims {claims} vs planted {truth}, "
+                     f"{n_total} adsorbates on a raw-numpy Pt(111) slab; "
+                     f"PLAN gate >= 90%)")
+    ok = ok and site_ok
     ev = "; ".join(
         f"plan {r['plan']}: census {r['census']} == planted {r['expected']} "
         f"({r['n_atoms']} atoms, coordinates written directly in numpy)"
-        for r in rows)
-    return record("A8", "reactive census", ok, ev, dict(rows=rows))
+        for r in rows) + "; " + site_note
+    return record("A8", "reactive census", ok, ev,
+                  dict(rows=rows, adsorption=dict(claims=claims,
+                                                  truth=truth,
+                                                  correct=site_ok)))
+
+
+def _plated_adsorbate_frame(shift_tops: float = 0.0):
+    """Verifier-side adsorption construction (PLAN A8's second half): a
+    4-layer Pt(111) slab and 8 O adsorbates written directly in numpy, with
+    the verifier's own fcc(111) geometry (no chaord builder involved).
+
+    Truth: 5 O at TOP sites (directly above surface atoms), 3 at BRIDGE
+    sites (midpoints of nearest-neighbour pairs). `shift_tops` shifts the
+    top-site adsorbates laterally -- the planted-fault knob."""
+    a = 3.92                                    # Pt lattice constant, A
+    ann = a / np.sqrt(2.0)                      # (111) in-plane NN distance
+    d111 = a / np.sqrt(3.0)                     # interlayer spacing
+    nx, n_rows, n_layers = 3, 6, 4              # rows: 2 per surface cell
+    Lx = nx * ann
+    Ly = (n_rows // 2) * ann * np.sqrt(3.0)
+    Lz = 18.79
+    # fcc(111) in the rectangular frame, absolute-row parametrisation
+    # (verified numerically against the published Pt slab geometry): an
+    # atom sits at absolute row r with y = r * (ann*sqrt(3)/6), layer k owns
+    # rows r = k (mod 3) (ABC stacking; layer 4 realigns with layer 1), and
+    # the x-parity alternates with r -- odd rows shifted by half the
+    # in-plane NN distance
+    step = ann * np.sqrt(3.0) / 6.0
+    pos, syms, top_xy = [], [], []
+    for k in range(n_layers):
+        z = k * d111
+        r = k % 3
+        while r * step < Ly - 1e-9:
+            y = r * step
+            row_off = (ann / 2.0) if r % 2 else 0.0
+            for i in range(nx):
+                xy = np.mod([i * ann + row_off, y], [Lx, Ly])
+                pos.append([xy[0], xy[1], z])
+                syms.append("Pt")
+                if k == n_layers - 1:
+                    top_xy.append(xy)
+            r += 3
+    top_xy = np.array(top_xy)
+    z_top = (n_layers - 1) * d111
+    z_ads = z_top + 2.00
+    rng = np.random.default_rng(303)
+    jitter = rng.uniform(-0.03, 0.03, (8, 2))
+    ads = []
+    # 5 TOP sites: above surface atoms 0..4
+    for i in range(5):
+        xy = top_xy[i % len(top_xy)] + jitter[i]
+        if shift_tops:
+            xy = xy + np.array([shift_tops, 0.0])
+        ads.append((xy, "top"))
+    # 3 BRIDGE sites: midpoints of NN pairs in the top layer
+    for i in range(3):
+        p1 = top_xy[i]
+        p2 = top_xy[(i + 1) % len(top_xy)]
+        m = (p1 + p2) / 2
+        if np.linalg.norm(p2 - p1) > ann * 1.2:   # not NN: use x-neighbour
+            m = p1 + np.array([ann / 2, 0.0])
+        ads.append((m + jitter[5 + i], "bridge"))
+    truth = {}
+    for xy, site in ads:
+        pos.append([xy[0], xy[1], z_ads])
+        syms.append("O")
+        truth[site] = truth.get(site, 0) + 1
+    from chaord.io.frames import Frame
+    frame = Frame(pos=np.array(pos), cell=np.diag([Lx, Ly, Lz]),
+                  symbols=syms, pbc=(True, True, True))
+    return frame, truth
 
 
 def _build_mixture_frame(counts: dict, box: float, seed: int):

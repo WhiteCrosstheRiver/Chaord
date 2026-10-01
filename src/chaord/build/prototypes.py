@@ -294,7 +294,7 @@ def _hcp_site_score(pos, L, a, c, reps, tol_frac, gate):
         if got is not None and (best is None or (-min(got[0], got[1]), got[2])
                                 < (-min(best[0], best[1]), best[2])):
             best = got
-            if min(got[0], got[1]) >= 1.0:
+            if min(got[0], got[1]) >= 1.0:  # dialect-exempt: numerical-guard: coverage fraction upper bound
                 break    # full bidirectional coverage: no seed can score higher
     return best
 

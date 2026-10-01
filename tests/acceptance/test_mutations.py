@@ -203,6 +203,19 @@ def test_a8_reactive_census_independent_construction():
     assert not bad["passed"], bad["evidence"]
 
 
+def test_a8_adsorption_sites_power_mutation():
+    """PLAN A8's second half (adsorption sites >= 90% correct): the clean
+    planted slab reads 100% (5 top + 3 bridge claimed exactly); shifting the
+    top-site adsorbates laterally by 1 A -- the planted-fault stand-in for a
+    mis-assigned site -- drops the claim to 50% and the criterion to FAIL."""
+    clean = acc.check_a8()
+    row = clean["details"]["adsorption"]
+    assert row["correct"] and row["claims"] == {"top": 5, "bridge": 3}, row
+    bad = acc.check_a8(mutation="wrong_site")
+    assert not bad["passed"], bad["evidence"]
+    assert "50% correct" in bad["evidence"], bad["evidence"]
+
+
 # --------------------------------------------------------------------- A9 ----
 def test_a9_compression_gate():
     case = dict(case="synthetic-2000", n_atoms=2000,
