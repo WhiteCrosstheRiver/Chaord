@@ -250,7 +250,11 @@ reports/verification_2026-09-30.md §5)
 
 ## Remaining known limitations (recorded, not hidden)
 
-1. cu_solid_liquid sanity: coexistence MD density drifts ±16%/±5% (solid/liquid
+1. cu_solid_liquid: DROPPED from gating per Review 3 T3's "Cu fixed or
+   dropped" -- the case carries `known_limitation` in its provenance, so
+   `_reference_cases` excludes it from A5 scoring and A9 records it as
+   "not liftable (recorded, not gated)". Root cause of both: the
+   FBD-Cu coexistence MD's solid density drifts ±16%/±5% (solid/liquid
    windows) as phase fractions exchange volume — recorded failure, asserted in
    the sanity-CLI test.
 2. ~~test_surfaces interface-width flake~~ REPAIRED (2026-09-29, 0a6c86a): the
