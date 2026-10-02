@@ -430,14 +430,18 @@ def case_lj_glass(out: Path, seed: int):
     statistically independent; the anneal never crosses basins at T*=0.01.
     Frames are stored quench-major: frame 5*q+k is frame k of quench q."""
     t0 = time.time()
-    n, rho_star = 500, 0.85
+    # Review 3 (T3 done-when, 2026-10-02): N >= 2,000 per quench. Step counts
+    # scale with t_mix ~ N^(2/3) from the calibrated 500-atom protocol
+    # ((2048/500)^(2/3) = 2.47): melt 1500 -> 3700, quench 3000 -> 7400
+    # (quench rate 0.1327 -> 0.0538 T*/tau, recorded), anneal 1000 -> 2500.
+    n, rho_star = 2048, 0.85
     t_melt, t_end, t_anneal = 2.0, 0.01, 0.01
-    melt, quench, anneal_eq, stride = 1500, 3000, 1000, 500
+    melt, quench, anneal_eq, stride = 3700, 7400, 2500, 1200
     quench_seeds = [seed + q for q in range(N_QUENCHES)]
     frames, steps, quench_ids = [], [], []
     for q, qs in enumerate(quench_seeds):
         print(f"  quench {q} (seed {qs})")
-        atoms, a0 = lj_fcc(5, 5, 5, rho_star)
+        atoms, a0 = lj_fcc(8, 8, 8, rho_star)
         L = np.array(atoms.cell.lengths())
         atoms.calc = LennardJones(epsilon=1.0, sigma=1.0, rc=2.5, smooth=False)
         thermalize(atoms, t_melt / KB, rng_for(qs, "vel"))
@@ -479,13 +483,16 @@ def case_lj_glass(out: Path, seed: int):
             "description": (
                 f"{N_QUENCHES} independent quenches (distinct seeds, identical "
                 "protocol; frames stored quench-major: frame 5*q+k = frame k "
-                "of quench q), each: N=500 fcc start at rho*=0.85; melt at "
-                "T*=2.0 (1500 steps); linear quench T*=2.0 -> 0.01 over 3000 "
-                f"steps (rate {rate:.4f} T*/tau); anneal at T*=0.01 for 1000 "
-                "steps; 5 frames at 500-step intervals of the anneal segment; "
-                "dt*=0.005, Langevin gamma*=0.5. The pairwise noise floor "
-                "recorded in reports/noise_floors.json is the mean over "
-                "cross-quench frame pairs (see cross_quench note)"),
+                f"of quench q), each: N={n} fcc start at rho*=0.85 (Review 3 "
+                "T3: N >= 2,000 per quench; step counts scaled from the "
+                "calibrated 500-atom protocol by t_mix ~ N^(2/3)); melt at "
+                f"T*=2.0 ({melt} steps); linear quench T*=2.0 -> 0.01 over "
+                f"{quench} steps (rate {rate:.4f} T*/tau); anneal at T*=0.01 "
+                f"for {anneal_eq} steps; 5 frames at {stride}-step intervals "
+                "of the anneal segment; dt*=0.005, Langevin gamma*=0.5. The "
+                "pairwise noise floor recorded in reports/noise_floors.json "
+                "is the mean over cross-quench frame pairs (see cross_quench "
+                "note)"),
             "ensemble": "NVT (Langevin, fixcm=False)",
             "cross_quench": True,
             "cross_quench_note": (
