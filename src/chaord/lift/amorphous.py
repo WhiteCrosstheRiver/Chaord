@@ -81,11 +81,18 @@ def lift_amorphous(frame: Frame, dialect, backend="lj") -> Program:
     if backend == "lj":
         from ..lang.ir import Arrow
         t_melt = float(dialect.threshold("glass_melt_T"))
-        n_melt = int(dialect.threshold("glass_melt_steps"))
         t_q = float(dialect.threshold("glass_quench_T"))
-        n_q = int(dialect.threshold("glass_quench_steps"))
         t_a = float(dialect.threshold("glass_anneal_T"))
-        n_a = int(dialect.threshold("glass_anneal_steps"))
+        # diffusive size scaling (same law as the reference generator): erase
+        # the melt memory of an N-atom cell takes t_mix ~ N^(2/3) steps, so
+        # the dialect's base counts (calibrated at glass_protocol_ref_n) are
+        # scaled and the SCALED numbers stated in the history line -- the
+        # rebuild then runs the protocol the frame's size requires
+        ref_n = float(dialect.threshold("glass_protocol_ref_n"))
+        scale = (len(frame) / ref_n) ** (2.0 / 3.0)  # dialect-exempt: exact-geometry: diffusive t_mix ~ N^(2/3) scaling law
+        n_melt = int(round(int(dialect.threshold("glass_melt_steps")) * scale))
+        n_q = int(round(int(dialect.threshold("glass_quench_steps")) * scale))
+        n_a = int(round(int(dialect.threshold("glass_anneal_steps")) * scale))
         rate = round((t_melt - t_q) / n_q, 6)  # dialect-exempt: numerical-guard: printable cooling rate, T per step
         region_stmts.append(Statement(
             kind="history", key="melt",

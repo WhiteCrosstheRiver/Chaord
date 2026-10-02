@@ -40,7 +40,7 @@
       "id": "A7",
       "name": "phase segmentation",
       "passed": true,
-      "evidence": "10/10 interface frames (2 cases x 5 frames; interface band of 2 x d_NN excluded around every interface plane, d_NN = verifier's median nearest-neighbour distance) labelled >= 95% correct; worst 0.999 (interfaces/cu_water frame 3); judged fraction disclosed per frame -- interfaces/cu_water: judged 0.854-0.874 of atoms (core-scope gate >= 90% x geometry-implied availability held); interface/lj_solid_liquid: judged 0.355-0.395 of atoms (core-scope gate >= 90% x geometry-implied availability held)"
+      "evidence": "10/10 interface frames (2 cases x 5 frames; interface band of 2 x d_NN excluded around every interface plane, d_NN = verifier's median nearest-neighbour distance) labelled >= 95% correct; worst 0.999 (interfaces/cu_water frame 3); judged fraction disclosed per frame -- interface/lj_solid_liquid: judged 0.355-0.395 of atoms (core-scope gate >= 90% x geometry-implied availability held); interfaces/cu_water: judged 0.854-0.874 of atoms (core-scope gate >= 90% x geometry-implied availability held)"
     },
     {
       "id": "A8",
@@ -52,7 +52,7 @@
       "id": "A9",
       "name": "compression",
       "passed": true,
-      "evidence": "4 measured systems with >= 1,000 atoms (bench frames + independent-MD reference frames); worst ratio 0.55% (reference/lj_solid_liquid, 2304 atoms); worst crystal-class 0.49% (crystals/l12_ni3al, 1372 atoms); worst heterogeneous-class 0.55% (reference/lj_solid_liquid, 2304 atoms); the >= 1,000-atom gate is evidenced on heterogeneous systems (2 of 4 gated measurements); reference frames not liftable (recorded, not gated): reference/cu_solid_liquid ChaordError: extended bonded component (832 Cu atoms): not a molecular fl; per-case table in details"
+      "evidence": "5 measured systems with >= 1,000 atoms (bench frames + independent-MD reference frames); worst ratio 0.55% (reference/lj_solid_liquid, 2304 atoms); worst crystal-class 0.49% (crystals/l12_ni3al, 1372 atoms); worst heterogeneous-class 0.55% (reference/lj_solid_liquid, 2304 atoms); the >= 1,000-atom gate is evidenced on heterogeneous systems (2 of 5 gated measurements); reference frames not liftable (recorded, not gated): reference/cu_solid_liquid ChaordError: extended bonded component (832 Cu atoms): not a molecular fl; per-case table in details"
     },
     {
       "id": "A10",

@@ -78,7 +78,7 @@ Per-case numbers behind `reports/acceptance.json`.  Written by `tools/acceptance
 
 | case | category | status | T | backend | md_steps | distances | ratios |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| reference/lj_glass | glass | pass (cn_tv 0.023 vs floor 0.086 (x0.3; floor = max(mean 0.066, P90 0.086); ref = mean obs of frames [3, 4, 8, 9, 13, 14]; draws 0.044/0.053/0.064); gr_rms 0.087 vs floor 0.217 (x0.4; floor = max(mean 0.154, P90 0.217); ref = mean obs of frames [3, 4, 8, 9, 13, 14]; draws 0.129/0.164/0.071); per-draw median 0.053/0.129; floor: floor = mean over the cross-quench frame pairs (last two, most-annealed frames of each of the 3 independent quenches, identical protocol, distinct seeds). Within-one-quench pairs of the same frames (intra_quench below) share the anneal basin and sit closer; a floor built from them is too tight for a perfect independent rebuild (Review 2).) | - | lj | 10993 |  |  |
+| reference/lj_glass | glass | pass (cn_tv 0.030 vs floor 0.034 (x0.9; floor = max(mean 0.031, P90 0.034); ref = mean obs of frames [3, 4, 8, 9, 13, 14]; draws 0.045/0.059/0.031); gr_rms 0.025 vs floor 0.051 (x0.5; floor = max(mean 0.045, P90 0.051); ref = mean obs of frames [3, 4, 8, 9, 13, 14]; draws 0.041/0.034/0.041); per-draw median 0.045/0.041; floor: floor = mean over the cross-quench frame pairs (last two, most-annealed frames of each of the 3 independent quenches, identical protocol, distinct seeds). Within-one-quench pairs of the same frames (intra_quench below) share the anneal basin and sit closer; a floor built from them is too tight for a perfect independent rebuild (Review 2).) | - | lj | 18819 |  |  |
 | reference/lj_liquid | fluid | pass (cn_tv 0.021 vs floor 0.042 (x0.5; floor = max(mean 0.035, P90 0.042); ref = mean obs of frames [0, 1, 2, 3, 4]; draws 0.046/0.040/0.053); gr_rms 0.040 vs floor 0.068 (x0.6; floor = max(mean 0.065, P90 0.068); ref = mean obs of frames [0, 1, 2, 3, 4]; draws 0.061/0.061/0.053); per-draw median 0.046/0.061; floor: floor = mean over frame pairs at lag >= 2 (the decorrelated half; 6 of 10 pairs, residual short-lag correlation must not shrink the floor)) | 0.72 | lj | 7400 |  |  |
 | reference/lj_liquid_large | fluid | pass (cn_tv 0.010 vs floor 0.017 (x0.6; floor = max(mean 0.014, P90 0.017); ref = mean obs of frames [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; draws 0.032/0.012/0.012); gr_rms 0.022 vs floor 0.033 (x0.7; floor = max(mean 0.025, P90 0.033); ref = mean obs of frames [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; draws 0.037/0.034/0.026); per-draw median 0.012/0.034; floor: floor = pooled decorrelated frame pairs of 2 independent trajectories (within-trajectory lag >= 2 plus cross pairs of the decorrelated halves; cross sits only +1%/+10% above within -- an equilibrated liquid carries no preparation memory, unlike the glass quenches; the second trajectory supplies the independent pairs the floor's upper quantile needs)) | 0.72 | lj | 7400 |  |  |
 | reference/lj_solid_liquid | interface | pass (cn_tv 0.009 vs floor 0.020 (x0.5; floor = max(mean 0.016, P90 0.020); ref = mean obs of frames [0, 1, 2, 3, 4]; draws 0.015/0.022/0.008); gr_rms 0.025 vs floor 0.030 (x0.9; floor = max(mean 0.026, P90 0.030); ref = mean obs of frames [0, 1, 2, 3, 4]; draws 0.029/0.024/0.037); per-draw median 0.015/0.029; floor: floor = mean over frame pairs at lag >= 2 (the decorrelated half; 6 of 10 pairs, residual short-lag correlation must not shrink the floor)) | 0.65 | lj | 7400 |  |  |
@@ -87,7 +87,7 @@ Per-case numbers behind `reports/acceptance.json`.  Written by `tools/acceptance
 | fluid/water_box15 | fluid | no-floor: skipped (synthetic frame) | - | classical | 0 | gr_rms=0.319, cn_tv=0.450 |  |
 | fluid/ar_gas_box25 | fluid | no-floor: skipped (synthetic frame) | - | classical | 0 | gr_rms=0.769, cn_tv=0.160 |  |
 | fluid/n2_box22 | fluid | no-floor: skipped (synthetic frame) | - | classical | 0 | gr_rms=1.126, cn_tv=0.319 |  |
-| glass/lj_glass_rho085 | glass | no-floor: skipped (synthetic frame) | - | lj | 10993 | gr_rms=1.285, cn_tv=0.265 |  |
+| glass/lj_glass_rho085 | glass | no-floor: skipped (synthetic frame) | - | lj | 3989 | gr_rms=1.247, cn_tv=0.295 |  |
 | interface/lj_solid_liquid | interface | no-floor: skipped (synthetic frame) | 0.65 | lj | 7400 | gr_rms=1.553, cn_tv=0.506 |  |
 | interfaces/cu_water | interfaces | no-floor: skipped (synthetic frame) | 300 | eam | 1000 | gr_rms=1.222, cn_tv=0.226 |  |
 
@@ -226,7 +226,7 @@ Per-case numbers behind `reports/acceptance.json`.  Written by `tools/acceptance
 
 ## A7 phase segmentation — PASS
 
-**Evidence:** 10/10 interface frames (2 cases x 5 frames; interface band of 2 x d_NN excluded around every interface plane, d_NN = verifier's median nearest-neighbour distance) labelled >= 95% correct; worst 0.999 (interfaces/cu_water frame 3); judged fraction disclosed per frame -- interfaces/cu_water: judged 0.854-0.874 of atoms (core-scope gate >= 90% x geometry-implied availability held); interface/lj_solid_liquid: judged 0.355-0.395 of atoms (core-scope gate >= 90% x geometry-implied availability held)
+**Evidence:** 10/10 interface frames (2 cases x 5 frames; interface band of 2 x d_NN excluded around every interface plane, d_NN = verifier's median nearest-neighbour distance) labelled >= 95% correct; worst 0.999 (interfaces/cu_water frame 3); judged fraction disclosed per frame -- interface/lj_solid_liquid: judged 0.355-0.395 of atoms (core-scope gate >= 90% x geometry-implied availability held); interfaces/cu_water: judged 0.854-0.874 of atoms (core-scope gate >= 90% x geometry-implied availability held)
 
 | case | frame | core atoms | judged frac | geo floor | accuracy |
 | --- | --- | --- | --- | --- | --- |
@@ -252,7 +252,7 @@ Per-case numbers behind `reports/acceptance.json`.  Written by `tools/acceptance
 
 ## A9 compression — PASS
 
-**Evidence:** 4 measured systems with >= 1,000 atoms (bench frames + independent-MD reference frames); worst ratio 0.55% (reference/lj_solid_liquid, 2304 atoms); worst crystal-class 0.49% (crystals/l12_ni3al, 1372 atoms); worst heterogeneous-class 0.55% (reference/lj_solid_liquid, 2304 atoms); the >= 1,000-atom gate is evidenced on heterogeneous systems (2 of 4 gated measurements); reference frames not liftable (recorded, not gated): reference/cu_solid_liquid ChaordError: extended bonded component (832 Cu atoms): not a molecular fl; per-case table in details
+**Evidence:** 5 measured systems with >= 1,000 atoms (bench frames + independent-MD reference frames); worst ratio 0.55% (reference/lj_solid_liquid, 2304 atoms); worst crystal-class 0.49% (crystals/l12_ni3al, 1372 atoms); worst heterogeneous-class 0.55% (reference/lj_solid_liquid, 2304 atoms); the >= 1,000-atom gate is evidenced on heterogeneous systems (2 of 5 gated measurements); reference frames not liftable (recorded, not gated): reference/cu_solid_liquid ChaordError: extended bonded component (832 Cu atoms): not a molecular fl; per-case table in details
 
 | case | atoms | program B | extxyz B | ratio % | source |
 | --- | --- | --- | --- | --- | --- |
@@ -271,7 +271,7 @@ Per-case numbers behind `reports/acceptance.json`.  Written by `tools/acceptance
 | fluid/n2_box22 | 160 | 381 | 8898 | 4.28 | bench |
 | fluid/water_box15 | 180 | 401 | 9998 | 4.01 | bench |
 | gases/co2_dense | 180 | 387 | 9998 | 3.87 | bench |
-| glass/lj_glass_rho085 | 200 | 507 | 11137 | 4.55 | bench |
+| glass/lj_glass_rho085 | 200 | 506 | 11137 | 4.54 | bench |
 | interface/lj_solid_liquid | 512 | 766 | 28300 | 2.71 | bench |
 | interfaces/cu_water | 792 | 755 | 43661 | 1.73 | bench |
 | reactive/water_oh_h_box20 | 177 | 434 | 9833 | 4.41 | bench |
@@ -282,7 +282,7 @@ Per-case numbers behind `reports/acceptance.json`.  Written by `tools/acceptance
 | surfaces/pt111_o | 80 | 485 | 4532 | 10.70 | bench |
 | surfaces/si001_2x1 | 63 | 560 | 3604 | 15.54 | bench |
 | defects/l12_ni3al_vac_antisite tiled 2x2 (supplementary, not a raw bench frame) | 1012 | 415 | 55765 | 0.74 | tiled-supplementary |
-| reference/lj_glass | 500 | 508 | 27637 | 1.84 | reference |
+| reference/lj_glass | 2048 | 512 | 112778 | 0.45 | reference |
 | reference/lj_liquid | 500 | 442 | 27637 | 1.60 | reference |
 | reference/lj_liquid_large | 2048 | 446 | 112778 | 0.40 | reference |
 | reference/lj_solid_liquid | 2304 | 692 | 126858 | 0.55 | reference |

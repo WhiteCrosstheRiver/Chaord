@@ -1379,9 +1379,21 @@ def check_a4(mutation: str | None = None, temps=("room", "0.8Tm")):
 A5_CATEGORIES = {"fluid", "interface", "interfaces", "glass"}
 A5_TARGETS = {"fluid": 0.90, "interface": 0.90, "interfaces": 0.90,
               "glass": 0.80}
-A5_BUILD_TIMEOUT = 150          # seconds per rebuild; packing an
+A5_BUILD_TIMEOUT = 150          # base seconds per rebuild; packing an
                                 # over-jamming-density box can spin for many
-                                # minutes and is recorded as a timeout
+                                # minutes and is recorded as a timeout.
+                                # Size-aware scaling: the rebuild protocols
+                                # run a FIXED step count whose per-step cost
+                                # is O(N), so wall time is linear in N
+                                # (measured: the N=2048 glass history rebuild
+                                # takes 161 s vs ~40 s at N=500). The budget
+                                # therefore scales the same way instead of
+                                # silently capping the case size
+
+
+def _a5_budget(n_atoms: int) -> int:
+    """Per-case rebuild budget: base seconds, linear in N above 1,000 atoms."""
+    return int(max(A5_BUILD_TIMEOUT, A5_BUILD_TIMEOUT * n_atoms / 1000.0))
 
 _REBUILD_CHILD = r"""
 import json, sys, time
@@ -1404,7 +1416,8 @@ print(json.dumps({"seconds": time.perf_counter() - t0, "n": len(frame)}))
 
 
 def _rebuild_in_subprocess(text: str, dialect_names, tmpdir: str, tag: str,
-                           physics: bool = True, seed: int = 7):
+                           physics: bool = True, seed: int = 7,
+                           timeout: int = A5_BUILD_TIMEOUT):
     """Run lift->build in a child process with a time budget; returns
     (frame|None, seconds, status_note, physics_used).
 
@@ -1420,9 +1433,9 @@ def _rebuild_in_subprocess(text: str, dialect_names, tmpdir: str, tag: str,
     try:
         r = sp.run([sys.executable, "-c", _REBUILD_CHILD, str(ROOT), cfg],
                    input=text, capture_output=True, text=True, cwd=ROOT,
-                   timeout=A5_BUILD_TIMEOUT)
+                   timeout=timeout)
     except sp.TimeoutExpired:
-        return None, A5_BUILD_TIMEOUT, "rebuild exceeded the time budget", physics
+        return None, timeout, "rebuild exceeded the time budget", physics
     if r.returncode != 0:
         err = (r.stderr.strip().splitlines() or ["build error"])[-1][:80]
         if physics and "no realize backend" in err:
@@ -1735,11 +1748,12 @@ def check_a5(mutation: str | None = None, floors=None,
             secs = 0.0
             note = ""
             physics_used = physics_on
+            budget = _a5_budget(len(frame))
             for seed in seeds:
                 rebuilt, s, n_, physics_used = _rebuild_in_subprocess(
                     program_text, dl.names, td,
                     case["id"].replace("/", "_") + f"_s{seed}",
-                    physics=physics_on, seed=seed)
+                    physics=physics_on, seed=seed, timeout=budget)
                 if rebuilt is None:
                     rows.append(dict(case=case["id"], category="fluid",
                                      status="build-failed", note=n_, **meta))

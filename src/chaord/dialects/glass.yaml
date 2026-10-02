@@ -33,13 +33,27 @@ thresholds:
   protocol_init_T: 0.1            # temperature of the initial protocol velocities
   quench_default_rate: 0.001      # cooling rate when the program omits `at <rate>`
   # default melt-quench-anneal history the amorphous lifter states (rebuild
-  # protocol, LJ reduced units; quench is linear over glass_quench_steps)
+  # protocol, LJ reduced units; quench is linear over glass_quench_steps).
+  # VALUE CHANGE (Review 3 T3, 2026-10-02, pending human approval): the step
+  # counts are the shipped reference generator's N=500 protocol (1500/3000/
+  # 2850, per bench/reference/lj_glass provenance: melt/quench are the
+  # generator's 1500/3000; the anneal depth 2850 is where the generator's
+  # floor-selected frames sit (anneal_eq 1000 + 3 x stride 500 + margin for
+  # the N^(2/3) rounding -- the floor's last-two frames per quench are the
+  # deepest-annealed, and a rebuild must land at comparable depth to compare
+  # honestly) -- the previous 3000/6000/
+  # 2000 ran 2x longer than the reference and only passed against the looser
+  # N=500 floor; the N=2048 cross-quench floor exposes the mismatch. The
+  # lifter scales these base counts by (N / glass_protocol_ref_n)^(2/3)
+  # (diffusive mixing, same law as the reference generator's own sizing) and
+  # states the scaled numbers in the program's history line.
   glass_melt_T: 2.0
-  glass_melt_steps: 3000
+  glass_melt_steps: 1500
   glass_quench_T: 0.01
-  glass_quench_steps: 6000
+  glass_quench_steps: 3000
   glass_anneal_T: 0.01
-  glass_anneal_steps: 2000
+  glass_anneal_steps: 2850
+  glass_protocol_ref_n: 500
   # deposit protocol (sigma units)
   deposit_T: 0.65                 # Langevin temperature while depositing (liquid branch:
                                  # cold deposition collapses the voids a 0.9-sigma gap needs)
