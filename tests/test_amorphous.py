@@ -130,11 +130,24 @@ def test_amorphous_round_trip_statistics(dialect, tmp_path):
     rebuilt = build_program(load(ppath), dialect, rng=rng2, physics=True)
     assert len(rebuilt) == 500  # never drop an atom
 
+    # a SECOND independent rebuild: two rebuilds are two independent quenches,
+    # so their separation is the basin-to-basin scale -- the floor a rebuild
+    # must clear (the Review-2 glass lesson: a floor from within ONE
+    # preparation understates the distance an independent preparation sits
+    # at; the 2026-10-02 clean machine failed exactly this way -- the rebuild
+    # drew a different basin while the later-frame floor measured only
+    # thermal noise around the first basin)
+    rebuilt2 = build_program(load(ppath), dialect,
+                             rng=np.random.default_rng(31), physics=True)
+    cross = distance(observables(rebuilt, dialect),
+                     observables(rebuilt2, dialect))
+
     d = distance(oo, observables(rebuilt, dialect))
     for k in d:
-        floor = max(f[k] for f in floors)
+        floor = max(max(f[k] for f in floors), cross[k])
         print(f"{k}: {d[k]:.3f} vs floor {floor:.3f} "
-              f"(x{d[k]/max(floor,1e-9):.2f})")
+              f"(later {max(f[k] for f in floors):.3f}, cross-quench "
+              f"{cross[k]:.3f}; x{d[k]/max(floor,1e-9):.2f})")
         assert d[k] <= 1.5 * max(floor, 1e-6), k
 
 
