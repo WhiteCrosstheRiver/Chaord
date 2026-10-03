@@ -6,14 +6,17 @@ program describes a **macrostate** — a family of configurations; a coordinate
 file is one **microstate** of it. Order is written exactly where a system has
 it, statistics where it does not: from crystals to gases.
 
-Status: **v0.1 prototype: independently verified at Gate A′ (partial).**
-The honest-core work is done — independent MD reference data (6 cases from
-published potentials), a strict acceptance runner with mutation tests, and a
-fresh-agent verification report. **Acceptance: 9/14 criteria PASS, 5 FAIL**
-(every FAIL is a genuine physics or data gap; see
-`reports/gate_a_prime.md` and `reports/verification_2026-09-28.md`). CI is
-green on Windows; a Linux-only CSL-detection flake is under investigation.
-The v1.0 self-assessment (pre-verification) is in
+Status: **v0.1 prototype: independently verified at Gate A′, with power.**
+Acceptance runs **14/14 criteria PASS** on clean machines (GitHub Actions
+dispatch runs, artifact uploaded), and the passes have teeth: the seeded
+errors a real bug would look like — physics off, wrong temperature ±20%,
+mixed defect cells, mis-routed crystals, prose documentation — all FAIL
+their criterion. Evidence: `reports/pass_evidence_dossier.md` (per-criterion
+dossier), `reports/verification_2026-09-30.md` (fresh-agent verifier, no
+code authorship), `reports/gate_a_prime.md` (review-3 scorecard, calibration
+chains, pending-decision list), `reports/redteam_findings.md` (12 adversarial
+findings, all fixed with pre-fix-failing tests). Live demo: `python
+tools/tutor_demo.py`. The v1.0 self-assessment (pre-verification) is in
 `reports/self_assessment_2026-09-28.md`.
 
 ## Install (from this repository)
