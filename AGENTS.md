@@ -72,3 +72,13 @@ and a decompiler (`chaord lift`: coordinates → program). A program describes a
   whose power mutation passes has no evidence value (post Review 3,
   2026-09-30; the registry lives in tests/acceptance/test_mutations.py and
   tests/adversarial/).
+- Read `docs/reviews/open_items.md` before starting work; it overrides older
+  plans (post Reviews 4-7, owner-forwarded 2026-10-03).
+- A criterion with a random element is judged over at least 20 draws; one
+  draw is not evidence (post Reviews 4-7).
+- Every test input, planted or synthetic, passes the reference-data sanity
+  checks (post Reviews 4-7).
+- A floor or tolerance never includes a quantity measured on the system
+  under test (post Reviews 4-7, O10).
+- When a clean run fails, report the failure with its power numbers before
+  changing how a criterion is measured (post Reviews 4-7).
