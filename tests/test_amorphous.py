@@ -192,12 +192,13 @@ def test_amorphous_lift_marks_assumed_history(dialect, tmp_path):
     dialect defaults, not anything measured from the frame: the program must
     say so (provenance note), so a reader knows the protocol was assumed."""
     from chaord.build import build_program
-    # n=108, rho*=0.7, full melt: an honestly amorphous frame on every
-    # platform (the old n=30/rho*=0.8 fixture crystallised under the
-    # corrected first-shell q6 gate -- 30 atoms near the freezing density
-    # order readily; measured solid fractions: 0.065 here vs 1.0 there.
-    # The clean machine also failed the old shortened-melt draw)
-    text = AMORPH_PROGRAM.format(n=108, rho=0.7)
+    # n=500, rho*=0.85, full melt: the calibrated glass size. Small LJ
+    # boxes crystallise on quench under the corrected first-shell q6 gate
+    # (measured worst-over-seeds solid fraction: 1.00 at n=30/rho*=0.8,
+    # 0.41 at n=256/rho*=0.7 -- small systems near freezing order readily),
+    # while n=500 measures 0.11-0.18 across 8 seeds against the 0.30 gate.
+    # The clean machine failed both earlier fixtures on their draws.
+    text = AMORPH_PROGRAM.format(n=500, rho=0.85)
     path = tmp_path / "g3.chaord"
     path.write_text(text)
     frame = build_program(load(path), dialect, rng=np.random.default_rng(5),
