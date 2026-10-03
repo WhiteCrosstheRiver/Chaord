@@ -24,8 +24,11 @@ Case families beyond the original 18 (same schema, same rules):
                          solvents); EC and PF6- templates are registered here;
   * solutions/cuau_random fcc Cu/Au 1/2-1/2 random solution (the fcc_crconi
                          construction with two species);
-  * gases/co2_dense      60 CO2 in a 12 A box (supercritical surrogate), the
-                         same atom-level RSA packing;
+  * gases/co2_dense      60 CO2 at 0.68 g/cm3 (a liquid-like supercritical
+                         state point, ~315 K / ~11 MPa on the Span-Wagner
+                         EOS; O5: the pre-2026-10 frames were 2.54 g/cm3 and
+                         their lifted programs never rebuilt), the same
+                         atom-level RSA packing;
   * surfaces/si001_2x1   diamond Si(001) slab via the ASE builder, tiled to an
                          even surface cell, with an independently planted
                          p(2x1) missing-row top layer and a small thermal
@@ -243,8 +246,26 @@ _register_mol("PF6-", ["P"] + ["F"] * 6,
 LIPF6_CASE = {"id": "lipf6_ec", "molecules": {"EC": 40, "Li+": 4, "PF6-": 4},
               "box": (17.0, 17.0, 17.0), "margin": 0.05, "seed": 181}
 
+# dense supercritical CO2 (O5, Review 6; regenerated 2026-10-02): 60 CO2 at
+# 0.68 g/cm3, a liquid-like supercritical state point on the Span-Wagner EOS
+# (about 315 K and 11 MPa; the critical point is 304.1 K / 7.38 MPa /
+# 0.4676 g/cm3, dry ice 1.56 g/cm3). The pre-O5 frames packed 2.54 g/cm3 into
+# a 12 A box (molecule centres 1.96 A apart) while the ground truth claimed
+# ~1.0 g/cm3: past any equilibrium fluid density, and the lifted program
+# could not be rebuilt ("cannot place 60 CO2 at this density") because the
+# compiler's pack_molecules RSA-packs whole molecular spheres (CO2's
+# census-safe radius is 1.985 A), which jams near 0.70 g/cm3 -- measured on
+# 20 seeds: 20/20 pack at 0.68 g/cm3, 16/20 at 0.70, 0/20 at 0.80. The box
+# edge is derived from the target density and rounded UP to 0.01 A so the
+# achieved density never exceeds the target.
+CO2_DENSITY_G_CM3 = 0.68   # dialect-exempt: published-EOS state point, not a dialect threshold
+CO2_BOX_EDGE = float(np.ceil((60 * molecular_mass("CO2") * _AMU_PER_A3_TO_G_CM3
+                              / CO2_DENSITY_G_CM3) ** (1.0 / 3.0) * 100.0)) / 100.0
+
 CO2_CASE = {"id": "co2_dense", "molecules": {"CO2": 60},
-            "box": (12.0, 12.0, 12.0), "margin": 0.05, "seed": 191}
+            "box": (CO2_BOX_EDGE,) * 3,
+            "density_target_g_cm3": CO2_DENSITY_G_CM3,
+            "margin": 0.05, "seed": 191}
 
 # diamond Si(001) slab (ASE path of the surface builder) doubled along x so
 # the surface cell holds whole p(2x1) cells, with the missing-row
@@ -916,6 +937,8 @@ def _dense_solution_case(spec, category, description, out, molecular) -> list:
     ground["molecules"] = spec["molecules"]
     ground["box"] = list(spec["box"])
     ground["density_g_cm3"] = density
+    if "density_target_g_cm3" in spec:
+        ground["density_target_g_cm3"] = spec["density_target_g_cm3"]
     ground["expected"] = {
         "molecules": spec["molecules"],
         "census": censuses[0],
@@ -950,10 +973,15 @@ def generate_co2(out: Path, molecular) -> list:
     spec = CO2_CASE
     return _dense_solution_case(
         spec, "gases",
-        "dense (supercritical-surrogate) CO2: 60 molecules in a 12 A box "
-        "(~1.0 g/cm3); packed by atom-level RSA with the census bond "
-        "threshold plus a 0.05 A margin as the exclusion, so molecules stay "
-        "distinct components of the bond graph", out, molecular)
+        f"dense supercritical CO2: 60 molecules at {spec['density_target_g_cm3']:.2f} "
+        f"g/cm3 (a liquid-like supercritical state point on the Span-Wagner "
+        f"EOS, about 315 K and 11 MPa; box {spec['box'][0]:.2f} A derived from "
+        f"the target density); packed by atom-level RSA with the census bond "
+        f"threshold plus a 0.05 A margin as the exclusion, so molecules stay "
+        f"distinct components of the bond graph; the density also stays under "
+        f"the ~0.70 g/cm3 ceiling of the compiler's molecular-sphere packer "
+        f"(O5: the pre-2026-10 frames were 2.54 g/cm3 and never rebuilt)", out,
+        molecular)
 
 
 def _tile_along_x(frame: Frame, times: int) -> Frame:

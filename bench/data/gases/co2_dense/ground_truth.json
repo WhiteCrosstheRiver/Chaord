@@ -2,7 +2,7 @@
   "schema": "chaord-bench/2",
   "case": "co2_dense",
   "category": "gases",
-  "description": "dense (supercritical-surrogate) CO2: 60 molecules in a 12 A box (~1.0 g/cm3); packed by atom-level RSA with the census bond threshold plus a 0.05 A margin as the exclusion, so molecules stay distinct components of the bond graph",
+  "description": "dense supercritical CO2: 60 molecules at 0.68 g/cm3 (a liquid-like supercritical state point on the Span-Wagner EOS, about 315 K and 11 MPa; box 18.62 A derived from the target density); packed by atom-level RSA with the census bond threshold plus a 0.05 A margin as the exclusion, so molecules stay distinct components of the bond graph; the density also stays under the ~0.70 g/cm3 ceiling of the compiler's molecular-sphere packer (O5: the pre-2026-10 frames were 2.54 g/cm3 and never rebuilt)",
   "seed": 191,
   "n_frames": 5,
   "dialect": "core+molecular",
@@ -77,11 +77,12 @@
     "CO2": 60
   },
   "box": [
-    12.0,
-    12.0,
-    12.0
+    18.62,
+    18.62,
+    18.62
   ],
-  "density_g_cm3": 2.5374536035416457,
+  "density_g_cm3": 0.6792080402028463,
+  "density_target_g_cm3": 0.68,
   "expected": {
     "molecules": {
       "CO2": 60
@@ -95,10 +96,10 @@
     },
     "n_atoms": 180,
     "cell": [
-      12.0,
-      12.0,
-      12.0
+      18.62,
+      18.62,
+      18.62
     ],
-    "density_g_cm3": 2.5374536035416457
+    "density_g_cm3": 0.6792080402028463
   }
 }
