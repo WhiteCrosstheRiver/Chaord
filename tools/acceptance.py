@@ -20,6 +20,7 @@ exactly that, one canary per criterion.
 from __future__ import annotations
 
 import argparse
+import os
 import itertools
 import json
 import re
@@ -3346,10 +3347,36 @@ def main() -> int:
     out = Path(args.out)
     out.parent.mkdir(exist_ok=True)
     passed = sum(r["passed"] for r in results)
+    # O7 (Reviews 5-7): the report records its provenance -- commit, runner
+    # OS, and the clean-run URL when executed by the nightly workflow (the
+    # GITHUB_* env vars are set there); a local run labels itself
+    # bookkeeping per the AGENTS artifact rule
+    import platform as _platform
+    import subprocess as _sp
+    try:
+        sha = _sp.run(["git", "rev-parse", "HEAD"], capture_output=True,
+                      text=True, cwd=ROOT).stdout.strip()
+        dirty = bool(_sp.run(["git", "status", "--porcelain"],
+                             capture_output=True, text=True,
+                             cwd=ROOT).stdout.strip())
+    except Exception:                                       # noqa: BLE001
+        sha, dirty = "unknown", False
+    run_url = os.environ.get("GITHUB_SERVER_URL", "")
+    if run_url:
+        run_url = (f"{run_url}/{os.environ.get('GITHUB_REPOSITORY', '')}"
+                   f"/actions/runs/{os.environ.get('GITHUB_RUN_ID', '')}")
     report = dict(
         criteria=[{k: r[k] for k in ("id", "name", "passed", "evidence")}
                   for r in results],
-        passed=passed, total=len(results))
+        passed=passed, total=len(results),
+        provenance=dict(
+            commit=sha, working_tree_dirty=dirty,
+            runner=f"{_platform.system()} {_platform.release()}",
+            run_kind=("clean-runner" if run_url else
+                      "local (bookkeeping per AGENTS.md; citable evidence "
+                      "is the clean-runner artifact)"),
+            run_url=run_url or None,
+            timestamp=time.strftime("%Y-%m-%dT%H:%M:%S%z")))
     out.write_text(json.dumps(report, indent=2), encoding="utf-8")
 
     details = Path(args.details)

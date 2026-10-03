@@ -10,15 +10,15 @@ and [verification_2026-09-30.md](verification_2026-09-30.md) (this phase)
 
 ## Verdict
 
-**Acceptance 14/14 with power.** After the Review-3 phase (a red-team
-stream plus six repair streams, every finding fixed with a pre-fix-failing
-test), the criteria do not merely pass: the seeded errors a real bug would
-look like — physics off, wrong temperature ±20%, mixed defect cells,
-mis-routed crystals, prose documentation, targeted label corruption — now
-all FAIL their criterion. The red team's adversarial registry stands at
-12 findings fixed, 1 open pending a dialect-value approval. Numbers below
-are from the local run; the clean-machine artifact is the citable
-evidence (AGENTS rule, post Review 3).
+**Acceptance on the committed inputs after the Reviews 4-7 open items.**
+O1-O5 and O6/O10-O12 are fixed with pre-fix-failing tests (numbers in the
+scorecard below); O9's glass reference replacement is BLOCKED on an owner
+decision (the NPT route was implemented, measured across 22 seeds and
+failed the crystal-like gate -- monatomic LJ crystallises on the P=0
+densification path; Kob-Andersen binary needs two-species amorphous
+lift+build). The citable evidence is the clean-runner artifact
+(acceptance.json now records commit SHA, runner OS, run URL; local runs
+label themselves bookkeeping per the AGENTS artifact rule).
 
 ## Review-3 scorecard (all 14 problems + the 14 "wrong or risky" items)
 
@@ -57,6 +57,23 @@ escapes — fixed; F8 A14 prose — fixed (structured coverage, prose 0/35);
 F9 A7 scope — fixed (judged-fraction disclosed + scope gate); F10 NaN
 segfault — fixed (ChaordError at Frame entry); F11 A9 evidence class —
 fixed; F12 A4 mixed-cell metric — fixed (multiset scoring).
+
+## Reviews 4-7 scorecard (docs/reviews/open_items.md, all with numbers)
+
+| # | Item | Status | Evidence |
+| --- | --- | --- | --- |
+| O1 | A2 not translation-invariant (P0) | **fixed** | 50 random rigid transforms x 9 thermal frames: 50/50 byte-identical + 50/50 build (was 3/9 cases failing); the 3 named reproducers all 'same text: True, builds: yes' |
+| O2 | A3 geometry origin-dependent | **fixed** | (0.7,0,0) shift: 7/7 failed -> 0/7 (assignment-alignment iteration; gate unchanged); reviewer's 'matcher never fits self' DISPROVEN by committed test (fits 9/9 self; 0/9 vs rebuild = primitive-cell reduction; l12 never fits + 800 s/call) -> D6 now decided on evidence |
+| O3 | A4 fails on new seeds | **fixed** | 9/15 -> 0/15 reproducer sets + 0/10 fresh sets x 26 cells; interstitials at octahedral/tetrahedral sites, separations >= 1.5-2 d_NN, planted min-pair seed-independent (0.707-1.000 d_NN, on crystallography) |
+| O4 | A8 site classifier ignores PBC | **fixed** | in-plane census 3/20 -> 0/20; fcc/hcp hollow physical frames 66% -> 100% (20 draws x 20 translations); z-boundary slab byte-identical; planted frame physical (O-O 1.35 A -> >= 5.5 A); fcc/hcp NAMING left to owner |
+| O5 | programs must compile, inputs physical | **fixed** | co2_dense regenerated at 0.68 g/cm3 (supercritical anchor; the old 2.54 was in no equilibrium region); every bench frame passes sanity; lift->compile scan green (two compiler gaps pinned with causes: lipf6 species, si001 'site far' + a process-history determinism bug of the O1 family) |
+| O6 | demo rebuilds at assumed T | **fixed** | Act 1 lifts at the provenance T exactly as check_a5 does |
+| O7 | reports and claims | **this update** | acceptance.json records commit/OS/URL; README names the open items; dossier contradictions corrected; this scorecard |
+| O8 | floors rest on 2-5 pairs | **fixed** | >= 10 frames per case; averaged floors >= 10 pairs (12-21 pair frame floors); max(mean,P90) assessed: keep (P90 > mean in 14/14 records; no equilibrated pair exceeds 1.5x mean at >=10 pairs) |
+| O9 | glass reference tears open | **BLOCKED (owner)** | NPT route implemented and measured (22 seeds, 6 variants): pressure/voids/energy fixed but crystal-like 1.0-47.6% vs <1% gate -- monatomic LJ crystallises densifying to rho*=1.0=fcc ground state; amorphous sanity committed (reproduces the reviewer's table); q6_cutoff 3.0->1.3 fixes crystal-misjudgement (12 red -> 13 green); 10x quench resolution: still measures anneal depth -- root fix rides the owner's binary-glass decision |
+| O10 | floor includes system under test | **fixed** | slow amorphous test floored by two fresh independent preparations (not the tested rebuild); red test pins the root |
+| O11 | metal solid-liquid unliftable | **key added** | printed_cutoff (3.25 A, pending approval); slab-mode lift + build work at 832 atoms (program is M0-generic X/LJ -- species-aware lift is future work, honestly recorded) |
+| O12 | leftovers | **fixed** | strict xfail only in the red-team registry (hygiene test + registry-liveness test); water model flagged assumed (TIP3P/TIP4P/TIP4P-2005 share r_OH) |
 
 ## Decisions pending the human reviewer (AGENTS: dialect changes need
 written approval)

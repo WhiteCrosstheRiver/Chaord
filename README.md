@@ -6,7 +6,10 @@ program describes a **macrostate** — a family of configurations; a coordinate
 file is one **microstate** of it. Order is written exactly where a system has
 it, statistics where it does not: from crystals to gases.
 
-Status: **v0.1 prototype: independently verified at Gate A′, with power.**
+Status: **v0.1 prototype: 14/14 on the committed inputs after the Reviews
+4-7 open items (O1-O5 fixed with pre-fix-failing tests; O9's glass
+reference replacement blocked on an owner decision -- see
+`docs/reviews/open_items.md` and `reports/gate_a_prime.md`).**
 Acceptance runs **14/14 criteria PASS** on clean machines (GitHub Actions
 dispatch runs, artifact uploaded), and the passes have teeth: the seeded
 errors a real bug would look like — physics off, wrong temperature ±20%,
