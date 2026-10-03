@@ -135,16 +135,18 @@ def test_amorphous_round_trip_statistics(dialect, tmp_path):
 
 def test_amorphous_lift_program(dialect, tmp_path):
     from chaord.build import build_program
-    text = AMORPH_PROGRAM.format(n=108, rho=0.9).replace(
-        "melt 2 for 3000", "melt 2 for 300").replace(
-        "anneal 0.01 for 2000", "anneal 0.01 for 200")
+    # n=500 full melt (same reason as the assumed-history fixture: small LJ
+    # boxes crystallise on quench under the corrected first-shell q6 gate;
+    # the old n=108/rho*=0.9 shortened-melt draw measured 0.52 worst-over-
+    # seeds vs the 0.30 gate and failed the clean machine)
+    text = AMORPH_PROGRAM.format(n=500, rho=0.9)
     path = tmp_path / "g2.chaord"
     path.write_text(text)
     rng = np.random.default_rng(5)
     frame = build_program(load(path), dialect, rng=rng, physics=True)
     text2 = format_program(lift_frame(frame, dialect, mode="amorphous"))
     assert "amorphous glass : all" in text2
-    assert "conserve atoms X 108" in text2
+    assert "conserve atoms X 500" in text2
     assert "state density 0.9" in text2
 
 
