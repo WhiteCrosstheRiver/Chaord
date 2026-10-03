@@ -33,7 +33,7 @@
     "dt_fs": 0.050903
   },
   "protocol": {
-    "description": "N=500 fcc start at rho*=0.85, Maxwell velocities at T*, Langevin NVT (gamma*=0.5/tau) equilibration for 2000 steps (10 tau), then 5 frames at 1000-step (5 tau) intervals; dt*=0.005",
+    "description": "N=500 fcc start at rho*=0.85, Maxwell velocities at T*, Langevin NVT (gamma*=0.5/tau) equilibration for 2000 steps (10 tau), then 10 frames at 1000-step (5 tau) intervals; dt*=0.005. Frame count 5 -> 10 (O8, Reviews 4-5: >= 10 frames per case so the averaged noise floor rests on >= 10 pairs; stride unchanged, the first 5 frames reproduce the previous 5-frame case byte-identically -- same seeds, same code path)",
     "ensemble": "NVT (Langevin, ase.md.langevin, fixcm=False)",
     "steps": {
       "equilibration": 2000,
@@ -75,7 +75,7 @@
     ]
   },
   "case": "lj_liquid",
-  "wall_clock_s": 102.4,
+  "wall_clock_s": 193.1,
   "frames": [
     {
       "file": "frame_0.npz",
@@ -96,6 +96,26 @@
     {
       "file": "frame_4.npz",
       "step": 7000
+    },
+    {
+      "file": "frame_5.npz",
+      "step": 8000
+    },
+    {
+      "file": "frame_6.npz",
+      "step": 9000
+    },
+    {
+      "file": "frame_7.npz",
+      "step": 10000
+    },
+    {
+      "file": "frame_8.npz",
+      "step": 11000
+    },
+    {
+      "file": "frame_9.npz",
+      "step": 12000
     }
   ]
 }

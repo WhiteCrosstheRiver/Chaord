@@ -1,30 +1,14 @@
 {
   "lj_liquid": {
     "dialect": "core + lj",
-    "n_pairs": 6,
-    "gr_rms_mean": 0.09400075834858156,
-    "gr_rms_max": 0.10731903326154252,
-    "gr_rms_q90": 0.10731903326154252,
-    "cn_tv_mean": 0.05566666666666667,
-    "cn_tv_max": 0.07600000000000001,
-    "cn_tv_q90": 0.07600000000000001,
+    "n_pairs": 21,
+    "gr_rms_mean": 0.09502257835491076,
+    "gr_rms_max": 0.1390675605754306,
+    "gr_rms_q90": 0.12040749083019496,
+    "cn_tv_mean": 0.06361904761904763,
+    "cn_tv_max": 0.10600000000000001,
+    "cn_tv_q90": 0.092,
     "pairs": [
-      {
-        "frames": [
-          0,
-          2
-        ],
-        "gr_rms": 0.10731903326154252,
-        "cn_tv": 0.07600000000000001
-      },
-      {
-        "frames": [
-          0,
-          3
-        ],
-        "gr_rms": 0.0919214540562305,
-        "cn_tv": 0.05799999999999998
-      },
       {
         "frames": [
           0,
@@ -35,38 +19,174 @@
       },
       {
         "frames": [
-          1,
-          3
+          0,
+          5
         ],
-        "gr_rms": 0.09827120092270747,
-        "cn_tv": 0.03800000000000001
+        "gr_rms": 0.1390675605754306,
+        "cn_tv": 0.062
+      },
+      {
+        "frames": [
+          0,
+          6
+        ],
+        "gr_rms": 0.09658471699754105,
+        "cn_tv": 0.054000000000000006
+      },
+      {
+        "frames": [
+          0,
+          7
+        ],
+        "gr_rms": 0.09133970729180069,
+        "cn_tv": 0.06
+      },
+      {
+        "frames": [
+          0,
+          8
+        ],
+        "gr_rms": 0.09265113600786684,
+        "cn_tv": 0.034
+      },
+      {
+        "frames": [
+          0,
+          9
+        ],
+        "gr_rms": 0.12040749083019496,
+        "cn_tv": 0.05800000000000001
       },
       {
         "frames": [
           1,
-          4
+          5
         ],
-        "gr_rms": 0.08890120070699396,
-        "cn_tv": 0.029999999999999995
+        "gr_rms": 0.13738455021826118,
+        "cn_tv": 0.03199999999999996
+      },
+      {
+        "frames": [
+          1,
+          6
+        ],
+        "gr_rms": 0.08476958909673513,
+        "cn_tv": 0.04799999999999999
+      },
+      {
+        "frames": [
+          1,
+          7
+        ],
+        "gr_rms": 0.0858531824996094,
+        "cn_tv": 0.02600000000000001
+      },
+      {
+        "frames": [
+          1,
+          8
+        ],
+        "gr_rms": 0.0846786338191798,
+        "cn_tv": 0.04999999999999999
+      },
+      {
+        "frames": [
+          1,
+          9
+        ],
+        "gr_rms": 0.10171640868843668,
+        "cn_tv": 0.092
       },
       {
         "frames": [
           2,
-          4
+          6
         ],
-        "gr_rms": 0.07826288461364854,
-        "cn_tv": 0.07
+        "gr_rms": 0.09218279551634362,
+        "cn_tv": 0.10200000000000002
+      },
+      {
+        "frames": [
+          2,
+          7
+        ],
+        "gr_rms": 0.0800466942118692,
+        "cn_tv": 0.076
+      },
+      {
+        "frames": [
+          2,
+          8
+        ],
+        "gr_rms": 0.10477597835780281,
+        "cn_tv": 0.078
+      },
+      {
+        "frames": [
+          2,
+          9
+        ],
+        "gr_rms": 0.09841260044561433,
+        "cn_tv": 0.08800000000000001
+      },
+      {
+        "frames": [
+          3,
+          7
+        ],
+        "gr_rms": 0.05793543414849884,
+        "cn_tv": 0.06000000000000002
+      },
+      {
+        "frames": [
+          3,
+          8
+        ],
+        "gr_rms": 0.08907012366376035,
+        "cn_tv": 0.03399999999999999
+      },
+      {
+        "frames": [
+          3,
+          9
+        ],
+        "gr_rms": 0.09000631663597697,
+        "cn_tv": 0.07199999999999998
+      },
+      {
+        "frames": [
+          4,
+          8
+        ],
+        "gr_rms": 0.08556932492294542,
+        "cn_tv": 0.059999999999999984
+      },
+      {
+        "frames": [
+          4,
+          9
+        ],
+        "gr_rms": 0.08465494265897369,
+        "cn_tv": 0.10600000000000001
+      },
+      {
+        "frames": [
+          5,
+          9
+        ],
+        "gr_rms": 0.07903818233591783,
+        "cn_tv": 0.08200000000000003
       }
     ],
-    "note": "floor = mean over frame pairs at lag >= 2 (the decorrelated half; 6 of 10 pairs, residual short-lag correlation must not shrink the floor)",
+    "note": "floor = mean over frame pairs at lag >= 4 (the decorrelated half; 21 of 45 pairs, residual short-lag correlation must not shrink the floor)",
     "all_pairs": {
-      "n_pairs": 10,
-      "gr_rms_mean": 0.09198910030269136,
-      "gr_rms_max": 0.10731903326154252,
-      "gr_rms_q90": 0.10042086387377497,
-      "cn_tv_mean": 0.06020000000000001,
-      "cn_tv_max": 0.088,
-      "cn_tv_q90": 0.07600000000000001,
+      "n_pairs": 45,
+      "gr_rms_mean": 0.09278624624620067,
+      "gr_rms_max": 0.1390675605754306,
+      "gr_rms_q90": 0.11673704425307348,
+      "cn_tv_mean": 0.05928888888888887,
+      "cn_tv_max": 0.10600000000000001,
+      "cn_tv_q90": 0.08800000000000001,
       "pairs": [
         {
           "frames": [
@@ -102,6 +222,46 @@
         },
         {
           "frames": [
+            0,
+            5
+          ],
+          "gr_rms": 0.1390675605754306,
+          "cn_tv": 0.062
+        },
+        {
+          "frames": [
+            0,
+            6
+          ],
+          "gr_rms": 0.09658471699754105,
+          "cn_tv": 0.054000000000000006
+        },
+        {
+          "frames": [
+            0,
+            7
+          ],
+          "gr_rms": 0.09133970729180069,
+          "cn_tv": 0.06
+        },
+        {
+          "frames": [
+            0,
+            8
+          ],
+          "gr_rms": 0.09265113600786684,
+          "cn_tv": 0.034
+        },
+        {
+          "frames": [
+            0,
+            9
+          ],
+          "gr_rms": 0.12040749083019496,
+          "cn_tv": 0.05800000000000001
+        },
+        {
+          "frames": [
             1,
             2
           ],
@@ -126,6 +286,46 @@
         },
         {
           "frames": [
+            1,
+            5
+          ],
+          "gr_rms": 0.13738455021826118,
+          "cn_tv": 0.03199999999999996
+        },
+        {
+          "frames": [
+            1,
+            6
+          ],
+          "gr_rms": 0.08476958909673513,
+          "cn_tv": 0.04799999999999999
+        },
+        {
+          "frames": [
+            1,
+            7
+          ],
+          "gr_rms": 0.0858531824996094,
+          "cn_tv": 0.02600000000000001
+        },
+        {
+          "frames": [
+            1,
+            8
+          ],
+          "gr_rms": 0.0846786338191798,
+          "cn_tv": 0.04999999999999999
+        },
+        {
+          "frames": [
+            1,
+            9
+          ],
+          "gr_rms": 0.10171640868843668,
+          "cn_tv": 0.092
+        },
+        {
+          "frames": [
             2,
             3
           ],
@@ -142,61 +342,436 @@
         },
         {
           "frames": [
+            2,
+            5
+          ],
+          "gr_rms": 0.11167449231656511,
+          "cn_tv": 0.06000000000000002
+        },
+        {
+          "frames": [
+            2,
+            6
+          ],
+          "gr_rms": 0.09218279551634362,
+          "cn_tv": 0.10200000000000002
+        },
+        {
+          "frames": [
+            2,
+            7
+          ],
+          "gr_rms": 0.0800466942118692,
+          "cn_tv": 0.076
+        },
+        {
+          "frames": [
+            2,
+            8
+          ],
+          "gr_rms": 0.10477597835780281,
+          "cn_tv": 0.078
+        },
+        {
+          "frames": [
+            2,
+            9
+          ],
+          "gr_rms": 0.09841260044561433,
+          "cn_tv": 0.08800000000000001
+        },
+        {
+          "frames": [
             3,
             4
           ],
           "gr_rms": 0.06826870196092492,
           "cn_tv": 0.06000000000000001
+        },
+        {
+          "frames": [
+            3,
+            5
+          ],
+          "gr_rms": 0.09650070102751976,
+          "cn_tv": 0.03799999999999998
+        },
+        {
+          "frames": [
+            3,
+            6
+          ],
+          "gr_rms": 0.07373354523832237,
+          "cn_tv": 0.017999999999999985
+        },
+        {
+          "frames": [
+            3,
+            7
+          ],
+          "gr_rms": 0.05793543414849884,
+          "cn_tv": 0.06000000000000002
+        },
+        {
+          "frames": [
+            3,
+            8
+          ],
+          "gr_rms": 0.08907012366376035,
+          "cn_tv": 0.03399999999999999
+        },
+        {
+          "frames": [
+            3,
+            9
+          ],
+          "gr_rms": 0.09000631663597697,
+          "cn_tv": 0.07199999999999998
+        },
+        {
+          "frames": [
+            4,
+            5
+          ],
+          "gr_rms": 0.09933829699413185,
+          "cn_tv": 0.05599999999999998
+        },
+        {
+          "frames": [
+            4,
+            6
+          ],
+          "gr_rms": 0.06681471461586777,
+          "cn_tv": 0.06799999999999998
+        },
+        {
+          "frames": [
+            4,
+            7
+          ],
+          "gr_rms": 0.0668078510980466,
+          "cn_tv": 0.009999999999999993
+        },
+        {
+          "frames": [
+            4,
+            8
+          ],
+          "gr_rms": 0.08556932492294542,
+          "cn_tv": 0.059999999999999984
+        },
+        {
+          "frames": [
+            4,
+            9
+          ],
+          "gr_rms": 0.08465494265897369,
+          "cn_tv": 0.10600000000000001
+        },
+        {
+          "frames": [
+            5,
+            6
+          ],
+          "gr_rms": 0.11673704425307348,
+          "cn_tv": 0.05000000000000001
+        },
+        {
+          "frames": [
+            5,
+            7
+          ],
+          "gr_rms": 0.10277424534548998,
+          "cn_tv": 0.05799999999999997
+        },
+        {
+          "frames": [
+            5,
+            8
+          ],
+          "gr_rms": 0.1272619455496856,
+          "cn_tv": 0.05800000000000001
+        },
+        {
+          "frames": [
+            5,
+            9
+          ],
+          "gr_rms": 0.07903818233591783,
+          "cn_tv": 0.08200000000000003
+        },
+        {
+          "frames": [
+            6,
+            7
+          ],
+          "gr_rms": 0.07369585052605787,
+          "cn_tv": 0.068
+        },
+        {
+          "frames": [
+            6,
+            8
+          ],
+          "gr_rms": 0.06533830848792704,
+          "cn_tv": 0.03600000000000001
+        },
+        {
+          "frames": [
+            6,
+            9
+          ],
+          "gr_rms": 0.08929540665718956,
+          "cn_tv": 0.06400000000000002
+        },
+        {
+          "frames": [
+            7,
+            8
+          ],
+          "gr_rms": 0.08299532134235023,
+          "cn_tv": 0.057999999999999996
+        },
+        {
+          "frames": [
+            7,
+            9
+          ],
+          "gr_rms": 0.08694538536273017,
+          "cn_tv": 0.10400000000000001
+        },
+        {
+          "frames": [
+            8,
+            9
+          ],
+          "gr_rms": 0.09943160031440033,
+          "cn_tv": 0.04600000000000001
         }
       ]
     },
     "avg": {
-      "method": "floor of the frame-averaged statistic: per-frame observables averaged within disjoint frame groups, group-vs-group distance is one pair; A5 judges the ref_frames mean vs the mean of 3 rebuild draws at 1.5x max(mean, P90) of these pairs (review 3 / red-team F3)",
+      "method": "floor of the frame-averaged statistic: per-frame observables averaged within disjoint frame groups, group-vs-group distance is one pair; A5 judges the ref_frames mean vs the mean of 3 rebuild draws at 1.5x max(mean, P90) of these pairs (review 3 / red-team F3; pair count >= 10 per case, O8)",
       "ref_frames": [
         0,
         1,
         2,
         3,
-        4
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
       ],
-      "note": "averaged floor = the two disjoint splits (2v3, 3v2) of the case's frames",
-      "n_pairs": 2,
-      "gr_rms_mean": 0.06547266011900443,
-      "gr_rms_max": 0.06816110262558103,
-      "gr_rms_q90": 0.06816110262558103,
-      "cn_tv_mean": 0.03466666666666668,
-      "cn_tv_max": 0.041666666666666685,
-      "cn_tv_q90": 0.041666666666666685,
+      "note": "averaged floor = the rotated disjoint half-vs-half splits of the case's 10 frames (10 pairs, O8)",
+      "n_pairs": 10,
+      "gr_rms_mean": 0.043509478909054884,
+      "gr_rms_max": 0.04719710950407094,
+      "gr_rms_q90": 0.04719710950407094,
+      "cn_tv_mean": 0.029280000000000028,
+      "cn_tv_max": 0.04120000000000006,
+      "cn_tv_q90": 0.04120000000000006,
       "pairs": [
         {
           "groups": [
             [
               0,
-              1
+              1,
+              2,
+              3,
+              4
             ],
             [
+              5,
+              6,
+              7,
+              8,
+              9
+            ]
+          ],
+          "gr_rms": 0.04564151478256607,
+          "cn_tv": 0.02480000000000001
+        },
+        {
+          "groups": [
+            [
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            [
+              0,
+              6,
+              7,
+              8,
+              9
+            ]
+          ],
+          "gr_rms": 0.041288852597815964,
+          "cn_tv": 0.04120000000000006
+        },
+        {
+          "groups": [
+            [
+              2,
+              3,
+              4,
+              5,
+              6
+            ],
+            [
+              0,
+              1,
+              7,
+              8,
+              9
+            ]
+          ],
+          "gr_rms": 0.045988968627823104,
+          "cn_tv": 0.028000000000000004
+        },
+        {
+          "groups": [
+            [
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            [
+              0,
+              1,
+              2,
+              8,
+              9
+            ]
+          ],
+          "gr_rms": 0.04719710950407094,
+          "cn_tv": 0.031199999999999995
+        },
+        {
+          "groups": [
+            [
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            [
+              0,
+              1,
+              2,
+              3,
+              9
+            ]
+          ],
+          "gr_rms": 0.037430949032998304,
+          "cn_tv": 0.02120000000000005
+        },
+        {
+          "groups": [
+            [
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            [
+              0,
+              1,
               2,
               3,
               4
             ]
           ],
-          "gr_rms": 0.06816110262558103,
-          "cn_tv": 0.02766666666666668
+          "gr_rms": 0.04564151478256607,
+          "cn_tv": 0.02480000000000001
+        },
+        {
+          "groups": [
+            [
+              0,
+              6,
+              7,
+              8,
+              9
+            ],
+            [
+              1,
+              2,
+              3,
+              4,
+              5
+            ]
+          ],
+          "gr_rms": 0.041288852597815964,
+          "cn_tv": 0.04120000000000006
         },
         {
           "groups": [
             [
               0,
               1,
-              2
+              7,
+              8,
+              9
+            ],
+            [
+              2,
+              3,
+              4,
+              5,
+              6
+            ]
+          ],
+          "gr_rms": 0.045988968627823104,
+          "cn_tv": 0.028000000000000004
+        },
+        {
+          "groups": [
+            [
+              0,
+              1,
+              2,
+              8,
+              9
             ],
             [
               3,
-              4
+              4,
+              5,
+              6,
+              7
             ]
           ],
-          "gr_rms": 0.06278421761242785,
-          "cn_tv": 0.041666666666666685
+          "gr_rms": 0.04719710950407094,
+          "cn_tv": 0.031199999999999995
+        },
+        {
+          "groups": [
+            [
+              0,
+              1,
+              2,
+              3,
+              9
+            ],
+            [
+              4,
+              5,
+              6,
+              7,
+              8
+            ]
+          ],
+          "gr_rms": 0.037430949032998304,
+          "cn_tv": 0.02120000000000005
         }
       ]
     }
@@ -382,7 +957,7 @@
     ],
     "note": "floor = pooled decorrelated frame pairs of 2 independent trajectories (within-trajectory lag >= 2 plus cross pairs of the decorrelated halves; cross sits only +1%/+10% above within -- an equilibrated liquid carries no preparation memory, unlike the glass quenches; the second trajectory supplies the independent pairs the floor's upper quantile needs)",
     "avg": {
-      "method": "floor of the frame-averaged statistic: per-frame observables averaged within disjoint frame groups, group-vs-group distance is one pair; A5 judges the ref_frames mean vs the mean of 3 rebuild draws at 1.5x max(mean, P90) of these pairs (review 3 / red-team F3)",
+      "method": "floor of the frame-averaged statistic: per-frame observables averaged within disjoint frame groups, group-vs-group distance is one pair; A5 judges the ref_frames mean vs the mean of 3 rebuild draws at 1.5x max(mean, P90) of these pairs (review 3 / red-team F3; pair count >= 10 per case, O8)",
       "ref_frames": [
         0,
         1,
@@ -395,14 +970,14 @@
         8,
         9
       ],
-      "note": "averaged floor = trajectory-vs-trajectory mean-observables pair (5v5) plus the 2v3/3v2 splits within each trajectory",
-      "n_pairs": 5,
-      "gr_rms_mean": 0.02515820597772333,
-      "gr_rms_max": 0.03343733112780189,
-      "gr_rms_q90": 0.03343733112780189,
-      "cn_tv_mean": 0.01360351562500001,
+      "note": "averaged floor = trajectory-vs-trajectory mean-observables pair (5v5) plus the rotated disjoint 2v3 splits within each trajectory (11 pairs, O8)",
+      "n_pairs": 11,
+      "gr_rms_mean": 0.02762458823720847,
+      "gr_rms_max": 0.034867855169776196,
+      "gr_rms_q90": 0.033492860710001834,
+      "cn_tv_mean": 0.012353515625000006,
       "cn_tv_max": 0.01700846354166665,
-      "cn_tv_q90": 0.01700846354166665,
+      "cn_tv_q90": 0.016682942708333346,
       "pairs": [
         {
           "groups": [
@@ -442,17 +1017,62 @@
         {
           "groups": [
             [
-              0,
               1,
               2
             ],
             [
+              0,
               3,
               4
             ]
           ],
+          "gr_rms": 0.021373556676792683,
+          "cn_tv": 0.008951822916666668
+        },
+        {
+          "groups": [
+            [
+              2,
+              3
+            ],
+            [
+              0,
+              1,
+              4
+            ]
+          ],
+          "gr_rms": 0.033492860710001834,
+          "cn_tv": 0.010416666666666664
+        },
+        {
+          "groups": [
+            [
+              3,
+              4
+            ],
+            [
+              0,
+              1,
+              2
+            ]
+          ],
           "gr_rms": 0.02106390046469795,
           "cn_tv": 0.010009765625000009
+        },
+        {
+          "groups": [
+            [
+              0,
+              4
+            ],
+            [
+              1,
+              2,
+              3
+            ]
+          ],
+          "gr_rms": 0.030857447337300264,
+          "cn_tv": 0.011555989583333339
         },
         {
           "groups": [
@@ -472,17 +1092,62 @@
         {
           "groups": [
             [
-              5,
               6,
               7
             ],
             [
+              5,
               8,
               9
             ]
           ],
+          "gr_rms": 0.025150625790404366,
+          "cn_tv": 0.008626302083333339
+        },
+        {
+          "groups": [
+            [
+              7,
+              8
+            ],
+            [
+              5,
+              6,
+              9
+            ]
+          ],
+          "gr_rms": 0.03233709503640117,
+          "cn_tv": 0.014648437500000003
+        },
+        {
+          "groups": [
+            [
+              8,
+              9
+            ],
+            [
+              5,
+              6,
+              7
+            ]
+          ],
           "gr_rms": 0.02646953844403869,
           "cn_tv": 0.016682942708333346
+        },
+        {
+          "groups": [
+            [
+              5,
+              9
+            ],
+            [
+              6,
+              7,
+              8
+            ]
+          ],
+          "gr_rms": 0.034867855169776196,
+          "cn_tv": 0.013671875000000002
         }
       ]
     }
@@ -632,7 +1297,7 @@
       ]
     },
     "avg": {
-      "method": "floor of the frame-averaged statistic: per-frame observables averaged within disjoint frame groups, group-vs-group distance is one pair; A5 judges the ref_frames mean vs the mean of 3 rebuild draws at 1.5x max(mean, P90) of these pairs (review 3 / red-team F3)",
+      "method": "floor of the frame-averaged statistic: per-frame observables averaged within disjoint frame groups, group-vs-group distance is one pair; A5 judges the ref_frames mean vs the mean of 3 rebuild draws at 1.5x max(mean, P90) of these pairs (review 3 / red-team F3; pair count >= 10 per case, O8)",
       "ref_frames": [
         3,
         4,
@@ -641,14 +1306,14 @@
         13,
         14
       ],
-      "note": "averaged floor = cross-quench pairs of the per-quench mean observables (last two, most-annealed frames of each of the 3 quenches) -- the annealed selection of the frame-pair floor, averaged",
-      "n_pairs": 3,
-      "gr_rms_mean": 0.045088160891740066,
-      "gr_rms_max": 0.05128757690898194,
+      "note": "averaged floor = cross-quench pairs of the per-quench mean observables (last-two and last-three, most-annealed frames of each of the 3 quenches) -- the annealed selection of the frame-pair floor, averaged; 12 pairs, O8",
+      "n_pairs": 12,
+      "gr_rms_mean": 0.044891506300709504,
+      "gr_rms_max": 0.058355450594417414,
       "gr_rms_q90": 0.05128757690898194,
-      "cn_tv_mean": 0.030517578125,
-      "cn_tv_max": 0.03369140625,
-      "cn_tv_q90": 0.03369140625,
+      "cn_tv_mean": 0.029656304253472227,
+      "cn_tv_max": 0.034993489583333336,
+      "cn_tv_q90": 0.03466796875,
       "pairs": [
         {
           "groups": [
@@ -671,12 +1336,104 @@
               4
             ],
             [
+              7,
+              8,
+              9
+            ]
+          ],
+          "gr_rms": 0.04301728047103054,
+          "cn_tv": 0.023925781249999993
+        },
+        {
+          "groups": [
+            [
+              2,
+              3,
+              4
+            ],
+            [
+              8,
+              9
+            ]
+          ],
+          "gr_rms": 0.03334469222110797,
+          "cn_tv": 0.02368164062500002
+        },
+        {
+          "groups": [
+            [
+              2,
+              3,
+              4
+            ],
+            [
+              7,
+              8,
+              9
+            ]
+          ],
+          "gr_rms": 0.0394525998857708,
+          "cn_tv": 0.02278645833333337
+        },
+        {
+          "groups": [
+            [
+              3,
+              4
+            ],
+            [
               13,
               14
             ]
           ],
           "gr_rms": 0.0471330963164001,
           "cn_tv": 0.03369140625
+        },
+        {
+          "groups": [
+            [
+              3,
+              4
+            ],
+            [
+              12,
+              13,
+              14
+            ]
+          ],
+          "gr_rms": 0.046486752829005495,
+          "cn_tv": 0.03466796875
+        },
+        {
+          "groups": [
+            [
+              2,
+              3,
+              4
+            ],
+            [
+              13,
+              14
+            ]
+          ],
+          "gr_rms": 0.04627945086164332,
+          "cn_tv": 0.029052734375000014
+        },
+        {
+          "groups": [
+            [
+              2,
+              3,
+              4
+            ],
+            [
+              12,
+              13,
+              14
+            ]
+          ],
+          "gr_rms": 0.04463021191877749,
+          "cn_tv": 0.029947916666666685
         },
         {
           "groups": [
@@ -691,36 +1448,66 @@
           ],
           "gr_rms": 0.05128757690898194,
           "cn_tv": 0.03125
+        },
+        {
+          "groups": [
+            [
+              8,
+              9
+            ],
+            [
+              12,
+              13,
+              14
+            ]
+          ],
+          "gr_rms": 0.04303633021732399,
+          "cn_tv": 0.030680338541666675
+        },
+        {
+          "groups": [
+            [
+              7,
+              8,
+              9
+            ],
+            [
+              13,
+              14
+            ]
+          ],
+          "gr_rms": 0.058355450594417414,
+          "cn_tv": 0.034586588541666664
+        },
+        {
+          "groups": [
+            [
+              7,
+              8,
+              9
+            ],
+            [
+              12,
+              13,
+              14
+            ]
+          ],
+          "gr_rms": 0.04883082393421683,
+          "cn_tv": 0.034993489583333336
         }
       ]
     }
   },
   "lj_solid_liquid": {
     "dialect": "core + lj",
-    "n_pairs": 6,
-    "gr_rms_mean": 0.04430587517041892,
-    "gr_rms_max": 0.05346235525378898,
-    "gr_rms_q90": 0.05346235525378898,
-    "cn_tv_mean": 0.023943865740740745,
-    "cn_tv_max": 0.030381944444444454,
-    "cn_tv_q90": 0.030381944444444454,
+    "n_pairs": 21,
+    "gr_rms_mean": 0.0409342068880673,
+    "gr_rms_max": 0.06066026825880537,
+    "gr_rms_q90": 0.0502154976751491,
+    "cn_tv_mean": 0.03056795634920635,
+    "cn_tv_max": 0.05251736111111115,
+    "cn_tv_q90": 0.04470486111111115,
     "pairs": [
-      {
-        "frames": [
-          0,
-          2
-        ],
-        "gr_rms": 0.0428429704484907,
-        "cn_tv": 0.02994791666666667
-      },
-      {
-        "frames": [
-          0,
-          3
-        ],
-        "gr_rms": 0.04182087223745473,
-        "cn_tv": 0.030381944444444454
-      },
       {
         "frames": [
           0,
@@ -731,38 +1518,174 @@
       },
       {
         "frames": [
-          1,
-          3
+          0,
+          5
         ],
-        "gr_rms": 0.03477873792973562,
-        "cn_tv": 0.027777777777777766
+        "gr_rms": 0.04376261995749835,
+        "cn_tv": 0.022569444444444458
+      },
+      {
+        "frames": [
+          0,
+          6
+        ],
+        "gr_rms": 0.03932126696368525,
+        "cn_tv": 0.016059027777777783
+      },
+      {
+        "frames": [
+          0,
+          7
+        ],
+        "gr_rms": 0.04084915881949099,
+        "cn_tv": 0.018663194444444454
+      },
+      {
+        "frames": [
+          0,
+          8
+        ],
+        "gr_rms": 0.035468136629296355,
+        "cn_tv": 0.020399305555555528
+      },
+      {
+        "frames": [
+          0,
+          9
+        ],
+        "gr_rms": 0.0502154976751491,
+        "cn_tv": 0.04340277777777779
       },
       {
         "frames": [
           1,
-          4
+          5
         ],
-        "gr_rms": 0.0520169240828414,
-        "cn_tv": 0.018663194444444434
+        "gr_rms": 0.043505155165525555,
+        "cn_tv": 0.025173611111111098
+      },
+      {
+        "frames": [
+          1,
+          6
+        ],
+        "gr_rms": 0.03916507385391298,
+        "cn_tv": 0.023437499999999993
+      },
+      {
+        "frames": [
+          1,
+          7
+        ],
+        "gr_rms": 0.03199081166711877,
+        "cn_tv": 0.027777777777777738
+      },
+      {
+        "frames": [
+          1,
+          8
+        ],
+        "gr_rms": 0.03564435104140672,
+        "cn_tv": 0.020833333333333304
+      },
+      {
+        "frames": [
+          1,
+          9
+        ],
+        "gr_rms": 0.0384662622762327,
+        "cn_tv": 0.034722222222222265
       },
       {
         "frames": [
           2,
-          4
+          6
         ],
-        "gr_rms": 0.05346235525378898,
-        "cn_tv": 0.02126736111111114
+        "gr_rms": 0.04509835787872764,
+        "cn_tv": 0.033854166666666706
+      },
+      {
+        "frames": [
+          2,
+          7
+        ],
+        "gr_rms": 0.040239154320859075,
+        "cn_tv": 0.03645833333333334
+      },
+      {
+        "frames": [
+          2,
+          8
+        ],
+        "gr_rms": 0.03505548415227071,
+        "cn_tv": 0.03645833333333332
+      },
+      {
+        "frames": [
+          2,
+          9
+        ],
+        "gr_rms": 0.05070605589244516,
+        "cn_tv": 0.02864583333333333
+      },
+      {
+        "frames": [
+          3,
+          7
+        ],
+        "gr_rms": 0.04440014647763911,
+        "cn_tv": 0.02387152777777777
+      },
+      {
+        "frames": [
+          3,
+          8
+        ],
+        "gr_rms": 0.03647385293988178,
+        "cn_tv": 0.04253472222222221
+      },
+      {
+        "frames": [
+          3,
+          9
+        ],
+        "gr_rms": 0.031249769661042648,
+        "cn_tv": 0.047309027777777776
+      },
+      {
+        "frames": [
+          4,
+          8
+        ],
+        "gr_rms": 0.04152643741907482,
+        "cn_tv": 0.026909722222222206
+      },
+      {
+        "frames": [
+          4,
+          9
+        ],
+        "gr_rms": 0.06066026825880537,
+        "cn_tv": 0.04470486111111115
+      },
+      {
+        "frames": [
+          5,
+          9
+        ],
+        "gr_rms": 0.03490709252914815,
+        "cn_tv": 0.05251736111111115
       }
     ],
-    "note": "floor = mean over frame pairs at lag >= 2 (the decorrelated half; 6 of 10 pairs, residual short-lag correlation must not shrink the floor)",
+    "note": "floor = mean over frame pairs at lag >= 4 (the decorrelated half; 21 of 45 pairs, residual short-lag correlation must not shrink the floor)",
     "all_pairs": {
-      "n_pairs": 10,
-      "gr_rms_mean": 0.04529660332532744,
-      "gr_rms_max": 0.05346235525378898,
-      "gr_rms_q90": 0.0520169240828414,
-      "cn_tv_mean": 0.024131944444444442,
-      "cn_tv_max": 0.032118055555555566,
-      "cn_tv_q90": 0.030381944444444454,
+      "n_pairs": 45,
+      "gr_rms_mean": 0.04193385920804437,
+      "gr_rms_max": 0.06066026825880537,
+      "gr_rms_q90": 0.0502154976751491,
+      "cn_tv_mean": 0.029523533950617277,
+      "cn_tv_max": 0.05512152777777779,
+      "cn_tv_q90": 0.04470486111111115,
       "pairs": [
         {
           "frames": [
@@ -798,6 +1721,46 @@
         },
         {
           "frames": [
+            0,
+            5
+          ],
+          "gr_rms": 0.04376261995749835,
+          "cn_tv": 0.022569444444444458
+        },
+        {
+          "frames": [
+            0,
+            6
+          ],
+          "gr_rms": 0.03932126696368525,
+          "cn_tv": 0.016059027777777783
+        },
+        {
+          "frames": [
+            0,
+            7
+          ],
+          "gr_rms": 0.04084915881949099,
+          "cn_tv": 0.018663194444444454
+        },
+        {
+          "frames": [
+            0,
+            8
+          ],
+          "gr_rms": 0.035468136629296355,
+          "cn_tv": 0.020399305555555528
+        },
+        {
+          "frames": [
+            0,
+            9
+          ],
+          "gr_rms": 0.0502154976751491,
+          "cn_tv": 0.04340277777777779
+        },
+        {
+          "frames": [
             1,
             2
           ],
@@ -822,6 +1785,46 @@
         },
         {
           "frames": [
+            1,
+            5
+          ],
+          "gr_rms": 0.043505155165525555,
+          "cn_tv": 0.025173611111111098
+        },
+        {
+          "frames": [
+            1,
+            6
+          ],
+          "gr_rms": 0.03916507385391298,
+          "cn_tv": 0.023437499999999993
+        },
+        {
+          "frames": [
+            1,
+            7
+          ],
+          "gr_rms": 0.03199081166711877,
+          "cn_tv": 0.027777777777777738
+        },
+        {
+          "frames": [
+            1,
+            8
+          ],
+          "gr_rms": 0.03564435104140672,
+          "cn_tv": 0.020833333333333304
+        },
+        {
+          "frames": [
+            1,
+            9
+          ],
+          "gr_rms": 0.0384662622762327,
+          "cn_tv": 0.034722222222222265
+        },
+        {
+          "frames": [
             2,
             3
           ],
@@ -838,91 +1841,450 @@
         },
         {
           "frames": [
+            2,
+            5
+          ],
+          "gr_rms": 0.04620352195970628,
+          "cn_tv": 0.0377604166666667
+        },
+        {
+          "frames": [
+            2,
+            6
+          ],
+          "gr_rms": 0.04509835787872764,
+          "cn_tv": 0.033854166666666706
+        },
+        {
+          "frames": [
+            2,
+            7
+          ],
+          "gr_rms": 0.040239154320859075,
+          "cn_tv": 0.03645833333333334
+        },
+        {
+          "frames": [
+            2,
+            8
+          ],
+          "gr_rms": 0.03505548415227071,
+          "cn_tv": 0.03645833333333332
+        },
+        {
+          "frames": [
+            2,
+            9
+          ],
+          "gr_rms": 0.05070605589244516,
+          "cn_tv": 0.02864583333333333
+        },
+        {
+          "frames": [
             3,
             4
           ],
           "gr_rms": 0.04591801615046285,
           "cn_tv": 0.02994791666666667
+        },
+        {
+          "frames": [
+            3,
+            5
+          ],
+          "gr_rms": 0.04034104149402684,
+          "cn_tv": 0.03862847222222221
+        },
+        {
+          "frames": [
+            3,
+            6
+          ],
+          "gr_rms": 0.030976125947434336,
+          "cn_tv": 0.021267361111111147
+        },
+        {
+          "frames": [
+            3,
+            7
+          ],
+          "gr_rms": 0.04440014647763911,
+          "cn_tv": 0.02387152777777777
+        },
+        {
+          "frames": [
+            3,
+            8
+          ],
+          "gr_rms": 0.03647385293988178,
+          "cn_tv": 0.04253472222222221
+        },
+        {
+          "frames": [
+            3,
+            9
+          ],
+          "gr_rms": 0.031249769661042648,
+          "cn_tv": 0.047309027777777776
+        },
+        {
+          "frames": [
+            4,
+            5
+          ],
+          "gr_rms": 0.049252217462012506,
+          "cn_tv": 0.026909722222222213
+        },
+        {
+          "frames": [
+            4,
+            6
+          ],
+          "gr_rms": 0.04831118429950917,
+          "cn_tv": 0.012586805555555565
+        },
+        {
+          "frames": [
+            4,
+            7
+          ],
+          "gr_rms": 0.0493463517751403,
+          "cn_tv": 0.015190972222222205
+        },
+        {
+          "frames": [
+            4,
+            8
+          ],
+          "gr_rms": 0.04152643741907482,
+          "cn_tv": 0.026909722222222206
+        },
+        {
+          "frames": [
+            4,
+            9
+          ],
+          "gr_rms": 0.06066026825880537,
+          "cn_tv": 0.04470486111111115
+        },
+        {
+          "frames": [
+            5,
+            6
+          ],
+          "gr_rms": 0.040423009420369124,
+          "cn_tv": 0.030815972222222203
+        },
+        {
+          "frames": [
+            5,
+            7
+          ],
+          "gr_rms": 0.03690333853230923,
+          "cn_tv": 0.03385416666666665
+        },
+        {
+          "frames": [
+            5,
+            8
+          ],
+          "gr_rms": 0.03207008661282006,
+          "cn_tv": 0.019097222222222238
+        },
+        {
+          "frames": [
+            5,
+            9
+          ],
+          "gr_rms": 0.03490709252914815,
+          "cn_tv": 0.05251736111111115
+        },
+        {
+          "frames": [
+            6,
+            7
+          ],
+          "gr_rms": 0.04451615770388701,
+          "cn_tv": 0.004340277777777746
+        },
+        {
+          "frames": [
+            6,
+            8
+          ],
+          "gr_rms": 0.03640524736936729,
+          "cn_tv": 0.03298611111111109
+        },
+        {
+          "frames": [
+            6,
+            9
+          ],
+          "gr_rms": 0.04331393794432822,
+          "cn_tv": 0.052517361111111154
+        },
+        {
+          "frames": [
+            7,
+            8
+          ],
+          "gr_rms": 0.030441428169491108,
+          "cn_tv": 0.035590277777777755
+        },
+        {
+          "frames": [
+            7,
+            9
+          ],
+          "gr_rms": 0.04525715175703555,
+          "cn_tv": 0.05512152777777779
+        },
+        {
+          "frames": [
+            8,
+            9
+          ],
+          "gr_rms": 0.04159187708207426,
+          "cn_tv": 0.04427083333333334
         }
       ]
     },
     "avg": {
-      "method": "floor of the frame-averaged statistic: per-frame observables averaged within disjoint frame groups, group-vs-group distance is one pair; A5 judges the ref_frames mean vs the mean of 3 rebuild draws at 1.5x max(mean, P90) of these pairs (review 3 / red-team F3)",
+      "method": "floor of the frame-averaged statistic: per-frame observables averaged within disjoint frame groups, group-vs-group distance is one pair; A5 judges the ref_frames mean vs the mean of 3 rebuild draws at 1.5x max(mean, P90) of these pairs (review 3 / red-team F3; pair count >= 10 per case, O8)",
       "ref_frames": [
         0,
         1,
         2,
         3,
-        4
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
       ],
-      "note": "averaged floor = the two disjoint splits (2v3, 3v2) of the case's frames",
-      "n_pairs": 2,
-      "gr_rms_mean": 0.025509132175855598,
-      "gr_rms_max": 0.029618360059998922,
-      "gr_rms_q90": 0.029618360059998922,
-      "cn_tv_mean": 0.016348379629629657,
-      "cn_tv_max": 0.020326967592592622,
-      "cn_tv_q90": 0.020326967592592622,
+      "note": "averaged floor = the rotated disjoint half-vs-half splits of the case's 10 frames (10 pairs, O8)",
+      "n_pairs": 10,
+      "gr_rms_mean": 0.017185319853339886,
+      "gr_rms_max": 0.01921734231685628,
+      "gr_rms_q90": 0.01921734231685628,
+      "cn_tv_mean": 0.01380208333333335,
+      "cn_tv_max": 0.02065972222222224,
+      "cn_tv_q90": 0.02065972222222224,
       "pairs": [
         {
           "groups": [
             [
               0,
-              1
+              1,
+              2,
+              3,
+              4
             ],
             [
+              5,
+              6,
+              7,
+              8,
+              9
+            ]
+          ],
+          "gr_rms": 0.01921734231685628,
+          "cn_tv": 0.010937500000000024
+        },
+        {
+          "groups": [
+            [
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            [
+              0,
+              6,
+              7,
+              8,
+              9
+            ]
+          ],
+          "gr_rms": 0.013841543260134637,
+          "cn_tv": 0.006249999999999999
+        },
+        {
+          "groups": [
+            [
+              2,
+              3,
+              4,
+              5,
+              6
+            ],
+            [
+              0,
+              1,
+              7,
+              8,
+              9
+            ]
+          ],
+          "gr_rms": 0.01747058657846608,
+          "cn_tv": 0.011111111111111106
+        },
+        {
+          "groups": [
+            [
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            [
+              0,
+              1,
+              2,
+              8,
+              9
+            ]
+          ],
+          "gr_rms": 0.01670548752240358,
+          "cn_tv": 0.02065972222222224
+        },
+        {
+          "groups": [
+            [
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            [
+              0,
+              1,
+              2,
+              3,
+              9
+            ]
+          ],
+          "gr_rms": 0.018691639588838852,
+          "cn_tv": 0.020052083333333384
+        },
+        {
+          "groups": [
+            [
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            [
+              0,
+              1,
               2,
               3,
               4
             ]
           ],
-          "gr_rms": 0.021399904291712273,
-          "cn_tv": 0.020326967592592622
+          "gr_rms": 0.01921734231685628,
+          "cn_tv": 0.010937500000000024
+        },
+        {
+          "groups": [
+            [
+              0,
+              6,
+              7,
+              8,
+              9
+            ],
+            [
+              1,
+              2,
+              3,
+              4,
+              5
+            ]
+          ],
+          "gr_rms": 0.013841543260134637,
+          "cn_tv": 0.006249999999999999
         },
         {
           "groups": [
             [
               0,
               1,
-              2
+              7,
+              8,
+              9
+            ],
+            [
+              2,
+              3,
+              4,
+              5,
+              6
+            ]
+          ],
+          "gr_rms": 0.01747058657846608,
+          "cn_tv": 0.011111111111111106
+        },
+        {
+          "groups": [
+            [
+              0,
+              1,
+              2,
+              8,
+              9
             ],
             [
               3,
-              4
+              4,
+              5,
+              6,
+              7
             ]
           ],
-          "gr_rms": 0.029618360059998922,
-          "cn_tv": 0.012369791666666692
+          "gr_rms": 0.01670548752240358,
+          "cn_tv": 0.02065972222222224
+        },
+        {
+          "groups": [
+            [
+              0,
+              1,
+              2,
+              3,
+              9
+            ],
+            [
+              4,
+              5,
+              6,
+              7,
+              8
+            ]
+          ],
+          "gr_rms": 0.018691639588838852,
+          "cn_tv": 0.020052083333333384
         }
       ]
     }
   },
   "water_tip4p": {
     "dialect": "core + molecular",
-    "n_pairs": 6,
-    "gr_rms_mean": 0.05358529688235064,
-    "gr_rms_max": 0.06101513921506392,
-    "gr_rms_q90": 0.06101513921506392,
-    "cn_tv_mean": 0.07269965277777779,
-    "cn_tv_max": 0.08593750000000001,
-    "cn_tv_q90": 0.08593750000000001,
+    "n_pairs": 21,
+    "gr_rms_mean": 0.05434095563286293,
+    "gr_rms_max": 0.06436674089290474,
+    "gr_rms_q90": 0.06314523067170202,
+    "cn_tv_mean": 0.07018849206349206,
+    "cn_tv_max": 0.1015625,
+    "cn_tv_q90": 0.0859375,
     "pairs": [
-      {
-        "frames": [
-          0,
-          2
-        ],
-        "gr_rms": 0.05187555354601647,
-        "cn_tv": 0.045572916666666685
-      },
-      {
-        "frames": [
-          0,
-          3
-        ],
-        "gr_rms": 0.053052687391087455,
-        "cn_tv": 0.07291666666666669
-      },
       {
         "frames": [
           0,
@@ -933,38 +2295,174 @@
       },
       {
         "frames": [
-          1,
-          3
+          0,
+          5
         ],
-        "gr_rms": 0.06101513921506392,
-        "cn_tv": 0.06250000000000003
+        "gr_rms": 0.05224603662057998,
+        "cn_tv": 0.08463541666666667
+      },
+      {
+        "frames": [
+          0,
+          6
+        ],
+        "gr_rms": 0.06314523067170202,
+        "cn_tv": 0.0625
+      },
+      {
+        "frames": [
+          0,
+          7
+        ],
+        "gr_rms": 0.04001337083924578,
+        "cn_tv": 0.07421875000000001
+      },
+      {
+        "frames": [
+          0,
+          8
+        ],
+        "gr_rms": 0.06151799319408486,
+        "cn_tv": 0.06119791666666668
+      },
+      {
+        "frames": [
+          0,
+          9
+        ],
+        "gr_rms": 0.054454216213948727,
+        "cn_tv": 0.06380208333333333
       },
       {
         "frames": [
           1,
-          4
+          5
         ],
-        "gr_rms": 0.053719372399067856,
-        "cn_tv": 0.08593750000000001
+        "gr_rms": 0.054247527225694064,
+        "cn_tv": 0.08333333333333334
+      },
+      {
+        "frames": [
+          1,
+          6
+        ],
+        "gr_rms": 0.06389964174595282,
+        "cn_tv": 0.07421875
+      },
+      {
+        "frames": [
+          1,
+          7
+        ],
+        "gr_rms": 0.062186760038026,
+        "cn_tv": 0.05989583333333333
+      },
+      {
+        "frames": [
+          1,
+          8
+        ],
+        "gr_rms": 0.05655329031253276,
+        "cn_tv": 0.08203125
+      },
+      {
+        "frames": [
+          1,
+          9
+        ],
+        "gr_rms": 0.04577819766229028,
+        "cn_tv": 0.06119791666666666
       },
       {
         "frames": [
           2,
-          4
+          6
         ],
-        "gr_rms": 0.048661621838451935,
-        "cn_tv": 0.08593750000000001
+        "gr_rms": 0.06436674089290474,
+        "cn_tv": 0.06119791666666666
+      },
+      {
+        "frames": [
+          2,
+          7
+        ],
+        "gr_rms": 0.052783173989507916,
+        "cn_tv": 0.06119791666666667
+      },
+      {
+        "frames": [
+          2,
+          8
+        ],
+        "gr_rms": 0.04799104834743843,
+        "cn_tv": 0.03124999999999998
+      },
+      {
+        "frames": [
+          2,
+          9
+        ],
+        "gr_rms": 0.05557998225911959,
+        "cn_tv": 0.07031249999999999
+      },
+      {
+        "frames": [
+          3,
+          7
+        ],
+        "gr_rms": 0.060737494260142876,
+        "cn_tv": 0.07942708333333333
+      },
+      {
+        "frames": [
+          3,
+          8
+        ],
+        "gr_rms": 0.05107596108133052,
+        "cn_tv": 0.09635416666666669
+      },
+      {
+        "frames": [
+          3,
+          9
+        ],
+        "gr_rms": 0.05581029741909786,
+        "cn_tv": 0.04166666666666667
+      },
+      {
+        "frames": [
+          4,
+          8
+        ],
+        "gr_rms": 0.05697837373728849,
+        "cn_tv": 0.1015625
+      },
+      {
+        "frames": [
+          4,
+          9
+        ],
+        "gr_rms": 0.045590128165159644,
+        "cn_tv": 0.0859375
+      },
+      {
+        "frames": [
+          5,
+          9
+        ],
+        "gr_rms": 0.04301719670965808,
+        "cn_tv": 0.054687500000000014
       }
     ],
-    "note": "floor = mean over frame pairs at lag >= 2 (the decorrelated half; 6 of 10 pairs, residual short-lag correlation must not shrink the floor); frames spaced 5 ps (beyond the water structural relaxation time, Review 2): the floor is not shrunk by residual inter-frame correlation",
+    "note": "floor = mean over frame pairs at lag >= 4 (the decorrelated half; 21 of 45 pairs, residual short-lag correlation must not shrink the floor); frames spaced 5 ps (beyond the water structural relaxation time, Review 2): the floor is not shrunk by residual inter-frame correlation",
     "all_pairs": {
-      "n_pairs": 10,
-      "gr_rms_mean": 0.05535339136439845,
-      "gr_rms_max": 0.06399106905888124,
-      "gr_rms_q90": 0.06101513921506392,
-      "cn_tv_mean": 0.07682291666666669,
-      "cn_tv_max": 0.09244791666666666,
-      "cn_tv_q90": 0.09114583333333333,
+      "n_pairs": 45,
+      "gr_rms_mean": 0.05397328540585018,
+      "gr_rms_max": 0.06585335628320226,
+      "gr_rms_q90": 0.06389964174595282,
+      "cn_tv_mean": 0.0707175925925926,
+      "cn_tv_max": 0.11067708333333334,
+      "cn_tv_q90": 0.09244791666666666,
       "pairs": [
         {
           "frames": [
@@ -1000,6 +2498,46 @@
         },
         {
           "frames": [
+            0,
+            5
+          ],
+          "gr_rms": 0.05224603662057998,
+          "cn_tv": 0.08463541666666667
+        },
+        {
+          "frames": [
+            0,
+            6
+          ],
+          "gr_rms": 0.06314523067170202,
+          "cn_tv": 0.0625
+        },
+        {
+          "frames": [
+            0,
+            7
+          ],
+          "gr_rms": 0.04001337083924578,
+          "cn_tv": 0.07421875000000001
+        },
+        {
+          "frames": [
+            0,
+            8
+          ],
+          "gr_rms": 0.06151799319408486,
+          "cn_tv": 0.06119791666666668
+        },
+        {
+          "frames": [
+            0,
+            9
+          ],
+          "gr_rms": 0.054454216213948727,
+          "cn_tv": 0.06380208333333333
+        },
+        {
+          "frames": [
             1,
             2
           ],
@@ -1024,6 +2562,46 @@
         },
         {
           "frames": [
+            1,
+            5
+          ],
+          "gr_rms": 0.054247527225694064,
+          "cn_tv": 0.08333333333333334
+        },
+        {
+          "frames": [
+            1,
+            6
+          ],
+          "gr_rms": 0.06389964174595282,
+          "cn_tv": 0.07421875
+        },
+        {
+          "frames": [
+            1,
+            7
+          ],
+          "gr_rms": 0.062186760038026,
+          "cn_tv": 0.05989583333333333
+        },
+        {
+          "frames": [
+            1,
+            8
+          ],
+          "gr_rms": 0.05655329031253276,
+          "cn_tv": 0.08203125
+        },
+        {
+          "frames": [
+            1,
+            9
+          ],
+          "gr_rms": 0.04577819766229028,
+          "cn_tv": 0.06119791666666666
+        },
+        {
+          "frames": [
             2,
             3
           ],
@@ -1040,91 +2618,450 @@
         },
         {
           "frames": [
+            2,
+            5
+          ],
+          "gr_rms": 0.048003567723107356,
+          "cn_tv": 0.08854166666666669
+        },
+        {
+          "frames": [
+            2,
+            6
+          ],
+          "gr_rms": 0.06436674089290474,
+          "cn_tv": 0.06119791666666666
+        },
+        {
+          "frames": [
+            2,
+            7
+          ],
+          "gr_rms": 0.052783173989507916,
+          "cn_tv": 0.06119791666666667
+        },
+        {
+          "frames": [
+            2,
+            8
+          ],
+          "gr_rms": 0.04799104834743843,
+          "cn_tv": 0.03124999999999998
+        },
+        {
+          "frames": [
+            2,
+            9
+          ],
+          "gr_rms": 0.05557998225911959,
+          "cn_tv": 0.07031249999999999
+        },
+        {
+          "frames": [
             3,
             4
           ],
           "gr_rms": 0.06399106905888124,
           "cn_tv": 0.09114583333333333
+        },
+        {
+          "frames": [
+            3,
+            5
+          ],
+          "gr_rms": 0.04199338599399988,
+          "cn_tv": 0.0625
+        },
+        {
+          "frames": [
+            3,
+            6
+          ],
+          "gr_rms": 0.053208226502960664,
+          "cn_tv": 0.058593750000000014
+        },
+        {
+          "frames": [
+            3,
+            7
+          ],
+          "gr_rms": 0.060737494260142876,
+          "cn_tv": 0.07942708333333333
+        },
+        {
+          "frames": [
+            3,
+            8
+          ],
+          "gr_rms": 0.05107596108133052,
+          "cn_tv": 0.09635416666666669
+        },
+        {
+          "frames": [
+            3,
+            9
+          ],
+          "gr_rms": 0.05581029741909786,
+          "cn_tv": 0.04166666666666667
+        },
+        {
+          "frames": [
+            4,
+            5
+          ],
+          "gr_rms": 0.052718565350914924,
+          "cn_tv": 0.10546875
+        },
+        {
+          "frames": [
+            4,
+            6
+          ],
+          "gr_rms": 0.06414937781101686,
+          "cn_tv": 0.078125
+        },
+        {
+          "frames": [
+            4,
+            7
+          ],
+          "gr_rms": 0.04932871558233578,
+          "cn_tv": 0.11067708333333334
+        },
+        {
+          "frames": [
+            4,
+            8
+          ],
+          "gr_rms": 0.05697837373728849,
+          "cn_tv": 0.1015625
+        },
+        {
+          "frames": [
+            4,
+            9
+          ],
+          "gr_rms": 0.045590128165159644,
+          "cn_tv": 0.0859375
+        },
+        {
+          "frames": [
+            5,
+            6
+          ],
+          "gr_rms": 0.03791681065882861,
+          "cn_tv": 0.048177083333333336
+        },
+        {
+          "frames": [
+            5,
+            7
+          ],
+          "gr_rms": 0.04814239006230748,
+          "cn_tv": 0.06901041666666669
+        },
+        {
+          "frames": [
+            5,
+            8
+          ],
+          "gr_rms": 0.05081196250681896,
+          "cn_tv": 0.07421875000000001
+        },
+        {
+          "frames": [
+            5,
+            9
+          ],
+          "gr_rms": 0.04301719670965808,
+          "cn_tv": 0.054687500000000014
+        },
+        {
+          "frames": [
+            6,
+            7
+          ],
+          "gr_rms": 0.053646516191067375,
+          "cn_tv": 0.06640624999999999
+        },
+        {
+          "frames": [
+            6,
+            8
+          ],
+          "gr_rms": 0.0585916032107595,
+          "cn_tv": 0.05078125
+        },
+        {
+          "frames": [
+            6,
+            9
+          ],
+          "gr_rms": 0.05334337321452033,
+          "cn_tv": 0.03385416666666666
+        },
+        {
+          "frames": [
+            7,
+            8
+          ],
+          "gr_rms": 0.06585335628320226,
+          "cn_tv": 0.05078125000000001
+        },
+        {
+          "frames": [
+            7,
+            9
+          ],
+          "gr_rms": 0.055745937439366344,
+          "cn_tv": 0.06510416666666666
+        },
+        {
+          "frames": [
+            8,
+            9
+          ],
+          "gr_rms": 0.053837479702361565,
+          "cn_tv": 0.06119791666666667
         }
       ]
     },
     "avg": {
-      "method": "floor of the frame-averaged statistic: per-frame observables averaged within disjoint frame groups, group-vs-group distance is one pair; A5 judges the ref_frames mean vs the mean of 3 rebuild draws at 1.5x max(mean, P90) of these pairs (review 3 / red-team F3)",
+      "method": "floor of the frame-averaged statistic: per-frame observables averaged within disjoint frame groups, group-vs-group distance is one pair; A5 judges the ref_frames mean vs the mean of 3 rebuild draws at 1.5x max(mean, P90) of these pairs (review 3 / red-team F3; pair count >= 10 per case, O8)",
       "ref_frames": [
         0,
         1,
         2,
         3,
-        4
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
       ],
-      "note": "averaged floor = the two disjoint splits (2v3, 3v2) of the case's frames",
-      "n_pairs": 2,
-      "gr_rms_mean": 0.03220367438206674,
-      "gr_rms_max": 0.03381361981771801,
-      "gr_rms_q90": 0.03381361981771801,
-      "cn_tv_mean": 0.04557291666666667,
-      "cn_tv_max": 0.052300347222222224,
-      "cn_tv_q90": 0.052300347222222224,
+      "note": "averaged floor = the rotated disjoint half-vs-half splits of the case's 10 frames (10 pairs, O8)",
+      "n_pairs": 10,
+      "gr_rms_mean": 0.02394618445615558,
+      "gr_rms_max": 0.02663801480065564,
+      "gr_rms_q90": 0.02663801480065564,
+      "cn_tv_mean": 0.034999999999999996,
+      "cn_tv_max": 0.04557291666666667,
+      "cn_tv_q90": 0.04557291666666667,
       "pairs": [
         {
           "groups": [
             [
               0,
-              1
+              1,
+              2,
+              3,
+              4
             ],
             [
+              5,
+              6,
+              7,
+              8,
+              9
+            ]
+          ],
+          "gr_rms": 0.02532642265786203,
+          "cn_tv": 0.04557291666666667
+        },
+        {
+          "groups": [
+            [
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            [
+              0,
+              6,
+              7,
+              8,
+              9
+            ]
+          ],
+          "gr_rms": 0.021173614768289967,
+          "cn_tv": 0.03177083333333333
+        },
+        {
+          "groups": [
+            [
+              2,
+              3,
+              4,
+              5,
+              6
+            ],
+            [
+              0,
+              1,
+              7,
+              8,
+              9
+            ]
+          ],
+          "gr_rms": 0.022830159349567544,
+          "cn_tv": 0.028906249999999994
+        },
+        {
+          "groups": [
+            [
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            [
+              0,
+              1,
+              2,
+              8,
+              9
+            ]
+          ],
+          "gr_rms": 0.02663801480065564,
+          "cn_tv": 0.03567708333333333
+        },
+        {
+          "groups": [
+            [
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            [
+              0,
+              1,
+              2,
+              3,
+              9
+            ]
+          ],
+          "gr_rms": 0.02376271070440272,
+          "cn_tv": 0.033072916666666646
+        },
+        {
+          "groups": [
+            [
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            [
+              0,
+              1,
               2,
               3,
               4
             ]
           ],
-          "gr_rms": 0.03381361981771801,
-          "cn_tv": 0.03884548611111112
+          "gr_rms": 0.02532642265786203,
+          "cn_tv": 0.04557291666666667
+        },
+        {
+          "groups": [
+            [
+              0,
+              6,
+              7,
+              8,
+              9
+            ],
+            [
+              1,
+              2,
+              3,
+              4,
+              5
+            ]
+          ],
+          "gr_rms": 0.021173614768289967,
+          "cn_tv": 0.03177083333333333
         },
         {
           "groups": [
             [
               0,
               1,
-              2
+              7,
+              8,
+              9
+            ],
+            [
+              2,
+              3,
+              4,
+              5,
+              6
+            ]
+          ],
+          "gr_rms": 0.022830159349567544,
+          "cn_tv": 0.028906249999999994
+        },
+        {
+          "groups": [
+            [
+              0,
+              1,
+              2,
+              8,
+              9
             ],
             [
               3,
-              4
+              4,
+              5,
+              6,
+              7
             ]
           ],
-          "gr_rms": 0.030593728946415478,
-          "cn_tv": 0.052300347222222224
+          "gr_rms": 0.02663801480065564,
+          "cn_tv": 0.03567708333333333
+        },
+        {
+          "groups": [
+            [
+              0,
+              1,
+              2,
+              3,
+              9
+            ],
+            [
+              4,
+              5,
+              6,
+              7,
+              8
+            ]
+          ],
+          "gr_rms": 0.02376271070440272,
+          "cn_tv": 0.033072916666666646
         }
       ]
     }
   },
   "nacl_aq": {
     "dialect": "core + molecular",
-    "n_pairs": 6,
-    "gr_rms_mean": 0.036792433828695896,
-    "gr_rms_max": 0.04366796641061264,
-    "gr_rms_q90": 0.04366796641061264,
-    "cn_tv_mean": 0.03292682926829268,
-    "cn_tv_max": 0.04146341463414635,
-    "cn_tv_q90": 0.04146341463414635,
+    "n_pairs": 21,
+    "gr_rms_mean": 0.034957927475857575,
+    "gr_rms_max": 0.044680608617326395,
+    "gr_rms_q90": 0.04245536908408723,
+    "cn_tv_mean": 0.0396341463414634,
+    "cn_tv_max": 0.06158536585365852,
+    "cn_tv_q90": 0.049390243902439034,
     "pairs": [
-      {
-        "frames": [
-          0,
-          2
-        ],
-        "gr_rms": 0.04366796641061264,
-        "cn_tv": 0.029878048780487804
-      },
-      {
-        "frames": [
-          0,
-          3
-        ],
-        "gr_rms": 0.03130010517790598,
-        "cn_tv": 0.0341463414634146
-      },
       {
         "frames": [
           0,
@@ -1135,38 +3072,174 @@
       },
       {
         "frames": [
-          1,
-          3
+          0,
+          5
         ],
-        "gr_rms": 0.02850688202309072,
-        "cn_tv": 0.029878048780487776
+        "gr_rms": 0.03615562408385489,
+        "cn_tv": 0.0347560975609756
+      },
+      {
+        "frames": [
+          0,
+          6
+        ],
+        "gr_rms": 0.029947193975891396,
+        "cn_tv": 0.02865853658536583
+      },
+      {
+        "frames": [
+          0,
+          7
+        ],
+        "gr_rms": 0.03411679704073997,
+        "cn_tv": 0.04085365853658536
+      },
+      {
+        "frames": [
+          0,
+          8
+        ],
+        "gr_rms": 0.031225785891611547,
+        "cn_tv": 0.035975609756097524
+      },
+      {
+        "frames": [
+          0,
+          9
+        ],
+        "gr_rms": 0.03287161899614167,
+        "cn_tv": 0.06158536585365852
       },
       {
         "frames": [
           1,
-          4
+          5
         ],
-        "gr_rms": 0.035605492663009476,
+        "gr_rms": 0.030824181009689932,
+        "cn_tv": 0.029268292682926817
+      },
+      {
+        "frames": [
+          1,
+          6
+        ],
+        "gr_rms": 0.025794702154659024,
+        "cn_tv": 0.04451219512195122
+      },
+      {
+        "frames": [
+          1,
+          7
+        ],
+        "gr_rms": 0.031232976204735717,
+        "cn_tv": 0.031097560975609746
+      },
+      {
+        "frames": [
+          1,
+          8
+        ],
+        "gr_rms": 0.027931593605996806,
+        "cn_tv": 0.04268292682926827
+      },
+      {
+        "frames": [
+          1,
+          9
+        ],
+        "gr_rms": 0.03432126148045294,
+        "cn_tv": 0.04756097560975608
+      },
+      {
+        "frames": [
+          2,
+          6
+        ],
+        "gr_rms": 0.038615505518701576,
         "cn_tv": 0.031097560975609763
       },
       {
         "frames": [
           2,
-          4
+          7
         ],
-        "gr_rms": 0.042555857129465476,
-        "cn_tv": 0.031097560975609742
+        "gr_rms": 0.04410737769379439,
+        "cn_tv": 0.032926829268292684
+      },
+      {
+        "frames": [
+          2,
+          8
+        ],
+        "gr_rms": 0.04245536908408723,
+        "cn_tv": 0.04024390243902438
+      },
+      {
+        "frames": [
+          2,
+          9
+        ],
+        "gr_rms": 0.044680608617326395,
+        "cn_tv": 0.03658536585365853
+      },
+      {
+        "frames": [
+          3,
+          7
+        ],
+        "gr_rms": 0.029051256341918616,
+        "cn_tv": 0.044512195121951204
+      },
+      {
+        "frames": [
+          3,
+          8
+        ],
+        "gr_rms": 0.03360600182597067,
+        "cn_tv": 0.035365853658536596
+      },
+      {
+        "frames": [
+          3,
+          9
+        ],
+        "gr_rms": 0.03808905807022862,
+        "cn_tv": 0.0347560975609756
+      },
+      {
+        "frames": [
+          4,
+          8
+        ],
+        "gr_rms": 0.03337242002837157,
+        "cn_tv": 0.03536585365853656
+      },
+      {
+        "frames": [
+          4,
+          9
+        ],
+        "gr_rms": 0.04108511812203552,
+        "cn_tv": 0.05365853658536584
+      },
+      {
+        "frames": [
+          5,
+          9
+        ],
+        "gr_rms": 0.035513727678709486,
+        "cn_tv": 0.049390243902439034
       }
     ],
-    "note": "floor = mean over frame pairs at lag >= 2 (the decorrelated half; 6 of 10 pairs, residual short-lag correlation must not shrink the floor)",
+    "note": "floor = mean over frame pairs at lag >= 4 (the decorrelated half; 21 of 45 pairs, residual short-lag correlation must not shrink the floor)",
     "all_pairs": {
-      "n_pairs": 10,
-      "gr_rms_mean": 0.035903340450033266,
-      "gr_rms_max": 0.04366796641061264,
+      "n_pairs": 45,
+      "gr_rms_mean": 0.03528661381398909,
+      "gr_rms_max": 0.044680608617326395,
       "gr_rms_q90": 0.042555857129465476,
-      "cn_tv_mean": 0.03201219512195121,
-      "cn_tv_max": 0.04268292682926826,
-      "cn_tv_q90": 0.04146341463414635,
+      "cn_tv_mean": 0.03859078590785906,
+      "cn_tv_max": 0.06402439024390244,
+      "cn_tv_q90": 0.049390243902439034,
       "pairs": [
         {
           "frames": [
@@ -1202,6 +3275,46 @@
         },
         {
           "frames": [
+            0,
+            5
+          ],
+          "gr_rms": 0.03615562408385489,
+          "cn_tv": 0.0347560975609756
+        },
+        {
+          "frames": [
+            0,
+            6
+          ],
+          "gr_rms": 0.029947193975891396,
+          "cn_tv": 0.02865853658536583
+        },
+        {
+          "frames": [
+            0,
+            7
+          ],
+          "gr_rms": 0.03411679704073997,
+          "cn_tv": 0.04085365853658536
+        },
+        {
+          "frames": [
+            0,
+            8
+          ],
+          "gr_rms": 0.031225785891611547,
+          "cn_tv": 0.035975609756097524
+        },
+        {
+          "frames": [
+            0,
+            9
+          ],
+          "gr_rms": 0.03287161899614167,
+          "cn_tv": 0.06158536585365852
+        },
+        {
+          "frames": [
             1,
             2
           ],
@@ -1226,6 +3339,46 @@
         },
         {
           "frames": [
+            1,
+            5
+          ],
+          "gr_rms": 0.030824181009689932,
+          "cn_tv": 0.029268292682926817
+        },
+        {
+          "frames": [
+            1,
+            6
+          ],
+          "gr_rms": 0.025794702154659024,
+          "cn_tv": 0.04451219512195122
+        },
+        {
+          "frames": [
+            1,
+            7
+          ],
+          "gr_rms": 0.031232976204735717,
+          "cn_tv": 0.031097560975609746
+        },
+        {
+          "frames": [
+            1,
+            8
+          ],
+          "gr_rms": 0.027931593605996806,
+          "cn_tv": 0.04268292682926827
+        },
+        {
+          "frames": [
+            1,
+            9
+          ],
+          "gr_rms": 0.03432126148045294,
+          "cn_tv": 0.04756097560975608
+        },
+        {
+          "frames": [
             2,
             3
           ],
@@ -1242,263 +3395,1069 @@
         },
         {
           "frames": [
+            2,
+            5
+          ],
+          "gr_rms": 0.0408682427017457,
+          "cn_tv": 0.02865853658536585
+        },
+        {
+          "frames": [
+            2,
+            6
+          ],
+          "gr_rms": 0.038615505518701576,
+          "cn_tv": 0.031097560975609763
+        },
+        {
+          "frames": [
+            2,
+            7
+          ],
+          "gr_rms": 0.04410737769379439,
+          "cn_tv": 0.032926829268292684
+        },
+        {
+          "frames": [
+            2,
+            8
+          ],
+          "gr_rms": 0.04245536908408723,
+          "cn_tv": 0.04024390243902438
+        },
+        {
+          "frames": [
+            2,
+            9
+          ],
+          "gr_rms": 0.044680608617326395,
+          "cn_tv": 0.03658536585365853
+        },
+        {
+          "frames": [
             3,
             4
           ],
           "gr_rms": 0.04029753858426022,
           "cn_tv": 0.04268292682926826
+        },
+        {
+          "frames": [
+            3,
+            5
+          ],
+          "gr_rms": 0.03586708549546849,
+          "cn_tv": 0.035975609756097565
+        },
+        {
+          "frames": [
+            3,
+            6
+          ],
+          "gr_rms": 0.026388511679429544,
+          "cn_tv": 0.03658536585365854
+        },
+        {
+          "frames": [
+            3,
+            7
+          ],
+          "gr_rms": 0.029051256341918616,
+          "cn_tv": 0.044512195121951204
+        },
+        {
+          "frames": [
+            3,
+            8
+          ],
+          "gr_rms": 0.03360600182597067,
+          "cn_tv": 0.035365853658536596
+        },
+        {
+          "frames": [
+            3,
+            9
+          ],
+          "gr_rms": 0.03808905807022862,
+          "cn_tv": 0.0347560975609756
+        },
+        {
+          "frames": [
+            4,
+            5
+          ],
+          "gr_rms": 0.035245642890181866,
+          "cn_tv": 0.0396341463414634
+        },
+        {
+          "frames": [
+            4,
+            6
+          ],
+          "gr_rms": 0.03781568994997768,
+          "cn_tv": 0.044512195121951204
+        },
+        {
+          "frames": [
+            4,
+            7
+          ],
+          "gr_rms": 0.035647758876504544,
+          "cn_tv": 0.032926829268292684
+        },
+        {
+          "frames": [
+            4,
+            8
+          ],
+          "gr_rms": 0.03337242002837157,
+          "cn_tv": 0.03536585365853656
+        },
+        {
+          "frames": [
+            4,
+            9
+          ],
+          "gr_rms": 0.04108511812203552,
+          "cn_tv": 0.05365853658536584
+        },
+        {
+          "frames": [
+            5,
+            6
+          ],
+          "gr_rms": 0.03788480550328654,
+          "cn_tv": 0.040853658536585354
+        },
+        {
+          "frames": [
+            5,
+            7
+          ],
+          "gr_rms": 0.035366976549967025,
+          "cn_tv": 0.03963414634146341
+        },
+        {
+          "frames": [
+            5,
+            8
+          ],
+          "gr_rms": 0.031500496727036434,
+          "cn_tv": 0.03780487804878048
+        },
+        {
+          "frames": [
+            5,
+            9
+          ],
+          "gr_rms": 0.035513727678709486,
+          "cn_tv": 0.049390243902439034
+        },
+        {
+          "frames": [
+            6,
+            7
+          ],
+          "gr_rms": 0.032390622712515256,
+          "cn_tv": 0.04817073170731708
+        },
+        {
+          "frames": [
+            6,
+            8
+          ],
+          "gr_rms": 0.032435109075652564,
+          "cn_tv": 0.04207317073170732
+        },
+        {
+          "frames": [
+            6,
+            9
+          ],
+          "gr_rms": 0.037759904450920014,
+          "cn_tv": 0.06402439024390244
+        },
+        {
+          "frames": [
+            7,
+            8
+          ],
+          "gr_rms": 0.0350103270814929,
+          "cn_tv": 0.03353658536585365
+        },
+        {
+          "frames": [
+            7,
+            9
+          ],
+          "gr_rms": 0.04287713515502154,
+          "cn_tv": 0.04817073170731707
+        },
+        {
+          "frames": [
+            8,
+            9
+          ],
+          "gr_rms": 0.03680773085505855,
+          "cn_tv": 0.053048780487804884
         }
       ]
     },
     "avg": {
-      "method": "floor of the frame-averaged statistic: per-frame observables averaged within disjoint frame groups, group-vs-group distance is one pair; A5 judges the ref_frames mean vs the mean of 3 rebuild draws at 1.5x max(mean, P90) of these pairs (review 3 / red-team F3)",
+      "method": "floor of the frame-averaged statistic: per-frame observables averaged within disjoint frame groups, group-vs-group distance is one pair; A5 judges the ref_frames mean vs the mean of 3 rebuild draws at 1.5x max(mean, P90) of these pairs (review 3 / red-team F3; pair count >= 10 per case, O8)",
       "ref_frames": [
         0,
         1,
         2,
         3,
-        4
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
       ],
-      "note": "averaged floor = the two disjoint splits (2v3, 3v2) of the case's frames",
-      "n_pairs": 2,
-      "gr_rms_mean": 0.022835193438013414,
-      "gr_rms_max": 0.025568007113988107,
-      "gr_rms_q90": 0.025568007113988107,
-      "cn_tv_mean": 0.02494918699186992,
-      "cn_tv_max": 0.025,
-      "cn_tv_q90": 0.025,
+      "note": "averaged floor = the rotated disjoint half-vs-half splits of the case's 10 frames (10 pairs, O8)",
+      "n_pairs": 10,
+      "gr_rms_mean": 0.016070013654836197,
+      "gr_rms_max": 0.01747106167218066,
+      "gr_rms_q90": 0.01747106167218066,
+      "cn_tv_mean": 0.015121951219512191,
+      "cn_tv_max": 0.021829268292682932,
+      "cn_tv_q90": 0.021829268292682932,
       "pairs": [
         {
           "groups": [
             [
               0,
-              1
+              1,
+              2,
+              3,
+              4
             ],
             [
+              5,
+              6,
+              7,
+              8,
+              9
+            ]
+          ],
+          "gr_rms": 0.014041895079275698,
+          "cn_tv": 0.013414634146341448
+        },
+        {
+          "groups": [
+            [
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            [
+              0,
+              6,
+              7,
+              8,
+              9
+            ]
+          ],
+          "gr_rms": 0.016038022009110323,
+          "cn_tv": 0.014512195121951215
+        },
+        {
+          "groups": [
+            [
+              2,
+              3,
+              4,
+              5,
+              6
+            ],
+            [
+              0,
+              1,
+              7,
+              8,
+              9
+            ]
+          ],
+          "gr_rms": 0.016722707113180062,
+          "cn_tv": 0.014024390243902429
+        },
+        {
+          "groups": [
+            [
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            [
+              0,
+              1,
+              2,
+              8,
+              9
+            ]
+          ],
+          "gr_rms": 0.01607638240043423,
+          "cn_tv": 0.011829268292682927
+        },
+        {
+          "groups": [
+            [
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            [
+              0,
+              1,
+              2,
+              3,
+              9
+            ]
+          ],
+          "gr_rms": 0.01747106167218066,
+          "cn_tv": 0.021829268292682932
+        },
+        {
+          "groups": [
+            [
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            [
+              0,
+              1,
               2,
               3,
               4
             ]
           ],
-          "gr_rms": 0.025568007113988107,
-          "cn_tv": 0.025
+          "gr_rms": 0.014041895079275698,
+          "cn_tv": 0.013414634146341448
+        },
+        {
+          "groups": [
+            [
+              0,
+              6,
+              7,
+              8,
+              9
+            ],
+            [
+              1,
+              2,
+              3,
+              4,
+              5
+            ]
+          ],
+          "gr_rms": 0.016038022009110323,
+          "cn_tv": 0.014512195121951215
         },
         {
           "groups": [
             [
               0,
               1,
-              2
+              7,
+              8,
+              9
+            ],
+            [
+              2,
+              3,
+              4,
+              5,
+              6
+            ]
+          ],
+          "gr_rms": 0.016722707113180062,
+          "cn_tv": 0.014024390243902429
+        },
+        {
+          "groups": [
+            [
+              0,
+              1,
+              2,
+              8,
+              9
             ],
             [
               3,
-              4
+              4,
+              5,
+              6,
+              7
             ]
           ],
-          "gr_rms": 0.020102379762038717,
-          "cn_tv": 0.02489837398373984
+          "gr_rms": 0.01607638240043423,
+          "cn_tv": 0.011829268292682927
+        },
+        {
+          "groups": [
+            [
+              0,
+              1,
+              2,
+              3,
+              9
+            ],
+            [
+              4,
+              5,
+              6,
+              7,
+              8
+            ]
+          ],
+          "gr_rms": 0.01747106167218066,
+          "cn_tv": 0.021829268292682932
         }
       ]
     }
   },
   "cu_solid_liquid": {
     "dialect": "core + metal",
-    "n_pairs": 6,
-    "gr_rms_mean": 0.061332750247310025,
-    "gr_rms_max": 0.07585381668358633,
-    "gr_rms_q90": 0.07585381668358633,
-    "cn_tv_mean": 0.053084935897435896,
-    "cn_tv_max": 0.0673076923076923,
-    "cn_tv_q90": 0.0673076923076923,
+    "n_pairs": 3,
+    "gr_rms_mean": 0.055011524114130385,
+    "gr_rms_max": 0.06003746139909977,
+    "gr_rms_q90": 0.06003746139909977,
+    "cn_tv_mean": 0.034455128205128194,
+    "cn_tv_max": 0.046875,
+    "cn_tv_q90": 0.046875,
     "pairs": [
       {
         "frames": [
           0,
-          2
+          8
         ],
-        "gr_rms": 0.07585381668358633,
-        "cn_tv": 0.0673076923076923
+        "gr_rms": 0.06003746139909977,
+        "cn_tv": 0.024038461538461495
       },
       {
         "frames": [
           0,
-          3
+          9
         ],
-        "gr_rms": 0.057139917469545026,
-        "cn_tv": 0.055288461538461516
-      },
-      {
-        "frames": [
-          0,
-          4
-        ],
-        "gr_rms": 0.06930906338833474,
-        "cn_tv": 0.058894230769230754
+        "gr_rms": 0.056586760549589735,
+        "cn_tv": 0.03245192307692309
       },
       {
         "frames": [
           1,
-          3
+          9
         ],
-        "gr_rms": 0.04953001588919361,
-        "cn_tv": 0.043269230769230775
-      },
-      {
-        "frames": [
-          1,
-          4
-        ],
-        "gr_rms": 0.052258278958048715,
-        "cn_tv": 0.0456730769230769
-      },
-      {
-        "frames": [
-          2,
-          4
-        ],
-        "gr_rms": 0.0639054090951517,
-        "cn_tv": 0.04807692307692309
+        "gr_rms": 0.048410350393701666,
+        "cn_tv": 0.046875
       }
     ],
-    "note": "floor = mean over frame pairs at lag >= 2 (the decorrelated half; 6 of 10 pairs, residual short-lag correlation must not shrink the floor)",
+    "note": "floor = mean over frame pairs at lag >= 8 (the decorrelated half; 3 of 45 pairs, residual short-lag correlation must not shrink the floor)",
     "all_pairs": {
-      "n_pairs": 10,
-      "gr_rms_mean": 0.06120774075563964,
-      "gr_rms_max": 0.07585381668358633,
-      "gr_rms_q90": 0.07214869581677372,
-      "cn_tv_mean": 0.04807692307692307,
-      "cn_tv_max": 0.0673076923076923,
-      "cn_tv_q90": 0.06129807692307695,
+      "n_pairs": 45,
+      "gr_rms_mean": 0.055567096833294756,
+      "gr_rms_max": 0.07162569492340896,
+      "gr_rms_q90": 0.06635763379708483,
+      "cn_tv_mean": 0.03875534188034188,
+      "cn_tv_max": 0.0745192307692308,
+      "cn_tv_q90": 0.05649038461538458,
       "pairs": [
         {
           "frames": [
             0,
             1
           ],
-          "gr_rms": 0.07032435909409127,
-          "cn_tv": 0.039663461538461516
+          "gr_rms": 0.05685354394928385,
+          "cn_tv": 0.057692307692307696
         },
         {
           "frames": [
             0,
             2
           ],
-          "gr_rms": 0.07585381668358633,
-          "cn_tv": 0.0673076923076923
+          "gr_rms": 0.04779405621003061,
+          "cn_tv": 0.03725961538461535
         },
         {
           "frames": [
             0,
             3
           ],
-          "gr_rms": 0.057139917469545026,
-          "cn_tv": 0.055288461538461516
+          "gr_rms": 0.05674610638837944,
+          "cn_tv": 0.01081730769230767
         },
         {
           "frames": [
             0,
             4
           ],
-          "gr_rms": 0.06930906338833474,
-          "cn_tv": 0.058894230769230754
+          "gr_rms": 0.0569392718094285,
+          "cn_tv": 0.02403846153846151
+        },
+        {
+          "frames": [
+            0,
+            5
+          ],
+          "gr_rms": 0.03852593977400781,
+          "cn_tv": 0.03846153846153848
+        },
+        {
+          "frames": [
+            0,
+            6
+          ],
+          "gr_rms": 0.06635763379708483,
+          "cn_tv": 0.03846153846153849
+        },
+        {
+          "frames": [
+            0,
+            7
+          ],
+          "gr_rms": 0.05015792004825899,
+          "cn_tv": 0.042067307692307696
+        },
+        {
+          "frames": [
+            0,
+            8
+          ],
+          "gr_rms": 0.06003746139909977,
+          "cn_tv": 0.024038461538461495
+        },
+        {
+          "frames": [
+            0,
+            9
+          ],
+          "gr_rms": 0.056586760549589735,
+          "cn_tv": 0.03245192307692309
         },
         {
           "frames": [
             1,
             2
           ],
-          "gr_rms": 0.07214869581677372,
-          "cn_tv": 0.06129807692307695
+          "gr_rms": 0.04886313040990135,
+          "cn_tv": 0.04567307692307696
         },
         {
           "frames": [
             1,
             3
           ],
-          "gr_rms": 0.04953001588919361,
-          "cn_tv": 0.043269230769230775
+          "gr_rms": 0.04872195870340273,
+          "cn_tv": 0.06730769230769229
         },
         {
           "frames": [
             1,
             4
           ],
-          "gr_rms": 0.052258278958048715,
-          "cn_tv": 0.0456730769230769
+          "gr_rms": 0.044109650518581275,
+          "cn_tv": 0.05649038461538462
+        },
+        {
+          "frames": [
+            1,
+            5
+          ],
+          "gr_rms": 0.047803271644693675,
+          "cn_tv": 0.0745192307692308
+        },
+        {
+          "frames": [
+            1,
+            6
+          ],
+          "gr_rms": 0.059138476159653834,
+          "cn_tv": 0.026442307692307668
+        },
+        {
+          "frames": [
+            1,
+            7
+          ],
+          "gr_rms": 0.04445783902781368,
+          "cn_tv": 0.03485576923076923
+        },
+        {
+          "frames": [
+            1,
+            8
+          ],
+          "gr_rms": 0.05590633691846647,
+          "cn_tv": 0.05048076923076922
+        },
+        {
+          "frames": [
+            1,
+            9
+          ],
+          "gr_rms": 0.048410350393701666,
+          "cn_tv": 0.046875
         },
         {
           "frames": [
             2,
             3
           ],
-          "gr_rms": 0.06380928696480233,
-          "cn_tv": 0.03125000000000001
+          "gr_rms": 0.05223045565245894,
+          "cn_tv": 0.042067307692307654
         },
         {
           "frames": [
             2,
             4
           ],
-          "gr_rms": 0.0639054090951517,
-          "cn_tv": 0.04807692307692309
+          "gr_rms": 0.05590408268183536,
+          "cn_tv": 0.026442307692307664
+        },
+        {
+          "frames": [
+            2,
+            5
+          ],
+          "gr_rms": 0.05329383246526177,
+          "cn_tv": 0.0516826923076923
+        },
+        {
+          "frames": [
+            2,
+            6
+          ],
+          "gr_rms": 0.07026756670164916,
+          "cn_tv": 0.04326923076923078
+        },
+        {
+          "frames": [
+            2,
+            7
+          ],
+          "gr_rms": 0.051337984188919765,
+          "cn_tv": 0.04687500000000001
+        },
+        {
+          "frames": [
+            2,
+            8
+          ],
+          "gr_rms": 0.06340613806283504,
+          "cn_tv": 0.027644230769230727
+        },
+        {
+          "frames": [
+            2,
+            9
+          ],
+          "gr_rms": 0.05065233205743584,
+          "cn_tv": 0.046874999999999986
         },
         {
           "frames": [
             3,
             4
           ],
-          "gr_rms": 0.03779856419686884,
-          "cn_tv": 0.0300480769230769
+          "gr_rms": 0.04939147244003404,
+          "cn_tv": 0.021634615384615422
+        },
+        {
+          "frames": [
+            3,
+            5
+          ],
+          "gr_rms": 0.052852599152741174,
+          "cn_tv": 0.04086538461538458
+        },
+        {
+          "frames": [
+            3,
+            6
+          ],
+          "gr_rms": 0.07042552026542105,
+          "cn_tv": 0.04326923076923078
+        },
+        {
+          "frames": [
+            3,
+            7
+          ],
+          "gr_rms": 0.062190830846654124,
+          "cn_tv": 0.04927884615384613
+        },
+        {
+          "frames": [
+            3,
+            8
+          ],
+          "gr_rms": 0.05887408851028838,
+          "cn_tv": 0.030048076923076913
+        },
+        {
+          "frames": [
+            3,
+            9
+          ],
+          "gr_rms": 0.05287396309376129,
+          "cn_tv": 0.034855769230769176
+        },
+        {
+          "frames": [
+            4,
+            5
+          ],
+          "gr_rms": 0.05030510372596883,
+          "cn_tv": 0.046874999999999986
+        },
+        {
+          "frames": [
+            4,
+            6
+          ],
+          "gr_rms": 0.06532982407979615,
+          "cn_tv": 0.03725961538461539
+        },
+        {
+          "frames": [
+            4,
+            7
+          ],
+          "gr_rms": 0.05166572145515207,
+          "cn_tv": 0.036057692307692304
+        },
+        {
+          "frames": [
+            4,
+            8
+          ],
+          "gr_rms": 0.04988508800361498,
+          "cn_tv": 0.016826923076923093
+        },
+        {
+          "frames": [
+            4,
+            9
+          ],
+          "gr_rms": 0.0640093795287074,
+          "cn_tv": 0.03485576923076921
+        },
+        {
+          "frames": [
+            5,
+            6
+          ],
+          "gr_rms": 0.07162569492340896,
+          "cn_tv": 0.05168269230769236
+        },
+        {
+          "frames": [
+            5,
+            7
+          ],
+          "gr_rms": 0.04343969498423705,
+          "cn_tv": 0.055288461538461564
+        },
+        {
+          "frames": [
+            5,
+            8
+          ],
+          "gr_rms": 0.04962044493593056,
+          "cn_tv": 0.05649038461538458
+        },
+        {
+          "frames": [
+            5,
+            9
+          ],
+          "gr_rms": 0.06003146002187676,
+          "cn_tv": 0.0324519230769231
+        },
+        {
+          "frames": [
+            6,
+            7
+          ],
+          "gr_rms": 0.06960618763292901,
+          "cn_tv": 0.02283653846153847
+        },
+        {
+          "frames": [
+            6,
+            8
+          ],
+          "gr_rms": 0.06494482132062832,
+          "cn_tv": 0.03245192307692307
+        },
+        {
+          "frames": [
+            6,
+            9
+          ],
+          "gr_rms": 0.05026197928233303,
+          "cn_tv": 0.022836538461538478
+        },
+        {
+          "frames": [
+            7,
+            8
+          ],
+          "gr_rms": 0.052032044343076365,
+          "cn_tv": 0.026442307692307675
+        },
+        {
+          "frames": [
+            7,
+            9
+          ],
+          "gr_rms": 0.06556876740678325,
+          "cn_tv": 0.026442307692307685
+        },
+        {
+          "frames": [
+            8,
+            9
+          ],
+          "gr_rms": 0.06108257203314729,
+          "cn_tv": 0.032451923076923045
         }
       ]
     },
     "avg": {
-      "method": "floor of the frame-averaged statistic: per-frame observables averaged within disjoint frame groups, group-vs-group distance is one pair; A5 judges the ref_frames mean vs the mean of 3 rebuild draws at 1.5x max(mean, P90) of these pairs (review 3 / red-team F3)",
+      "method": "floor of the frame-averaged statistic: per-frame observables averaged within disjoint frame groups, group-vs-group distance is one pair; A5 judges the ref_frames mean vs the mean of 3 rebuild draws at 1.5x max(mean, P90) of these pairs (review 3 / red-team F3; pair count >= 10 per case, O8)",
       "ref_frames": [
         0,
         1,
         2,
         3,
-        4
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
       ],
-      "note": "averaged floor = the two disjoint splits (2v3, 3v2) of the case's frames",
-      "n_pairs": 2,
-      "gr_rms_mean": 0.0398189346026078,
-      "gr_rms_max": 0.041641973964095975,
-      "gr_rms_q90": 0.041641973964095975,
-      "cn_tv_mean": 0.04066506410256414,
-      "cn_tv_max": 0.048277243589743626,
-      "cn_tv_q90": 0.048277243589743626,
+      "note": "averaged floor = the rotated disjoint half-vs-half splits of the case's 10 frames (10 pairs, O8)",
+      "n_pairs": 10,
+      "gr_rms_mean": 0.024245576479159425,
+      "gr_rms_max": 0.029040695497254874,
+      "gr_rms_q90": 0.029040695497254874,
+      "cn_tv_mean": 0.01778846153846155,
+      "cn_tv_max": 0.025961538461538522,
+      "cn_tv_q90": 0.025961538461538522,
       "pairs": [
         {
           "groups": [
             [
               0,
-              1
+              1,
+              2,
+              3,
+              4
             ],
             [
+              5,
+              6,
+              7,
+              8,
+              9
+            ]
+          ],
+          "gr_rms": 0.026065316002931972,
+          "cn_tv": 0.025961538461538522
+        },
+        {
+          "groups": [
+            [
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            [
+              0,
+              6,
+              7,
+              8,
+              9
+            ]
+          ],
+          "gr_rms": 0.027392586558349433,
+          "cn_tv": 0.0173076923076924
+        },
+        {
+          "groups": [
+            [
+              2,
+              3,
+              4,
+              5,
+              6
+            ],
+            [
+              0,
+              1,
+              7,
+              8,
+              9
+            ]
+          ],
+          "gr_rms": 0.01874184245674738,
+          "cn_tv": 0.02115384615384613
+        },
+        {
+          "groups": [
+            [
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            [
+              0,
+              1,
+              2,
+              8,
+              9
+            ]
+          ],
+          "gr_rms": 0.019987441880513466,
+          "cn_tv": 0.011298076923076902
+        },
+        {
+          "groups": [
+            [
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            [
+              0,
+              1,
+              2,
+              3,
+              9
+            ]
+          ],
+          "gr_rms": 0.029040695497254874,
+          "cn_tv": 0.013221153846153789
+        },
+        {
+          "groups": [
+            [
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            [
+              0,
+              1,
               2,
               3,
               4
             ]
           ],
-          "gr_rms": 0.041641973964095975,
-          "cn_tv": 0.048277243589743626
+          "gr_rms": 0.026065316002931972,
+          "cn_tv": 0.025961538461538522
+        },
+        {
+          "groups": [
+            [
+              0,
+              6,
+              7,
+              8,
+              9
+            ],
+            [
+              1,
+              2,
+              3,
+              4,
+              5
+            ]
+          ],
+          "gr_rms": 0.027392586558349433,
+          "cn_tv": 0.0173076923076924
         },
         {
           "groups": [
             [
               0,
               1,
-              2
+              7,
+              8,
+              9
+            ],
+            [
+              2,
+              3,
+              4,
+              5,
+              6
+            ]
+          ],
+          "gr_rms": 0.01874184245674738,
+          "cn_tv": 0.02115384615384613
+        },
+        {
+          "groups": [
+            [
+              0,
+              1,
+              2,
+              8,
+              9
             ],
             [
               3,
-              4
+              4,
+              5,
+              6,
+              7
             ]
           ],
-          "gr_rms": 0.037995895241119626,
-          "cn_tv": 0.03305288461538465
+          "gr_rms": 0.019987441880513466,
+          "cn_tv": 0.011298076923076902
+        },
+        {
+          "groups": [
+            [
+              0,
+              1,
+              2,
+              3,
+              9
+            ],
+            [
+              4,
+              5,
+              6,
+              7,
+              8
+            ]
+          ],
+          "gr_rms": 0.029040695497254874,
+          "cn_tv": 0.013221153846153789
         }
       ]
     }

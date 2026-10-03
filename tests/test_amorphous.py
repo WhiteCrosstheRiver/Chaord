@@ -3,6 +3,8 @@
 Exit criteria (PLAN M5): constrained quantities held within tolerance;
 amorphous held-out statistics within 1.5x the noise floor on >= 80% of cases.
 """
+import inspect
+
 import numpy as np
 import pytest
 
@@ -11,6 +13,7 @@ from chaord.cv.glass import ring_distribution, voronoi_index_distribution
 from chaord.dialects import load_dialect
 from chaord.io.frames import Frame
 from chaord.lang.api import load
+from chaord.lang.errors import ChaordError
 from chaord.lang.fmt import format_program
 from chaord.lift import lift_frame
 from chaord.realize.protocols import parse_history, restrained_sample, run_protocol
@@ -95,7 +98,17 @@ def test_amorphous_round_trip_statistics(dialect, tmp_path):
     glass_anneal_* in glass.yaml), at the N=500 size the criterion is
     calibrated on (A5's reference glass). A shorter toy protocol would put
     the frame in a different (faster-quenched) family than the lifted
-    program rebuilds from."""
+    program rebuilds from.
+
+    O10 (Review 7): the floor is the cross-quench scale of two INDEPENDENTLY
+    PREPARED reference glasses (independent_glass_floor below -- fresh
+    seeds, complete protocol, never the tested rebuild, its later frames,
+    or any other quantity of the system under test; AGENTS.md: a floor never
+    includes the tested system).  The previous gate took max(later-frame
+    floor, distance between two rebuilds): a noisy rebuild then widened its
+    own tolerance -- two rebuilds that landed in distant basins certified
+    exactly that larger distance as acceptable.  The independent floor is
+    the same construction A5's glass floor uses (cross-quench pairs)."""
     from chaord.build import build_program
     from chaord.cv.noise import observables, distance
     text = AMORPH_PROGRAM.format(n=500, rho=0.95)
@@ -103,25 +116,7 @@ def test_amorphous_round_trip_statistics(dialect, tmp_path):
     path.write_text(text)
     rng = np.random.default_rng(17)
     frame = build_program(load(path), dialect, rng=rng, physics=True)
-
-    # independent later frames of the same protocol continuation -- SEVERAL,
-    # not one: the frame-pair distance is itself a random draw (measured on
-    # the reference glass: the pair max is ~1.5x the pair mean), so a
-    # single-pair floor makes the 1.5x gate a coin flip against a single
-    # rebuild draw (the 2026-09-30 clean machine failed this test on cn_tv
-    # exactly that way). The floor is the max over the later-frame pairs,
-    # the same conservative tail estimator the acceptance criterion uses
-    # (max(mean, P90) -- with 3 pairs P90 == max).
-    from chaord.realize.lj import LJ, run_md
-    lj = LJ(frame.cell_diag, rc=2.5, skin=0.3)
     oo = observables(frame, dialect)
-    floors = []
-    for _ in range(3):
-        v = rng.normal(size=frame.pos.shape) * np.sqrt(0.05)
-        r_later, _ = run_md(frame.pos.copy(), v, frame.cell_diag, 400,
-                            0.005, 0.05, 0.5, rng, lj=lj)
-        later = Frame(pos=r_later, cell=frame.cell, symbols=frame.symbols)
-        floors.append(distance(oo, observables(later, dialect)))
 
     program = lift_frame(frame, dialect)
     ppath = tmp_path / "lifted.chaord"
@@ -130,25 +125,12 @@ def test_amorphous_round_trip_statistics(dialect, tmp_path):
     rebuilt = build_program(load(ppath), dialect, rng=rng2, physics=True)
     assert len(rebuilt) == 500  # never drop an atom
 
-    # a SECOND independent rebuild: two rebuilds are two independent quenches,
-    # so their separation is the basin-to-basin scale -- the floor a rebuild
-    # must clear (the Review-2 glass lesson: a floor from within ONE
-    # preparation understates the distance an independent preparation sits
-    # at; the 2026-10-02 clean machine failed exactly this way -- the rebuild
-    # drew a different basin while the later-frame floor measured only
-    # thermal noise around the first basin)
-    rebuilt2 = build_program(load(ppath), dialect,
-                             rng=np.random.default_rng(31), physics=True)
-    cross = distance(observables(rebuilt, dialect),
-                     observables(rebuilt2, dialect))
-
+    floor = independent_glass_floor(dialect)
     d = distance(oo, observables(rebuilt, dialect))
-    for k in d:
-        floor = max(max(f[k] for f in floors), cross[k])
-        print(f"{k}: {d[k]:.3f} vs floor {floor:.3f} "
-              f"(later {max(f[k] for f in floors):.3f}, cross-quench "
-              f"{cross[k]:.3f}; x{d[k]/max(floor,1e-9):.2f})")
-        assert d[k] <= 1.5 * max(floor, 1e-6), k
+    for k in sorted(d):
+        print(f"{k}: {d[k]:.3f} vs floor {floor[k]:.3f} "
+              f"(x{d[k]/max(floor[k],1e-9):.2f})")
+        assert d[k] <= 1.5 * max(floor[k], 1e-6), k
 
 
 def test_amorphous_lift_program(dialect, tmp_path):
@@ -236,3 +218,117 @@ def test_shortest_controller(dialect):
                                           physics=False))
     assert "conserve atoms X 200" in text  # conservation always survives
     assert name in ("full", "no-asserts", "minimal")
+
+
+# ------------------------------------------------- O9: crystals never amorphous
+
+def lj_crystal(proto, rho_star, rep, jitter=0.0, seed=0):
+    """Perfect (or lightly jittered, wrapped) prototype crystal in LJ sigma
+    units, X species: the glass dialect's own unit system (glass.yaml is
+    exercised exclusively with the lj backend, whose sigma unit is the A)."""
+    from ase.build import bulk
+    if proto == "hcp":
+        a = (2.0 / (0.8660254 * 2 * 1.633 * rho_star)) ** (1.0 / 3.0)
+        at = bulk("X", "hcp", a=a, c=1.633 * a).repeat(rep)
+    else:
+        per_cell = {"fcc": 4, "bcc": 2, "diamond": 8, "sc": 1}[proto]
+        a = (per_cell / rho_star) ** (1.0 / 3.0)
+        at = bulk("X", proto, a=a, cubic=True).repeat(rep)
+    at.set_masses(np.full(len(at), 1.0))
+    pos = at.positions
+    if jitter:
+        pos = pos + np.random.default_rng(seed).normal(0, jitter, pos.shape)
+    L = at.cell.lengths()
+    # wrap: stored/reference frames are wrapped, and unwrapped jitter used to
+    # crash typical_neighbor_distance inside network_edges (a crash the
+    # amorphous gate then swallowed as a False -- a bug it must not rely on)
+    return Frame(pos=np.mod(pos, L), cell=np.diag(L),
+                 symbols=["X"] * len(at), pbc=(True,) * 3)
+
+
+@pytest.mark.parametrize(
+    "proto,rho", [("fcc", 0.85), ("fcc", 1.0), ("bcc", 0.85), ("bcc", 1.0),
+                  ("hcp", 0.85), ("hcp", 1.0), ("diamond", 0.85),
+                  ("diamond", 1.0), ("sc", 0.85)])
+def test_perfect_crystal_never_lifts_as_amorphous(dialect, proto, rho):
+    """O9 (Review 7): a crystal must never promote to the amorphous macrostate
+    under any dialect.  The glass dialect's phase-indicator cutoff used to be
+    3.0 in oxide-network A; in the LJ sigma units the dialect is exercised in
+    it averaged q6 over ~3 neighbour shells, which erases the crystal signal
+    (multi-shell q6bar of perfect fcc measures 0.021, far below q6_solid) and
+    let a perfect fcc crystal pass is_amorphous.  Unit discipline: the glass
+    dialect's q6_cutoff states the same first-shell sigma cutoff the lj
+    dialect states (value change flagged for owner approval in glass.yaml)."""
+    from chaord.lift.amorphous import is_amorphous
+    frame = lj_crystal(proto, rho, (4, 4, 4) if proto == "hcp" else 4)
+    assert not is_amorphous(frame, dialect), \
+        f"perfect {proto} crystal at rho*={rho} promotes as amorphous"
+    with pytest.raises(ChaordError, match="not a bonded disordered network"):
+        lift_frame(frame, dialect, mode="amorphous")
+
+
+@pytest.mark.parametrize("jitter", [0.03, 0.06])
+@pytest.mark.parametrize("rho", [0.85, 1.0])
+def test_thermal_crystal_never_lifts_as_amorphous(dialect, rho, jitter):
+    """Same invariant for a thermally vibrating crystal (wrapped, as stored
+    frames are): the arm the cascade reaches when the exact crystal engines
+    refuse a noisy lattice must not be the amorphous one."""
+    from chaord.lift.amorphous import is_amorphous
+    frame = lj_crystal("fcc", rho, 5, jitter=jitter, seed=3)
+    assert not is_amorphous(frame, dialect), \
+        f"fcc crystal at rho*={rho} with {jitter} sigma jitter promotes as amorphous"
+
+
+# --------------------------------------- O10: floor excludes the tested system
+
+def test_round_trip_floor_excludes_the_system_under_test():
+    """O10 (Review 7): the round-trip gate's floor must never include a
+    quantity measured on the system under test.
+
+    The gate in test_amorphous_round_trip_statistics used to take
+    ``max(later-frame floor, distance between two rebuilds)``: a noisy rebuild
+    then widened its own tolerance (AGENTS.md rule: a floor or tolerance never
+    includes a quantity measured on the system under test).  The floor must
+    come from two INDEPENDENTLY PREPARED reference glasses (fresh seeds, full
+    protocol), the same cross-quench construction A5's glass floor uses.
+
+    This test fails while the inclusion stands and passes only when the gate
+    reads its floor from the independent-preparation helper alone."""
+    src = inspect.getsource(test_amorphous_round_trip_statistics)
+    assert "independent_glass_floor(" in src, \
+        "the round-trip gate must take its floor from " \
+        "independent_glass_floor(dialect), not from the tested preparation"
+    for banned in ("cross[", "cross =", "max(f[k] for f in floors)",
+                   "floors.append"):
+        assert banned not in src, \
+            f"the gate still folds '{banned}' (a quantity of the tested " \
+            "system) into its own floor"
+    helper = inspect.getsource(independent_glass_floor)
+    for tested_seed in ("default_rng(17)", "default_rng(23)",
+                        "default_rng(31)"):
+        assert tested_seed not in helper, \
+            "the floor helper reuses a seed of the tested preparation"
+
+
+def independent_glass_floor(dialect, n=500, rho=0.95, seeds=(101, 102)):
+    """O10 floor: the cross-quench scale from TWO independently prepared
+    reference glasses -- complete melt-quench-anneal preparations with fresh
+    seeds, never the tested rebuild, its later frames, or any other quantity
+    of the system under test (AGENTS.md: a floor never includes the tested
+    system).  Same construction as A5's cross-quench glass floor."""
+    import tempfile
+    from pathlib import Path
+
+    from chaord.build import build_program
+    from chaord.cv.noise import observables, distance
+    text = AMORPH_PROGRAM.format(n=n, rho=rho)
+    glasses = []
+    with tempfile.TemporaryDirectory() as td:
+        for seed in seeds:
+            path = Path(td) / f"floor_glass_{seed}.chaord"
+            path.write_text(text)
+            glasses.append(build_program(
+                load(path), dialect,
+                rng=np.random.default_rng(seed), physics=True))
+    a, b = (observables(g, dialect) for g in glasses)
+    return distance(a, b)

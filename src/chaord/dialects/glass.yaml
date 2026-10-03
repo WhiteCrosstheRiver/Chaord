@@ -11,7 +11,24 @@ thresholds:
   cn_cutoff: 2.85                 # Si-Si first shell, A
   ring_search_max: 12             # largest ring size searched
   bond_tolerance: 1.25              # bond length in units of covalent radii sums
-  q6_cutoff: 3.0                    # phase-indicator cutoff for networks, A
+  # VALUE CHANGE (Review 7 / O9, 2026-10-02, PENDING OWNER APPROVAL):
+  # 3.0 -> 1.3.  The old 3.0 was meant in oxide-network A, but this dialect
+  # is exercised exclusively with the lj backend, whose unit is the sigma
+  # (glass.yaml has no unit override; core + glass thresholds apply to LJ
+  # frames in A = sigma).  In sigma units 3.0 averages q6 over ~3 neighbour
+  # shells, which ERASES the crystal signal (multi-shell q6bar of a perfect
+  # fcc crystal measures 0.021, far below q6_solid 0.32), so a perfect fcc
+  # crystal passed is_amorphous and lifted as `amorphous glass` (O9).  Unit
+  # discipline: the value now states the same first-shell cutoff the lj
+  # dialect states (lj.yaml q6_cutoff 1.45 sigma); 1.3 is the widest
+  # first-shell cutoff that rejects every prototype crystal at rho* 0.85-1.1
+  # (measured q6bar: fcc 0.575, bcc 0.511-0.629, hcp 0.485, diamond 0.629,
+  # sc 0.354, all above q6_solid with 12/8/12/4/6 neighbours; at 1.35 hcp
+  # picks up its 2nd shell and falls to 0.224 -- below threshold).  If the
+  # owner later scopes this dialect to oxide networks in A again, q6_cutoff
+  # must be re-derived for that unit (a per-dialect unit override), never
+  # set to a value that spans neighbour shells in the frames it classifies.
+  q6_cutoff: 1.3                    # phase-indicator cutoff (first neighbour shell, sigma units for LJ frames)
   q6_solid: 0.32
   amorphous_solid_frac_max: 0.30   # q6-solid fraction allowed in an amorphous frame
   amorphous_network_min: 0.60      # fraction of 3-6 coordinated atoms required

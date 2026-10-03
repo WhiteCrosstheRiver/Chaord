@@ -85,7 +85,24 @@
         "rmax": 2.5,
         "note": "LJ glass first peak ~1.1 sigma"
       }
-    ]
+    ],
+    "amorphous": {
+      "temperature_star": 0.01,
+      "virial_cutoff_sigma": 2.5,
+      "energy": "LJ cut and shifted at 2.5 sigma",
+      "pressure_star": {
+        "target": 0.0,
+        "tolerance": 0.3,
+        "note": "near-zero hydrostatic pressure; the stored frames measure -1.57..-1.22 (tension)"
+      },
+      "empty_radius_max_sigma": 1.2,
+      "empty_fraction_max": 0.02,
+      "crystal_like_max": 0.01,
+      "crystal_like_definition": "averaged q6 > 0.32, cutoff 1.45 sigma (core lj dialect), Review 7's bound",
+      "energy_flatness_per_quench": 0.02,
+      "energy_flatness_note": "max minus min energy/atom across the sampled frames of one quench; the torn reference drifts 0.035-0.055",
+      "note": "Review 7 O9 amorphous-reference sanity: an amorphous reference must be an unstressed, void-free, uncrystallised, stationary glass. The current frames FAIL pressure, voids, crystallinity and flatness (see known_limitation); the bounds are the acceptance targets for the replacement reference."
+    }
   },
   "case": "lj_glass",
   "wall_clock_s": 4320.5,
@@ -165,5 +182,6 @@
       "step": 19600,
       "quench": 2
     }
-  ]
+  ],
+  "amorphous_sanity_limitation": "O9 (Review 7, 2026-10-02): the stored frames are not a homogeneous glass but a solid under tension that tears during the anneal. Measured amorphous_sanity on the stored frames: virial pressure -1.57..-1.22 (LJ units), largest empty sphere 2.75-3.25 sigma (48^3 grid), volume fraction >1 sigma from any atom 6.5-8.2%, crystal-like fraction 0.8-8.6%, sampled-frame energy drift 0.035-0.055 per atom. The prescribed constant-zero-pressure regeneration (Review 7's quick path) was attempted with ase.md.nptberendsen.NPTBerendsen (P*=0 via pressure_au = P* x eps/sigma^3 = P* eV/A^3; taut 0.02-0.1 tau, taup = 1 tau, kappa 0.1-1.0 A^3/eV; melt at T*=1.2 = the P=0 dense liquid, T*=2.0 is impossible at P=0 because Tc*=1.31; linear quenches at 0.40/0.80/1.59 T*/tau and an instantaneous bath quench; 22 seeded quenches at N=500): monatomic LJ crystallises stochastically on the way to its zero-pressure glass density -- crystal-like fraction 0.4-47.6%, median ~3%, best single seed 1.0% -- because the consolidation at P=0, T*=0.01 creeps through rho* ~0.8-1.01, the fcc ground-state density, and fcc order grows even while cold. The <1% crystal-like bound that decides the route (Review 7) fails on nearly every quench, so the route fails. The Kob-Andersen 80:20 binary that avoids monatomic crystallisation needs two species in the amorphous builder (lift + build) -- out of scope for this stream; owner decision pending. Frames, protocol and this limitation record stay frozen until that decision. The four amorphous sanity bounds are enforced by tests/test_reference_data.py::test_amorphous_reference_sanity, which passes only when they hold or when this limitation is on record. This record deliberately does NOT use the known_limitation field: that field excludes a case from A5's reference cases (tools/acceptance.py _reference_cases), which would silently drop the glass round trip from the criterion while its floors and rebuilds still function."
 }

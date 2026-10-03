@@ -33,7 +33,7 @@
     "dt_fs": 0.050903
   },
   "protocol": {
-    "description": "Chaord prototype protocol (prototype/make_snapshot.py), upscaled to N=2304 for the >= 2000-atom heterogeneous A9 frame (external review 3, Q11, 2026-09-30): fcc(6x6x16) at rho*=0.96 with the lower half frozen; melt the upper half at T*=2.5 (Langevin, 1500 steps, verified liquid: g(r) peak height 5.59 < 75% of the crystal value); stretch the liquid half along z to rho*=0.845 about the interface plane; release all atoms, equilibrate the whole cell at T*=0.65 (4000 steps) and sample 5 frames at 500-step (2.5 tau) intervals; dt*=0.005",
+    "description": "Chaord prototype protocol (prototype/make_snapshot.py), upscaled to N=2304 for the >= 2000-atom heterogeneous A9 frame (external review 3, Q11, 2026-09-30): fcc(6x6x16) at rho*=0.96 with the lower half frozen; melt the upper half at T*=2.5 (Langevin, 1500 steps, verified liquid: g(r) peak height 5.59 < 75% of the crystal value); stretch the liquid half along z to rho*=0.845 about the interface plane; release all atoms, equilibrate the whole cell at T*=0.65 (4000 steps) and sample 10 frames at 500-step (2.5 tau) intervals; dt*=0.005. Frame count 5 -> 10, O8 Reviews 4-5: >= 10 frames so the averaged floor rests on >= 10 pairs; stride unchanged (2.5 tau, measured decorrelated), frames 0-4 reproduce the previous case",
     "upscale_note": "protocol structure identical to the previous N=832 case (fcc 4x4x13); geometry 6x6x16 chosen over 8x8x13 because the liquid half-slab must fit the lj dialect's bulk-statistics zone (bulk_margin 2.5 + gr_rmax 2.5 = 5.0 sigma inside the film half-height Hl): 8x8x13 keeps the z geometry, whose constructed Hl ~ 5.9 sigma erodes to ~5.0 as the interface advances (measured on the 832-atom frames: Hl 4.98-5.40, one frame already triggered the thin_slab_margin_fraction shrink 2.50 -> 1.99), while 6x6x16 starts at Hl ~ 7.3 sigma (recorded below) and the full bulk margins fit on every frame. Equilibration scaled by diffusive mixing, t_mix ~ L^2 ~ N^(2/3): (2304/832)^(2/3) = 1.97, so 2000 steps -> 4000 (20 tau). Sampling stride 2.5 tau retained after measuring the pair-distance lag decay on 10 pre-run frames of this protocol: distances are flat in lag from 2.5 tau on (gr_rms 0.044 at lag 1 vs 0.042 at lags 2-8, cn_tv 0.027 vs ~0.030 -- the 832-atom case still showed lag-1 correlation), so the floor's lag >= 2 pairs (>= 5 tau) are decorrelated",
     "geometry": {
       "a0_sigma": 1.609149,
@@ -119,7 +119,7 @@
     ]
   },
   "case": "lj_solid_liquid",
-  "wall_clock_s": 580.1,
+  "wall_clock_s": 815.4,
   "frames": [
     {
       "file": "frame_0.npz",
@@ -140,6 +140,26 @@
     {
       "file": "frame_4.npz",
       "step": 8000
+    },
+    {
+      "file": "frame_5.npz",
+      "step": 8500
+    },
+    {
+      "file": "frame_6.npz",
+      "step": 9000
+    },
+    {
+      "file": "frame_7.npz",
+      "step": 9500
+    },
+    {
+      "file": "frame_8.npz",
+      "step": 10000
+    },
+    {
+      "file": "frame_9.npz",
+      "step": 10500
     }
   ]
 }
