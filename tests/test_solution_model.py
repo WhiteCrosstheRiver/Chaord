@@ -57,6 +57,7 @@ residual none
 provenance {
   dialects "core 0.1.0 + molecular 0.1.0"
   lift_version "0.1.0"
+  note "water model tip4p assumed from r_OH median 0.9572 A (geometry cannot distinguish models sharing this bond length, e.g. TIP3P/TIP4P/TIP4P-2005)"
 }
 """
 

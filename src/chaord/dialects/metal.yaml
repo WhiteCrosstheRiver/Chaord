@@ -67,6 +67,14 @@ thresholds:
     relax_gamma: 2.0
     reference_T_K: 300           # stated when the program has no state T
     kB_eV_per_K: 8.617333262e-5  # Boltzmann constant, eV/K
+  printed_cutoff: "3.25"         # cutoff the slab lifter states in the physics
+                                   # block (metadata); the analytic F-S pair functions
+                                   # vanish quadratically at max(c, d) = 3.25 A for Cu
+                                   # (see realize/eam.py). NEW KEY (Reviews 4-7 O11,
+                                   # 2026-10-03, pending human approval): core + metal
+                                   # previously defined no printed_cutoff, so the slab
+                                   # lift of a metal solid-liquid interface failed on
+                                   # the threshold lookup before any fitting happened
   eam_force_symmetry_tol: 1.0e-9 # perfect-lattice residual force, eV/A
   eam_scan_lo: 0.95              # uniform-scale energy scan window (fraction)
   eam_scan_hi: 1.05

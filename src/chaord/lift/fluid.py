@@ -243,10 +243,19 @@ def lift_fluid(frame: Frame, dialect, T=None, backend=None) -> Program:
         Statement(kind="build", key="lift_version",
                   values=[StrVal(text="0.1.0")]),
     ]
-    if molecular and "H2O" in census and water_model is None and water_oh is not None:
-        # honest record when no table entry claims the geometry
-        note = (f"water r_OH median {water_oh:.4f} A matches no water_models "
-                f"entry; the default applies")
+    if molecular and "H2O" in census and water_oh is not None:
+        # O12b (Reviews 4-7): the O-H length alone cannot name the model --
+        # TIP3P, TIP4P and TIP4P/2005 all use r(O-H) = 0.9572 A. A table
+        # match picks the entry, but the choice is ASSUMED from the geometry
+        # family unless the input names it (nothing in the frame does);
+        # unclassifiable geometry keeps the honest no-match note
+        if water_model is None:
+            note = (f"water r_OH median {water_oh:.4f} A matches no "
+                    f"water_models entry; the default applies")
+        else:
+            note = (f"water model {water_model} assumed from r_OH median "
+                    f"{water_oh:.4f} A (geometry cannot distinguish models "
+                    f"sharing this bond length, e.g. TIP3P/TIP4P/TIP4P-2005)")
         provenance_stmts.append(Statement(
             kind="build", key="note", values=[StrVal(text=note)]))
     if isinstance(T, AssumedT):

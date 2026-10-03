@@ -78,7 +78,14 @@ def main() -> int:
 
     from chaord.cv.noise import observables, distance
     eff = acc._a5_effective_floor(fl)
-    t1 = acc.format_program_text(lift_frame(frame, dl))
+    # O6 (Reviews 4-7): lift at the PROVENANCE temperature, exactly as
+    # check_a5 does -- lifting without T states the dialect default (0.65)
+    # as fact while the reference ran at 0.72, and Act 3 then demonstrates a
+    # wrong temperature must fail
+    prov = json.loads((ROOT / "bench" / "reference" / "lj_liquid" /
+                       "provenance.json").read_text(encoding="utf-8"))
+    tstar = acc._provenance_tstar(prov)
+    t1 = acc.format_program_text(lift_frame(frame, dl, T=tstar))
     print()
     print("Act 1: liquid lj_liquid lift -> build -> lift -- the statistical")
     print("       regime: the assert VALUES are measurements of a chaotic MD")
