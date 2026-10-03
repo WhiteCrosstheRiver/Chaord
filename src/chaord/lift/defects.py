@@ -193,24 +193,68 @@ def _anchor_seed(frame: Frame, name: str, eff_slots: tuple,
     `ideal_sites` generates origin-anchored sites; a rigidly transformed input
     carries an arbitrary offset. Any atom of the anchor species (the species
     of basis site 0, so the seed preserves the ordered species pattern) sits
-    on a basis site up to its own displacement, so a few spread over the
-    lexsorted anchor atoms seed candidate offsets; interstitials among them
-    lose on the gate. Returns the seed scoring best at the base lattice
-    estimate, or None when no seed brings sites near atoms."""
-    sites0, s_sp = ideal_sites(name, a0, frame.cell, eff_slots)
+    on a basis site up to its own displacement, so EVERY anchor atom is a
+    valid seed; a wrong-sublattice seed loses on the species gate. The
+    candidates are the anchor atoms' positions reduced modulo the lattice
+    constant and deduplicated (one representative per offset cluster), plus
+    the origin -- a deterministic, content-fixed set that any rigid
+    translation of the frame maps onto itself. Returns the seed scoring best
+    at the stated lattice estimate, or None when no seed brings sites near
+    atoms."""
+    return _best_offset(name, a0, frame, eff_slots, species_aware, tree, tol)
+
+
+def _offset_pool(pos: np.ndarray, a: float, radius: float) -> list[np.ndarray]:
+    """One representative per mod-a cluster of the anchor atoms' offsets.
+
+    Two atoms of the anchor species on the same sublattice differ by a
+    lattice vector plus their mutual thermal displacement, so their offsets
+    mod a sit within a jitter-sized cluster; atoms on different sublattices
+    are at least a/2 apart. Keeping one lexorder-fixed representative per
+    cluster (dedup radius = the site tolerance) covers every distinct
+    sublattice offset with a handful of candidates, whatever the frame's
+    translation or atom ordering -- the seed itself may change within a
+    cluster, but every member is a valid seed and the caller's
+    mean-displacement correction removes the chosen seed's own displacement
+    (see `_canonical_shifts`)."""
+    offs = np.mod(np.asarray(pos, float), a)
+    order = np.lexsort((offs[:, 2], offs[:, 1], offs[:, 0]))
+    kept: list[np.ndarray] = []
+    for idx in order:
+        o = offs[idx]
+        dup = False
+        for k in kept:
+            d = o - k
+            d -= a * np.round(d / a)
+            if float(np.linalg.norm(d)) <= radius:
+                dup = True
+                break
+        if not dup:
+            kept.append(o)
+    return kept
+
+
+def _best_offset(name: str, a: float, frame: Frame, eff_slots: tuple,
+                 species_aware: bool, tree, tol: float):
+    """Best site offset at the FIXED lattice constant `a` over the
+    deterministic candidate set (the origin plus every mod-a offset cluster
+    of the anchor species), scored by species-correct site coverage then by
+    mean matched distance -- the same key the scan ranks candidates with
+    (O1 root cause b: the previous 4 lexsorted seeds could miss the lattice
+    translation entirely; the pool cannot, every cluster IS a translation
+    the frame declares)."""
+    sites0, s_sp = ideal_sites(name, a, frame.cell, eff_slots)
     sym_arr = np.array(frame.symbols)
     site_species = np.array(s_sp)
     if species_aware:
-        pos = frame.pos[sym_arr == s_sp[0]]
-        if len(pos) == 0:
-            pos = frame.pos
+        mask = sym_arr == s_sp[0]
+        pos = frame.pos[mask] if mask.any() else frame.pos
     else:
         pos = frame.pos
-    order = np.lexsort((pos[:, 2], pos[:, 1], pos[:, 0]))  # content-fixed seeds
-    picks = pos[order[np.linspace(0, len(order) - 1, 4).astype(int)]]
+    candidates = [np.zeros(3)] + _offset_pool(pos, a, tol)
     L = frame.cell_diag
     best = None
-    for s0 in picks:
+    for s0 in candidates:
         sites = _wrap_strict(sites0 + s0, L)
         d_site, i_atom = tree.query(sites)
         near = d_site < tol
@@ -222,6 +266,62 @@ def _anchor_seed(frame: Frame, name: str, eff_slots: tuple,
         if best is None or key < best[0]:
             best = (key, s0)
     return None if best is None else best[1]
+
+
+def _tiling_constants(a_lo: float, a_hi: float, frame: Frame, dialect):
+    """Lattice constants that tile the periodic box an integer number of
+    times per axis within the scan band, in the builder's own cell-contract
+    tolerance (`lattice_match_tolerance`, one definition on both sides,
+    rule 7).
+
+    `snap_a_to_cell` snaps one scanned constant to the box; this enumerates
+    EVERY plausible tiling inside the band so a drifted scan optimum cannot
+    hide the true one (O1 root cause c: the scan accepted constants that
+    cannot tile the box, and Chaord's own builder refused the program). The
+    box lengths are exact rigid invariants, so the shortlist is itself
+    invariant under translation, rotation and re-imaging by construction."""
+    from itertools import product
+    L = np.asarray(frame.cell_diag, float)
+    tol_tile = float(dialect.threshold("lattice_match_tolerance"))
+    out = []
+    ranges = []
+    for i in range(3):
+        r_min = max(1, int(np.floor(L[i] / a_hi)))
+        r_max = int(np.ceil(L[i] / a_lo))
+        ranges.append(range(r_min, r_max + 1))
+    for reps in product(*ranges):
+        per_axis = L / np.array(reps, float)
+        a = float(per_axis.mean())
+        # same single-constant test snap_a_to_cell applies (cubic tiling)
+        if a_lo <= a <= a_hi and float(np.max(np.abs(per_axis - a))) <= tol_tile:
+            out.append(a)
+    return sorted(set(out))
+
+
+def _canonical_shifts(name: str, a: float, frame: Frame, eff_slots: tuple,
+                      species_aware: bool, shift: np.ndarray,
+                      tree, tol: float) -> list[np.ndarray]:
+    """[shift + mean-displacement correction, shift]: canonical form first.
+
+    A seed atom carries its own thermal displacement, which offsets the
+    whole site lattice; the minimum-image mean over every matched site-atom
+    pair is the same information the quench springs use, averaged over the
+    frame. The corrected offset is independent of WHICH valid seed started
+    the chain (the seed's own displacement appears in both its site lattice
+    and the mean, and cancels), so the final site lattice is a canonical
+    function of the frame content -- the property that makes the lift
+    byte-identical under arbitrary rigid translation."""
+    sites, s_sp = _anchored_sites(name, a, frame, eff_slots, shift)
+    d_ref, i_ref = tree.query(sites)
+    near_ref = d_ref < tol
+    if species_aware:
+        near_ref = near_ref & (np.array(frame.symbols)[i_ref]
+                               == np.array(s_sp))
+    if not near_ref.any():
+        return [shift]
+    corr = mic(frame.pos[i_ref[near_ref]] - sites[near_ref],
+               frame.cell_diag).mean(axis=0)
+    return [shift + corr, shift]
 
 
 def _anchored_sites(name: str, a: float, frame: Frame, eff_slots: tuple,
@@ -383,6 +483,37 @@ def fit_crystal(frame: Frame, dialect):
             if sites_fin is not None:
                 return (g_fin, mean_fin, aa, sites_fin, sp_fin)
             return (-_neg_gate, mean_d, aa, sites, s_sp)
+
+        # ---- O1 tiling-first fit (Review 6) --------------------------------
+        # When the box declares its lattice (an integer tiling inside the
+        # d_NN-plausible band), the candidate constants ARE those tilings and
+        # the anchor comes from the deterministic all-atom offset pool, then
+        # canonicalised by the mean matched displacement. Both the constant
+        # shortlist and the canonical offset are functions of rigid
+        # invariants alone, so the fitted (constant, site lattice) pair --
+        # and the lifted text -- cannot follow a translation or re-imaging
+        # of the input, whatever the scan optimum would have been (the
+        # origin-anchored chain below is kept for boxes no constant tiles,
+        # e.g. clipped region slabs, whose frames legitimately keep the
+        # scanned value and the builder's honest refusal).
+        best_tiling = None
+        for aa in _tiling_constants(lo * a0, hi * a0, frame, dialect):
+            shift = _best_offset(name, aa, frame, eff_slots, species_aware,
+                                 tree, tol)
+            if shift is None:
+                continue
+            for sh in _canonical_shifts(name, aa, frame, eff_slots,
+                                        species_aware, shift, tree, tol):
+                g_t, mean_t, sites_t, s_sp_t = quality(aa, sh)
+                if sites_t is None:
+                    continue        # corrected form first, raw seed as backup
+                key = (g_t, -mean_t)
+                if best_tiling is None or key > best_tiling[0]:
+                    best_tiling = (key, aa, g_t, mean_t, sites_t, s_sp_t)
+                break
+        if best_tiling is not None:
+            _key, aa, gate_t, mean_t, sites_t, s_sp_t = best_tiling
+            return (aa, gate_t, sites_t, s_sp_t, mean_t)
 
         # translation re-anchoring (rule 3): the origin-anchored chain is the
         # historical fit and stays in force unless the frame was re-imaged --
