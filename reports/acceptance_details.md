@@ -25,7 +25,7 @@ Per-case numbers behind `reports/acceptance.json`.  Written by `tools/acceptance
 
 ## A3 exact round trip (ordered) — PASS
 
-**Evidence:** 9/9 lift-build-lift texts byte-identical; 9/9 structure fits original vs rebuilt ON THE STORED THERMAL FRAMES (p90 matched displacement vs 0.15 d_NN; PLAN's pymatgen matcher is inapplicable to jittered supercells -- deviation flagged for approval; species arrangement for random solutions still judged by Warren-Cowley alpha vs the relabel noise floor)
+**Evidence:** 9/9 lift-build-lift texts byte-identical; 9/9 structure fits original vs rebuilt ON THE STORED THERMAL FRAMES (GATE as applied: translation-aligned optimal assignment, displaced mass beyond 0.25 d_NN <= 5%); PLAN's pymatgen StructureMatcher is not the gate -- default primitive reduction fits 0/9 thermal-vs-rebuild, primitive_cell=False misses l12_ni3al (committed measurements, pending decision D6); species arrangement for random solutions still judged by Warren-Cowley alpha vs the relabel noise floor)
 
 | case | lift-build-lift text | StructureMatcher |
 | --- | --- | --- |
@@ -41,7 +41,7 @@ Per-case numbers behind `reports/acceptance.json`.  Written by `tools/acceptance
 
 ## A4 defect recovery — PASS
 
-**Evidence:** 26 host x defect-type x temperature cells (3 hosts, all four K-V kinds plus one mixed-kind cell on fcc-Cu and L12-NiAl); precision >= 0.95 in 26/26, recall >= 0.95 in 26/26; worst precision 1.00 (fcc-Cu/vacancy/room), worst recall 1.00 (fcc-Cu/vacancy/room)
+**Evidence:** 26 host x defect-type x temperature cells (3 hosts, all four K-V kinds plus one mixed-kind cell on fcc-Cu and L12-NiAl); interstitials planted at real octahedral (fcc-family) / tetrahedral (rocksalt) interstices, planted events >= 2 d_NN apart, every planted frame >= 0.8 x its contact floor on the minimum-pair sanity check; precision >= 0.95 in 26/26, recall >= 0.95 in 26/26; worst precision 1.00 (fcc-Cu/vacancy/room), worst recall 1.00 (fcc-Cu/vacancy/room)
 
 | host | type | temp | planted | detected | P | R | tp/fp/fn |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -60,7 +60,7 @@ Per-case numbers behind `reports/acceptance.json`.  Written by `tools/acceptance
 | L12-NiAl | interstitial | room | Ni_i:3 | Ni_i:3 | 1.00 | 1.00 | 3/0/0 |
 | L12-NiAl | interstitial | 0.8Tm | Ni_i:3 | Ni_i:3 | 1.00 | 1.00 | 3/0/0 |
 | L12-NiAl | frenkel | room | frenkel_pair:3 | frenkel_pair:3 | 1.00 | 1.00 | 3/0/0 |
-| L12-NiAl | frenkel | 0.8Tm | frenkel_pair:3 | frenkel_pair:3 | 1.00 | 1.00 | 3/0/0 |
+| L12-NiAl | frenkel | 0.8Tm | frenkel_pair:3 | V_Al:1,Al_i:1,frenkel_pair:2 | 1.00 | 1.00 | 3/0/0 |
 | L12-NiAl | mixed | room | V_Ni:3+Al_Ni:4+Ni_i:3 | V_Ni:3,Al_Ni:4,Ni_i:3 | 1.00 | 1.00 | 10/0/0 |
 | L12-NiAl | mixed | 0.8Tm | V_Ni:3+Al_Ni:4+Ni_i:3 | V_Ni:3,Al_Ni:4,Ni_i:3 | 1.00 | 1.00 | 10/0/0 |
 | NaCl | vacancy | room | V_Na:6 | V_Na:6 | 1.00 | 1.00 | 6/0/0 |
@@ -69,21 +69,21 @@ Per-case numbers behind `reports/acceptance.json`.  Written by `tools/acceptance
 | NaCl | antisite | 0.8Tm | Cl_Na:4 | Cl_Na:4 | 1.00 | 1.00 | 4/0/0 |
 | NaCl | interstitial | room | Na_i:3 | Na_i:3 | 1.00 | 1.00 | 3/0/0 |
 | NaCl | interstitial | 0.8Tm | Na_i:3 | Na_i:3 | 1.00 | 1.00 | 3/0/0 |
-| NaCl | frenkel | room | frenkel_pair:3 | frenkel_pair:3 | 1.00 | 1.00 | 3/0/0 |
-| NaCl | frenkel | 0.8Tm | frenkel_pair:3 | frenkel_pair:3 | 1.00 | 1.00 | 3/0/0 |
+| NaCl | frenkel | room | frenkel_pair:3 | V_Na:3,Na_i:3 | 1.00 | 1.00 | 3/0/0 |
+| NaCl | frenkel | 0.8Tm | frenkel_pair:3 | V_Na:3,Na_i:3 | 1.00 | 1.00 | 3/0/0 |
 
 ## A5 statistical round trip — PASS
 
-**Evidence:** pass rate 6/6-with-floor; fluid: 4/4 (target >= 90%); interface: 1/1 (target >= 90%); glass: 1/1 (target >= 80%); 6 cases without a floor on record: no-floor: skipped (synthetic frame); floor provenance: floor = mean over the cross-quench frame pairs (last two, most-annealed frames of each of the 3 independent quenches, identical protocol, distinct seeds).; floor = mean over frame pairs at lag >= 2 (the decorrelated half; 6 of 10 pairs, residual short-lag correlation must not shrink the floor).; floor = pooled decorrelated frame pairs of 2 independent trajectories (within-trajectory lag >= 2 plus cross pairs of the decorrelated halves; cross sits only +1%/+10% above within -- an equilibrated liquid carries no preparation memory, unlike the glass quenches; the second trajectory supplies the independent pairs the floor's upper quantile needs).; floor = mean over frame pairs at lag >= 2 (the decorrelated half; 6 of 10 pairs, residual short-lag correlation must not shrink the floor); frames spaced 5 ps (beyond the water structural relaxation time, Review 2): the floor is not shrunk by residual inter-frame correlation. (full notes: details rows / noise_floors.json)
+**Evidence:** pass rate 6/6-with-floor; fluid: 4/4 (target >= 90%); interface: 1/1 (target >= 90%); glass: 1/1 (target >= 80%); 6 cases without a floor on record: no-floor: skipped (synthetic frame); floor provenance: floor = mean over the cross-quench frame pairs (last two, most-annealed frames of each of the 3 independent quenches, identical protocol, distinct seeds).; floor = mean over frame pairs at lag >= 4 (the decorrelated half; 21 of 45 pairs, residual short-lag correlation must not shrink the floor).; floor = pooled decorrelated frame pairs of 2 independent trajectories (within-trajectory lag >= 2 plus cross pairs of the decorrelated halves; cross sits only +1%/+10% above within -- an equilibrated liquid carries no preparation memory, unlike the glass quenches; the second trajectory supplies the independent pairs the floor's upper quantile needs).; floor = mean over frame pairs at lag >= 4 (the decorrelated half; 21 of 45 pairs, residual short-lag correlation must not shrink the floor); frames spaced 5 ps (beyond the water structural relaxation time, Review 2): the floor is not shrunk by residual inter-frame correlation. (full notes: details rows / noise_floors.json)
 
 | case | category | status | T | backend | md_steps | distances | ratios |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| reference/lj_glass | glass | pass (cn_tv 0.030 vs floor 0.034 (x0.9; floor = max(mean 0.031, P90 0.034); ref = mean obs of frames [3, 4, 8, 9, 13, 14]; draws 0.045/0.059/0.031); gr_rms 0.025 vs floor 0.051 (x0.5; floor = max(mean 0.045, P90 0.051); ref = mean obs of frames [3, 4, 8, 9, 13, 14]; draws 0.041/0.034/0.041); per-draw median 0.045/0.041; floor: floor = mean over the cross-quench frame pairs (last two, most-annealed frames of each of the 3 independent quenches, identical protocol, distinct seeds). Within-one-quench pairs of the same frames (intra_quench below) share the anneal basin and sit closer; a floor built from them is too tight for a perfect independent rebuild (Review 2).) | - | lj | 18819 |  |  |
-| reference/lj_liquid | fluid | pass (cn_tv 0.021 vs floor 0.042 (x0.5; floor = max(mean 0.035, P90 0.042); ref = mean obs of frames [0, 1, 2, 3, 4]; draws 0.046/0.040/0.053); gr_rms 0.040 vs floor 0.068 (x0.6; floor = max(mean 0.065, P90 0.068); ref = mean obs of frames [0, 1, 2, 3, 4]; draws 0.061/0.061/0.053); per-draw median 0.046/0.061; floor: floor = mean over frame pairs at lag >= 2 (the decorrelated half; 6 of 10 pairs, residual short-lag correlation must not shrink the floor)) | 0.72 | lj | 7400 |  |  |
-| reference/lj_liquid_large | fluid | pass (cn_tv 0.010 vs floor 0.017 (x0.6; floor = max(mean 0.014, P90 0.017); ref = mean obs of frames [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; draws 0.032/0.012/0.012); gr_rms 0.022 vs floor 0.033 (x0.7; floor = max(mean 0.025, P90 0.033); ref = mean obs of frames [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; draws 0.037/0.034/0.026); per-draw median 0.012/0.034; floor: floor = pooled decorrelated frame pairs of 2 independent trajectories (within-trajectory lag >= 2 plus cross pairs of the decorrelated halves; cross sits only +1%/+10% above within -- an equilibrated liquid carries no preparation memory, unlike the glass quenches; the second trajectory supplies the independent pairs the floor's upper quantile needs)) | 0.72 | lj | 7400 |  |  |
-| reference/lj_solid_liquid | interface | pass (cn_tv 0.009 vs floor 0.020 (x0.5; floor = max(mean 0.016, P90 0.020); ref = mean obs of frames [0, 1, 2, 3, 4]; draws 0.015/0.022/0.008); gr_rms 0.025 vs floor 0.030 (x0.9; floor = max(mean 0.026, P90 0.030); ref = mean obs of frames [0, 1, 2, 3, 4]; draws 0.029/0.024/0.037); per-draw median 0.015/0.029; floor: floor = mean over frame pairs at lag >= 2 (the decorrelated half; 6 of 10 pairs, residual short-lag correlation must not shrink the floor)) | 0.65 | lj | 7400 |  |  |
-| reference/nacl_aq | fluid | pass (cn_tv 0.027 vs floor 0.025 (x1.1; floor = max(mean 0.025, P90 0.025); ref = mean obs of frames [0, 1, 2, 3, 4]; draws 0.044/0.028/0.038); gr_rms 0.024 vs floor 0.026 (x0.9; floor = max(mean 0.023, P90 0.026); ref = mean obs of frames [0, 1, 2, 3, 4]; draws 0.030/0.035/0.027); per-draw median 0.038/0.030; floor: floor = mean over frame pairs at lag >= 2 (the decorrelated half; 6 of 10 pairs, residual short-lag correlation must not shrink the floor)) | - | classical | 0 |  |  |
-| reference/water_tip4p | fluid | pass (cn_tv 0.035 vs floor 0.052 (x0.7; floor = max(mean 0.046, P90 0.052); ref = mean obs of frames [0, 1, 2, 3, 4]; draws 0.043/0.070/0.047); gr_rms 0.036 vs floor 0.034 (x1.1; floor = max(mean 0.032, P90 0.034); ref = mean obs of frames [0, 1, 2, 3, 4]; draws 0.043/0.051/0.044); per-draw median 0.047/0.044; floor: floor = mean over frame pairs at lag >= 2 (the decorrelated half; 6 of 10 pairs, residual short-lag correlation must not shrink the floor); frames spaced 5 ps (beyond the water structural relaxation time, Review 2): the floor is not shrunk by residual inter-frame correlation) | - | classical | 0 |  |  |
+| reference/lj_glass | glass | pass (cn_tv 0.030 vs floor 0.035 (x0.9; floor = max(mean 0.030, P90 0.035); ref = mean obs of frames [3, 4, 8, 9, 13, 14]; draws 0.045/0.059/0.031); gr_rms 0.025 vs floor 0.051 (x0.5; floor = max(mean 0.045, P90 0.051); ref = mean obs of frames [3, 4, 8, 9, 13, 14]; draws 0.041/0.034/0.041); per-draw median 0.045/0.041; floor: floor = mean over the cross-quench frame pairs (last two, most-annealed frames of each of the 3 independent quenches, identical protocol, distinct seeds). Within-one-quench pairs of the same frames (intra_quench below) share the anneal basin and sit closer; a floor built from them is too tight for a perfect independent rebuild (Review 2).) | - | lj | 18819 |  |  |
+| reference/lj_liquid | fluid | pass (cn_tv 0.026 vs floor 0.041 (x0.6; floor = max(mean 0.029, P90 0.041); ref = mean obs of frames [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; draws 0.043/0.034/0.064); gr_rms 0.030 vs floor 0.047 (x0.6; floor = max(mean 0.044, P90 0.047); ref = mean obs of frames [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; draws 0.055/0.048/0.054); per-draw median 0.043/0.054; floor: floor = mean over frame pairs at lag >= 4 (the decorrelated half; 21 of 45 pairs, residual short-lag correlation must not shrink the floor)) | 0.72 | lj | 7400 |  |  |
+| reference/lj_liquid_large | fluid | pass (cn_tv 0.010 vs floor 0.017 (x0.6; floor = max(mean 0.012, P90 0.017); ref = mean obs of frames [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; draws 0.032/0.012/0.012); gr_rms 0.022 vs floor 0.033 (x0.7; floor = max(mean 0.028, P90 0.033); ref = mean obs of frames [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; draws 0.037/0.034/0.026); per-draw median 0.012/0.034; floor: floor = pooled decorrelated frame pairs of 2 independent trajectories (within-trajectory lag >= 2 plus cross pairs of the decorrelated halves; cross sits only +1%/+10% above within -- an equilibrated liquid carries no preparation memory, unlike the glass quenches; the second trajectory supplies the independent pairs the floor's upper quantile needs)) | 0.72 | lj | 7400 |  |  |
+| reference/lj_solid_liquid | interface | pass (cn_tv 0.009 vs floor 0.021 (x0.4; floor = max(mean 0.014, P90 0.021); ref = mean obs of frames [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; draws 0.010/0.023/0.013); gr_rms 0.022 vs floor 0.019 (x1.2; floor = max(mean 0.017, P90 0.019); ref = mean obs of frames [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; draws 0.025/0.021/0.036); per-draw median 0.013/0.025; floor: floor = mean over frame pairs at lag >= 4 (the decorrelated half; 21 of 45 pairs, residual short-lag correlation must not shrink the floor)) | 0.65 | lj | 7400 |  |  |
+| reference/nacl_aq | fluid | pass (cn_tv 0.024 vs floor 0.022 (x1.1; floor = max(mean 0.015, P90 0.022); ref = mean obs of frames [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; draws 0.041/0.026/0.034); gr_rms 0.022 vs floor 0.017 (x1.3; floor = max(mean 0.016, P90 0.017); ref = mean obs of frames [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; draws 0.029/0.033/0.026); per-draw median 0.034/0.029; floor: floor = mean over frame pairs at lag >= 4 (the decorrelated half; 21 of 45 pairs, residual short-lag correlation must not shrink the floor)) | - | classical | 0 |  |  |
+| reference/water_tip4p | fluid | pass (cn_tv 0.034 vs floor 0.046 (x0.7; floor = max(mean 0.035, P90 0.046); ref = mean obs of frames [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; draws 0.054/0.058/0.044); gr_rms 0.032 vs floor 0.027 (x1.2; floor = max(mean 0.024, P90 0.027); ref = mean obs of frames [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; draws 0.041/0.047/0.042); per-draw median 0.054/0.042; floor: floor = mean over frame pairs at lag >= 4 (the decorrelated half; 21 of 45 pairs, residual short-lag correlation must not shrink the floor); frames spaced 5 ps (beyond the water structural relaxation time, Review 2): the floor is not shrunk by residual inter-frame correlation) | - | classical | 0 |  |  |
 | fluid/water_box15 | fluid | no-floor: skipped (synthetic frame) | - | classical | 0 | gr_rms=0.319, cn_tv=0.450 |  |
 | fluid/ar_gas_box25 | fluid | no-floor: skipped (synthetic frame) | - | classical | 0 | gr_rms=0.769, cn_tv=0.160 |  |
 | fluid/n2_box22 | fluid | no-floor: skipped (synthetic frame) | - | classical | 0 | gr_rms=1.126, cn_tv=0.319 |  |
@@ -252,7 +252,7 @@ Per-case numbers behind `reports/acceptance.json`.  Written by `tools/acceptance
 
 ## A9 compression — PASS
 
-**Evidence:** 5 measured systems with >= 1,000 atoms (bench frames + independent-MD reference frames); worst ratio 0.55% (reference/lj_solid_liquid, 2304 atoms); worst crystal-class 0.49% (crystals/l12_ni3al, 1372 atoms); worst heterogeneous-class 0.55% (reference/lj_solid_liquid, 2304 atoms); the >= 1,000-atom gate is evidenced on heterogeneous systems (2 of 5 gated measurements); reference frames not liftable (recorded, not gated): reference/cu_solid_liquid ChaordError: extended bonded component (832 Cu atoms): not a molecular fl; per-case table in details
+**Evidence:** 5 measured systems with >= 1,000 atoms (bench frames + independent-MD reference frames); worst ratio 0.67% (reference/nacl_aq, 1640 atoms); worst crystal-class 0.49% (crystals/l12_ni3al, 1372 atoms); worst heterogeneous-class 0.67% (reference/nacl_aq, 1640 atoms); the >= 1,000-atom gate is evidenced on heterogeneous systems (2 of 5 gated measurements); per-case table in details
 
 | case | atoms | program B | extxyz B | ratio % | source |
 | --- | --- | --- | --- | --- | --- |
@@ -269,26 +269,26 @@ Per-case numbers behind `reports/acceptance.json`.  Written by `tools/acceptance
 | defects/rocksalt_nacl_vna | 210 | 393 | 11690 | 3.36 | bench |
 | fluid/ar_gas_box25 | 50 | 379 | 2847 | 13.31 | bench |
 | fluid/n2_box22 | 160 | 381 | 8898 | 4.28 | bench |
-| fluid/water_box15 | 180 | 401 | 9998 | 4.01 | bench |
-| gases/co2_dense | 180 | 387 | 9998 | 3.87 | bench |
+| fluid/water_box15 | 180 | 553 | 9998 | 5.53 | bench |
+| gases/co2_dense | 180 | 387 | 10001 | 3.87 | bench |
 | glass/lj_glass_rho085 | 200 | 506 | 11137 | 4.54 | bench |
 | interface/lj_solid_liquid | 512 | 766 | 28300 | 2.71 | bench |
 | interfaces/cu_water | 792 | 755 | 43661 | 1.73 | bench |
-| reactive/water_oh_h_box20 | 177 | 434 | 9833 | 4.41 | bench |
+| reactive/water_oh_h_box20 | 177 | 586 | 9833 | 5.96 | bench |
 | solutions/cuau_random | 108 | 370 | 6080 | 6.09 | bench |
 | solutions/lipf6_ec | 432 | 447 | 23858 | 1.87 | bench |
-| solutions/nacl_aq | 376 | 449 | 20778 | 2.16 | bench |
+| solutions/nacl_aq | 376 | 601 | 20778 | 2.89 | bench |
 | surface/ni111_o_top | 80 | 485 | 4538 | 10.69 | bench |
 | surfaces/pt111_o | 80 | 485 | 4532 | 10.70 | bench |
-| surfaces/si001_2x1 | 63 | 560 | 3604 | 15.54 | bench |
+| surfaces/si001_2x1 | 63 | 465 | 3604 | 12.90 | bench |
 | defects/l12_ni3al_vac_antisite tiled 2x2 (supplementary, not a raw bench frame) | 1012 | 415 | 55765 | 0.74 | tiled-supplementary |
+| reference/cu_solid_liquid | 832 | 1830 | 45873 | 3.99 | reference |
 | reference/lj_glass | 2048 | 512 | 112778 | 0.45 | reference |
 | reference/lj_liquid | 500 | 442 | 27637 | 1.60 | reference |
 | reference/lj_liquid_large | 2048 | 446 | 112778 | 0.40 | reference |
 | reference/lj_solid_liquid | 2304 | 692 | 126858 | 0.55 | reference |
-| reference/nacl_aq | 1640 | 458 | 90341 | 0.51 | reference |
-| reference/water_tip4p | 768 | 403 | 42377 | 0.95 | reference |
-| reference/cu_solid_liquid | - | - | - | not liftable | ChaordError: extended bonded component (832 Cu atoms): not a molecular fl |
+| reference/nacl_aq | 1640 | 609 | 90341 | 0.67 | reference |
+| reference/water_tip4p | 768 | 555 | 42377 | 1.31 | reference |
 
 ## A10 determinism — PASS
 
@@ -297,7 +297,7 @@ Per-case numbers behind `reports/acceptance.json`.  Written by `tools/acceptance
 
 ## A11 speed — PASS
 
-**Evidence:** lift_frame(mode=fluid) on 100,000 atoms took 6.6 s (target <= 120 s); input = fcc lattice at rho 0.85 with 0.10 x a jitter (thermally disordered, not equilibrated MD); program states the exact count: yes
+**Evidence:** lift_frame(mode=fluid) on 100,000 atoms took 3.6 s (target <= 120 s); input = fcc lattice at rho 0.85 with 0.10 x a jitter (thermally disordered, not equilibrated MD); program states the exact count: yes
 
 
 ## A12 static checks — PASS

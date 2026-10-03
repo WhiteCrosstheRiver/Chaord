@@ -1912,8 +1912,12 @@ def _reference_cases(ref_root, floors):
         if not prov.exists() or len(frames) < 2 or case_dir.name not in floors:
             continue
         data = json.loads(prov.read_text(encoding="utf-8"))
-        if data.get("known_limitation"):
-            continue  # honestly excluded; recorded in the sanity report
+        if data.get("known_limitation") or data.get("a5_excluded"):
+            continue  # honestly excluded; recorded in the provenance and
+            # the gate report (known_limitation = sanity-level exclusion;
+            # a5_excluded = gating-level exclusion on frames that DO pass
+            # physical sanity -- cu_solid_liquid: transient coexistence,
+            # M0-generic lift with no backend under core+metal)
         dial = floors[case_dir.name].get("dialect", "core+lj")
         out.append({"id": f"reference/{case_dir.name}",
                     "dialect": [s.strip() for s in dial.split("+")],

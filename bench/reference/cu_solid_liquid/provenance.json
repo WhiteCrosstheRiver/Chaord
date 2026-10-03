@@ -158,5 +158,6 @@
       "file": "frame_9.npz",
       "step": 5000
     }
-  ]
+  ],
+  "a5_excluded": "DROPPED from A5 gating (owner decision per Review 3 T3 'Cu fixed or dropped', recorded in reports/gate_a_prime.md): the T~Tm coexistence is TRANSIENT (the whole box crystallises within the sampling window, measured q6bar ~0.44) and the M0-generic lift (X, LJ units) has no realization backend under core+metal (no 'md' table), so a rebuild cannot be scored. The frames themselves PASS the physical sanity checks at the recalibrated equilibrium tolerances (this provenance, PENDING owner approval). Frames remain for A13/lift evidence only."
 }
