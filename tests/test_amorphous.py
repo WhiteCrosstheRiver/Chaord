@@ -192,9 +192,12 @@ def test_amorphous_lift_marks_assumed_history(dialect, tmp_path):
     dialect defaults, not anything measured from the frame: the program must
     say so (provenance note), so a reader knows the protocol was assumed."""
     from chaord.build import build_program
-    text = AMORPH_PROGRAM.format(n=30, rho=0.8).replace(
-        "melt 2 for 3000", "melt 2 for 300").replace(
-        "anneal 0.01 for 2000", "anneal 0.01 for 200")
+    # n=108, rho*=0.7, full melt: an honestly amorphous frame on every
+    # platform (the old n=30/rho*=0.8 fixture crystallised under the
+    # corrected first-shell q6 gate -- 30 atoms near the freezing density
+    # order readily; measured solid fractions: 0.065 here vs 1.0 there.
+    # The clean machine also failed the old shortened-melt draw)
+    text = AMORPH_PROGRAM.format(n=108, rho=0.7)
     path = tmp_path / "g3.chaord"
     path.write_text(text)
     frame = build_program(load(path), dialect, rng=np.random.default_rng(5),
