@@ -1,6 +1,8 @@
 # Gate A′ — the honest core
 
-Date: 2026-09-30 (post Review 3) · Independent verification:
+Date: 2026-10-03 (Review-3 letter complete: glass N=2048×3, verifier
+observations 1-2 resolved, A8 adsorption half, tutor demo, PASS dossier) ·
+Independent verification:
 [verification_2026-09-28.md](verification_2026-09-28.md) (Review-2 phase)
 and [verification_2026-09-30.md](verification_2026-09-30.md) (this phase)
 · Acceptance: `reports/acceptance.json` (latest run) · CI:
