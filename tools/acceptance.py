@@ -937,21 +937,35 @@ def _geo_fit_thermal(frame, rebuilt, species_aware=True) -> tuple[bool, str]:
     """Independent jitter-tolerant structural check (verifier-side, pure
     numpy/scipy on the two frames -- no chaord lift logic involved).
 
-    PLAN.md A3 names pymatgen StructureMatcher (ltol 0.2, stol 0.3, 5 deg),
-    written when the criterion's inputs were verifier-rebuilt PERFECT frames.
-    On the stored THERMAL frames (this criterion's inputs since 2026-10-01,
-    verifier observation 2026-09-30 §5.3) the matcher is structurally
-    inapplicable: its Niggli/primitive reduction cannot reduce a thermally
-    jittered supercell, so it returns no fit even for the frame against
-    ITSELF. The honest thermal analogue: optimal atom-to-atom assignment
-    under periodic distances (Hungarian), the matched displacements read at
-    their 90th percentile (thermal jitter is ~0.06 d_NN per axis; a wrong
-    lattice displaces >= 0.25 d_NN; the gate sits between at 0.15 d_NN, the
-    rebuilt lattice's own spacing). Flagged in the pending-decision list --
-    PLAN's letter vs the input change that made it inapplicable.
+    Translation-invariant by construction (open item O2, Review 6): the two
+    frames are put into a common frame BY the assignment itself -- optimal
+    atom-to-atom correspondence under minimum-image periodic distances
+    (Hungarian), the matched displacement vectors' component-wise MEDIAN
+    read as the rigid translation between the two frames (median, not mean:
+    a mutated quarter of the atoms cannot drag it), the assignment re-solved
+    under that alignment to a fixed point, and only the RESIDUAL
+    displacements gated.  A rigidly translated thermal frame then measures
+    its own jitter (pre-fix the check read the absolute displacement
+    vectors and failed 7/7 ordered cases on a (0.7, 0, 0) A shift, with the
+    lifted text unchanged -- the stored frames only ever passed because the
+    bench generator built them at the rebuild's own origin).
+
+    PLAN.md A3's pymatgen StructureMatcher runs alongside this gate in
+    check_a3 (with primitive_cell=False; the committed measurements live
+    there).  This assignment gate stays regardless: the matcher alone
+    accepts the seeded displace_rebuilt fault on small cells (measured:
+    fit=True on bcc_fe, 16 atoms, 2026-10-02).
+
+    GATE, stated as applied (O2b): the fraction of matched residual
+    displacements beyond 0.25 d_NN must be <= 5%.  The bench thermal jitter
+    measures p90 <= 0.155 d_NN, p99 <= 0.230, fraction beyond 0.25 d_NN
+    <= 0.9% on every case, while the seeded 25%-displaced-at-0.6-A fault
+    puts ~19% of atoms beyond 0.25 d_NN (measured 2026-10-01/02).  0.25 d_NN
+    is half the site-match tolerance and far above the jitter tail.
 
     Returns (ok, note); catches its own misuse (unequal counts) loudly."""
     from scipy.optimize import linear_sum_assignment
+    from scipy.spatial import cKDTree
     if len(frame) != len(rebuilt):
         return False, f"count mismatch {len(frame)} vs {len(rebuilt)}"
     L = np.asarray(frame.cell_diag, float)
@@ -960,32 +974,50 @@ def _geo_fit_thermal(frame, rebuilt, species_aware=True) -> tuple[bool, str]:
     rpos = np.mod(np.asarray(rebuilt.pos, float), L)
     d = rpos[None, :, :] - fpos[:, None, :]
     d -= L * np.round(d / L)
-    cost = np.linalg.norm(d, axis=2)
     # SPECIES-AWARE: atoms only match atoms of their own species (ordered
     # cases are judged with species awareness -- the canary's own words);
     # a species swap or randomized occupancy then shows up as displaced
     # mass instead of a silent cross-species pairing
+    pen = None
     if species_aware:
         fs = np.asarray(frame.symbols)
         rs = np.asarray(rebuilt.symbols)
-        cross = fs[:, None] != rs[None, :]
-        cost = np.where(cross, cost.max() * 1e6, cost)
-    ri, cj = linear_sum_assignment(cost)
-    disp = cost[ri, cj]          # matched minimum-image displacements
+        pen = fs[:, None] != rs[None, :]
+
+    def _assign(shift):
+        """Optimal assignment under the rigidly shifted frame; returns the
+        matched minimum-image displacement VECTORS (not just their norms)."""
+        dv = d - shift[None, None, :]
+        dv -= L * np.round(dv / L)
+        cost = np.linalg.norm(dv, axis=2)
+        if pen is not None:
+            cost = np.where(pen, cost.max() * 1e6, cost)
+        ri, cj = linear_sum_assignment(cost)
+        return dv[ri, cj]
+
+    # aligned assignment: solve -> read the rigid translation off the
+    # matched vectors -> re-solve under the alignment, to the fixed point
+    # (the first median step already leaves |step| < 1e-9 on every clean
+    # and shifted frame measured; the loop bound only guards pathology)
+    shift = np.zeros(3)
+    for _ in range(5):
+        vec = _assign(shift)
+        step = np.median(vec, axis=0)
+        shift = shift + step
+        if np.linalg.norm(step) < 1e-9:
+            break
+    else:
+        vec = _assign(shift)
+    resid = np.linalg.norm(vec, axis=1)
     # d_NN of the REBUILT (ideal) frame: its own nearest-neighbour spacing
-    from scipy.spatial import cKDTree
     dd, _ = cKDTree(rpos, boxsize=L).query(rpos, k=2)
     dnn = float(np.median(dd[:, 1]))
-    # gate on DISPLACED MASS, not a percentile: the bench thermal jitter
-    # measures p90 <= 0.155 d_NN, p99 <= 0.230, fraction beyond 0.25 d_NN
-    # <= 0.9% on every case, while the seeded 25%-displaced-at-0.6-A fault
-    # puts 18.8% of atoms beyond 0.25 d_NN (measured 2026-10-01). 0.25 d_NN
-    # is half the site-match tolerance and far above the jitter tail
-    x = disp / dnn
+    x = resid / dnn
     frac = float((x > 0.25).mean())
     gate = 0.05
     p90 = float(np.percentile(x, 90))
-    return frac <= gate, (f"matched-displacement mass {frac:.3f} beyond "
+    return frac <= gate, (f"median-shift aligned {np.linalg.norm(shift):.3f} A; "
+                          f"matched-displacement mass {frac:.3f} beyond "
                           f"0.25 d_NN (gate {gate}), p90 {p90:.3f} d_NN, "
                           f"d_NN {dnn:.3f} A")
 
@@ -2236,12 +2268,16 @@ def _plated_adsorbate_frame(shift_tops: float = 0.0):
     the verifier's own fcc(111) geometry (no chaord builder involved).
 
     Truth: 5 O at TOP sites (directly above surface atoms), 3 at BRIDGE
-    sites (midpoints of nearest-neighbour pairs). `shift_tops` shifts the
-    top-site adsorbates laterally -- the planted-fault knob."""
+    sites (midpoints of nearest-neighbour pairs in the top layer). Sites are
+    picked greedily so that no two O are closer than two in-plane lattice
+    spacings (2 a_NN) under the minimum image convention -- the previously
+    committed frame had 6 of its 8 O only 1.35-1.39 A apart (neighbouring
+    sites), which is not a physical adsorbate geometry. `shift_tops` shifts
+    the top-site adsorbates laterally -- the planted-fault knob."""
     a = 3.92                                    # Pt lattice constant, A
     ann = a / np.sqrt(2.0)                      # (111) in-plane NN distance
     d111 = a / np.sqrt(3.0)                     # interlayer spacing
-    nx, n_rows, n_layers = 3, 6, 4              # rows: 2 per surface cell
+    nx, n_rows, n_layers = 6, 12, 4             # rows: 2 per surface cell
     Lx = nx * ann
     Ly = (n_rows // 2) * ann * np.sqrt(3.0)
     Lz = 18.79
@@ -2252,7 +2288,7 @@ def _plated_adsorbate_frame(shift_tops: float = 0.0):
     # the x-parity alternates with r -- odd rows shifted by half the
     # in-plane NN distance
     step = ann * np.sqrt(3.0) / 6.0
-    pos, syms, top_xy = [], [], []
+    pos, syms, top_rows = [], [], []
     for k in range(n_layers):
         z = k * d111
         r = k % 3
@@ -2264,27 +2300,45 @@ def _plated_adsorbate_frame(shift_tops: float = 0.0):
                 pos.append([xy[0], xy[1], z])
                 syms.append("Pt")
                 if k == n_layers - 1:
-                    top_xy.append(xy)
+                    top_rows.append((y, row_off, xy))
             r += 3
-    top_xy = np.array(top_xy)
     z_top = (n_layers - 1) * d111
     z_ads = z_top + 2.00
+
+    def _mic(p, q):
+        d = np.abs(np.asarray(p, float) - np.asarray(q, float))
+        d = np.minimum(d, np.array([Lx, Ly]) - d)
+        return float(np.linalg.norm(d))
+
+    def _pick(candidates, n_want, taken):
+        """First n_want candidates a full minimum-image 2*a_NN away from every
+        already-taken site (deterministic: construction order)."""
+        got = []
+        for c in candidates:
+            if len(got) == n_want:
+                break
+            if all(_mic(c, t) >= 2.0 * ann - 1e-9 for t in taken + got):
+                got.append(np.asarray(c, float))
+        if len(got) < n_want:
+            raise RuntimeError("could not place adsorbates >= 2 a_NN apart")
+        taken.extend(got)
+        return got
+
+    taken = []
+    top_sites = _pick([xy for _y, _off, xy in top_rows], 5, taken)
+    bridge_cands = [np.mod([(i + 0.5) * ann + off, y], [Lx, Ly])
+                    for y, off, _xy in top_rows for i in range(nx)]
+    bridge_sites = _pick(bridge_cands, 3, taken)
+
     rng = np.random.default_rng(303)
     jitter = rng.uniform(-0.03, 0.03, (8, 2))
     ads = []
-    # 5 TOP sites: above surface atoms 0..4
-    for i in range(5):
-        xy = top_xy[i % len(top_xy)] + jitter[i]
+    for i, xy in enumerate(top_sites):
+        xy = xy + jitter[i]
         if shift_tops:
             xy = xy + np.array([shift_tops, 0.0])
         ads.append((xy, "top"))
-    # 3 BRIDGE sites: midpoints of NN pairs in the top layer
-    for i in range(3):
-        p1 = top_xy[i]
-        p2 = top_xy[(i + 1) % len(top_xy)]
-        m = (p1 + p2) / 2
-        if np.linalg.norm(p2 - p1) > ann * 1.2:   # not NN: use x-neighbour
-            m = p1 + np.array([ann / 2, 0.0])
+    for i, m in enumerate(bridge_sites):
         ads.append((m + jitter[5 + i], "bridge"))
     truth = {}
     for xy, site in ads:

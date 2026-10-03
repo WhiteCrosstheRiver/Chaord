@@ -207,13 +207,17 @@ def test_a8_adsorption_sites_power_mutation():
     """PLAN A8's second half (adsorption sites >= 90% correct): the clean
     planted slab reads 100% (5 top + 3 bridge claimed exactly); shifting the
     top-site adsorbates laterally by 1 A -- the planted-fault stand-in for a
-    mis-assigned site -- drops the claim to 50% and the criterion to FAIL."""
+    mis-assigned site -- moves every shifted O onto the nearest bridge
+    feature (38% correct, claims 8 bridge vs planted 5 top + 3 bridge; with
+    the O >= 2 a_NN apart, a 1 A shift can no longer land on a neighbouring
+    top) and the criterion FAILs."""
     clean = acc.check_a8()
     row = clean["details"]["adsorption"]
     assert row["correct"] and row["claims"] == {"top": 5, "bridge": 3}, row
     bad = acc.check_a8(mutation="wrong_site")
     assert not bad["passed"], bad["evidence"]
-    assert "50% correct" in bad["evidence"], bad["evidence"]
+    assert "38% correct" in bad["evidence"], bad["evidence"]
+    assert "claims {'bridge': 8}" in bad["evidence"], bad["evidence"]
 
 
 # --------------------------------------------------------------------- A9 ----

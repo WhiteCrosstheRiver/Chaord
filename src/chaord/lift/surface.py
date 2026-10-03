@@ -46,7 +46,10 @@ def has_vacuum(frame: Frame, dialect) -> bool:
     L = frame.cell_diag
     binw = float(dialect.threshold("profile_bin_size"))
     n = max(int(L[2] / binw), 8)
-    idx = np.clip((frame.pos[:, 2] / L[2] * n).astype(int), 0, n - 1)
+    # wrap z first: a slab crossing the periodic z boundary must not smear
+    # its bottom layer into bin 0
+    z = np.mod(frame.pos[:, 2], L[2])
+    idx = np.clip((z / L[2] * n).astype(int), 0, n - 1)
     occ = np.bincount(idx, minlength=n) > 0
     # circular: the gap may wrap through z = 0
     best = 0
@@ -61,11 +64,10 @@ def has_vacuum(frame: Frame, dialect) -> bool:
     return gap >= gap_min
 
 
-def _layers(frame: Frame, dialect):
-    """Cluster atoms into z-layers (gap > layer_tolerance separates)."""
+def _layer_split(z, dialect):
+    """Cluster wrapped z coordinates into layers (gap > layer_tolerance)."""
     tol = float(dialect.threshold("layer_tolerance"))
-    z = frame.pos[:, 2]
-    order = np.argsort(z)
+    order = np.argsort(z, kind="stable")
     layers = []
     current = [order[0]]
     for i in order[1:]:
@@ -78,7 +80,64 @@ def _layers(frame: Frame, dialect):
     return layers
 
 
-def _top_layer(frame: Frame, dialect):
+def _layers(frame: Frame, dialect, z=None):
+    """Cluster atoms into z-layers (gap > layer_tolerance separates).
+
+    `z` are wrapped coordinates (e.g. the gap-aligned array from
+    `_aligned_z`); without one the raw wrapped z of the frame is used."""
+    if z is None:
+        z = np.mod(frame.pos[:, 2], frame.cell_diag[2])
+    return _layer_split(z, dialect)
+
+
+def _aligned_z(frame: Frame, dialect):
+    """z coordinates wrapped into the cell and rotated so the condensed body
+    (the atom-majority layer group) is contiguous from z = 0 up.
+
+    A slab whose bottom layer crosses the periodic z boundary wraps to the
+    top of the box, where raw coordinates would lift it as adsorbates. Any
+    fragment cut off at the junction that is made only of species already
+    bulk in the body is re-attached first (an overlayer of foreign molecules
+    never is); the rotation then places the body's widest circular gap -- the
+    vacuum -- at the top of the box, which is invariant under rigid z
+    translations of the frame (minimum-image equivalent)."""
+    L = float(frame.cell_diag[2])
+    z = np.mod(np.asarray(frame.pos[:, 2], float), L)
+    if len(z) == 0:
+        return z
+    gap_min = float(dialect.threshold("vacuum_gap_min"))
+    groups: list[list] = []
+    for layer in _layer_split(z, dialect):
+        if groups and (z[layer].min() - z[groups[-1][-1]].max()) <= gap_min:
+            groups[-1].append(layer)
+        else:
+            groups.append([layer])
+    stack = max(groups, key=lambda g: sum(len(l) for l in g))
+    if len(groups) > 1:
+        syms = np.array(frame.symbols)
+        dense = float(dialect.threshold("layer_dense_fraction"))
+        biggest = max(len(l) for l in stack)
+        bulk = set()
+        for layer in stack:
+            if len(layer) >= dense * biggest:
+                bulk |= set(syms[layer])
+        junc = (L - z[np.concatenate(groups[-1])].max()
+                + z[np.concatenate(groups[0])].min())
+        extra = []
+        for end in (groups[0], groups[-1]):
+            if end is stack or junc > gap_min:
+                continue
+            if set(syms[np.concatenate(end)]) <= bulk:
+                extra.extend(end)
+        stack = stack + extra
+    idx = np.concatenate(stack)
+    zs = np.sort(z[idx])
+    gaps = np.diff(np.r_[zs, zs[0] + L])
+    rot = zs[(int(np.argmax(gaps)) + 1) % len(zs)]
+    return np.mod(z - rot, L)
+
+
+def _top_layer(frame: Frame, dialect, z=None):
     """Slab top layer: the highest layer carrying a substantial atom count.
 
     Adsorbate layers sit above it with only a few atoms of a foreign species;
@@ -89,15 +148,18 @@ def _top_layer(frame: Frame, dialect):
     vacuum gap from the slab, so layers are first split at gaps wider than the
     dialect's vacuum threshold and only the atom-majority group (the slab
     stack) is searched: a dense all-bulk-species fragment of the overlayer is
-    never the surface layer."""
-    layers = _layers(frame, dialect)
+    never the surface layer. `z` defaults to the gap-aligned coordinates of
+    `_aligned_z`, so a slab crossing the periodic z boundary is judged on its
+    rotated (wrapped) coordinates."""
+    if z is None:
+        z = _aligned_z(frame, dialect)
+    layers = _layer_split(z, dialect)
     gap = float(dialect.threshold("vacuum_gap_min"))
     dense_fraction = float(dialect.threshold("layer_dense_fraction"))
     surface_fraction = float(dialect.threshold("layer_surface_fraction"))
     groups: list[list] = []
     for layer in layers:
-        if groups and (frame.pos[layer, 2].min()
-                       - frame.pos[groups[-1][-1], 2].max()) <= gap:
+        if groups and (z[layer].min() - z[groups[-1][-1]].max()) <= gap:
             groups[-1].append(layer)
         else:
             groups.append([layer])
@@ -114,8 +176,8 @@ def _top_layer(frame: Frame, dialect):
         if len(layer) < 2:
             continue
         if len(layer) >= surface_fraction * median or set(syms[layer]) <= bulk_species:
-            return layer, float(frame.pos[layer, 2].max())
-    return stack[-1], float(frame.pos[stack[-1], 2].max())
+            return layer, float(z[layer].max())
+    return stack[-1], float(z[stack[-1]].max())
 
 
 def _net_vectors(pts2d, cell2d, dialect=None):
@@ -382,23 +444,25 @@ def _net_shape(v1, v2):
     return hi / max(lo, 1e-9), min(ang, 180.0 - ang)  # dialect-exempt: numerical-guard: degenerate length guard / angle fold
 
 
-def _identify_prototype_slab(frame: Frame, dialect):
+def _identify_prototype_slab(frame: Frame, dialect, z=None):
     """(name, params, slot_species) of the bulk prototype under a compound slab.
 
     One stacking period of the slab (cell = surface mesh x stack height) is a
     periodic crystal; standardise + prototype-match identifies it. The stack
-    may need an integer number of interplanar steps per period."""
+    may need an integer number of interplanar steps per period. `z` are the
+    gap-aligned coordinates (slab contiguous from 0); without one they are
+    computed here, so a slab crossing the periodic z boundary works too."""
     from .crystal import match_prototype, standardize
-    layers = _layers(frame, dialect)
+    if z is None:
+        z = _aligned_z(frame, dialect)
+    layers = _layer_split(z, dialect)
     sizes = [len(l) for l in layers]
     dense = [i for i, s in enumerate(sizes) if s == max(sizes)]
     if len(dense) < 2:
         raise ChaordError("no stacking period found for the compound slab")
     tol = float(dialect.threshold("layer_tolerance"))
-    d = (frame.pos[layers[dense[1]]][:, 2].mean()
-         - frame.pos[layers[dense[0]]][:, 2].mean())
-    z0 = frame.pos[layers[dense[0]]][:, 2].mean() - tol / 4
-    z = frame.pos[:, 2]
+    d = (z[layers[dense[1]]].mean() - z[layers[dense[0]]].mean())
+    z0 = z[layers[dense[0]]].mean() - tol / 4
     wrapped = _frac_wrap(frame.pos, frame.cell)
     for k in (1, 2, 3):
         period = k * d
@@ -408,7 +472,7 @@ def _identify_prototype_slab(frame: Frame, dialect):
         cell_w = frame.cell.copy()
         cell_w[2] = [0, 0, period]
         pos_w = wrapped[idx].copy()
-        pos_w[:, 2] -= z0
+        pos_w[:, 2] = z[idx] - z0
         try:
             sc, sp, sn = standardize(
                 Frame(pos=pos_w, cell=cell_w,
@@ -455,9 +519,21 @@ def _prototype_hkl(P, syms, cell, name, params, slot_species, dialect):
 
 
 def _classify_sites(frame: Frame, ads_idx, top_idx, dialect):
-    """top / bridge / hollow by lateral distance to the surface net features."""
+    """top / bridge / hollow by lateral distance to the surface net features.
+
+    The top layer is wrapped into the in-plane cell and replicated over its 8
+    neighbouring periodic images before triangulation and KD queries, so an
+    adsorbate at (or across) the cell boundary sees the same top / bridge /
+    hollow features as one at the cell centre — the minimum-image-equivalent
+    site assignment."""
     tol = float(dialect.threshold("adsorbate_site_tol"))
-    pts = frame.pos[top_idx][:, :2]
+    Lxy = frame.cell_diag[:2]
+    pts = np.mod(frame.pos[top_idx][:, :2], Lxy)
+    # replicate the layer over the neighbouring images: the triangulation and
+    # the feature trees then cover every feature seen across a boundary
+    img = np.array([[i * Lxy[0], j * Lxy[1]]   # dialect-exempt: exact-geometry: integer image offsets over {-1,0,1}^2
+                    for i in (-1, 0, 1) for j in (-1, 0, 1)])
+    pts = (pts[None, :, :] + img[:, None, :]).reshape(-1, 2)
     tri = Delaunay(pts)
     tops = pts
     bridges, seen = [], set()
@@ -475,7 +551,7 @@ def _classify_sites(frame: Frame, ads_idx, top_idx, dialect):
             hollows.append(c)
     out = []
     for i in ads_idx:
-        p = frame.pos[i][:2]
+        p = np.mod(frame.pos[i][:2], Lxy)
         d_top = cKDTree(tops).query(p)[0]
         d_br = cKDTree(np.array(bridges)).query(p)[0] if bridges else np.inf
         d_ho = cKDTree(np.array(hollows)).query(p)[0] if hollows else np.inf
@@ -532,9 +608,13 @@ def lift_surface(frame: Frame, dialect, backend="eam") -> Program:
     canonical Program."""
     syms = np.array(frame.symbols)
 
+    # gap-aligned z: wrapped coordinates rotated so the slab stack starts at
+    # z = 0 (invariant under rigid z translations, also across z = 0)
+    z = _aligned_z(frame, dialect)
+
     # adsorbates: every atom above the slab's surface layer
-    top_layer_idx, top_z = _top_layer(frame, dialect)
-    slab_idx = np.where(frame.pos[:, 2] <= top_z + 0.5 * float(  # dialect-exempt: numerical-guard: half of the layer tolerance
+    top_layer_idx, top_z = _top_layer(frame, dialect, z=z)
+    slab_idx = np.where(z <= top_z + 0.5 * float(  # dialect-exempt: numerical-guard: half of the layer tolerance
         dialect.threshold("layer_tolerance")))[0]
     ads_idx = np.setdiff1d(np.arange(len(frame.pos)), slab_idx)
 
@@ -546,7 +626,7 @@ def lift_surface(frame: Frame, dialect, backend="eam") -> Program:
     zone_census: dict[str, int] = {}
     mol_mask = np.zeros(len(frame), bool)
     if len(ads_idx):
-        zone = frame.pos[:, 2] > top_z - float(dialect.threshold("layer_tolerance"))
+        zone = z > top_z - float(dialect.threshold("layer_tolerance"))
         try:
             overlayer, zone_census, mol_mask = _zone_census(frame, dialect, zone)
         except ChaordError:
@@ -556,10 +636,10 @@ def lift_surface(frame: Frame, dialect, backend="eam") -> Program:
     # bulk identification: a compound slab is matched against the prototype
     # registry through one stacking period; a unary slab keeps the M4 route
     # (interior coordination fixes the cubic family, NN distance fixes a)
-    layers = _layers(frame, dialect)
+    layers = _layers(frame, dialect, z=z)
     sub_idx = _sub_layer(layers, top_layer_idx)
     if len(set(syms[slab_idx])) > 1:
-        name, params, slot_species = _identify_prototype_slab(frame, dialect)
+        name, params, slot_species = _identify_prototype_slab(frame, dialect, z=z)
         plane = _prototype_hkl(frame.pos[slab_idx], syms[slab_idx], frame.cell,
                                name, params, slot_species, dialect)
         if plane is None:
@@ -662,7 +742,7 @@ def lift_surface(frame: Frame, dialect, backend="eam") -> Program:
                         _n2("site"), _n2(site),
                         _n2("coverage"), Quantity(num=f"{coverage:.2f}", unit="ML")]))
 
-    z_min = float(frame.pos[slab_idx][:, 2].min())
+    z_min = float(z[slab_idx].min())
     z_vac = float(frame.cell_diag[2])
     slab_h = top_z - z_min
     Lxy = frame.cell_diag[:2]
