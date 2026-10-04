@@ -58,6 +58,35 @@ thresholds:
   cn_cutoff_fluid: 3.10             # O-O first shell in water-like liquids, A
   gr_rmax_fluid: 6.0                # g(r) range for fluid asserts, A
   gr_bins_fluid: 60
+  printed_cutoff: "3.1"             # cutoff the slab lifter states in physics
+                                   # (metadata; the molecular fluid's typical rc)
+  printed_strain_tolerance: "0.2"   # strain print tolerance, %
+  thin_slab_margin_fraction: 0.8    # thin-film degradation fraction (mirrors lj)
+  cn_cutoff: 3.10                   # first-shell coordination cutoff (O-O first
+                                   # minimum in water-like liquids; mirrors
+                                   # cn_cutoff_fluid -- the slab arm reads cn_cutoff)
+  gr_bins: 60                       # g(r) bins for the slab arm (mirrors gr_bins_fluid)
+  angle_hist_bin: 5                 # bond-angle histogram bin width, degrees
+                                   # (mirrors lj.yaml; the slab arm reads it)
+  defect_cluster_rc: 3.6            # linking distance for empty-site/off-lattice
+                                   # complexes in molecular slabs (= first shell)
+  chi0_antiparallel_cos: -0.9       # Ackland-Jones-style 3-body check cosine
+                                   # (mirrors lj.yaml; read by the slab arm)
+  chi0_fcc_min: 7                   # antiparallel pairs for fcc
+  chi0_hcp_min: 3                   # antiparallel pairs for hcp
+  chi0_sample_stride: 4             # subsample stride for the 3-body check
+                                   # (W6 fix batch: the molecular dialect serves
+                                   # the slab arm for lipf6_ec; every key that arm
+                                   # reads must exist here, fail-closed)
+  gr_rmax: 6.0                      # g(r) range for the slab arm's liquid statistics
+                                   # (mirrors gr_rmax_fluid; W6 fix companion to
+                                   # bulk_margin -- each key the slab arm reads must
+                                   # exist in the dialects it serves, fail-closed)
+  bulk_margin: 3.6                  # distance kept from interface centres for bulk
+                                   # statistics (molecular first shell ~3.1 A + margin;
+                                   # mirrors lj.yaml's semantics for the slab arm --
+                                   # W6 fix: lipf6_ec's molecular slab lift died on
+                                   # the missing threshold, fail-closed)
   fluid_rsa_dmin: 2.8               # hard-core placement for atomic species, A
   fluid_max_bonded_component: 3   # largest bond-graph component (atoms) still one
                                   # molecule of a single-phase fluid (largest shipped

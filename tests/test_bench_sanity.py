@@ -200,10 +200,10 @@ def _density_target(case_id, gt):
                 "packed molecules in the stated box")
     if case_id == "glass/lj_glass_rho085":
         return ("number", float(exp["density"]), "stated number density")
-    if case_id == "interface/lj_solid_liquid":
-        # both half-boxes hold equal counts, so the overall number density is
-        # the stated rho_solid (the ground-truth description records 1.0)
-        return ("number", 1.0, "rho_solid, both halves at equal counts")
+    # interface/lj_solid_liquid: W6 made the z cell asymmetric (solid half at
+    # rho_solid = 1.0, liquid half at the coexistence rho_liquid = 0.85), so
+    # its described density is the constructed cell's number density, read by
+    # the generic exact-construction branch below
     if "cell" in exp:
         return ("number", float(exp["n_atoms"]) / float(np.prod(exp["cell"])),
                 "exact-construction number density")

@@ -2,7 +2,7 @@
   "schema": "chaord-bench/2",
   "case": "lj_solid_liquid",
   "category": "interface",
-  "description": "LJ solid-liquid slab: perfect fcc (4x4x8, rho_solid = 1.0/sigma^3) below z = 6.3496, re-randomised liquid above; the two-phase label boundary is the mid-plane of the box",
+  "description": "LJ solid-liquid slab at coexistence densities: perfect fcc (4x4x4 cells, rho_solid = 1.0/sigma^3) below z = 6.3496; 256 liquid atoms at rho_liquid = 0.85/sigma^3 above (the z cell is asymmetric so the liquid carries its coexistence density; at rho = rho_solid a T* = 0.7 relaxation freezes epitaxially onto the perfect wall). The liquid half is RSA-placed at a 0.85 sigma hard core and relaxed by short Lennard-Jones MD at T* = 0.7 with the solid atoms frozen (engine parameters under 'md'; per-frame min pair distance, measured T* and potential energy in the frame records); the two-phase label boundary is the mid-plane of the box",
   "seed": 167,
   "n_frames": 5,
   "dialect": "core+lj",
@@ -14,7 +14,10 @@
       "counts": {
         "X": 512
       },
-      "boundary_z": 6.3496042078727974
+      "boundary_z": 6.9098634026851045,
+      "min_pair_sigma": 0.9546,
+      "liquid_T_measured_star": 0.7123,
+      "liquid_pe_per_atom_epsilon": -6.3608
     },
     {
       "file": "frame_1.npz",
@@ -23,7 +26,10 @@
       "counts": {
         "X": 512
       },
-      "boundary_z": 6.3496042078727974
+      "boundary_z": 6.9098634026851045,
+      "min_pair_sigma": 0.9255,
+      "liquid_T_measured_star": 0.7699,
+      "liquid_pe_per_atom_epsilon": -6.3283
     },
     {
       "file": "frame_2.npz",
@@ -32,7 +38,10 @@
       "counts": {
         "X": 512
       },
-      "boundary_z": 6.3496042078727974
+      "boundary_z": 6.9098634026851045,
+      "min_pair_sigma": 0.9462,
+      "liquid_T_measured_star": 0.6885,
+      "liquid_pe_per_atom_epsilon": -6.2807
     },
     {
       "file": "frame_3.npz",
@@ -41,7 +50,10 @@
       "counts": {
         "X": 512
       },
-      "boundary_z": 6.3496042078727974
+      "boundary_z": 6.9098634026851045,
+      "min_pair_sigma": 0.9603,
+      "liquid_T_measured_star": 0.7016,
+      "liquid_pe_per_atom_epsilon": -6.3377
     },
     {
       "file": "frame_4.npz",
@@ -50,7 +62,10 @@
       "counts": {
         "X": 512
       },
-      "boundary_z": 6.3496042078727974
+      "boundary_z": 6.9098634026851045,
+      "min_pair_sigma": 0.957,
+      "liquid_T_measured_star": 0.728,
+      "liquid_pe_per_atom_epsilon": -6.3386
     }
   ],
   "lift_mode": "interface",
@@ -58,13 +73,46 @@
     "core",
     "lj"
   ],
+  "md": {
+    "engine": {
+      "name": "ASE",
+      "integrator": "ase.md.langevin.Langevin",
+      "constraint": "ase.constraints.FixAtoms (solid half frozen)",
+      "initial_velocities": "thermalize_momenta + Stationary"
+    },
+    "potential": {
+      "name": "Lennard-Jones 12-6",
+      "implementation": "ase.calculators.lj.LennardJones",
+      "citation": "Lennard-Jones potential as implemented in ASE; original: J. E. Jones, Proc. R. Soc. Lond. A 106, 463 (1924)",
+      "parameters": {
+        "epsilon_eV": 1.0,
+        "sigma_A": 1.0,
+        "rc_sigma": 2.5,
+        "smooth": false
+      }
+    },
+    "protocol": {
+      "description": "per frame (independent RSA + MD draw): random-sequential placement of the liquid half at a 0.85 sigma hard core (liquid-liquid and liquid-solid, minimum image), then Langevin NVT at T* = 0.7 with the solid half frozen; dt* = 0.002 for 1000 steps then dt* = 0.005 for 2000 steps (12 tau total), friction 0.5/tau. Duration measured time-resolved: liquid structure forms by ~7 tau, the first transient solid-like blips in the liquid core appear at ~17 tau",
+      "rsa_dmin_sigma": 0.85,
+      "T_star": 0.7,
+      "dt_fast": 0.002,
+      "steps_fast": 1000,
+      "dt": 0.005,
+      "steps": 2000,
+      "time_tau": 12.0,
+      "friction_per_tau": 0.5
+    }
+  },
   "expected": {
     "axis": "z",
-    "boundary_z": 6.3496042078727974,
+    "boundary_z": 6.9098634026851045,
     "phases": {
       "solid": "below",
       "liquid": "above"
     },
+    "rho_solid": 1.0,
+    "rho_liquid": 0.85,
+    "z_solid": 6.3496042078727974,
     "counts": {
       "X": 512
     },
@@ -72,7 +120,7 @@
     "cell": [
       6.3496042078727974,
       6.3496042078727974,
-      12.699208415745595
+      13.819726805370209
     ]
   }
 }

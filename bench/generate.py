@@ -147,11 +147,40 @@ REACTIVE_CASE = {"id": "water_oh_h_box20", "molecules": {"H2O": 50, "OH": 9, "H"
 GLASS_CASE = {"id": "lj_glass_rho085", "n": 200, "rho": 0.85, "species": "X",
               "seed": 163}
 
-# LJ solid-liquid slab: fcc lower half kept perfect, upper half re-randomised
-# per frame (same construction as tests/test_surfaces.py::
-# test_segmentation_labels_planted, in reduced units)
-INTERFACE_CASE = {"id": "lj_solid_liquid", "rho_solid": 1.0, "reps": (4, 4, 8),
-                  "species": "X", "liquid_margin": 0.5, "seed": 167}
+# LJ solid-liquid slab (W6, Review 8, 2026-10-04): the fcc lower half is kept
+# perfect; the liquid half is regenerated PHYSICALLY. The pre-W6 frames placed
+# the liquid half as uniform random points (min pair 0.047-0.18 sigma), an
+# unphysical input that made A7's phase-segmentation evidence trivial
+# (perfect crystal vs overlapping random points). The liquid now carries the
+# LJ coexistence liquid density (rho_liquid = 0.85 at T* ~ 0.7; the reference
+# case melts and equilibrates at 0.845/0.65): with equal atom counts per
+# equal half-boxes the liquid would sit at rho_solid = 1.0, the fcc density,
+# and a T* = 0.7 relaxation freezes it epitaxially onto the perfect wall
+# (measured: liquid-core q6bar crosses the 0.32 solid threshold between 4 and
+# 6 tau). So the z cell is asymmetric: 4 perfect fcc cells at rho_solid below
+# (256 atoms), then a liquid region of the volume that gives 256 atoms at
+# rho_liquid above, and the two-phase label boundary stays the box mid-plane
+# z = Lz/2 (A7's periodic second interface plane). The liquid is placed by
+# RSA at a 0.85 sigma hard core (liquid-liquid and liquid-solid, minimum
+# image) and relaxed by short Lennard-Jones MD at T* = 0.7 with the solid
+# atoms frozen (ASE Langevin, the same engine stack as
+# bench/reference/generate_reference.py). Every engine parameter is recorded
+# in the case ground truth under "md".
+INTERFACE_CASE = {"id": "lj_solid_liquid", "rho_solid": 1.0, "rho_liquid": 0.85,
+                  "reps": (4, 4, 8), "species": "X", "seed": 167}
+# RSA hard core for the liquid placement, sigma (review-approved 0.85; the lj
+# dialect's bulk rsa_dmin 0.90 is feasible here but 0.85 is the reviewed
+# value and leaves the same margin to the 0.80 hard-core floor after MD)
+INTERFACE_RSA_DMIN = 0.85
+INTERFACE_RSA_MAX_TRIES = 4_000_000
+# relaxation protocol: two Langevin stages, total 12 tau. Duration measured
+# time-resolved at rho_l = 0.85, T* = 0.7 (two seeds): liquid structure is
+# formed by ~7 tau (liquid-core q6bar ~0.16, min pair > 0.9); the first
+# transient solid-like blips in the liquid core appear at ~17 tau, so 12 tau
+# relaxes the RSA packing with margin on both sides
+INTERFACE_MD = {"T_star": 0.7, "dt_fast": 0.002, "steps_fast": 1000,
+                "dt": 0.005, "steps": 2000, "friction_per_tau": 0.5,
+                "time_tau": 1000 * 0.002 + 2000 * 0.005}
 
 # Ni(111)/Pt(111) slabs + O adsorbates, built by the real surface builder, then
 # stored in its rectangular (orthohexagonal, index-2) supercell so the
@@ -717,48 +746,198 @@ def generate_glass(out: Path) -> list:
     return [entry]
 
 
+def _rsa_pack_liquid(z_lo: float, z_hi: float, n: int, frozen: np.ndarray,
+                     L: np.ndarray, dmin: float, rng, max_tries: int):
+    """Random-sequential placement of n liquid atoms between z_lo and z_hi at
+    a dmin hard core from every other liquid atom and from the frozen solid
+    (minimum image; the solid walls exclude centres across the z boundary
+    too, so the packed slab never starts overlapped)."""
+    from scipy.spatial import cKDTree
+
+    hi = L * (1.0 - 1e-9)                 # strict upper edge for KD trees
+    frozen_tree = cKDTree(np.minimum(np.mod(frozen, L), hi), boxsize=L)
+    placed = np.zeros((0, 3))
+    tree = None
+    for attempt in range(1, max_tries + 1):
+        if len(placed) == n:
+            break
+        cand = np.minimum(rng.uniform(0.0, L), hi)
+        cand[2] = min(rng.uniform(z_lo, z_hi), hi[2])
+        if tree is not None and float(tree.query(cand[None, :])[0][0]) < dmin:
+            continue
+        if float(frozen_tree.query(cand[None, :])[0][0]) < dmin:
+            continue
+        placed = np.vstack([placed, cand[None, :]])
+        tree = cKDTree(placed, boxsize=L)
+    else:
+        raise RuntimeError(f"liquid RSA placed {len(placed)} of {n} atoms in "
+                           f"{max_tries} tries at dmin = {dmin} sigma")
+    return placed
+
+
+def _lj_relax_liquid(liquid: np.ndarray, frozen: np.ndarray, L: np.ndarray,
+                     rng) -> tuple[np.ndarray, dict]:
+    """Short Lennard-Jones MD relaxation of the liquid atoms at T* = 0.7 with
+    the solid half frozen, on the same engine stack the reference generator
+    uses (ASE LennardJones + Langevin + FixAtoms; reduced units
+    epsilon = sigma = mass = 1, temperatures passed as T*/k_B with
+    epsilon = 1 eV). Returns (relaxed positions, diagnostics)."""
+    import ase
+    from ase import Atoms
+    from ase.calculators.lj import LennardJones
+    from ase.constraints import FixAtoms
+    from ase.md.langevin import Langevin
+    from ase.md.velocitydistribution import Stationary, thermalize_momenta
+    from ase.units import kB
+
+    n_liq, n_frozen = len(liquid), len(frozen)
+    atoms = Atoms(symbols=["X"] * (n_liq + n_frozen),
+                  positions=np.vstack([liquid, frozen]),
+                  cell=np.diag(L), pbc=True)
+    atoms.set_masses(np.full(len(atoms), 1.0))
+    frozen_mask = np.zeros(len(atoms), bool)
+    frozen_mask[n_liq:] = True
+    atoms.calc = LennardJones(epsilon=1.0, sigma=1.0, rc=2.5, smooth=False)
+    thermalize_momenta(atoms, temperature_K=INTERFACE_MD["T_star"] / kB,
+                       rng=rng)
+    Stationary(atoms)
+    atoms.set_constraint(FixAtoms(mask=frozen_mask))
+    t_k = INTERFACE_MD["T_star"] / kB
+    for dt, steps in ((INTERFACE_MD["dt_fast"], INTERFACE_MD["steps_fast"]),
+                      (INTERFACE_MD["dt"], INTERFACE_MD["steps"])):
+        Langevin(atoms, dt, temperature_K=t_k,
+                 friction=INTERFACE_MD["friction_per_tau"], rng=rng,
+                 fixcm=False).run(steps)
+    pos = atoms.positions[:n_liq].copy()
+    diag = {
+        "T_measured_star": float(atoms.get_temperature() * kB),
+        "pe_per_atom": float(atoms.get_potential_energy()
+                             / (n_liq + n_frozen)),
+        "engine": f"ASE {ase.__version__} LennardJones + Langevin",
+    }
+    return pos, diag
+
+
 def generate_interface(out: Path) -> list:
-    """LJ solid-liquid slab: perfect fcc below the mid-plane, random above."""
+    """LJ solid-liquid slab: perfect fcc at rho_solid below, a physically
+    regenerated liquid at rho_liquid above (W6: RSA at a 0.85 sigma hard
+    core, then short LJ MD at T* = 0.7 with the solid frozen; engine
+    parameters in the ground truth). The liquid region volume gives the
+    same atom count at the LJ coexistence liquid density, so the z cell is
+    asymmetric and the label boundary stays the box mid-plane. The min pair
+    of every frame is asserted against the lj dialect's overlap_tolerance
+    before the frame is written."""
+    from scipy.spatial import cKDTree
+
     spec = INTERFACE_CASE
     lj = load_dialect(("core", "lj"))
+    floor = float(lj.threshold("overlap_tolerance"))          # sigma
     a = float((4.0 / spec["rho_solid"]) ** (1.0 / 3.0))  # fcc cube edge at rho_solid
-    solid = build_conventional("fcc", {"a": a}, (spec["species"],), spec["reps"])
-    L = solid.cell_diag
-    boundary = L[2] / 2.0
-    margin = spec["liquid_margin"]
+    solid_full = build_conventional("fcc", {"a": a}, (spec["species"],),
+                                    spec["reps"])
+    Lx, Ly = float(solid_full.cell_diag[0]), float(solid_full.cell_diag[1])
+    z_solid = (spec["reps"][2] // 2) * a          # the perfect-crystal region
+    solid = np.asarray(solid_full.pos[solid_full.pos[:, 2] < z_solid], float)
+    n_liq = len(solid_full) - len(solid)          # equal counts by construction
+    Lz = z_solid + n_liq / (spec["rho_liquid"] * Lx * Ly)
+    L = np.array([Lx, Ly, Lz])
+    boundary = Lz / 2.0
     frames = []
+    stats = []
     for k in range(N_FRAMES):
         rng = np.random.default_rng(spec["seed"] + k)
-        truth = solid.pos[:, 2] > boundary
-        pos = solid.pos.copy()
-        n_liq = int(truth.sum())
-        upper = rng.uniform(0, L, (n_liq, 3))
-        upper[:, 2] = boundary + rng.uniform(0, L[2] / 2.0 - margin, n_liq)
-        pos[truth] = upper
-        frames.append(_sanitize(Frame(pos=pos, cell=solid.cell,
-                                      symbols=solid.symbols)))
+        liquid0 = _rsa_pack_liquid(z_solid, Lz, n_liq, solid, L,
+                                   INTERFACE_RSA_DMIN, rng,
+                                   INTERFACE_RSA_MAX_TRIES)
+        liquid, diag = _lj_relax_liquid(liquid0, solid, L, rng)
+        frame = _sanitize(Frame(pos=np.vstack([solid, liquid]),
+                                cell=np.diag(L),
+                                symbols=[spec["species"]] * len(solid_full)))
+        p = np.mod(frame.pos, L)
+        p = np.minimum(p, L * (1 - 1e-9))
+        min_pair = float(cKDTree(p, boxsize=L).query(p, k=2)[0][:, 1].min())
+        if min_pair < floor:
+            raise RuntimeError(f"{spec['id']} frame {k}: min pair "
+                               f"{min_pair:.3f} sigma < {floor} sigma hard "
+                               "core after MD relaxation")
+        frames.append(frame)
+        stats.append(dict(min_pair_sigma=min_pair, **diag))
     ground = _gt_header(
         spec["id"], "interface",
-        f"LJ solid-liquid slab: perfect fcc ({spec['reps'][0]}x{spec['reps'][1]}x"
-        f"{spec['reps'][2]}, rho_solid = {spec['rho_solid']}/sigma^3) below "
-        f"z = {boundary:.4f}, re-randomised liquid above; the two-phase label "
-        f"boundary is the mid-plane of the box", spec["seed"], dialect="core+lj")
+        f"LJ solid-liquid slab at coexistence densities: perfect fcc "
+        f"({spec['reps'][0]}x{spec['reps'][1]}x{spec['reps'][2] // 2} cells, "
+        f"rho_solid = {spec['rho_solid']}/sigma^3) below z = {z_solid:.4f}; "
+        f"{n_liq} liquid atoms at rho_liquid = {spec['rho_liquid']}/sigma^3 "
+        f"above (the z cell is asymmetric so the liquid carries its "
+        f"coexistence density; at rho = rho_solid a T* = "
+        f"{INTERFACE_MD['T_star']} relaxation freezes epitaxially onto the "
+        f"perfect wall). The liquid half is RSA-placed at a "
+        f"{INTERFACE_RSA_DMIN} sigma hard core and relaxed by short "
+        f"Lennard-Jones MD at T* = {INTERFACE_MD['T_star']} with the solid "
+        f"atoms frozen (engine parameters under 'md'; per-frame min pair "
+        f"distance, measured T* and potential energy in the frame records); "
+        f"the two-phase label boundary is the mid-plane of the box",
+        spec["seed"], dialect="core+lj")
     ground["lift_mode"] = "interface"
     ground["lift_dialect"] = ["core", "lj"]
+    ground["md"] = {
+        "engine": {"name": "ASE", "integrator": "ase.md.langevin.Langevin",
+                   "constraint": "ase.constraints.FixAtoms (solid half frozen)",
+                   "initial_velocities": "thermalize_momenta + Stationary"},
+        "potential": {
+            "name": "Lennard-Jones 12-6",
+            "implementation": "ase.calculators.lj.LennardJones",
+            "citation": ("Lennard-Jones potential as implemented in ASE; "
+                         "original: J. E. Jones, Proc. R. Soc. Lond. A 106, "
+                         "463 (1924)"),
+            "parameters": {"epsilon_eV": 1.0, "sigma_A": 1.0,
+                           "rc_sigma": 2.5, "smooth": False},
+        },
+        "protocol": {
+            "description": (
+                "per frame (independent RSA + MD draw): random-sequential "
+                "placement of the liquid half at a 0.85 sigma hard core "
+                "(liquid-liquid and liquid-solid, minimum image), then "
+                "Langevin NVT at T* = 0.7 with the solid half frozen; "
+                "dt* = 0.002 for 1000 steps then dt* = 0.005 for 2000 steps "
+                "(12 tau total), friction 0.5/tau. Duration measured "
+                "time-resolved: liquid structure forms by ~7 tau, the first "
+                "transient solid-like blips in the liquid core appear at "
+                "~17 tau"),
+            "rsa_dmin_sigma": INTERFACE_RSA_DMIN,
+            "T_star": INTERFACE_MD["T_star"],
+            "dt_fast": INTERFACE_MD["dt_fast"],
+            "steps_fast": INTERFACE_MD["steps_fast"],
+            "dt": INTERFACE_MD["dt"],
+            "steps": INTERFACE_MD["steps"],
+            "time_tau": INTERFACE_MD["time_tau"],
+            "friction_per_tau": INTERFACE_MD["friction_per_tau"],
+        },
+    }
     ground["expected"] = {
         "axis": "z",
         "boundary_z": float(boundary),
         "phases": {"solid": "below", "liquid": "above"},
+        "rho_solid": spec["rho_solid"],
+        "rho_liquid": spec["rho_liquid"],
+        "z_solid": float(z_solid),
         "counts": _species_counts(frames[0].symbols),
         "n_atoms": len(frames[0]),
         "cell": [float(v) for v in frames[0].cell_diag],
     }
     for k, frame in enumerate(frames):
-        ground["frames"].append(_frame_record(k, spec["seed"] + k, frame,
-                                              boundary_z=float(boundary)))
+        ground["frames"].append(
+            _frame_record(k, spec["seed"] + k, frame,
+                          boundary_z=float(boundary),
+                          min_pair_sigma=round(stats[k]["min_pair_sigma"], 4),
+                          liquid_T_measured_star=round(
+                              stats[k]["T_measured_star"], 4),
+                          liquid_pe_per_atom_epsilon=round(
+                              stats[k]["pe_per_atom"], 4)))
     entry = _write_case(out, "interface", spec["id"], frames, ground)
-    print(f"[interface] {spec['id']}: boundary z={boundary:.3f} {N_FRAMES} "
-          f"frames x {len(frames[0])} atoms")
+    print(f"[interface] {spec['id']}: boundary z={boundary:.3f} "
+          f"min pair {min(s['min_pair_sigma'] for s in stats):.3f} sigma "
+          f"{N_FRAMES} frames x {len(frames[0])} atoms")
     return [entry]
 
 
