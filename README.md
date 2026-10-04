@@ -6,10 +6,13 @@ program describes a **macrostate** — a family of configurations; a coordinate
 file is one **microstate** of it. Order is written exactly where a system has
 it, statistics where it does not: from crystals to gases.
 
-Status: **v0.1 prototype: 14/14 on the committed inputs after the Reviews
-4-7 open items (O1-O5 fixed with pre-fix-failing tests; O9's glass
-reference replacement blocked on an owner decision -- see
-`docs/reviews/open_items.md` and `reports/gate_a_prime.md`).**
+Status: **v0.1 prototype: 14/14 on the committed inputs (clean run URL in
+`reports/acceptance.json`). Known limits: the LJ glass case reproduces the
+reference's cavitation, not its quench history (Kob-Andersen replacement in
+progress, W7); single-species metal solid-liquid interfaces are not supported
+(W4); strained boxes until W5 lands.** Decisions D1-D16 (Review 8) are
+implemented; the open work orders W1-W6 gate Gate A' -- see
+`docs/reviews/open_items_v2.md`.
 Acceptance runs **14/14 criteria PASS** on clean machines (GitHub Actions
 dispatch runs, artifact uploaded), and the passes have teeth: the seeded
 errors a real bug would look like — physics off, wrong temperature ±20%,

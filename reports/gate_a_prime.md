@@ -63,6 +63,44 @@ fixed; F12 A4 mixed-cell metric — fixed (multiset scoring).
 | # | Item | Status | Evidence |
 | --- | --- | --- | --- |
 | O1 | A2 not translation-invariant (P0) | **fixed** | 50 random rigid transforms x 9 thermal frames: 50/50 byte-identical + 50/50 build (was 3/9 cases failing); the 3 named reproducers all 'same text: True, builds: yes' |
+| O2 | A3 geometry origin-dependent | **fixed** | (0.7,0,0) shift: 7/7 failed -> 0/7 (assignment-alignment iteration; gate unchanged). The 'no fit even for the frame against ITSELF' claim was OUR OWN docstring's (at 14cf5d4) -- the reviewer quoted it and named primitive-cell reduction as the likely cause, which our test then confirmed (0/9 default = primitive-cell reduction; 8/9 with primitive_cell=False; l12_ni3al never fits at ~800 s/call). D6 decided on this evidence |
+| O3 | A4 fails on new seeds | **fixed** | 9/15 -> 0/15 reproducer sets + 0/10 fresh sets x 26 cells; interstitials at octahedral/tetrahedral sites, separations >= 1.5-2 d_NN, planted min-pair seed-independent (0.707-1.000 d_NN, on crystallography) |
+| O4 | A8 site classifier ignores PBC | **fixed** | in-plane census 3/20 -> 0/20; fcc/hcp hollow physical frames 66% -> 100% (20 draws x 20 translations); z-boundary slab byte-identical; planted frame physical (O-O 1.35 A -> >= 5.5 A); fcc/hcp NAMING left to owner |
+| O5 | programs must compile, inputs physical | **fixed** | co2_dense regenerated at 0.68 g/cm3 (supercritical anchor; the old 2.54 was in no equilibrium region); every bench frame passes sanity; lift->compile scan green (two compiler gaps pinned with causes: lipf6 species, si001 'site far' + a process-history determinism bug of the O1 family) |
+| O6 | demo rebuilds at assumed T | **fixed** | Act 1 lifts at the provenance T exactly as check_a5 does |
+| O7 | reports and claims | **this update** | acceptance.json records commit/OS/URL; README names the open items; dossier contradictions corrected; this scorecard |
+| O8 | floors rest on 2-5 pairs | **fixed** | >= 10 frames per case; averaged floors >= 10 pairs (12-21 pair frame floors); max(mean,P90) assessed: keep (P90 > mean in 14/14 records; no equilibrated pair exceeds 1.5x mean at >=10 pairs) |
+| O9 | glass reference tears open | **BLOCKED (owner)** | NPT route implemented and measured (22 seeds, 6 variants): pressure/voids/energy fixed but crystal-like 1.0-47.6% vs <1% gate -- monatomic LJ crystallises densifying to rho*=1.0=fcc ground state; amorphous sanity committed (reproduces the reviewer's table); q6_cutoff 3.0->1.3 fixes crystal-misjudgement (12 red -> 13 green); 10x quench resolution: still measures anneal depth -- root fix rides the owner's binary-glass decision |
+| O10 | floor includes system under test | **fixed** | slow amorphous test floored by two fresh independent preparations (not the tested rebuild); red test pins the root |
+| O11 | metal solid-liquid unliftable | **key added** | printed_cutoff (3.25 A, pending approval); slab-mode lift + build work at 832 atoms (program is M0-generic X/LJ -- species-aware lift is future work, honestly recorded) |
+| O12 | leftovers | **fixed** | strict xfail only in the red-team registry (hygiene test + registry-liveness test); water model flagged assumed (TIP3P/TIP4P/TIP4P-2005 share r_OH) |
+
+## Decisions (Review 8, D1-D16 -- delegated to the external reviewer, binding; implemented status)
+
+| ID | Decision | Status |
+| --- | --- | --- |
+| D1 | lj overlap_tolerance 0.70->0.80 | **implemented** (lj.yaml; the dialect test updated) |
+| D2 | overlap_sanity_fraction 0.70 d_NN for metal, LJ stays 0.80 sigma | **implemented** (metal.yaml) |
+| D3 | lj_solid_liquid solid-density tol 4.0% | **implemented** (provenance note settled; no further widening) |
+| D4 | Ratify all new dialect keys incl thermal_quench_* | **implemented** (markers removed from metal.yaml) |
+| D5 | One branch per stream, green CI, run URL in merge commit | **in effect** for this round's merges |
+| D6 | A3 gate = translation-aligned assignment check | **implemented** (reason recorded in PLAN.md A3 row) |
+| D7 | Glass base values 1500/3000/2850 provisional | **kept for frozen monatomic ref** (W7 re-derives) |
+| D8 | Rebuild budget max(150, 150*N/1000) | **implemented** (_a5_budget, already live) |
+| D9 | Kob-Andersen 80:20 glass at rho=1.2 | **W7 in progress** (S6 stream) |
+| D10 | q6_cutoff 1.3 REJECTED as the fix | **W1 in progress** (unit-free rule, then delete) |
+| D11 | metal printed_cutoff 3.25 A | **implemented** (approved as metadata) |
+| D12 | cu_solid_liquid sanity restatement REJECTED | **implemented** (original targets restored; known_limitation recorded; 4-ps note fixed) |
+| D13 | fcc/hcp hollow names | deferred until after the gate |
+| D14 | co2_dense at 0.68 g/cm3 | approved (contact distances -> W8) |
+| D15 | max(mean, P90) | kept |
+| D16 | Gate A' declared when W1-W6 merged + D1-D15 + clean run + fresh verifier | **pending W1-W6** |
+
+## Reviews 4-7 scorecard (docs/reviews/open_items.md, all with numbers)
+
+| # | Item | Status | Evidence |
+| --- | --- | --- | --- |
+| O1 | A2 not translation-invariant (P0) | **fixed** | 50 random rigid transforms x 9 thermal frames: 50/50 byte-identical + 50/50 build (was 3/9 cases failing); the 3 named reproducers all 'same text: True, builds: yes' |
 | O2 | A3 geometry origin-dependent | **fixed** | (0.7,0,0) shift: 7/7 failed -> 0/7 (assignment-alignment iteration; gate unchanged); reviewer's 'matcher never fits self' DISPROVEN by committed test (fits 9/9 self; 0/9 vs rebuild = primitive-cell reduction; l12 never fits + 800 s/call) -> D6 now decided on evidence |
 | O3 | A4 fails on new seeds | **fixed** | 9/15 -> 0/15 reproducer sets + 0/10 fresh sets x 26 cells; interstitials at octahedral/tetrahedral sites, separations >= 1.5-2 d_NN, planted min-pair seed-independent (0.707-1.000 d_NN, on crystallography) |
 | O4 | A8 site classifier ignores PBC | **fixed** | in-plane census 3/20 -> 0/20; fcc/hcp hollow physical frames 66% -> 100% (20 draws x 20 translations); z-boundary slab byte-identical; planted frame physical (O-O 1.35 A -> >= 5.5 A); fcc/hcp NAMING left to owner |

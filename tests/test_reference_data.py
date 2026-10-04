@@ -82,11 +82,11 @@ GR_PEAK_BOUNDS = {
     "lj_solid_liquid": ("gr_peak:X@solid", [1.08, 1.20]),
     "water_tip4p": ("gr_peak:O-O", [2.75, 2.90]),
     "nacl_aq": ("gr_peak:Cl-O", [3.00, 3.40]),
-    # window widened 2.49-2.62 -> 2.44-2.64 with the O8 regeneration: the
+    # window 2.49-2.62 (D12: the widened 2.44-2.64 was rejected; the
     # transient premelted boundary layer washes the solid window's averaged
     # peak toward the liquid value (measured 2.465; single frames
-    # 2.465-2.628) -- PENDING OWNER APPROVAL, see the provenance note
-    "cu_solid_liquid": ("gr_peak:Cu@solid", [2.44, 2.64]),
+    # 2.465-2.628) -- D12 REJECTED the restatement; the case gates nothing (known_limitation)
+    "cu_solid_liquid": ("gr_peak:Cu@solid", [2.49, 2.62]),  # D12: original window
 }
 MIN_PAIR_BOUNDS = {
     "lj_liquid": {"min_pair:X": 0.80},

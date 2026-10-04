@@ -38,10 +38,13 @@ defect flips the pin red and forces the case back into the strict checks):
     vocabulary the compiler does not implement (species C3H4O3/F6P -- the EC
     and PF6- templates exist only in bench/generate.py -- and adsorption site
     'far'); closing those gaps is src work outside this stream.
-  * interface/lj_solid_liquid: the liquid half is uniform random by frozen
-    design (min pair 0.05-0.18 sigma << 0.70), an unphysical input by the
-    reference-data rule; regenerating it with excluded-volume placement is an
-    O5 follow-up that must update checksums.json in its own reviewed commit.
+
+  interface/lj_solid_liquid was the third pin (liquid half uniform random,
+  min pair 0.047-0.18 sigma); W6 (Review 8, 2026-10-04) regenerated the
+  liquid half as RSA at >= 0.85 sigma followed by a short LJ MD relaxation
+  (T* = 0.7, frozen solid half) in its own reviewed commit with
+  checksums.json, and the pin was removed so the strict 0.80 sigma hard-core
+  rule governs again.
 """
 import json
 import sys
@@ -98,8 +101,11 @@ PINNED_COMPILER_GAPS = {
 
 # frozen frames that violate their family hard core and cannot be regenerated
 # in this stream; the distance test asserts the violation persists (tripwire:
-# a physical regeneration flips it red and the case reverts to the strict rule)
-PINNED_HARDCORE_VIOLATIONS = {"interface/lj_solid_liquid"}
+# a physical regeneration flips it red and the case reverts to the strict rule).
+# interface/lj_solid_liquid was removed here by W6 (2026-10-04): its liquid
+# half is regenerated physical (RSA >= 0.85 sigma + LJ MD relaxation), so the
+# strict LJ hard-core assert governs it again.
+PINNED_HARDCORE_VIOLATIONS: set = set()
 
 
 def _cases():

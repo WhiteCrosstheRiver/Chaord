@@ -38,7 +38,9 @@ thresholds:
   rsa_max_tries: 2000000          # total RSA placement attempts before an honest
                                   # ChaordError (never an unbounded spin)
   liquid_margin_shrink: 0.3       # shrink of the liquid half-slab used for packing
-  overlap_tolerance: 0.70         # static overlap check, in sigma
+  overlap_tolerance: 0.80         # static overlap check, in sigma (D1 approved
+                                 # 2026-10-04: aligns the dialect value with the
+                                 # 0.8-sigma floor check/statics.py already enforces)
   md:
     skin: 0.3
     relax_rc: 2.5                # neighbour cutoff for protocol/relaxation MD, sigma

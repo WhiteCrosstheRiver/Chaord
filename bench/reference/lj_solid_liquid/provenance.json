@@ -61,7 +61,7 @@
         ],
         "target": 0.96,
         "tolerance_pct": 4.0,
-        "note": "atom number density, sigma units; window cut on fcc lattice planes; the upscaled crystal (2.24x the interface area of the N=832 case, equilibrated 20 tau at T*=0.65 ~ 0.94 Tm) exchanges atoms with its melt, so site occupancy of a fixed window fluctuates by a few percent -- measured on 10 pre-run frames of this protocol: -3.5%..+1.0%, stationary in time, deficit spread through the window, not interface-adjacent (the 2.5% band was calibrated on the pristine N=832 crystal, whose window stayed within -1.6%..0.0%); tolerance 4.0% covers the measured fluctuation, target unchanged"
+        "note": "atom number density, sigma units; window cut on fcc lattice planes; the upscaled crystal (2.24x the interface area of the N=832 case, equilibrated 20 tau at T*=0.65 ~ 0.94 Tm) exchanges atoms with its melt, so site occupancy of a fixed window fluctuates by a few percent -- measured on 10 pre-run frames of this protocol: -3.5%..+1.0%, stationary in time, deficit spread through the window, not interface-adjacent (the 2.5% band was calibrated on the pristine N=832 crystal, whose window stayed within -1.6%..0.0%); tolerance 4.0% covers the measured fluctuation, target unchanged (D3 APPROVED Review 8 2026-10-04; no further widening -- if a regeneration needs more, enlarge the solid slab instead)"
       },
       {
         "region": "liquid",

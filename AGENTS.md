@@ -28,6 +28,9 @@ and a decompiler (`chaord lift`: coordinates → program). A program describes a
 - A new statement key ships complete: dialect entry, grammar/IR support, build, lift, CV (if statistical),
   tests, reference-manual entry and one example under `spec/examples/` that passes `tools/sketch_check.py`.
 - Seed all randomness (`numpy.random.default_rng(seed)`); no global RNG, no hidden global state.
+- Read `docs/reviews/open_items.md` (and `open_items_v2.md` when it exists)
+  before starting ANY work; it overrides every older plan (moved to the top
+  by Review 8 D-new-rule-1, 2026-10-04).
 - Heavy tools (OVITO, LAMMPS, PLUMED, MACE) are optional extras. Core must run on numpy, scipy, ASE, Lark, Pydantic, pint.
 - Conservation check runs after every lift: atoms per species and total charge in the program must equal the input.
 - If the spec is unclear, open a question in the PR instead of guessing. Spec, grammar and dialect-threshold
@@ -72,8 +75,6 @@ and a decompiler (`chaord lift`: coordinates → program). A program describes a
   whose power mutation passes has no evidence value (post Review 3,
   2026-09-30; the registry lives in tests/acceptance/test_mutations.py and
   tests/adversarial/).
-- Read `docs/reviews/open_items.md` before starting work; it overrides older
-  plans (post Reviews 4-7, owner-forwarded 2026-10-03).
 - A criterion with a random element is judged over at least 20 draws; one
   draw is not evidence (post Reviews 4-7).
 - Every test input, planted or synthetic, passes the reference-data sanity
@@ -82,3 +83,11 @@ and a decompiler (`chaord lift`: coordinates → program). A program describes a
   under test (post Reviews 4-7, O10).
 - When a clean run fails, report the failure with its power numbers before
   changing how a criterion is measured (post Reviews 4-7).
+- A threshold change is tested in every unit system its dialect serves (A and
+  sigma), on crystals and on disordered frames (Review 8, 2026-10-04).
+- Fail closed. A missing threshold or a failed check raises. A lift arm falls
+  through to the next arm only on an explicit "not this phase" verdict. A lift
+  that cannot describe a frame refuses with an error; it never prints a program
+  it cannot stand behind. A value the lift did not measure and was not given
+  (temperature, model) is printed as assumed (Review 8, 2026-10-04).
+- A sanity target never comes from the frames it checks (Review 8, 2026-10-04).

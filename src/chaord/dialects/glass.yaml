@@ -11,7 +11,8 @@ thresholds:
   cn_cutoff: 2.85                 # Si-Si first shell, A
   ring_search_max: 12             # largest ring size searched
   bond_tolerance: 1.25              # bond length in units of covalent radii sums
-  # VALUE CHANGE (Review 7 / O9, 2026-10-02, PENDING OWNER APPROVAL):
+  # D10 REJECTED as the long-term fix (Review 8, 2026-10-04) -- keep 1.3 only
+# until W1's unit-free rule lands, then delete q6_cutoff entirely:
   # 3.0 -> 1.3.  The old 3.0 was meant in oxide-network A, but this dialect
   # is exercised exclusively with the lj backend, whose unit is the sigma
   # (glass.yaml has no unit override; core + glass thresholds apply to LJ
@@ -51,7 +52,7 @@ thresholds:
   quench_default_rate: 0.001      # cooling rate when the program omits `at <rate>`
   # default melt-quench-anneal history the amorphous lifter states (rebuild
   # protocol, LJ reduced units; quench is linear over glass_quench_steps).
-  # VALUE CHANGE (Review 3 T3, 2026-10-02, pending human approval): the step
+  # D7 PROVISIONAL (Review 8, 2026-10-04): the step
   # counts are the shipped reference generator's N=500 protocol (1500/3000/
   # 2850, per bench/reference/lj_glass provenance: melt/quench are the
   # generator's 1500/3000; the anneal depth 2850 is where the generator's

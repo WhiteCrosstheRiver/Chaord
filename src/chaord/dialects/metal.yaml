@@ -70,11 +70,14 @@ thresholds:
   printed_cutoff: "3.25"         # cutoff the slab lifter states in the physics
                                    # block (metadata); the analytic F-S pair functions
                                    # vanish quadratically at max(c, d) = 3.25 A for Cu
-                                   # (see realize/eam.py). NEW KEY (Reviews 4-7 O11,
-                                   # 2026-10-03, pending human approval): core + metal
-                                   # previously defined no printed_cutoff, so the slab
-                                   # lift of a metal solid-liquid interface failed on
-                                   # the threshold lookup before any fitting happened
+                                   # (see realize/eam.py). APPROVED as metadata by D11
+                                   # (Review 8, 2026-10-04); what the slab lift may
+                                   # print is decided by W4
+  overlap_sanity_fraction: 0.70   # D2 approved 2026-10-04: hot metals have real
+                                 # pairs at 0.75-0.78 d_NN (the Cu reference's own
+                                 # floor is 1.95 A = 0.76 d_NN); 0.70 still catches
+                                 # every planted overlap seen so far (0.40 d_NN).
+                                 # The LJ dialect stays at 0.80 sigma.
   eam_force_symmetry_tol: 1.0e-9 # perfect-lattice residual force, eV/A
   eam_scan_lo: 0.95              # uniform-scale energy scan window (fraction)
   eam_scan_hi: 1.05
@@ -105,7 +108,9 @@ thresholds:
   stoichiometric_preference_min: 0.90 # species-aware fit score to prefer a stoichiometric host
   thermal_test_amplitude: 0.06      # displacement amplitude as fraction of d_NN (0.8 Tm-ish)
   thermal_quench_steps: 100         # max L-BFGS-B iterations of the defect-lift thermal
-                                   # quench (review 2, 2026-09-29); 0 disables the quench
+                                   # quench; 0 disables the quench. RATIFIED by D4
+                                   # (Review 8, 2026-10-04: A4 passed 60 of 60 fresh
+                                   # seed sets in the reviewer's independent check)
   thermal_quench_rc: 2.5            # LJ cutoff of the quench potential, sigma units
   thermal_quench_spring: 400        # harmonic site restraint of the quench, epsilon/sigma^2
   thermal_quench_shift_fraction: 0.15  # per-axis box bound around each matched site,

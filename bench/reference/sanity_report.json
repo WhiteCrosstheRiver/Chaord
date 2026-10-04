@@ -11,7 +11,7 @@
         "note": "no two frames share identical coordinates"
       },
       "density:solid": {
-        "pass": true,
+        "pass": false,
         "measured": [
           0.0725,
           0.076733,
@@ -24,9 +24,9 @@
           0.074616,
           0.078321
         ],
-        "target": 0.0750926,
-        "max_rel_dev_pct": 4.863,
-        "tolerance_pct": 6.0
+        "target": 0.08467107748473354,
+        "max_rel_dev_pct": 15.625,
+        "tolerance_pct": 2.5
       },
       "density:liquid": {
         "pass": true,
@@ -53,7 +53,7 @@
         "note": "task hard core 2.0 A; the hot-liquid thermal tail measured 1.983 A (2026-10-02 10-frame draw 1: min 2.0025), so the enforced floor is 1.95"
       },
       "gr_peak:Cu@solid": {
-        "pass": true,
+        "pass": false,
         "measured": [
           2.5261,
           2.5057,
@@ -68,10 +68,10 @@
         ],
         "measured_average": 2.4648,
         "window": [
-          2.44,
-          2.64
+          2.49,
+          2.62
         ],
-        "note": "fcc a0/sqrt(2) = 2.556 A; the frame-averaged peak sits at 2.465 in this draw because the premelted boundary washes the solid window's first shell toward the liquid value (~2.50); single frames span 2.465-2.628.  Window widened 2.49-2.62 -> 2.44-2.64 to cover the transient boundary layer (PENDING OWNER APPROVAL)."
+        "note": "fcc a0/sqrt(2) = 2.556 A; D12 (Review 8): the widened window is REJECTED with the restatement; original window kept. known_limitation: the premelted boundary washes the solid window toward the liquid value"
       },
       "gr_peak:Cu@liquid": {
         "pass": true,
@@ -96,7 +96,7 @@
       }
     },
     "n_frames": 10,
-    "passed": true
+    "passed": false
   },
   "lj_glass": {
     "case": "lj_glass",

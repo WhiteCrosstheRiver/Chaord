@@ -56,9 +56,9 @@
           7.23,
           16.267500000000002
         ],
-        "target": 0.0750926,
-        "tolerance_pct": 6.0,
-        "note": "atom number density of the transient-coexistence solid window at 1335 K ~ Tm: EQUILIBRATED fcc (thermally expanded from the 0-K construction value 4/a0^3 = 0.08467/A^3 to ~0.079) plus a premelted boundary layer that the hot melt erodes into the 2-cell window on a per-draw depth (the interface position is chaotic; the checked-in 5-frame draw eroded little, regenerations measure 0.0714-0.0783).  Target = measured mean over the 10 frames of the 2026-10-02 regeneration (span -4.9%..+4.3%), tolerance 6%.  TARGET RESTATEMENT PENDING OWNER APPROVAL (D3-style): the old 2.5% band around the 0-K value held only for a pristine draw."
+        "target": 0.08467107748473354,
+        "tolerance_pct": 2.5,
+        "note": "atom number density, A^-3; D12 (Review 8 2026-10-04): the restated target was REJECTED (it was the mean of the frames it checks). Original construction target kept; known limitation: solid window includes the premelted interface; no independent density target yet"
       },
       {
         "region": "liquid",
@@ -68,7 +68,7 @@
         ],
         "target": 0.07543549746910899,
         "tolerance_pct": 5.0,
-        "note": "atom number density; 7.96 g/cm3; tolerance 3.0 -> 5.0 (O8, PENDING OWNER APPROVAL): the doubled 10-frame sampling window (8 ps vs 4 ps) lets the interface compress the liquid half further (measured max +3.8%)"
+        "note": "atom number density; 7.96 g/cm3; tolerance 5.0: the T~Tm interface compresses the liquid half within the 4 ps sampling window (measured max +3.8%; D12 wording correction applied)"
       }
     ],
     "min_pairs": [
@@ -91,11 +91,11 @@
           16.267500000000002
         ],
         "window": [
-          2.44,
-          2.64
+          2.49,
+          2.62
         ],
         "rmax": 4.5,
-        "note": "fcc a0/sqrt(2) = 2.556 A; the frame-averaged peak sits at 2.465 in this draw because the premelted boundary washes the solid window's first shell toward the liquid value (~2.50); single frames span 2.465-2.628.  Window widened 2.49-2.62 -> 2.44-2.64 to cover the transient boundary layer (PENDING OWNER APPROVAL)."
+        "note": "fcc a0/sqrt(2) = 2.556 A; D12 (Review 8): the widened window is REJECTED with the restatement; original window kept. known_limitation: the premelted boundary washes the solid window toward the liquid value"
       },
       {
         "elements": [
@@ -159,5 +159,5 @@
       "step": 5000
     }
   ],
-  "a5_excluded": "DROPPED from A5 gating (owner decision per Review 3 T3 'Cu fixed or dropped', recorded in reports/gate_a_prime.md): the T~Tm coexistence is TRANSIENT (the whole box crystallises within the sampling window, measured q6bar ~0.44) and the M0-generic lift (X, LJ units) has no realization backend under core+metal (no 'md' table), so a rebuild cannot be scored. The frames themselves PASS the physical sanity checks at the recalibrated equilibrium tolerances (this provenance, PENDING owner approval). Frames remain for A13/lift evidence only."
+  "known_limitation": "solid window includes the premelted interface; no independent density target yet (D12, Review 8). If Cu ever returns to a criterion: target from a bulk NPT run of the same potential at 1335 K (~0.079 A^-3), an interior window at least one cell from each interface, tolerance <= 3%."
 }

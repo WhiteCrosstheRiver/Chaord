@@ -17,7 +17,7 @@ def test_unknown_dialect_rejected():
 
 def test_merge_later_wins():
     d = load_dialect(("core", "lj"))
-    assert d.threshold("overlap_tolerance") == 0.70  # lj overrides core
+    assert d.threshold("overlap_tolerance") == 0.80  # lj overrides core (D1: 0.80 sigma)
     core = load_dialect(("core",))
     assert core.threshold("overlap_tolerance") == 0.5
 

@@ -1181,7 +1181,7 @@ def case_cu_solid_liquid(out: Path, seed: int):
         "sanity": {
             "density": [
                 {"region": "solid", "z": [buf, zmid - buf],
-                 # TARGET RESTATEMENT (O8 regen, 2026-10-02, PENDING OWNER
+                 # TARGET RESTATEMENT REJECTED (D12, Review 8, 2026-10-04); the
                  # APPROVAL, D3-style): the 0-K construction density
                  # 4/a0^3 = 0.08467/A^3 cannot be met by an equilibrated
                  # solid at T ~ Tm (thermal expansion alone gives ~0.079),
@@ -1201,7 +1201,7 @@ def case_cu_solid_liquid(out: Path, seed: int):
                 {"region": "liquid", "z": [zmid + buf, Lz_new - buf],
                  "target": 4 * rho_l / rho_s / a0 ** 3, "tolerance_pct": 5.0,
                  "note": f"atom number density; {rho_l} g/cm3; tolerance "
-                         "3.0 -> 5.0 (O8, PENDING OWNER APPROVAL): the "
+                         "3.0 -> 5.0 liquid tolerance (approved, D12 Review 8): the "
                          "interface compresses the liquid half across the "
                          "sampling window (measured max +3.8%)"},
             ],
