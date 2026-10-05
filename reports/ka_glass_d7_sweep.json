@@ -1,0 +1,182 @@
+{
+  "A_ref5x": {
+    "melt/quench/anneal": [
+      4000,
+      4000,
+      1000
+    ],
+    "total_steps": 9000,
+    "draw_seconds_total": 694.6,
+    "per_draw_s": 231.5,
+    "distances": {
+      "gr_rms": 0.0495,
+      "cn_tv": 0.0174
+    },
+    "floor": {
+      "gr_rms": 0.0273,
+      "cn_tv": 0.0286
+    },
+    "ratios": {
+      "gr_rms": 1.814,
+      "cn_tv": 0.609
+    },
+    "pass_1p5x": false,
+    "energy_per_atom": [
+      -7.3893,
+      -7.3872,
+      -7.384
+    ],
+    "ref_energy_per_atom": [
+      -7.4648,
+      -7.4706,
+      -7.4567,
+      -7.469,
+      -7.4523,
+      -7.4486
+    ]
+  },
+  "B_ref10x": {
+    "melt/quench/anneal": [
+      4000,
+      2000,
+      1000
+    ],
+    "total_steps": 7000,
+    "draw_seconds_total": 557.9,
+    "per_draw_s": 186.0,
+    "distances": {
+      "gr_rms": 0.0932,
+      "cn_tv": 0.0218
+    },
+    "floor": {
+      "gr_rms": 0.0273,
+      "cn_tv": 0.0286
+    },
+    "ratios": {
+      "gr_rms": 3.413,
+      "cn_tv": 0.761
+    },
+    "pass_1p5x": false,
+    "energy_per_atom": [
+      -7.3233,
+      -7.3418,
+      -7.3296
+    ],
+    "ref_energy_per_atom": [
+      -7.4648,
+      -7.4706,
+      -7.4567,
+      -7.469,
+      -7.4523,
+      -7.4486
+    ]
+  },
+  "C_ref20x": {
+    "melt/quench/anneal": [
+      4000,
+      1000,
+      1000
+    ],
+    "total_steps": 6000,
+    "draw_seconds_total": 495.4,
+    "per_draw_s": 165.1,
+    "distances": {
+      "gr_rms": 0.1191,
+      "cn_tv": 0.0141
+    },
+    "floor": {
+      "gr_rms": 0.0273,
+      "cn_tv": 0.0286
+    },
+    "ratios": {
+      "gr_rms": 4.362,
+      "cn_tv": 0.493
+    },
+    "pass_1p5x": false,
+    "energy_per_atom": [
+      -7.2822,
+      -7.2794,
+      -7.2784
+    ],
+    "ref_energy_per_atom": [
+      -7.4648,
+      -7.4706,
+      -7.4567,
+      -7.469,
+      -7.4523,
+      -7.4486
+    ]
+  },
+  "D_shortmelt": {
+    "melt/quench/anneal": [
+      2000,
+      4000,
+      1000
+    ],
+    "total_steps": 7000,
+    "draw_seconds_total": 522.9,
+    "per_draw_s": 174.3,
+    "distances": {
+      "gr_rms": 0.0478,
+      "cn_tv": 0.0074
+    },
+    "floor": {
+      "gr_rms": 0.0273,
+      "cn_tv": 0.0286
+    },
+    "ratios": {
+      "gr_rms": 1.749,
+      "cn_tv": 0.259
+    },
+    "pass_1p5x": false,
+    "energy_per_atom": [
+      -7.3893,
+      -7.3844,
+      -7.3913
+    ],
+    "ref_energy_per_atom": [
+      -7.4648,
+      -7.4706,
+      -7.4567,
+      -7.469,
+      -7.4523,
+      -7.4486
+    ]
+  },
+  "E_anneal100": {
+    "melt/quench/anneal": [
+      4000,
+      4000,
+      100
+    ],
+    "total_steps": 8100,
+    "draw_seconds_total": 643.1,
+    "per_draw_s": 214.4,
+    "distances": {
+      "gr_rms": 0.1896,
+      "cn_tv": 0.0218
+    },
+    "floor": {
+      "gr_rms": 0.0273,
+      "cn_tv": 0.0286
+    },
+    "ratios": {
+      "gr_rms": 6.944,
+      "cn_tv": 0.764
+    },
+    "pass_1p5x": false,
+    "energy_per_atom": [
+      -7.1592,
+      -7.1625,
+      -7.1526
+    ],
+    "ref_energy_per_atom": [
+      -7.4648,
+      -7.4706,
+      -7.4567,
+      -7.469,
+      -7.4523,
+      -7.4486
+    ]
+  }
+}

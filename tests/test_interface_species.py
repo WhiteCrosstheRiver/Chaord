@@ -93,9 +93,13 @@ def test_thin_film_lifts_a_real_interface_program(thin):
 
 def test_thin_film_mode_slab_matches_direct_decompile(thin):
     """The legacy cascade's slab arm (mode='slab') produces the same text as
-    calling decompile/program_from_result directly."""
+    calling decompile/program_from_result directly. Both sides state T
+    explicitly: since W11 a caller-given-absent T is the dialect default and
+    is flagged assumed in provenance, so a defaulted call and an explicit
+    call legitimately differ (that contract is tested in
+    tests/test_metal_slab_refusal.py)."""
     frame, dialect, _, program = thin
-    via_mode = format_program(lift_frame(frame, dialect, mode="slab"))
+    via_mode = format_program(lift_frame(frame, dialect, T=0.65, mode="slab"))
     assert via_mode == format_program(program)
 
 

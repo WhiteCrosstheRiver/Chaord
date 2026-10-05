@@ -11,30 +11,32 @@ thresholds:
   cn_cutoff: 2.85                 # Si-Si first shell, A
   ring_search_max: 12             # largest ring size searched
   bond_tolerance: 1.25              # bond length in units of covalent radii sums
-  # D10 REJECTED as the long-term fix (Review 8, 2026-10-04) -- keep 1.3 only
-# until W1's unit-free rule lands, then delete q6_cutoff entirely:
-  # 3.0 -> 1.3.  The old 3.0 was meant in oxide-network A, but this dialect
-  # is exercised exclusively with the lj backend, whose unit is the sigma
-  # (glass.yaml has no unit override; core + glass thresholds apply to LJ
-  # frames in A = sigma).  In sigma units 3.0 averages q6 over ~3 neighbour
-  # shells, which ERASES the crystal signal (multi-shell q6bar of a perfect
-  # fcc crystal measures 0.021, far below q6_solid 0.32), so a perfect fcc
-  # crystal passed is_amorphous and lifted as `amorphous glass` (O9).  Unit
-  # discipline: the value now states the same first-shell cutoff the lj
-  # dialect states (lj.yaml q6_cutoff 1.45 sigma); 1.3 is the widest
-  # first-shell cutoff that rejects every prototype crystal at rho* 0.85-1.1
-  # (measured q6bar: fcc 0.575, bcc 0.511-0.629, hcp 0.485, diamond 0.629,
-  # sc 0.354, all above q6_solid with 12/8/12/4/6 neighbours; at 1.35 hcp
-  # picks up its 2nd shell and falls to 0.224 -- below threshold).  If the
-  # owner later scopes this dialect to oxide networks in A again, q6_cutoff
-  # must be re-derived for that unit (a per-dialect unit override), never
-  # set to a value that spans neighbour shells in the frames it classifies.
-  q6_cutoff: 1.3                    # phase-indicator cutoff (first neighbour shell, sigma units for LJ frames)
+  # W1 (Review 8, decision D10): glass.yaml states NO absolute phase cutoff
+  # any more; q6_cutoff is DELETED.  Its history: 3.0 (oxide-network A)
+  # averaged q6 over ~3 shells in sigma frames and let a perfect fcc crystal
+  # pass is_amorphous (O9); the 1.3 interim was meant in sigma and held no
+  # neighbour on an A crystal, so all 9 bench crystals were called amorphous
+  # under core + glass.  The classification is unit-free now and its keys
+  # live in core.yaml: q_cutoff_factor x the frame's own median d_NN as the
+  # neighbour radius, q_min_neighbours before an atom can be crystal-like,
+  # q6bar > q6_solid or q4bar > q4_solid, and the crystal lattice fit gates
+  # is_amorphous first (crystal_site_coverage_min).
   q6_solid: 0.32
-  amorphous_solid_frac_max: 0.30   # q6-solid fraction allowed in an amorphous frame
+  amorphous_solid_frac_max: 0.30   # q6/q4 crystal-like fraction allowed in an amorphous frame
   amorphous_network_min: 0.60      # fraction of 3-6 coordinated atoms required
   amorphous_bond_factor: 1.35      # geometric bond cutoff as fraction of d_NN (X species)
   fluid_rsa_dmin: 0.90              # RSA hard-core distance for protocol starts (sigma)
+  rsa_max_packing_fraction: 0.36    # highest hard-sphere volume fraction the
+                                    # RSA packer may target (mirrors lj.yaml;
+                                    # the W7 Kob-Andersen glass builds at
+                                    # rho*=1.2, where the 0.90 sigma hard core
+                                    # is infeasible -- above this fraction the
+                                    # hard core shrinks to the feasible value
+                                    # and the melt MD relaxes the closer
+                                    # contacts; the placement is a prior, not
+                                    # the physics)
+  rsa_max_tries: 2000000            # total RSA placement attempts before an
+                                    # honest ChaordError (mirrors lj.yaml)
   # statistical round-trip observables (noise-floor library, sigma units)
   gr_rmax_fluid: 2.5
   gr_bins_fluid: 60
@@ -52,26 +54,31 @@ thresholds:
   quench_default_rate: 0.001      # cooling rate when the program omits `at <rate>`
   # default melt-quench-anneal history the amorphous lifter states (rebuild
   # protocol, LJ reduced units; quench is linear over glass_quench_steps).
-  # D7 PROVISIONAL (Review 8, 2026-10-04): the step
-  # counts are the shipped reference generator's N=500 protocol (1500/3000/
-  # 2850, per bench/reference/lj_glass provenance: melt/quench are the
-  # generator's 1500/3000; the anneal depth 2850 is where the generator's
-  # floor-selected frames sit (anneal_eq 1000 + 3 x stride 500 + margin for
-  # the N^(2/3) rounding -- the floor's last-two frames per quench are the
-  # deepest-annealed, and a rebuild must land at comparable depth to compare
-  # honestly) -- the previous 3000/6000/
-  # 2000 ran 2x longer than the reference and only passed against the looser
-  # N=500 floor; the N=2048 cross-quench floor exposes the mismatch. The
-  # lifter scales these base counts by (N / glass_protocol_ref_n)^(2/3)
-  # (diffusive mixing, same law as the reference generator's own sizing) and
-  # states the scaled numbers in the program's history line.
+  # D7 RE-DERIVED FROM THE KOB-ANDERSEN REFERENCE (W7, 2026-10-04, PENDING
+  # OWNER APPROVAL): base counts calibrated on bench/reference/ka_glass
+  # (N=2000, rho*=1.2, T* 2.0 -> 0.1) -- glass_protocol_ref_n 2000, so the
+  # scale factor at the reference size is 1.0.  Sweep (reports/
+  # ka_glass_d7_sweep*.json, 3 rebuild draws per candidate, judged by A5's
+  # own averaged protocol against the cross-quench floor): melt 2000 /
+  # quench 4000 / anneal 4000 passes at gr_rms x0.86, cn_tv x0.29 and every
+  # partial g(r) x0.80-x1.19 of the floor (231 s/draw on the busy dev box,
+  # 69 s under the 300 s A5 budget; 10,000 MD steps).  The previous
+  # provisional values (1500/3000/2850 at ref_n 500, calibrated on the
+  # retired monatomic N=500 generator) under-anneal at the KA state point:
+  # their scaled protocol (3780/7560/7182 at N=2000) was not swept, but the
+  # 5x-faster-quench candidate A (4000/4000/1000) failed gr_rms at x1.81
+  # and the 100-step-anneal truncation at x6.94 -- anneal depth is the
+  # binding knob, and quench_end/anneal temperatures move 0.01 -> 0.1 with
+  # the reference's protocol.  The lifter scales these base counts by
+  # (N / glass_protocol_ref_n)^(2/3) and states the scaled numbers in the
+  # program's history line.
   glass_melt_T: 2.0
-  glass_melt_steps: 1500
-  glass_quench_T: 0.01
-  glass_quench_steps: 3000
-  glass_anneal_T: 0.01
-  glass_anneal_steps: 2850
-  glass_protocol_ref_n: 500
+  glass_melt_steps: 2000
+  glass_quench_T: 0.1
+  glass_quench_steps: 4000
+  glass_anneal_T: 0.1
+  glass_anneal_steps: 4000
+  glass_protocol_ref_n: 2000
   # deposit protocol (sigma units)
   deposit_T: 0.65                 # Langevin temperature while depositing (liquid branch:
                                  # cold deposition collapses the voids a 0.9-sigma gap needs)

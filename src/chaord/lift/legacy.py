@@ -20,6 +20,81 @@ from chaord.lift.defect_program import lift_crystal_defects  # noqa: F401
 from chaord.lift.fluid import lift_fluid  # noqa: F401
 
 
+class NotThisPhase(Exception):
+    """An arm's explicit verdict that the frame is not its phase (W1 step 4,
+    Review 8: fail closed).
+
+    The cascade falls through to the next arm ONLY on this verdict; a missing
+    threshold or any other error propagates -- a lift that cannot describe a
+    frame refuses with an error, it never silently walks the ladder into a
+    program no arm stands behind.  The arm modules predate the exception and
+    signal the same verdict with ChaordError, so the ladder converts (see
+    `_not_this_phase`)."""
+
+
+def _not_this_phase(exc: Exception) -> bool:
+    """Is `exc` an arm's explicit 'not my phase' refusal?
+
+    ChaordError is the refusal channel of this codebase (the pinned-mode
+    contract: "a refusal is a ChaordError, never a raw engine exception"),
+    with ONE exception: the threshold-lookup error raised by
+    ``Dialect.threshold`` itself ("dialect ... defines no threshold ...").
+    A missing dialect key is a configuration bug, not a phase verdict, and
+    must propagate out of the cascade (AGENTS rule 3, W1 step 4)."""
+    from ..lang.errors import ChaordError
+    return (isinstance(exc, ChaordError)
+            and "defines no threshold" not in str(exc))
+
+
+def _spglib_refusal(exc: Exception) -> bool:
+    """The spglib (exact-crystal) arm's refusals, including the mangled one.
+
+    ``lift/crystal.py`` (outside W1's file ownership) predates the ChaordError
+    convention and states its not-a-crystal verdicts as bare exceptions: two
+    ValueError messages, plus a third that its unpack-before-None-check bug
+    mangles into ``TypeError: cannot unpack non-iterable NoneType object``
+    (spglib returns None for a frame it cannot standardise, and
+    ``cell, pos, numbers = spglib.standardize_cell(...)`` raises before the
+    intended "spglib could not standardise the cell" ValueError).  The ladder
+    reads all three as the not-a-crystal verdict until the arm states them
+    as ChaordError itself.  The None-unpack pattern is the only generic
+    message in this set; every other error type still propagates (fail
+    closed), so the conversion stays strictly narrower than the blanket
+    swallow the ladder had before W1."""
+    if isinstance(exc, ValueError) and str(exc).startswith((
+            "spglib could not standardise the cell",
+            "no prototype matches the standardised structure")):
+        return True
+    return (isinstance(exc, TypeError)
+            and "cannot unpack non-iterable NoneType" in str(exc))
+
+
+def _refusal(exc: Exception) -> Exception:
+    """NotThisPhase for a recognised refusal, the original error otherwise.
+
+    Callers ``raise _refusal(e)`` inside the except block: a recognised
+    refusal converts to NotThisPhase (the only exception the ladder falls
+    through on); everything else re-raises as itself, original traceback
+    intact (the same exception object)."""
+    if isinstance(exc, NotThisPhase):
+        return exc
+    if _not_this_phase(exc) or _spglib_refusal(exc):
+        return NotThisPhase(f"{type(exc).__name__}: {exc}")
+    return exc
+
+
+def _default_T(dialect, T):
+    """The caller's T, else the dialect's md_reference_T (metadata); dialects
+    without an MD default state no temperature."""
+    from ..lang.errors import ChaordError
+    if T is not None:
+        return T
+    try:
+        return float(dialect.threshold("md_reference_T"))
+    except ChaordError:
+        return None
+
+
 def _lift_hcp_ortho(frame, dialect, backend="eam"):
     """Orthohexagonal hcp crystal arm (F2 root fix): fit the hexagonal
     lattice to an orthogonal box, emit the canonical crystal program.
@@ -105,31 +180,53 @@ def legacy_lift(frame, dialect, T=None, mode="auto"):
 
     Every path explains all of its atoms except the M0 slab lifter, whose
     off-lattice atoms are either accounted as displaced by a defect complex or
-    must appear in the program's residual block."""
+    must appear in the program's residual block.
+
+    W1 step 4 (Review 8): an arm falls through ONLY on NotThisPhase.  The
+    arms predate the exception and signal refusals with ChaordError (plus
+    crystal.py's bare-exception set, see _spglib_refusal), so each arm's
+    failure is converted with ``raise _refusal(e)`` and only the converted
+    NotThisPhase is caught.  A missing threshold (the one ChaordError that
+    is a configuration bug, not a verdict) or any other error propagates --
+    the cascade refuses instead of laundering the failure into whichever arm
+    comes next."""
     from ..lang.errors import ChaordError
     if mode in ("auto", "crystal", "defects"):
         if mode in ("auto", "crystal"):
             try:
-                return _lift_hcp_ortho(frame, dialect), 0
-            except Exception:
-                if mode == "crystal":
-                    pass        # not hcp: try the exact arm, refuse loudly below
+                try:
+                    return _lift_hcp_ortho(frame, dialect), 0
+                except Exception as e:
+                    if mode == "crystal":
+                        pass        # not hcp: try the exact arm, refuse loudly below
+                    else:
+                        raise _refusal(e)
+            except NotThisPhase:
+                pass
         try:
-            return lift_crystal(frame, dialect), 0
-        except Exception as e:
-            if mode == "crystal":
-                # a pinned-arm refusal is a ChaordError, never a raw engine
-                # exception (F2 root-cause 1: the same escape was an
-                # A13-class defect on hcp_mg)
-                raise ChaordError(
-                    f"crystal lift failed: {e}") from e
+            try:
+                return lift_crystal(frame, dialect), 0
+            except Exception as e:
+                if mode == "crystal":
+                    # a pinned-arm refusal is a ChaordError, never a raw
+                    # engine exception (F2 root-cause 1: the same escape was
+                    # an A13-class defect on hcp_mg)
+                    raise ChaordError(
+                        f"crystal lift failed: {e}") from e
+                raise _refusal(e)
+        except NotThisPhase:
+            pass
         if mode in ("auto", "defects"):
             try:
-                program, _diag = lift_crystal_defects(frame, dialect)
-                return program, 0
-            except Exception:
-                if mode == "defects":
-                    raise
+                try:
+                    program, _diag = lift_crystal_defects(frame, dialect)
+                    return program, 0
+                except Exception as e:
+                    if mode == "defects":
+                        raise
+                    raise _refusal(e)
+            except NotThisPhase:
+                pass
     if mode in ("auto", "amorphous"):
         from .amorphous import is_amorphous, lift_amorphous
         # a glass and a liquid are both disordered in one frame: the DIALECT
@@ -148,33 +245,27 @@ def legacy_lift(frame, dialect, T=None, mode="auto"):
     if mode in ("auto", "fluid"):
         from .fluid import is_single_phase
         if is_single_phase(frame, dialect):
-            if T is None:
-                try:
-                    T = float(dialect.threshold("md_reference_T"))
-                except Exception:
-                    T = None
-            return lift_fluid(frame, dialect, T=T), 0
+            return lift_fluid(frame, dialect, T=_default_T(dialect, T)), 0
         if mode == "fluid":
             raise ChaordError("frame is not a single-phase fluid "
                               "(solid-like fraction too high)")
     if mode in ("auto", "slab"):
         from .slab import decompile, program_from_result
-        if T is None:
-            try:
-                T = float(dialect.threshold("md_reference_T"))
-            except Exception:
-                T = None  # T is metadata: dialects without MD defaults omit it
+        T = _default_T(dialect, T)  # T is metadata: dialects without MD defaults omit it
         try:
-            res = decompile(frame.pos, frame.cell_diag, T, dialect,
-                            symbols=frame.symbols)
-            program = program_from_result(res, dialect)
-            # atoms the slab lifter could not explain: off-lattice atoms
-            # minus those accounted as displaced by defect complexes
-            explained = sum(c["displaced"] for c in res["defects"])
-            return program, max(len(res["off"]) - explained, 0)
-        except Exception:
-            if mode == "slab":
-                raise
-            # no interfaces found: a single-phase fluid after all
-            return lift_fluid(frame, dialect, T=T), 0
+            try:
+                res = decompile(frame.pos, frame.cell_diag, T, dialect,
+                                symbols=frame.symbols)
+                program = program_from_result(res, dialect)
+                # atoms the slab lifter could not explain: off-lattice atoms
+                # minus those accounted as displaced by defect complexes
+                explained = sum(c["displaced"] for c in res["defects"])
+                return program, max(len(res["off"]) - explained, 0)
+            except Exception as e:
+                if mode == "slab":
+                    raise
+                raise _refusal(e)
+        except NotThisPhase:
+            pass    # no interfaces found: a single-phase fluid after all
+        return lift_fluid(frame, dialect, T=T), 0
     raise ValueError(f"unknown lift mode {mode!r}")

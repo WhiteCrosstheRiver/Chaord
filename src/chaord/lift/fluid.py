@@ -10,7 +10,6 @@ from ..lang.ir import (
     GeoChain, Name, PhysicsBlock, Program, ProvenanceBlock, Quantity,
     RegionBlock, ResidualBlock, ShAll, Statement, StrVal, SystemBlock, Tol,
 )
-from .passes import pairs_within, qbar
 
 
 class AssumedT(float):
@@ -51,22 +50,27 @@ def bonded_single_phase(frame: Frame, edges, dialect) -> bool:
 def is_single_phase(frame: Frame, dialect) -> bool:
     """Should this frame lift as one homogeneous fluid?
 
-    Atomic frames use the dialect's q6 solid-like rule. Molecular frames use
-    the component-size rule above (every bonded component a small molecule)."""
-    try:
-        if not _all_elements(frame):
-            edges = []
-        else:
-            from ..build.molecules import bond_graph
-            edges = bond_graph(frame, dialect)
-        if edges:
-            return bonded_single_phase(frame, edges, dialect)
-        rc = float(dialect.threshold("q6_cutoff"))
-        thr = float(dialect.threshold("q6_solid"))
-        q6, _, _ = qbar(np.mod(frame.pos, frame.cell_diag), frame.cell_diag, rc=rc)
-        return float((q6 > thr).mean()) < float(dialect.threshold("fluid_solid_fraction_max"))
-    except Exception:
-        return False
+    Molecular frames use the component-size rule above (every bonded
+    component a small molecule).  Atomic frames use the unit-free local-order
+    rule (W1, Review 8 -- `amorphous.crystal_like_fraction`, one definition
+    per quantity): neighbours within `q_cutoff_factor` x the frame's own
+    median d_NN, an atom with fewer than `q_min_neighbours` neighbours never
+    crystal-like (a gas atom with one or two neighbours has q6bar near 1 --
+    the dilute-argon false positive), and the frame is a fluid while the
+    crystal-like fraction stays below the shared disordered threshold
+    `amorphous_solid_frac_max` -- the SAME bound is_amorphous uses, so no
+    frame is ever too solid for a fluid and disordered enough for a glass at
+    once.  A missing threshold raises; there is no absolute q6 cutoff left."""
+    if not _all_elements(frame):
+        edges = []
+    else:
+        from ..build.molecules import bond_graph
+        edges = bond_graph(frame, dialect)
+    if edges:
+        return bonded_single_phase(frame, edges, dialect)
+    from .amorphous import crystal_like_fraction
+    return (crystal_like_fraction(frame, dialect)
+            < float(dialect.threshold("amorphous_solid_frac_max")))
 
 
 def _rdf_stats(frame: Frame, dialect, pos=None):

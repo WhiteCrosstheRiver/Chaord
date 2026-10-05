@@ -11,6 +11,20 @@ from ..lang.ir import (
 )
 
 
+def _strictly_wrapped(frame: Frame) -> Frame:
+    """A copy of the frame wrapped into [0, L) with a strict upper edge.
+
+    ``np.mod`` can return exactly L (or a hair above), and every KD tree in
+    the classification paths (``typical_neighbor_distance``, the lattice fit,
+    ``qbar``'s pair query) builds with ``boxsize=L`` and rejects such points
+    outright.  Lifting tolerates marginally unwrapped input everywhere else;
+    the phase gates must too (the failure used to be swallowed by the old
+    blanket except clauses W1 deleted)."""
+    L = frame.cell_diag
+    return Frame(pos=np.minimum(np.mod(frame.pos, L), L * (1 - 1e-9)),  # dialect-exempt: numerical-guard: strict upper edge for KD trees
+                 cell=frame.cell, symbols=frame.symbols, pbc=frame.pbc)
+
+
 def network_edges(frame: Frame, dialect):
     """Bonds for the amorphous test: covalent when species are elements,
     geometric (a fraction of the typical NN distance) for placeholder species."""
@@ -22,17 +36,99 @@ def network_edges(frame: Frame, dialect):
     from ..build.defects import typical_neighbor_distance
     L = frame.cell_diag
     pos = np.minimum(np.mod(frame.pos, L), L * (1 - 1e-9))  # dialect-exempt: numerical-guard: strict upper edge for KD trees
-    rc = float(dialect.threshold("amorphous_bond_factor")) * typical_neighbor_distance(frame)
+    rc = float(dialect.threshold("amorphous_bond_factor")) * typical_neighbor_distance(
+        _strictly_wrapped(frame))
     return [tuple(e) for e in cKDTree(pos, boxsize=L).query_pairs(rc, output_type="ndarray")]
 
 
-def is_amorphous(frame: Frame, dialect) -> bool:
-    """Single phase, everywhere disordered, but with a bonded network."""
-    from ..lift.passes import qbar
+def crystal_like_fraction(frame: Frame, dialect) -> float:
+    """Fraction of crystal-like atoms by the unit-free local-order rule (W1,
+    Review 8): neighbours within `q_cutoff_factor` x the frame's own median
+    d_NN; an atom with fewer than `q_min_neighbours` such neighbours is never
+    crystal-like (a gas atom with one or two neighbours has q6bar near 1);
+    crystal-like means q6bar > `q6_solid` OR q4bar > `q4_solid`.
+
+    Every radius scales with the median d_NN `typical_neighbor_distance`
+    measures on the frame, so the rule reads Angstrom crystals and LJ sigma
+    frames identically -- there is no absolute cutoff left to get wrong
+    (reviewer's matrix: prototype crystals 0.65-1.00, glasses/liquids/gases
+    <= 0.12)."""
+    from ..build.defects import typical_neighbor_distance
+    from .passes import qbar
+    frame = _strictly_wrapped(frame)
+    L = frame.cell_diag
+    pos = frame.pos
+    rc = float(dialect.threshold("q_cutoff_factor")) * typical_neighbor_distance(frame)
+    q6, cnt, _ = qbar(pos, L, l=6, rc=rc)
+    q4, _, _ = qbar(pos, L, l=4, rc=rc)
+    counted = cnt >= int(dialect.threshold("q_min_neighbours"))
+    solid = ((q6 > float(dialect.threshold("q6_solid")))
+             | (q4 > float(dialect.threshold("q4_solid"))))
+    return float((counted & solid).mean())
+
+
+# every threshold the lattice fit (`lift.defects.fit_crystal`, its helpers and
+# the cell snap) reads; is_amorphous resolves them BEFORE the fit so a missing
+# dialect key raises as itself, never disguised as the fit's no-fit verdict
+_CRYSTAL_FIT_KEYS = (
+    "site_match_tol_fraction", "defect_stoichiometry_slack",
+    "lattice_fit_tol_fraction", "site_plausibility_floor",
+    "lattice_scan_factor_lo", "lattice_scan_factor_hi", "lattice_scan_steps",
+    "lattice_fit_gate_min", "lattice_refine_half", "lattice_refine_passes",
+    "lattice_anchor_improvement", "stoichiometric_preference_min",
+    "lattice_match_tolerance",
+)
+
+
+def _crystal_fit_coverage(frame: Frame, dialect):
+    """Site coverage of the best crystal-prototype lattice fit, or None when
+    no prototype fits the frame (W1 step 1).
+
+    The fit is unit-free (every key is a fraction of the frame's d_NN; the
+    keys are core.yaml defaults since W1, metal.yaml overrides), so it runs
+    under every dialect stack.  Fail-closed: after the pre-check above, the
+    only ChaordError `fit_crystal` can still raise is its designed
+    "no cubic prototype fits the frame" refusal -- a missing threshold is a
+    configuration error and must never be read as "disordered".
+
+    Placeholder species (W7: the Kob-Andersen 'A'/'B' mixture) are not
+    elements, and the prototype fitter maps species to atomic numbers for
+    its stoichiometry test ('X' is ASE's dummy and maps to 0; 'A'/'B' do
+    not map at all).  A prototype fit is not defined for such frames: the
+    coverage is None and is_amorphous falls through to the unit-free
+    local-order rule, which is species-agnostic."""
+    from ase.data import chemical_symbols as _chem
+    if not all(s in _chem for s in set(frame.symbols)):
+        return None
+    from ..lang.errors import ChaordError
+    from .defects import fit_crystal
+    for key in _CRYSTAL_FIT_KEYS:
+        dialect.threshold(key)
     try:
-        edges = network_edges(frame, dialect)
-    except Exception:
+        _name, _a, _slot_species, gate, _sites, _site_species = \
+            fit_crystal(_strictly_wrapped(frame), dialect)
+    except ChaordError:
+        return None                       # the fit's explicit no-fit verdict
+    return float(gate)
+
+
+def is_amorphous(frame: Frame, dialect) -> bool:
+    """Single phase, everywhere disordered, but with a bonded network.
+
+    W1 (Review 8): unit-free and fail-closed.  The crystal lattice fit gates
+    first -- a frame any prototype covers at or above
+    `crystal_site_coverage_min` is a crystal, not a glass (perovskite and
+    diamond read crystal-like below the local-order threshold and need this
+    gate; hcp in a non-orthohexagonal box fits no cubic prototype and is
+    caught by the local-order rule instead).  Disorder is then the
+    unit-free local-order rule: crystal-like fraction below
+    `amorphous_solid_frac_max`.  A missing threshold raises (the old
+    ``except Exception: disordered = True`` is deleted)."""
+    coverage = _crystal_fit_coverage(frame, dialect)
+    if coverage is not None and coverage >= float(
+            dialect.threshold("crystal_site_coverage_min")):
         return False
+    edges = network_edges(frame, dialect)
     n = len(frame)
     # a network: most atoms have 3-6 covalent neighbours
     if not edges:
@@ -42,14 +138,73 @@ def is_amorphous(frame: Frame, dialect) -> bool:
         deg[a] += 1
         deg[b] += 1
     network = float((deg >= 3).mean())  # any extended bonded structure
-    try:
-        rc = float(dialect.threshold("q6_cutoff"))
-        thr = float(dialect.threshold("q6_solid"))
-        q6, _, _ = qbar(np.mod(frame.pos, frame.cell_diag), frame.cell_diag, rc=rc)
-        disordered = float((q6 > thr).mean()) < float(dialect.threshold('amorphous_solid_frac_max'))
-    except Exception:
-        disordered = True
+    disordered = (crystal_like_fraction(frame, dialect)
+                  < float(dialect.threshold("amorphous_solid_frac_max")))
     return network > float(dialect.threshold('amorphous_network_min')) and disordered
+
+
+def infer_mixture_model(frame: Frame, dialect):
+    """Infer a named LJ-mixture model from the frame (W7 step 5, D9).
+
+    The review's rule, verbatim: the composition and the sigma_AB/sigma_AA
+    ratio read off the FIRST PARTIAL g(r) PEAKS name the model -- the
+    potential itself is never measurable from one configuration, so the
+    caller must print the model as ASSUMED.  Returns
+    (model_name, detail_dict) or None when the frame is single-species, the
+    dialect defines no lj_mixtures table, or no entry matches within the
+    dialect's tolerances."""
+    from ..lang.errors import ChaordError
+    species = sorted(set(frame.symbols))
+    if len(species) < 2:
+        return None
+    try:
+        table = dialect.threshold("lj_mixtures")
+        frac_tol = float(dialect.threshold("lj_mixture_fraction_tol"))
+        ratio_tol = float(dialect.threshold("lj_mixture_sigma_ratio_tol"))
+    except ChaordError:
+        return None
+    n = len(frame.symbols)
+    fractions = {s: frame.symbols.count(s) / n for s in species}
+    # sigma_AB/sigma_AA measured as the first-peak ratio of the two partials
+    from ..cv.rich import partial_gr
+    peaks = {}
+    for a, b in ((species[0], species[0]), (species[0], species[1])):
+        g, r = partial_gr(frame, dialect, a, b)
+        peaks[f"{a}{b}"] = float(r[int(np.argmax(g))])
+    ratio = peaks[f"{species[0]}{species[1]}"] / peaks[f"{species[0]}{species[0]}"]
+    for name, entry in sorted(table.items()):
+        if sorted(entry["species"]) != species:
+            continue
+        if any(abs(fractions[s] - float(entry["fractions"][s])) > frac_tol
+               for s in species):
+            continue
+        sig = entry["sigma"]
+        want = float(sig[_pairkey(species[0], species[1])]) / \
+            float(sig[_pairkey(species[0], species[0])])
+        if abs(ratio - want) > ratio_tol:
+            continue
+        return name, {"fractions": fractions, "peak_ratio": ratio,
+                      "sigma_ratio": want}
+    return None
+
+
+def _pairkey(a: str, b: str) -> str:
+    return a + b if a <= b else b + a
+
+
+def _partial_coordination(frame: Frame, a: str, b: str, cutoff: float) -> float:
+    """Mean number of b-neighbours within cutoff around each a-atom."""
+    from scipy.spatial import cKDTree
+    L = frame.cell_diag
+    pos = np.mod(frame.pos, L)
+    syms = np.asarray(frame.symbols)
+    ta = cKDTree(pos[syms == a], boxsize=L)
+    tb = cKDTree(pos[syms == b], boxsize=L)
+    idx = ta.query_ball_tree(tb, cutoff)
+    counts = np.array([len(x) for x in idx], float)
+    if a == b:                       # unordered pairs: self and double count
+        counts = np.maximum(counts - 1, 0)
+    return float(counts.mean())
 
 
 def lift_amorphous(frame: Frame, dialect, backend="lj") -> Program:
@@ -127,6 +282,37 @@ def lift_amorphous(frame: Frame, dialect, backend="lj") -> Program:
                     Name(text="deg")]))
     except Exception:
         pass
+    # W7 step 5 (D9): a multi-species amorphous region states its held-out
+    # PARTIAL structure -- one g(r) first-peak and one partial coordination
+    # assert per unordered species pair, measured at the same cutoffs
+    if len(counts) > 1:
+        from itertools import combinations_with_replacement
+        from ..cv.rich import partial_gr
+        from ..build.defects import typical_neighbor_distance as _tnd
+        from ase.data import chemical_symbols as _chem
+        real = all(s in _chem and s != "X" for s in frame.symbols)
+        for a, b in combinations_with_replacement(sorted(counts), 2):
+            try:
+                cut_p = (float(dialect.threshold("cn_cutoff")) if real
+                         else float(dialect.threshold("amorphous_bond_factor"))
+                         * _tnd(frame))
+                cn_ab = _partial_coordination(frame, a, b, cut_p)
+                g, r = partial_gr(frame, dialect, a, b)
+            except Exception:
+                continue
+            ipk = int(np.argmax(g))
+            region_stmts.append(Statement(
+                kind="assert", key="gr_peak",
+                values=[Quantity(num=f"{r[ipk]:.2f}"), Name(text="height"),
+                        Quantity(num=f"{g[ipk]:.2f}"), Name(text="pair"),
+                        Name(text=f"{a}-{b}")]))
+            region_stmts.append(Statement(
+                kind="assert", key="cn",
+                values=[Quantity(num=f"{cn_ab:.2f}"),
+                        Tol(value=Quantity(num="0.30")),  # dialect-exempt: numerical-guard: canonical printed tolerance
+                        Name(text="cutoff"),
+                        Quantity(num=f"{cut_p:.2f}"), Name(text="pair"),
+                        Name(text=f"{a}-{b}")]))
     rings = ring_distribution(frame, dialect, edges=network_edges(frame, dialect))
     if rings:
         dom = max(rings, key=lambda k: rings[k])
@@ -140,15 +326,31 @@ def lift_amorphous(frame: Frame, dialect, backend="lj") -> Program:
         Statement(kind="build", key="pbc", values=[Name(text="xyz")]),
         Statement(kind="conserve", key="atoms", values=conserve_values),
     ])
+    # W7 step 5: the physics block names the mixture model, INFERRED from the
+    # composition and the partial g(r) peak ratio and printed as assumed (a
+    # potential is not measurable from one frame)
+    model = infer_mixture_model(frame, dialect)
+    physics_stmts = [Statement(kind="build", key="backend",
+                               values=[Name(text=backend)])]
+    model_notes = []
+    if model is not None:
+        name, det = model
+        physics_stmts.append(Statement(kind="build", key="model",
+                                       values=[Name(text=name)]))
+        model_notes.append(
+            f"model {name} assumed: inferred from composition "
+            + " ".join(f"{s} {det['fractions'][s]:.3f}" for s in sorted(det["fractions"]))
+            + f" and partial g(r) first-peak ratio r_AB/r_AA "
+            f"{det['peak_ratio']:.2f} vs sigma_AB/sigma_AA "
+            f"{det['sigma_ratio']:.2f} (the potential itself is never "
+            "measurable from one frame)")
     region = RegionBlock(phase="amorphous", name="glass",
                          geometry=GeoChain(parts=[ShAll()], ops=[]),
                          statements=region_stmts)
     return Program(
         version="0.1", dialects=list(dialect.names),  # dialect-exempt: numerical-guard: language version constant
         blocks=[system,
-                PhysicsBlock(statements=[
-                    Statement(kind="build", key="backend",
-                              values=[Name(text=backend)])]),
+                PhysicsBlock(statements=physics_stmts),
                 region, ResidualBlock(none=True),
                 ProvenanceBlock(statements=[
                     Statement(kind="build", key="dialects",
@@ -160,4 +362,7 @@ def lift_amorphous(frame: Frame, dialect, backend="lj") -> Program:
                                       text="assumed default protocol from "
                                            "dialect")])]
                       if assumed_history else []),
+                    *(Statement(kind="build", key="note",
+                                values=[StrVal(text=note)])
+                      for note in model_notes),
                 ])])

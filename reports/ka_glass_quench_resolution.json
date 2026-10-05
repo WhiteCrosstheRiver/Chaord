@@ -1,0 +1,44 @@
+{
+  "reference_energy_per_atom": -7.460324409878239,
+  "reference_energy_spread": 0.021980426862645785,
+  "floor_effective": {
+    "gr_rms": 0.027303204955289793,
+    "cn_tv": 0.028583333333333304
+  },
+  "variants": {
+    "default": {
+      "structural": {
+        "cn_tv": 0.2857142857142869,
+        "gr_rms": 0.8645696078936945
+      },
+      "energy_per_atom_mean": -7.4367237813604845,
+      "energy_per_atom_spread": 0.006530783023213971
+    },
+    "quench10x": {
+      "structural": {
+        "cn_tv": 0.7842565597667644,
+        "gr_rms": 1.0754011024188375
+      },
+      "energy_per_atom_mean": -7.421521912806902,
+      "energy_per_atom_spread": 0.0073436415131160615,
+      "vs_default": {
+        "gr_rms": 0.972,
+        "cn_tv": 0.741
+      },
+      "energy_vs_default": 0.0152
+    },
+    "anneal100": {
+      "structural": {
+        "cn_tv": 1.005830903790089,
+        "gr_rms": 6.917200919481391
+      },
+      "energy_per_atom_mean": -7.154456730917719,
+      "energy_per_atom_spread": 0.009107624264024672,
+      "vs_default": {
+        "gr_rms": 6.592,
+        "cn_tv": 1.09
+      },
+      "energy_vs_default": 0.2823
+    }
+  }
+}

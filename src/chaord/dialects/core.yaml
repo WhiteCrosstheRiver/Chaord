@@ -37,17 +37,102 @@ thresholds:
   chi0_antiparallel_cos: -0.945   # bond pair counts as antiparallel below this cos
   chi0_fcc_min: 4.5               # mean antiparallel neighbour pairs for fcc
   chi0_hcp_min: 2.0               # ... and for hcp
+  # --- crystal / defect lattice fit (W1, Review 8 2026-10-04) -----------------
+  # Unit-free keys of the defect arm's lattice fit, moved from metal.yaml so
+  # the fit runs under EVERY dialect stack (glass, lj, molecular, ...);
+  # metal.yaml keeps its copies and may still override.  Key-by-key units:
+  # every value below is a fraction of the frame's own median d_NN, a
+  # dimensionless ratio, a count, or a constant anchored to a d_NN-derived
+  # reduced unit -- nothing scales with Angstrom or sigma, which is what
+  # makes the move safe (checked per key, W1 step 1).  The keys metal.yaml
+  # keeps to itself (defocus_tolerance, dislocation/burgers/csl, slab and
+  # EAM entries) carry real A or eV semantics and stay metal-only.
+  site_match_tol_fraction: 0.35   # atom counts as on-site below this fraction of d_NN
+  interstitial_distance_fraction: 0.60  # build side: interstitial placement, x d_NN
+  defect_cluster_rc_fraction: 0.60      # vacancy/interstitial complex radius, x d_NN
+  frenkel_pair_rc_fraction: 0.80  # max vacancy-interstitial separation named frenkel_pair, x d_NN
+  defect_stoichiometry_slack: 0.10   # counts may deviate from slot ratio by this fraction
+  stoichiometric_preference_min: 0.90 # species-aware fit score to prefer a stoichiometric host
+  site_plausibility_floor: 0.5    # a host candidate must explain at least this fraction
+                                  # of the atoms/sites to count as plausible
+  lattice_scan_factor_lo: 0.70    # multiplicative lattice-constant scan window (x the
+  lattice_scan_factor_hi: 2.40    # prototype constant implied by d_NN -- dimensionless)
+  lattice_scan_steps: 29          # geometric scan grid points (lj overrides: 57)
+  lattice_fit_tol_fraction: 0.15  # tight gate used to rank lattice-constant candidates, x d_NN
+  lattice_fit_gate_min: 0.85      # candidate must match at least this fraction of sites
+  lattice_refine_half: 0.05       # fine-search grid half-width, in the frame's own length
+                                  # unit.  NOT a physical tolerance: a search resolution,
+                                  # small against the ~4% coarse scan step in both unit
+                                  # systems (1.4% of a 3.6 A metal cell, 3% of a 1.6 sigma
+                                  # LJ cell), and superseded by the box-tiling snap
+                                  # (snap_a_to_cell) whenever the cell tiles.
+  lattice_refine_passes: 3        # successive grid refinements for the constant
+  lattice_anchor_improvement: 0.7 # a translation re-anchor must improve the mean matched
+                                  # distance by at least this factor (rule 3)
+  thermal_quench_steps: 100       # max L-BFGS-B iterations of the defect-lift thermal
+                                  # quench (review 2, 2026-09-29); 0 disables the quench
+  thermal_quench_rc: 2.5          # quench potential cutoff, in multiples of the pair-
+                                  # minimum sigma DERIVED from the fitted d_NN
+                                  # (sigma = d_NN/2^(1/6)) -- unit-free by construction
+  thermal_quench_spring: 400      # harmonic site restraint of the quench, in the same
+                                  # d_NN-derived reduced units (epsilon = 1)
+  thermal_quench_shift_fraction: 0.15  # per-axis box bound around each matched site, x d_NN
+  sro_shell1_factor: 1.20         # first-shell cutoff for Warren-Cowley alpha1, x d_NN
+  sro_print_tolerance: 0.02       # printed tolerance on emitted alpha1 lines
+  sro_emit_threshold: 0.05        # lift states sro only outside this band
+  sro_emit_noise_factor: 3.5      # significance: emit only beyond n x the reshuffle-null std
+  sro_mc_steps: 4000              # SQS-lite swap moves (build side)
+  sqs_converge_tol: 0.005         # SQS-lite convergence (build side)
+  # --- phase classification, unit-free (W1, Review 8) -------------------------
+  # No absolute q6 cutoff anywhere in the classification: the neighbour radius
+  # is a multiple of the frame's OWN median d_NN, so the same rule reads
+  # Angstrom crystals and LJ sigma frames (the old glass.yaml q6_cutoff 1.3,
+  # meant in sigma, held no neighbour on an A crystal and called all 9 bench
+  # crystals amorphous -- D10 rejected it and W1 replaced it with this rule).
+  q_cutoff_factor: 1.3            # neighbour radius of the q6/q4 phase test, x the
+                                  # frame's median d_NN (first neighbour shell)
+  q_min_neighbours: 4             # an atom with fewer neighbours inside that radius is
+                                  # never crystal-like (a gas atom with 1-2 neighbours
+                                  # has q6bar near 1 -- the dilute-argon false positive)
+  q6_solid: 0.32                  # Lechner-Dellago averaged q6 above this = solid-like
+  q4_solid: 0.45                  # ... or averaged q4 above this (diamond-family signal)
+  amorphous_solid_frac_max: 0.30  # the shared local-order test's ONE disordered
+                                  # threshold (W1): a frame is disordered while its
+                                  # crystal-like fraction stays below this -- used by
+                                  # is_amorphous AND is_single_phase alike, so no frame
+                                  # can be simultaneously too solid for a fluid and
+                                  # disordered enough for a glass.  glass.yaml keeps
+                                  # its copy (same value, amorphous semantics).
+  crystal_site_coverage_min: 0.90 # a prototype lattice fit covering at least this
+                                  # fraction of sites rules out amorphous (W1 step 1:
+                                  # perovskite and diamond read crystal-like 0.20/0.31,
+                                  # below the local-order threshold, and are caught here)
+  q6_cutoff: 3.10                 # INTERIM (W1 step 5): absolute first-shell radius, A,
+                                  # for readers not yet migrated to the unit-free rule
+                                  # above (pipeline S1's classify cache, segment's
+                                  # solid_mask).  The phase classifiers is_amorphous /
+                                  # is_single_phase no longer read it.  Sigma dialects
+                                  # override (lj: 1.45); glass.yaml's 1.3 was deleted
+                                  # (D10).  Matches cn_cutoff_fluid.
   # --- static checks ---
   overlap_tolerance: 0.5          # minimum allowed pair distance (units of the system)
   # --- crystal lifting and canonicalisation (M1) ---
   lift_symprec: 0.25              # spglib tolerance, A: must exceed thermal jitter (~0.06 d_NN); loose is safe, the prototype match gates it
   prototype_match_tol: 0.05       # fractional-basis matching tolerance for ID, A cart
   lattice_match_tolerance: 0.01   # cell/rep integer-multiple mismatch (static check A12)
+  strain_cell_tolerance: 0.02     # W5: per-axis RELATIVE deviation of a stated cell from the nearest
+                                  # integer tiling that the builder accepts and strain-scales onto the
+                                  # cell (recorded in provenance). lattice_match_tolerance above stays
+                                  # the ABSOLUTE (A) gate for an exact tiling; a strain beyond this
+                                  # fraction is still refused (A12). Headroom over the W5 done-when
+                                  # matrix (+-1.5 %) for NPT box fluctuations.
   canonical_a_decimals: 3
   canonical_c_decimals: 3
   canonical_cell_decimals: 3
   length_unit: A
-  fluid_solid_fraction_max: 0.20    # a fluid lift requires this little solid
+  fluid_solid_fraction_max: 0.20    # raw-q6 single-phase gate of the stage-1 pipeline's
+                                    # fast path (W1: is_single_phase itself now uses the
+                                    # shared unit-free rule and amorphous_solid_frac_max)
   segment_vote_cutoff: 1.45         # neighbour radius for label smoothing, A or sigma
   segment_vote_factor: 1.15         # label-smoothing radius as fraction of d_NN
   segment_flip_fraction: 0.75       # neighbourhood majority needed to flip a label

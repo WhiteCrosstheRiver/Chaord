@@ -11,17 +11,17 @@ One row per statement key declared in `src/chaord/dialects/*.yaml`, with a passi
 | `c` | ionic:region_crystal, metal:region_crystal | `c 2.959 A` | 07_reactive_interface.chaord | yes (entry + cited example `c 2.959 A`) |
 | `cell` | core:system, lj:system | `cell 9.65 9.65 27.50` | 01_solid_liquid_lifted.chaord | yes (entry + cited example `cell 21.432 21.432 21.432 A`) |
 | `chirality` | carbon:region_crystal | `(no example in spec/examples/ - add one)` | - | yes (entry; no example exists in spec/examples (reported)) |
-| `composition` | glass:region_amorphous, ionic:region_crystal, metal:region_crystal | `composition Ni3Al` | 02_crystal_defects.chaord | yes (entry + cited example `composition Ni3Al`) |
+| `composition` | glass:region_amorphous, ionic:region_crystal, lj_mixtures:region_amorphous, metal:region_crystal | `composition Ni3Al` | 02_crystal_defects.chaord | yes (entry + cited example `composition Ni3Al`) |
 | `cutoff` | core:physics | `cutoff 2.5` | 01_solid_liquid_lifted.chaord | yes (entry + cited example `cutoff 2.5`) |
 | `defect` | metal:region_crystal_defect | `defect divacancy count 1 depth 5.2 form split  # 4 empty sites, 2 displaced atoms` | 01_solid_liquid_lifted.chaord | yes (entry + cited example `defect V_Ni count 1`) |
 | `dialects` | core:provenance | `(no example in spec/examples/ - add one)` | - | yes (entry; no example exists in spec/examples (reported)) |
 | `dissociate` | core:interface | `dissociate H2O -> OH @ Ti_5c + H @ O_br count 9` | 07_reactive_interface.chaord | yes (entry + cited example `dissociate H2O -> OH @ Ti_5c + H @ O_br count 9`) |
 | `epsilon` | core:physics | `epsilon 1` | 01_solid_liquid_lifted.chaord | yes (entry + cited example `epsilon 1`) |
 | `forcefield` | core:physics | `forcefield "trappe-ua"` | 06_gas.chaord | yes (entry + cited example `forcefield "trappe-ua"`) |
-| `history` | glass:region_amorphous | `history melt 3000 K for 20 ps -> quench to 300 K at 1 K/ps -> anneal 300 K for 50 ps` | 04_amorphous_si.chaord | yes (entry + cited example `history melt 3000 K for 20 ps -> quench to 300 K at 1 K/ps -> anneal 300 K for 50 ps`) |
+| `history` | glass:region_amorphous, lj_mixtures:region_amorphous | `history melt 3000 K for 20 ps -> quench to 300 K at 1 K/ps -> anneal 300 K for 50 ps` | 04_amorphous_si.chaord | yes (entry + cited example `history melt 3000 K for 20 ps -> quench to 300 K at 1 K/ps -> anneal 300 K for 50 ps`) |
 | `lattice` | metal:region_crystal | `lattice fcc` | 01_solid_liquid_lifted.chaord | yes (entry + cited example `lattice fcc`) |
 | `lift_version` | core:provenance | `(no example in spec/examples/ - add one)` | - | yes (entry; no example exists in spec/examples (reported)) |
-| `model` | core:physics, molecular:physics | `model "mace-mp-0"` | 03_solid_solution_sro.chaord | yes (entry + cited example `model "mace-mp-0"`) |
+| `model` | core:physics, lj_mixtures:physics, molecular:physics | `model "mace-mp-0"` | 03_solid_solution_sro.chaord | yes (entry + cited example `model "mace-mp-0"`) |
 | `molecules` | molecular:region_gas, molecular:region_liquid | `molecules EC 600 Li+ 45 PF6- 45  # about 1 M` | 05_electrolyte.chaord | yes (entry + cited example `molecules H2O 620`) |
 | `nanotube` | carbon:region_crystal | `(no example in spec/examples/ - add one)` | - | yes (entry; no example exists in spec/examples (reported)) |
 | `note` | core:provenance | `(no example in spec/examples/ - add one)` | - | yes (entry; no example exists in spec/examples (reported)) |
@@ -34,7 +34,7 @@ One row per statement key declared in `src/chaord/dialects/*.yaml`, with a passi
 | `sigma` | core:physics | `sigma 1` | 01_solid_liquid_lifted.chaord | yes (entry + cited example `sigma 1`) |
 | `source` | core:provenance | `(no example in spec/examples/ - add one)` | - | yes (entry; no example exists in spec/examples (reported)) |
 | `stacking` | carbon:region_crystal | `(no example in spec/examples/ - add one)` | - | yes (entry; no example exists in spec/examples (reported)) |
-| `state` | glass:region_amorphous, molecular:region_liquid | `state T 0.65` | 01_solid_liquid_lifted.chaord | yes (entry + cited example `state density 0.854`) |
+| `state` | glass:region_amorphous, lj_mixtures:region_amorphous, molecular:region_liquid | `state T 0.65` | 01_solid_liquid_lifted.chaord | yes (entry + cited example `state density 0.854`) |
 | `surface` | surface:region_crystal | `surface (110) top` | 07_reactive_interface.chaord | yes (entry + cited example `surface (110) top`) |
 | `termination` | surface:region_crystal | `termination bridging_O` | 07_reactive_interface.chaord | yes (entry + cited example `termination bridging_O`) |
 | `units` | core:system | `units lj` | 01_solid_liquid_lifted.chaord | yes (entry + cited example `units lj`) |

@@ -24,8 +24,11 @@ def test_merge_later_wins():
 
 def test_missing_threshold_raises():
     d = load_dialect(("core",))
+    # cn_cutoff stays per-dialect (metal 3.5 A, glass 2.85 A, ...); since W1
+    # moved the unit-free phase-rule keys (q6_solid among them) into core,
+    # this example must name a key core genuinely does not define
     with pytest.raises(ChaordError, match="no threshold"):
-        d.threshold("q6_solid")
+        d.threshold("cn_cutoff")
 
 
 def test_versions_recorded():

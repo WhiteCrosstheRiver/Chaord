@@ -356,6 +356,11 @@ def fit_crystal(frame: Frame, dialect):
     total = len(syms)
     from itertools import permutations
     from ase.data import chemical_symbols
+    if not all(s in chemical_symbols for s in uniq):
+        raise ChaordError(
+            "no cubic prototype fits the frame: placeholder species "
+            f"{sorted(set(uniq) - set(chemical_symbols))} have no atomic "
+            "numbers for the prototype fit")
     z_of = {s: chemical_symbols.index(s) for s in uniq}
     for name, n_slots in multi.items():
         if n_slots != len(uniq):

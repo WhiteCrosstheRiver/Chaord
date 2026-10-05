@@ -47,19 +47,26 @@ def test_a12_lj_overlap_tolerance_covers_the_sanity_hard_core():
 
 
 def test_a12_overlap_pair_below_hard_core_is_flagged_in_every_dialect():
-    for names, d_nn in ((( "core", "lj"), 1.0), (("core", "metal"), 2.556)):
+    # D2 (Review 8): metal 0.70 d_NN, LJ 0.80 sigma -- probe below each
+    # dialect's own floor
+    for names, d_nn, frac in ((("core", "lj"), 1.0, 0.70),
+                               (("core", "metal"), 2.556, 0.60)):
         dl = load_dialect(names)
-        r = overlap_check(_pair_at(0.75 * d_nn, 10 * d_nn), dl)
+        r = overlap_check(_pair_at(frac * d_nn, 10 * d_nn), dl)
         assert not r.passed, (
-            f"A12 RED: a pair at 0.75 x d_NN ({0.75 * d_nn:.2f} in "
+            f"A12 RED: a pair at {frac} x d_NN ({frac * d_nn:.2f} in "
             f"{'+'.join(names)}) passes overlap_check ({r.detail}); "
-            "AGENTS' reference rule flags anything under 0.8 sigma"
+            "the dialect's own sanity floor must flag it"
         )
 
 
-@pytest.mark.parametrize("cellv,caught", [(7.23, False), (7.30, True),
+@pytest.mark.parametrize("cellv,caught", [(7.23, False), (7.30, False),
                                           (7.50, True)])
 def test_a12_lattice_mismatch_boundary(cellv, caught):
+    """W5 (Review 8) changed the boundary: strains within 2% of an integer
+    tiling now BUILD (strained to the stated cell); above 2% still raises.
+    7.23 = exact tiling builds; 7.30 (+1.0%) builds under the strain
+    rule; 7.50 (+3.7%) raises above the 2% strain tolerance."""
     metal = load_dialect(("core", "metal"))
     src = (f"chaord 0.1\n\nsystem {{\n  cell {cellv} {cellv} {cellv}\n"
            "  pbc xyz\n}\n\nphysics {\n  backend eam\n}\n\n"

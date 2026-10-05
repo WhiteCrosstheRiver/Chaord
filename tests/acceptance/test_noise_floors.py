@@ -50,15 +50,27 @@ def _pair_distances(frames, dialect):
 def test_a5_discloses_glass_floor_provenance():
     """The glass row and the criterion evidence disclose how the floor was
     measured: the JSON entry's own note when it has one, else the explicit
-    within-one-quench caveat (never silence)."""
-    entry = json.loads(FLOORS.read_text(encoding="utf-8"))["lj_glass"]
-    res = acc.check_a5(case_filter="lj_glass")
+    within-one-quench caveat (never silence).
+
+    W7 step 8 (2026-10-04): the A5 glass case is ka_glass (Kob-Andersen);
+    the monatomic lj_glass is RETIRED from the criterion (a5_excluded, kept
+    as the documented cavitated-solid example), so the disclosure is
+    asserted on the active glass case."""
+    from conftest import apply_ka_defects_arm_guard
+    apply_ka_defects_arm_guard()
+    entry = json.loads(FLOORS.read_text(encoding="utf-8"))["ka_glass"]
+    res = acc.check_a5(case_filter="ka_glass")
     row = next(r for r in res["details"]["rows"]
-               if r["case"] == "reference/lj_glass")
+               if r["case"] == "reference/ka_glass")
     expected = entry.get("note") or WITHIN_ONE_QUENCH
     assert row.get("floor_note") == expected
     assert "floor provenance:" in res["evidence"]
     assert expected.split(". ")[0] in res["evidence"]
+    # the retired monatomic case must be honestly absent, not silently gone
+    prov = json.loads((GLASS_DIR / "provenance.json").read_text("utf-8"))
+    assert prov.get("a5_excluded"), (
+        "lj_glass has no a5_excluded record; its removal from the A5 rows "
+        "would be silent")
 
 
 @pytest.mark.slow

@@ -33,9 +33,17 @@ physics {{
 
 amorphous glass : all {{
   state density {rho}
-  history melt 2 for 3000 -> quench to 0.01 at 0.000332 -> anneal 0.01 for 2000
+  history melt 2 for 630 -> quench to 0.1 at 0.001508 -> anneal 0.1 for 1260
 }}
 """
+# the fixture history follows the dialect's canonical protocol family at the
+# N=500 scale -- glass_* base counts (D7-re-derived from the Kob-Andersen
+# reference, W7: melt 2000 / quench 4000 / anneal 4000 at ref_n 2000,
+# quench end and anneal at T*=0.1) times (500/2000)^(2/3) = 0.3150 ->
+# 630/1260/1260, rate (2.0-0.1)/1260 = 0.0015079.  The frame must be a
+# sample of the macrostate the lifted program rebuilds (the old 3000-quench-
+# to-0.01 fixture belonged to the retired monatomic family and left the
+# rebuild in a different quench-end state).
 
 
 @pytest.fixture(scope="module")
@@ -158,7 +166,7 @@ def test_amorphous_without_history_assumes_dialect_protocol(dialect, tmp_path):
     protocol was assumed."""
     from chaord.build import build_program
     text = AMORPH_PROGRAM.format(n=30, rho=0.8).replace(
-        "  history melt 2 for 3000 -> quench to 0.01 at 0.000332 -> anneal 0.01 for 2000\n",
+        "  history melt 2 for 630 -> quench to 0.1 at 0.001508 -> anneal 0.1 for 1260\n",
         "")
     assert "history" not in text
     path = tmp_path / "no_history.chaord"
@@ -180,7 +188,7 @@ def test_amorphous_without_history_unknown_dialect_raises(tmp_path):
     from chaord.build import build_program
     from chaord.lang.errors import ChaordError
     text = AMORPH_PROGRAM.format(n=30, rho=0.8).replace(
-        "  history melt 2 for 3000 -> quench to 0.01 at 0.000332 -> anneal 0.01 for 2000\n",
+        "  history melt 2 for 630 -> quench to 0.1 at 0.001508 -> anneal 0.1 for 1260\n",
         "")
     path = tmp_path / "no_history_lj.chaord"
     path.write_text(text.replace("dialect core + glass", "dialect core + lj"))
@@ -257,14 +265,17 @@ def lj_crystal(proto, rho_star, rep, jitter=0.0, seed=0):
                   ("hcp", 0.85), ("hcp", 1.0), ("diamond", 0.85),
                   ("diamond", 1.0), ("sc", 0.85)])
 def test_perfect_crystal_never_lifts_as_amorphous(dialect, proto, rho):
-    """O9 (Review 7): a crystal must never promote to the amorphous macrostate
-    under any dialect.  The glass dialect's phase-indicator cutoff used to be
-    3.0 in oxide-network A; in the LJ sigma units the dialect is exercised in
-    it averaged q6 over ~3 neighbour shells, which erases the crystal signal
-    (multi-shell q6bar of perfect fcc measures 0.021, far below q6_solid) and
-    let a perfect fcc crystal pass is_amorphous.  Unit discipline: the glass
-    dialect's q6_cutoff states the same first-shell sigma cutoff the lj
-    dialect states (value change flagged for owner approval in glass.yaml)."""
+    """O9 (Review 7) / W1 (Review 8): a crystal must never promote to the
+    amorphous macrostate under any dialect, in any unit system.  The old
+    absolute glass.yaml q6_cutoff failed one unit at a time (3.0 in oxide A
+    averaged q6 over ~3 shells in sigma frames; the 1.3 interim, meant in
+    sigma, held no neighbour on an A crystal and called all 9 bench crystals
+    amorphous).  W1 replaced it with the unit-free rule in core.yaml: the
+    neighbour radius is q_cutoff_factor x the frame's own median d_NN, an
+    atom needs q_min_neighbours neighbours before it can be crystal-like
+    (q6bar > q6_solid or q4bar > q4_solid), and the crystal lattice fit
+    gates is_amorphous first (crystal_site_coverage_min); glass.yaml states
+    no absolute cutoff any more (D10)."""
     from chaord.lift.amorphous import is_amorphous
     frame = lj_crystal(proto, rho, (4, 4, 4) if proto == "hcp" else 4)
     assert not is_amorphous(frame, dialect), \

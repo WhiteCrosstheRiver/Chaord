@@ -15,7 +15,8 @@ import yaml
 
 from ..lang.errors import ChaordError
 
-DIALECT_NAMES = ("core", "metal", "ionic", "molecular", "surface", "glass", "carbon", "lj")
+DIALECT_NAMES = ("core", "metal", "ionic", "molecular", "surface", "glass",
+                 "carbon", "lj", "lj_mixtures")
 
 
 class Dialect:

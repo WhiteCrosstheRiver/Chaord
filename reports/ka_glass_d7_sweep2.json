@@ -1,0 +1,89 @@
+{
+  "F_deep": {
+    "melt/quench/anneal": [
+      3000,
+      4000,
+      4000
+    ],
+    "total_steps": 11000,
+    "per_draw_s": 251.2,
+    "distances": {
+      "gr_rms": 0.0276,
+      "cn_tv": 0.0152
+    },
+    "ratios": {
+      "gr_rms": 1.012,
+      "cn_tv": 0.534
+    },
+    "partial_ratios": {
+      "gr_rms_A-A": 0.878,
+      "gr_rms_A-B": 1.546,
+      "gr_rms_B-B": 0.767
+    },
+    "pass_1p5x": true,
+    "energy_per_atom": [
+      -7.4346,
+      -7.433,
+      -7.4391
+    ],
+    "ref_energy_per_atom": -7.4603
+  },
+  "G_deep2": {
+    "melt/quench/anneal": [
+      2000,
+      4000,
+      4000
+    ],
+    "total_steps": 10000,
+    "per_draw_s": 231.5,
+    "distances": {
+      "gr_rms": 0.0236,
+      "cn_tv": 0.0082
+    },
+    "ratios": {
+      "gr_rms": 0.865,
+      "cn_tv": 0.286
+    },
+    "partial_ratios": {
+      "gr_rms_A-A": 0.796,
+      "gr_rms_A-B": 1.191,
+      "gr_rms_B-B": 0.746
+    },
+    "pass_1p5x": true,
+    "energy_per_atom": [
+      -7.4354,
+      -7.4406,
+      -7.4341
+    ],
+    "ref_energy_per_atom": -7.4603
+  },
+  "H_deep3": {
+    "melt/quench/anneal": [
+      2000,
+      6000,
+      3000
+    ],
+    "total_steps": 11000,
+    "per_draw_s": 269.0,
+    "distances": {
+      "gr_rms": 0.0225,
+      "cn_tv": 0.0185
+    },
+    "ratios": {
+      "gr_rms": 0.823,
+      "cn_tv": 0.647
+    },
+    "partial_ratios": {
+      "gr_rms_A-A": 0.81,
+      "gr_rms_A-B": 0.931,
+      "gr_rms_B-B": 0.846
+    },
+    "pass_1p5x": true,
+    "energy_per_atom": [
+      -7.4416,
+      -7.4421,
+      -7.4367
+    ],
+    "ref_energy_per_atom": -7.4603
+  }
+}

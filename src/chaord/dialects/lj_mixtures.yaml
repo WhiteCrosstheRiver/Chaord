@@ -1,0 +1,43 @@
+# lj_mixtures dialect — named binary Lennard-Jones mixture models (W7 / D9).
+# Loads on top of core (+ glass) for amorphous systems whose physics block
+# names a mixture model instead of plain LJ: `model kob_andersen`.
+name: lj_mixtures
+version: "0.1.0"
+
+units: []
+
+keys:
+  physics: [model]                   # the mixture model statement (core
+                                     # already allows the key; this dialect
+                                     # is where it means something: a named
+                                     # table of per-pair LJ parameters)
+  region_amorphous: [composition, state, history]
+
+thresholds:
+  # Named published LJ mixtures.  Keyed by unordered species pair; masses are
+  # per species.  The realize backend (chaord.realize.lj.LJMixture) reads the
+  # epsilon/sigma/rc_factor triple of every pair; the amorphous lifter reads
+  # the fractions and sigma ratios to INFER the model from a frame (printed
+  # as assumed -- a potential is never measurable from one configuration).
+  lj_mixtures:
+    kob_andersen:
+      species: [A, B]                # placeholder species (not elements)
+      fractions: {A: 0.8, B: 0.2}    # the published 80:20 composition
+      epsilon: {AA: 1.0, AB: 1.5, BB: 0.5}
+      sigma: {AA: 1.0, AB: 0.8, BB: 0.88}
+      mass: {A: 1.0, B: 1.0}         # equal masses (reduced units)
+      rc_factor: 2.5                 # r_c,alpha-beta = 2.5 sigma_alpha-beta,
+                                     # energy-shifted at its own cutoff
+      citation: "W. Kob, H. C. Andersen, Phys. Rev. E 51, 4626 (1995), doi:10.1103/PhysRevE.51.4626, Table I"
+      reference_point: "rho* = 1.2 (N=2000, 1600 A + 400 B): bench/reference/ka_glass"
+  # inference tolerances (W7 step 5: the model is inferred from the
+  # composition and the sigma_AB/sigma_AA ratio read off the first partial
+  # g(r) peaks, and always printed as assumed)
+  lj_mixture_fraction_tol: 0.05      # measured species fraction vs table
+  lj_mixture_sigma_ratio_tol: 0.05   # measured first-peak ratio vs sigma ratio
+  # minimum neighbour gap of the mixture build's lattice prior, in sigma_AA
+  # (the AGENTS hard-core floor for reference-quality frames; at the
+  # Kob-Andersen density rho* = 1.2 a simple-cubic prior at this gap exists
+  # for every N, unlike RSA, which sits at its saturation ceiling there and
+  # completes only by luck -- the melt erases the prior either way)
+  mixture_lattice_min_gap: 0.80

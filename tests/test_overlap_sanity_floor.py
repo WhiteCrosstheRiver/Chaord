@@ -47,14 +47,24 @@ def test_lj_pair_above_the_hard_core_still_passes():
 
 
 def test_metal_pair_below_the_hard_core_fraction_is_flagged():
-    """0.75 x d_NN(Cu) = 1.917 A: a catastrophic overlap that passed at the
-    core dialect's absolute 0.5 A (0.20 d_NN)."""
+    """D2 (Review 8, 2026-10-04) set the metal sanity fraction to 0.70
+    d_NN -- hot metals have real pairs at 0.75-0.78 d_NN (the Cu
+    reference's own floor is 1.95 A = 0.76 d_NN). 0.75 d_NN is now a
+    LEGAL pair; the test probes 0.60 d_NN, below the approved floor."""
+    metal = load_dialect(("core", "metal"))
+    r = overlap_check(_pair(0.60 * DNN_CU, 10 * DNN_CU), metal)
+    assert not r.passed, (
+        f"F6: a Cu pair at {0.60 * DNN_CU:.3f} A (0.60 d_NN) passes the "
+        f"metal static overlap check ({r.detail}); the approved floor is "
+        "0.70 d_NN (D2)")
+
+def test_metal_hot_pair_at_075_dnn_is_legal():
+    """D2: 0.75 d_NN is a real hot-metal pair and must PASS the check."""
     metal = load_dialect(("core", "metal"))
     r = overlap_check(_pair(0.75 * DNN_CU, 10 * DNN_CU), metal)
-    assert not r.passed, (
-        f"F6: a Cu pair at {0.75 * DNN_CU:.3f} A (0.75 d_NN) passes the "
-        f"metal static overlap check ({r.detail}); the sanity rule is "
-        "no pair closer than 0.8 d_NN")
+    assert r.passed, (
+        f"D2: a Cu pair at 0.75 d_NN ({0.75 * DNN_CU:.3f} A) is a legal "
+        f"hot-metal pair but was flagged ({r.detail})")
 
 
 def test_metal_lattice_pair_still_passes():

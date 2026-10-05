@@ -31,7 +31,6 @@ for p in (str(ROOT), str(ROOT / "src")):
 # (verifier charge tables ION_CHARGES ∪ OXIDE_ELEMENTS), F3/A5 (averaged
 # protocol on lj_liquid_large: wrong-T power mutations fail the gate).
 FOILED = {
-    "tests/adversarial/test_a12_a10_a14_statics.py::test_a12_lj_overlap_tolerance_covers_the_sanity_hard_core",
 }
 
 

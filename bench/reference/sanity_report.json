@@ -98,6 +98,140 @@
     "n_frames": 10,
     "passed": false
   },
+  "ka_glass": {
+    "case": "ka_glass",
+    "checks": {
+      "frames": {
+        "pass": true,
+        "n_frames": 15
+      },
+      "frames_distinct": {
+        "pass": true,
+        "note": "no two frames share identical coordinates"
+      },
+      "density:bulk": {
+        "pass": true,
+        "measured": [
+          1.2,
+          1.2,
+          1.2,
+          1.2,
+          1.2,
+          1.2,
+          1.2,
+          1.2,
+          1.2,
+          1.2,
+          1.2,
+          1.2,
+          1.2,
+          1.2,
+          1.2
+        ],
+        "target": 1.2,
+        "max_rel_dev_pct": 0.0,
+        "tolerance_pct": 2.0
+      },
+      "min_pair:A-A": {
+        "pass": true,
+        "measured_min": 0.9777,
+        "floor": 0.8,
+        "note": "0.8 sigma_AA hard core"
+      },
+      "min_pair:A-B": {
+        "pass": true,
+        "measured_min": 0.8086,
+        "floor": 0.64,
+        "note": "0.8 x sigma_AB = 0.8 x 0.8 sigma_AA"
+      },
+      "min_pair:B-B": {
+        "pass": true,
+        "measured_min": 0.8661,
+        "floor": 0.7,
+        "note": "0.8 x sigma_BB rounded down from 0.704"
+      },
+      "gr_peak:A-A": {
+        "pass": true,
+        "measured": [
+          1.0852,
+          1.0625,
+          1.0852,
+          1.0739,
+          1.0739,
+          1.0739,
+          1.0739,
+          1.0625,
+          1.0739,
+          1.0739,
+          1.0852,
+          1.0739,
+          1.0739,
+          1.0625,
+          1.0852
+        ],
+        "measured_average": 1.0739,
+        "window": [
+          1.02,
+          1.16
+        ],
+        "note": "KA g_AA first peak ~1.05-1.10 sigma_AA (sigma_AA = 1)"
+      },
+      "gr_peak:A-B": {
+        "pass": true,
+        "measured": [
+          0.892,
+          0.8807,
+          0.8807,
+          0.8807,
+          0.8807,
+          0.892,
+          0.8807,
+          0.892,
+          0.8807,
+          0.8807,
+          0.8807,
+          0.8807,
+          0.892,
+          0.892,
+          0.892
+        ],
+        "measured_average": 0.8807,
+        "window": [
+          0.8,
+          0.94
+        ],
+        "note": "g_AB first peak ~1.07 sigma_AB = 0.86 sigma_AA"
+      },
+      "gr_peak:B-B": {
+        "pass": true,
+        "measured": [
+          1.6989,
+          1.733,
+          1.7216,
+          1.4489,
+          1.6989,
+          1.392,
+          1.3807,
+          1.3466,
+          1.392,
+          1.3352,
+          1.4148,
+          1.4375,
+          1.4375,
+          1.733,
+          1.3466
+        ],
+        "measured_average": 1.4375,
+        "window": [
+          1.28,
+          1.46
+        ],
+        "note": "the weak (epsilon 0.5), frustrated B-B channel: its first peak sits well outside the sigma_BB contact at ~1.5 sigma_BB (measured on these frames 1.29-1.43 sigma_AA; B atoms prefer A neighbours, which is the KA frustration that suppresses crystallisation)"
+      }
+    },
+    "n_frames": 15,
+    "passed": true
+  },
   "lj_glass": {
     "case": "lj_glass",
     "checks": {

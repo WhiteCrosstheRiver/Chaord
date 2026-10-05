@@ -444,8 +444,34 @@ def _s(kind, key, *values, comment=None):
     return Statement(kind=kind, key=key, values=list(values), comment=comment)
 
 
+def _refuse_unsupported_metal_slab(d):
+    """W4 step 1 gate: the single-species slab program is the M0 text --
+    `units lj`, `backend lj`, epsilon 1 / sigma 1, the species printed as
+    `X`. For a frame whose one named species is a real element (the Cu
+    solid-liquid reference) every one of those lines would be wrong: Cu
+    laundered into `X`, Angstrom geometry printed in sigma, a metal at
+    1335 K described by an LJ epsilon. The lift refuses (fail closed:
+    never print a program the lift cannot stand behind) until step 2
+    carries species and units through the slab path.
+
+    Not refused: `symbols=None` (the byte-identical M0 contract -- the
+    lift does not know the species), the pseudo-species `X` (the LJ
+    bench), and multi-species interfaces (the multi arm names each
+    element and prints Angstrom units)."""
+    from .fluid import _is_element
+    counts = d.get("species_counts")
+    if d.get("crystal_species") is None and counts and len(counts) == 1:
+        only = next(iter(counts))
+        if _is_element(only):
+            raise ChaordError(
+                "single-species metal solid\u2013liquid interfaces are not "
+                f"supported yet: species {only!r} would be printed as 'X' in "
+                "LJ units (open_items_v2 W4 step 2 carries species and units)")
+
+
 def program_from_result(d, dialect, symbol="X"):
     """Build the canonical Program IR from a decompile() result dictionary."""
+    _refuse_unsupported_metal_slab(d)
     if d.get("crystal_species") is not None:
         return _program_multi(d, dialect)
     return _program_single(d, dialect, symbol)
@@ -460,6 +486,23 @@ def _liquid_comment(d, wrap_comment):
     if wrap_comment is None:
         return note
     return f"{wrap_comment}; {note}"
+
+
+def _provenance(d, dialect):
+    """Provenance statements shared by both program arms: dialects, lift
+    version, and -- W11, exactly as the fluid path does it (fluid.AssumedT)
+    -- the note that a caller-given-absent T is the dialect's default, not a
+    measurement of this frame. A caller-given T carries no note."""
+    stmts = [
+        _s("build", "dialects", _sv(dialect.version_string)),
+        _s("build", "lift_version", _sv("0.1.0")),
+    ]
+    from .fluid import AssumedT
+    if isinstance(d.get("T"), AssumedT):
+        stmts.append(_s("build", "note", _sv(
+            f"T assumed (dialect default {float(d['T']):g}); "
+            "not measured from the frame")))
+    return stmts
 
 
 def _program_single(d, dialect, symbol="X"):
@@ -535,10 +578,7 @@ def _program_single(d, dialect, symbol="X"):
         stmts = [_s("build", "atom", _n(symbol), _q(f"{x:.2f}"), _q(f"{y:.2f}"), _q(f"{z:.2f}"))
                  for x, y, z in d["off_xyz"]]
         residual = ResidualBlock(none=False, statements=stmts)
-    provenance = ProvenanceBlock(statements=[
-        _s("build", "dialects", _sv(dialect.version_string)),
-        _s("build", "lift_version", _sv("0.1.0")),
-    ])
+    provenance = ProvenanceBlock(statements=_provenance(d, dialect))
     return Program(
         version="0.1",  # dialect-exempt: numerical-guard: language version constant
         dialects=list(dialect.names),
@@ -640,10 +680,7 @@ def _program_multi(d, dialect):
                     _q(f"{x:.2f}"), _q(f"{y:.2f}"), _q(f"{z:.2f}"))
                  for x, y, z in d["off_xyz"]]
         residual = ResidualBlock(none=False, statements=stmts)
-    provenance = ProvenanceBlock(statements=[
-        _s("build", "dialects", _sv(dialect.version_string)),
-        _s("build", "lift_version", _sv("0.1.0")),
-    ])
+    provenance = ProvenanceBlock(statements=_provenance(d, dialect))
     return Program(
         version="0.1",  # dialect-exempt: numerical-guard: language version constant
         dialects=list(dialect.names),

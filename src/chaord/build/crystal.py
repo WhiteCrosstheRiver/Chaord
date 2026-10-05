@@ -3,7 +3,10 @@
 The construction is exact (no physics): conventional cell from the prototype
 table, integer transformation matrix from `orient`, tiling by wrapping. If the
 system cell is stated, the repetition counts must be integers within the
-dialect's `lattice_match_tolerance` — a mismatch is a static error (A12).
+dialect's `lattice_match_tolerance` — a mismatch is a static error (A12) —
+unless every axis is within `strain_cell_tolerance` (relative) of the integer
+tiling, in which case the tiling is strain-scaled onto the stated cell and
+the deformation is recorded in the build provenance (W5).
 """
 from __future__ import annotations
 
@@ -204,6 +207,7 @@ def build_crystal_region(region: RegionBlock, system: dict, dialect, rng=None) -
 
     T = orient_matrix(stmts["orient"]) if "orient" in stmts else np.eye(3, dtype=int)
     reps = np.array([1, 1, 1], int)
+    strain = None  # W5: per-axis (stated - tiled) / tiled once a cell is accepted strained
     if "cell" in system:
         cell_vals = [_num(v) for v in system["cell"].values if v.t == "q"]
         if len(cell_vals) == 3 and "a" in params:
@@ -211,13 +215,40 @@ def build_crystal_region(region: RegionBlock, system: dict, dialect, rng=None) -
             lengths = np.linalg.norm(conv_oriented, axis=1)
             tol = float(dialect.threshold("lattice_match_tolerance"))
             reps = np.array([round(c / l) for c, l in zip(cell_vals, lengths)], int)
-            if not np.allclose(reps * lengths, cell_vals, atol=tol):
-                raise ChaordError(
-                    f"system cell {cell_vals} is not an integer multiple of the "
-                    f"{name} lattice vectors {np.round(lengths, 4).tolist()} "
-                    f"(best reps {reps.tolist()}, tolerance {tol})")
+            stated = np.array(cell_vals, float)
+            tiled = reps * lengths
+            if not np.allclose(tiled, stated, atol=tol):
+                # W5 (docs/reviews/open_items_v2.md): NPT boxes fluctuate off
+                # an exact tiling. `lattice_match_tolerance` is ABSOLUTE (A,
+                # over a whole box axis), so a homogeneous deformation of a
+                # few tenths of a percent exceeds it on any real box while
+                # every axis still reads the same integer repetition count.
+                # Within `strain_cell_tolerance` (relative, per axis) the
+                # builder tiles with the nearest integer counts and
+                # strain-scales each axis onto the stated cell (provenance
+                # note below); beyond it the A12 refusal stands. A tilted
+                # oriented cell cannot be scaled per box axis, so it keeps
+                # the refusal.
+                strain_tol = float(dialect.threshold("strain_cell_tolerance"))
+                diag_ok = np.allclose(conv_oriented, np.diag(np.diag(conv_oriented)))
+                if (np.any(reps < 1) or not diag_ok
+                        or float(np.max(np.abs((stated - tiled) / tiled))) > strain_tol):
+                    raise ChaordError(
+                        f"system cell {cell_vals} is not an integer multiple of the "
+                        f"{name} lattice vectors {np.round(lengths, 4).tolist()} "
+                        f"(best reps {reps.tolist()}, tolerance {tol})")
+                strain = (stated - tiled) / tiled
     frame = build_conventional(name, params, slots_species, tuple(int(r) for r in reps), T)
-    if "cell" in system and reps.max() > 1:
+    if strain is not None:
+        # scale each axis of the exact tiling onto the stated cell: the
+        # program's stated box IS the build box (F1 cell contract), and the
+        # deformation is homogeneous per axis, so the tiling's periodicity
+        # and wrapping survive exactly (a scaled half-open box stays
+        # half-open)
+        frame = Frame(pos=frame.pos * (strain + 1)[None, :],
+                      cell=np.diag(stated), symbols=frame.symbols,
+                      pbc=frame.pbc)
+    if "cell" in system and strain is None and reps.max() > 1:
         # honour the stated cell exactly when it is an integer tiling: the
         # program's stated box IS the build box (F1 cell contract). The
         # comparison is stated lengths vs the LENGTHS of the reps-scaled
@@ -249,4 +280,12 @@ def build_crystal_region(region: RegionBlock, system: dict, dialect, rng=None) -
             target = next(_num(v) for v in vals if v.t == "q")
             pair = tuple(pair_tok.split("-", 1))
             frame = sqs_to_target(frame, pair, target, rng, dialect)
+    if strain is not None:
+        # W5 build provenance (frame.info, the amorphous builder's
+        # assumed_history channel): the per-axis engineering strain applied to
+        # put the exact tiling onto the stated cell. Display precision only
+        # (5 decimals of a relative strain), not a threshold.
+        e = [float(x) + 0.0 for x in strain]  # dialect-exempt: numerical-guard: +0.0 collapses IEEE -0.0 for display
+        frame.info["strained_to_cell"] = (
+            f"strained to cell: e_xx {e[0]:+.5f} e_yy {e[1]:+.5f} e_zz {e[2]:+.5f}")
     return frame
