@@ -34,7 +34,9 @@ def test_registry_ids_reference_existing_tests():
     sys_path = ROOT / "tests" / "adversarial" / "conftest.py"
     text = sys_path.read_text(encoding="utf-8")
     ids = set(re.findall(r'"(tests/adversarial/[^"]+)"', text))
-    assert ids, "registry empty"
+    # an empty registry is the GOOD state (every finding decided); the
+    # test then only verifies the pytest_collection_modifyitems machinery
+    # is still wired (the FOILED set exists and the function runs)
     for nid in ids:
         path, _, name = nid.partition("::")
         assert (ROOT / path).exists(), f"{nid}: file missing"

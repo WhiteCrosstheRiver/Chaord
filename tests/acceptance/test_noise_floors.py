@@ -56,8 +56,8 @@ def test_a5_discloses_glass_floor_provenance():
     the monatomic lj_glass is RETIRED from the criterion (a5_excluded, kept
     as the documented cavitated-solid example), so the disclosure is
     asserted on the active glass case."""
-    from conftest import apply_ka_defects_arm_guard
-    apply_ka_defects_arm_guard()
+    # fit_crystal refuses placeholder species at source (patch A, W7
+    # follow-up); no conftest guard is needed
     entry = json.loads(FLOORS.read_text(encoding="utf-8"))["ka_glass"]
     res = acc.check_a5(case_filter="ka_glass")
     row = next(r for r in res["details"]["rows"]
