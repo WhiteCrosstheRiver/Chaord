@@ -62,7 +62,10 @@ thresholds:
   # own averaged protocol against the cross-quench floor): melt 2000 /
   # quench 4000 / anneal 4000 passes at gr_rms x0.86, cn_tv x0.29 and every
   # partial g(r) x0.80-x1.19 of the floor (231 s/draw on the busy dev box,
-  # 69 s under the 300 s A5 budget; 10,000 MD steps).  The previous
+  # 69 s under the 300 s A5 budget; 10,000 MD steps).  Budget follow-up
+  # (2026-10-04): the same box under load measured 366 s/draw, over that
+  # budget -- the A5 budget is now step-aware (acceptance._a5_budget reads
+  # the history line's stated step counts; 10,000 steps at N=2000 -> 600 s).  The previous
   # provisional values (1500/3000/2850 at ref_n 500, calibrated on the
   # retired monatomic N=500 generator) under-anneal at the KA state point:
   # their scaled protocol (3780/7560/7182 at N=2000) was not swept, but the

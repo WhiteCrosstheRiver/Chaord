@@ -1693,11 +1693,33 @@ A5_BUILD_TIMEOUT = 150          # base seconds per rebuild; packing an
                                 # takes 161 s vs ~40 s at N=500). The budget
                                 # therefore scales the same way instead of
                                 # silently capping the case size
+# Per-(atom x step) MD cost for history rebuilds, seconds.  D7's re-derived
+# ka_glass protocol (melt 2000 / quench 4000 / anneal 4000 at N=2,000) broke
+# the "fixed step count" premise above: the linear-in-N-only budget gave
+# 300 s while a real draw measured 231 s on the sweep-day box and 366 s on
+# the same box under load (2026-10-04), failing A5 with 'rebuild exceeded
+# the time budget'.  The MD share of the budget is therefore taken from the
+# step counts the program itself states in its history line, at a rate with
+# headroom over the worst measurement: 30 us/(atom*step) ~= 1.6x the loaded
+# box, 2.6x the sweep-day box.
+A5_MD_RATE = 30e-6
+_HISTORY_LINE = re.compile(
+    r"history\s+melt\s+([\d.]+)\s+for\s+(\d+)\s+->\s+quench\s+to\s+([\d.]+)"
+    r"\s+at\s+([\d.]+)(?:\s+->\s+anneal\s+[\d.]+\s+for\s+(\d+))?")
 
 
-def _a5_budget(n_atoms: int) -> int:
-    """Per-case rebuild budget: base seconds, linear in N above 1,000 atoms."""
-    return int(max(A5_BUILD_TIMEOUT, A5_BUILD_TIMEOUT * n_atoms / 1000.0))
+def _a5_budget(n_atoms: int, program_text: str = "") -> int:
+    """Per-case rebuild budget: base seconds, linear in N above 1,000 atoms,
+    plus the MD time the program's own history line implies."""
+    budget = max(A5_BUILD_TIMEOUT, A5_BUILD_TIMEOUT * n_atoms / 1000.0)
+    m = _HISTORY_LINE.search(program_text or "")
+    if m:
+        melt_t, melt_steps, q_t, q_rate, anneal_steps = m.groups()
+        quench_steps = (round((float(melt_t) - float(q_t)) / float(q_rate))
+                        if float(q_rate) > 0 else 0)
+        steps = int(melt_steps) + max(quench_steps, 0) + int(anneal_steps or 0)
+        budget = max(budget, A5_MD_RATE * n_atoms * steps)
+    return int(budget)
 
 _REBUILD_CHILD = r"""
 import json, sys, time
@@ -2056,7 +2078,7 @@ def check_a5(mutation: str | None = None, floors=None,
             secs = 0.0
             note = ""
             physics_used = physics_on
-            budget = _a5_budget(len(frame))
+            budget = _a5_budget(len(frame), program_text)
             for seed in seeds:
                 rebuilt, s, n_, physics_used = _rebuild_in_subprocess(
                     program_text, dl.names, td,

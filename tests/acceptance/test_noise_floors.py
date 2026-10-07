@@ -73,6 +73,33 @@ def test_a5_discloses_glass_floor_provenance():
         "would be silent")
 
 
+# The ka_glass history line as the lifter writes it (scaled counts stated):
+# melt 2000 + quench 1.9 K at 0.000475/step (= 4000 steps) + anneal 4000.
+KA_HISTORY = ("  history melt 2 for 2000 -> quench to 0.1 at 0.000475 "
+              "-> anneal 0.1 for 4000\n")
+
+
+def test_a5_budget_covers_the_measured_glass_history_rebuild():
+    """The A5 rebuild budget must scale with the MD step count the program
+    itself states, not N alone.  Reproducing failure (2026-10-04, this
+    box): the D7-re-derived ka_glass protocol runs 10,000 MD steps at
+    N=2,000; the linear-in-N-only budget gave 300 s while a real draw
+    measured 366 s under load (231 s on the sweep-day box), so
+    test_a5_discloses_glass_floor_provenance failed with 'rebuild
+    exceeded the time budget'.  The budget must clear the worst measured
+    draw by >= 1.5x."""
+    budget = acc._a5_budget(2000, KA_HISTORY)
+    assert budget >= 1.5 * 366, budget
+
+
+def test_a5_budget_linear_floor_for_non_history_rebuilds():
+    """Programs without a history line (packing + short relax) keep the
+    documented linear-in-N floor: 150 s base, 150 s per extra 1,000 atoms."""
+    assert acc._a5_budget(500) == 150
+    assert acc._a5_budget(500, "no history line here") == 150
+    assert acc._a5_budget(2000, "no history line here") == 300
+
+
 @pytest.mark.slow
 def test_glass_cross_quench_spacing_exceeds_one_quench_floor(tmp_path):
     """>= 3 independent quenches of the identical melt-quench protocol (the
