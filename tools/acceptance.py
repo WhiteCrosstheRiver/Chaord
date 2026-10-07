@@ -1833,7 +1833,18 @@ def _a5_rebuild_meta(program_text: str, dialect, physics_on: bool) -> dict:
     """{temperature, backend, md_steps} of one A5 rebuild: temperature from
     the program's `state T`, backend from its physics block, md_steps the MD
     integration the rebuild runs (0 when physics is off or the backend has no
-    core MD; fluid relax = fast + slow relax steps; glass = its history)."""
+    core MD; fluid relax = fast + slow relax steps; glass = its history).
+
+    W12: a program whose physics names the `lj`/`eam` backend under a dialect
+    with no matching protocol table (the cu_solid_liquid shape: the
+    M0-generic interface lift printed `backend lj` under core + metal, which
+    defines only `eam_md` -- no `md`, no quench rate, no quench cap) used to
+    escape as a bare 'defines no threshold' configuration error from deep
+    inside the lookup, killing the whole criterion at the two un-guarded call
+    sites. It now refuses with one ChaordError stating the reason; a real fix
+    needs the metal dialect's own MD tables (a dialect-threshold change,
+    human approval per AGENTS.md)."""
+    from chaord.lang.errors import ChaordError
     m_t = _RE_A5_T.search(program_text)
     m_b = _RE_A5_BACKEND.search(program_text)
     backend = m_b.group(1) if m_b else None
@@ -1841,12 +1852,24 @@ def _a5_rebuild_meta(program_text: str, dialect, physics_on: bool) -> dict:
     if physics_on and backend in ("lj", "eam"):
         hist = next((ln for ln in program_text.splitlines()
                      if ln.strip().startswith("history ")), None)
-        if hist is not None:
-            steps = _a5_history_md_steps(hist, dialect)
-        else:
-            md = dialect.threshold("md" if backend == "lj" else "eam_md")
-            steps = int(md.get("relax_steps_fast", 0)) + int(
-                md.get("relax_steps", 0))
+        try:
+            if hist is not None:
+                steps = _a5_history_md_steps(hist, dialect)
+            else:
+                md = dialect.threshold("md" if backend == "lj" else "eam_md")
+                steps = int(md.get("relax_steps_fast", 0)) + int(
+                    md.get("relax_steps", 0))
+        except ChaordError as exc:
+            raise ChaordError(
+                f"cannot state the rebuild's MD steps: the program's "
+                f"backend '{backend}' has no MD protocol table under "
+                f"{dialect.version_string} ({exc}); the cu_solid_liquid "
+                "shape -- core + metal defines only eam_md, while the md "
+                "relax/quench tables are the lj and glass dialects' own. "
+                "Either give the dialect its published MD protocol "
+                "(dialect-threshold change, human approval per AGENTS.md) "
+                "or exclude the case from A5, as bench/reference/"
+                "cu_solid_liquid's provenance known_limitation does.") from exc
     return {"temperature": float(m_t.group(1)) if m_t else None,
             "backend": backend, "md_steps": steps}
 

@@ -2,6 +2,12 @@
 
     python tools/tutor_demo.py
 
+Act 0  ordered matter     lift -> build -> lift of the stored thermal fcc Cu
+                         frame, byte-identical; a rigidly TRANSLATED copy of
+                         the same frame (wrapped into the cell) lifts to the
+                         SAME text -- a program is a macrostate, so it cannot
+                         depend on where the crystal sits in the box (v1 O6,
+                         W12)
 Act 1  live round trip   lift -> build -> lift of the stored lj_liquid
                          reference frame, texts compared byte for byte
 Act 2  physics off fails the same program rebuilt with physics=False must
@@ -9,8 +15,9 @@ Act 2  physics off fails the same program rebuilt with physics=False must
 Act 3  wrong T fails     the same program rebuilt at 0.8x the provenance
                          temperature must exceed the noise-floor gate
 
-Exit code 0 exactly when act 1 passes and acts 2-3 FAIL (a test that
-visibly fails for the wrong input is what makes the passes believable).
+Exit code 0 exactly when act 0 passes (both the round trip and the shifted
+copy) and acts 2-3 FAIL (a test that visibly fails for the wrong input is
+what makes the passes believable).
 """
 from __future__ import annotations
 
@@ -45,6 +52,26 @@ def verdict_line(name: str, ok: bool, expect: bool, detail: str) -> str:
     return f"  {name:<22} {got}  ({match})  {detail}"
 
 
+# act 0's translation (A): a FIXED non-lattice vector of the fcc Cu frame --
+# no component is a multiple of a/2 = 1.8075 A (fcc lattice translations are
+# integer combinations of (0,a/2,a/2)-type vectors), so the shifted copy is
+# genuinely the same crystal at a different origin, not a symmetry copy that
+# trivially lands on lattice sites
+ACT0_SHIFT = (0.137, 0.421, 0.293)
+
+
+def shifted_copy(frame, t=ACT0_SHIFT):
+    """The same frame rigidly translated by t (A) and wrapped into the cell.
+
+    Pure helper so the demo's translation-invariance claim (v1 O6) is testable
+    without running the whole demo."""
+    import numpy as np
+    L = frame.cell_diag
+    return type(frame)(pos=np.mod(frame.pos + np.asarray(t, float), L),
+                       cell=frame.cell, symbols=frame.symbols,
+                       pbc=frame.pbc)
+
+
 def main() -> int:
     import numpy as np
     import acceptance as acc
@@ -71,10 +98,19 @@ def main() -> int:
     tc1 = acc.format_program_text(lift_frame(cu, dl_cu))
     cu2 = build_program(parse_text(tc1), dl_cu, rng=np.random.default_rng(7))
     tc2 = acc.format_program_text(lift_frame(cu2, dl_cu))
+    # v1 O6 (W12): the SAME frame shifted by a fixed non-lattice vector and
+    # wrapped into the cell must lift to the SAME program text -- a program
+    # describes the macrostate, not one box-origin microstate
+    ts1 = acc.format_program_text(lift_frame(shifted_copy(cu), dl_cu))
     print("Act 0: ordered system (thermal fcc Cu frame) lift -> build -> lift")
     print(verdict_line("text round trip", tc2 == tc1, True,
                        f"byte-identical ({len(tc1)} chars): ordered matter "
                        "round-trips exactly, thermal frame included"))
+    print(verdict_line("shifted copy", ts1 == tc1, True,
+                       "same text from the frame translated by "
+                       f"{tuple(round(v, 3) for v in ACT0_SHIFT)} A and "
+                       "wrapped (non-lattice shift): the program is "
+                       "origin-independent"))
 
     from chaord.cv.noise import observables, distance
     eff = acc._a5_effective_floor(fl)
@@ -152,11 +188,14 @@ def main() -> int:
                        f"10-frame averaged reference"))
 
     print("\nHow to read this:")
+    print("  act 0 shows ordered matter round-trips exactly and that the text")
+    print("  does not follow the origin: a shifted copy of the frame lifts to")
+    print("  the same program")
     print("  act 1 shows the compiler/decompiler pair reproduces the exact text")
     print("  acts 2-3 show the acceptance gate is not decorative: dropping the")
     print("  physics prior or rebuilding at the wrong temperature both exceed it")
     print("  -- the passes elsewhere are believable because these fail.")
-    all_ok = (tc2 == tc1) and ok1 and ok2 and ok3
+    all_ok = (tc2 == tc1) and (ts1 == tc1) and ok1 and ok2 and ok3
     print(f"\noverall: {'ALL THREE ACTS AS REQUIRED' if all_ok else 'AN ACT MISBEHAVED'}")
     return 0 if all_ok else 1
 
