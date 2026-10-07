@@ -519,42 +519,79 @@ def _prototype_hkl(P, syms, cell, name, params, slot_species, dialect):
 
 
 def _classify_sites(frame: Frame, ads_idx, top_idx, dialect):
-    """top / bridge / hollow by lateral distance to the surface net features.
+    """top / bridge / hollow: lateral coordination decides hollow, the
+    Delaunay feature net decides everything else (W9 supplement).
 
-    The top layer is wrapped into the in-plane cell and replicated over its 8
-    neighbouring periodic images before triangulation and KD queries, so an
-    adsorbate at (or across) the cell boundary sees the same top / bridge /
-    hollow features as one at the cell centre — the minimum-image-equivalent
-    site assignment."""
+    The W9 defect: on a square net the 4-fold hollow is the midpoint of a
+    Delaunay triangle's long edge, so the feature net alone calls it a
+    bridge. Coordination does not: count the top-layer atoms whose lateral
+    distance to the adsorbate — in-plane, minimum image, periodic images
+    kept (a boxsize KD tree) — lies within the smallest such distance plus
+    adsorbate_site_coordination_window x a_NN, with a_NN the surface layer's
+    in-plane nearest-neighbour distance (median over the layer, minimum
+    image). 3 or 4 neighbours is a hollow on every net and no top or bridge
+    can produce it (measured on Pt(100), 0.08 A noise, 20 draws x 4 sites,
+    tests/test_surface_sites.py W9 section: hollows n = 3-4 in 80 of 80
+    draws; bridges n = 2 in 76, n = 1 in 4). Adsorbates with at most 2
+    coordinated neighbours keep the pre-W9 feature classifier: nearest top
+    atom / bridge midpoint / triangle centroid of the 3x3-replicated layer
+    (the minimum-image-equivalent site assignment), 'far' when even the
+    nearest feature is beyond 2 x adsorbate_site_tol. That net is exact for
+    top and bridge sites on every net — its only wrong entries are the
+    long-edge midpoints, which are exactly the hollows the coordination
+    count overrides. The low coordination counts cannot be mapped directly
+    to site classes: n = 1 is produced by a top site and by a displaced
+    adsorbate alike (the A8 planted fault — a top-site O shifted 1.0 A =
+    0.36 a_NN laterally — keeps n = 1), and n = 2 by a bridge and by a
+    hollow tilted ~0.25 A toward one of its edges; measured: mapping
+    n = 2 straight to bridge misread 260 of 3200 fcc(111) hollows (8%) as
+    bridges, while the feature net reads their nearest feature (the
+    centroid) correctly."""
     tol = float(dialect.threshold("adsorbate_site_tol"))
+    win = float(dialect.threshold("adsorbate_site_coordination_window"))
     Lxy = frame.cell_diag[:2]
     pts = np.mod(frame.pos[top_idx][:, :2], Lxy)
     # replicate the layer over the neighbouring images: the triangulation and
     # the feature trees then cover every feature seen across a boundary
     img = np.array([[i * Lxy[0], j * Lxy[1]]   # dialect-exempt: exact-geometry: integer image offsets over {-1,0,1}^2
                     for i in (-1, 0, 1) for j in (-1, 0, 1)])
-    pts = (pts[None, :, :] + img[:, None, :]).reshape(-1, 2)
-    tri = Delaunay(pts)
-    tops = pts
+    rep = (pts[None, :, :] + img[:, None, :]).reshape(-1, 2)
+    tri = Delaunay(rep)
+    tops = rep
     bridges, seen = [], set()
     for simplex in tri.simplices:
         for x, y in ((0, 1), (1, 2), (0, 2)):
-            m = tuple(np.round((pts[simplex[x]] + pts[simplex[y]]) / 2, 3))
+            m = tuple(np.round((rep[simplex[x]] + rep[simplex[y]]) / 2, 3))
             if m not in seen:
                 seen.add(m)
                 bridges.append(m)
     hollows, seen = [], set()
     for simplex in tri.simplices:
-        c = tuple(np.round(pts[simplex].mean(axis=0), 3))
+        c = tuple(np.round(rep[simplex].mean(axis=0), 3))
         if c not in seen:
             seen.add(c)
             hollows.append(c)
+    tree_top = cKDTree(tops)
+    tree_br = cKDTree(np.array(bridges)) if bridges else None
+    tree_ho = cKDTree(np.array(hollows)) if hollows else None
+    # minimum-image coordination shell of every adsorbate; the 8-neighbour
+    # query depth reaches two shells past any site's coordination sphere, so
+    # no 0.15 a_NN window around d_min is ever truncated by it
+    mic = cKDTree(pts, boxsize=Lxy) if len(pts) >= 2 else None
+    if mic is not None:
+        a_nn = float(np.median(mic.query(pts, k=2)[0][:, 1]))
+        k = min(len(pts), 8)
     out = []
     for i in ads_idx:
         p = np.mod(frame.pos[i][:2], Lxy)
-        d_top = cKDTree(tops).query(p)[0]
-        d_br = cKDTree(np.array(bridges)).query(p)[0] if bridges else np.inf
-        d_ho = cKDTree(np.array(hollows)).query(p)[0] if hollows else np.inf
+        if mic is not None:
+            d = mic.query(p, k=k)[0]
+            if np.count_nonzero(d <= d[0] + win * a_nn) >= 3:
+                out.append(("hollow", float(d[0])))
+                continue
+        d_top = tree_top.query(p)[0]
+        d_br = tree_br.query(p)[0] if tree_br is not None else np.inf
+        d_ho = tree_ho.query(p)[0] if tree_ho is not None else np.inf
         best = min(d_top, d_br, d_ho)
         if best > tol * 2:
             out.append(("far", best))

@@ -9,6 +9,10 @@ Three red reproducers from docs/reviews/open_items.md, written red first:
 3. a slab whose bottom layer crosses the periodic z boundary lifts part of
    its own bottom layer as ``adsorb Pt ... site top``.
 
+Plus the W9 reproducer (open_items_v2.md): on Pt(100) the 4-fold hollow is
+the midpoint of a Delaunay triangle edge, so the feature classifier calls it
+``bridge``; the site class must come from lateral coordination instead.
+
 fcc and hcp hollows are the same ``hollow`` statement in the language (the
 classifier only sees the top layer); separating them is a spec change for the
 owner, not something these tests assume.
@@ -181,3 +185,79 @@ def test_plated_adsorbates_keep_physical_o_o_separation():
     # most 2*sqrt(2)*0.03 A
     floor = 2 * ANN - 2 * np.sqrt(2) * 0.03
     assert d.min() >= floor, f"closest planted O pair {d.min():.3f} A"
+
+
+# ------------------------------------------------- 4. W9: Pt(100) 4-fold sites --
+A_PT100 = 3.92                       # Pt lattice constant, A (reviewer geometry)
+ANN100 = A_PT100 / np.sqrt(2.0)      # (100) in-plane NN distance, A
+
+# 4-fold hollows of the (100) square net: cell-centre offsets (in a_NN) from
+# one top-layer atom; the reviewer's verbatim reproducer set. The reference
+# atom sits at (0.5, 0.5) in net units, so hollow offsets keep both
+# components half-odd (abs = integers) and bridge offsets make exactly one
+# component an odd integer multiple of 0.5 (edge midpoints).
+W9_HOLLOWS = ((0.5, 0.5), (2.5, 2.5), (2.5, 4.5), (4.5, 0.5))
+# bridges: midpoints of nearest-neighbour edges of the same net, kept
+# >= 2 a_NN apart like every planted adsorbate set in this file
+W9_BRIDGES = ((0.5, 0.0), (2.5, 0.0), (0.5, 2.0), (2.5, 2.0))
+
+
+def _pt100_frame(offsets, seed):
+    """The W9 Pt(100) slab (reviewer parametrisation, verbatim): 4 layers of
+    a 6x6 square net, alternate layers shifted by half the in-plane NN
+    distance (fcc(100) stacking), with 4 O at ``offsets`` (in units of the
+    in-plane NN distance) from one top-layer atom, 1.0 A above it, and 0.08 A
+    Gaussian noise on every atom; z kept clear of the periodic boundary."""
+    a, ann, n, nl = A_PT100, ANN100, 6, 4
+    P = np.array([[((i + 0.5 * (k % 2)) * ann) % (n * ann),
+                   ((j + 0.5 * (k % 2)) * ann) % (n * ann), k * a / 2]
+                  for k in range(nl) for i in range(n) for j in range(n)])
+    L = np.array([n * ann, n * ann, 22.0])
+    top = P[np.isclose(P[:, 2], (nl - 1) * a / 2)][0, :2]
+    hol = np.mod(top + np.asarray(offsets, float) * ann, L[:2])
+    O = np.column_stack([hol, np.full(len(offsets), (nl - 1) * a / 2 + 1.0)])
+    rng = np.random.default_rng(seed)
+    pos = np.vstack([P, O]) + rng.normal(scale=0.08,
+                                         size=(len(P) + len(offsets), 3))
+    pos[:, 2] += 3.0
+    return Frame(pos=np.mod(pos, L), cell=np.diag(L),
+                 symbols=["Pt"] * len(P) + ["O"] * len(offsets),
+                 pbc=(True,) * 3)
+
+
+def test_w9_pt100_fourfold_hollow_reproducer(dialect):
+    """W9 verbatim reproducer (seed 0): the 4-fold hollow of Pt(100) is the
+    midpoint of a Delaunay triangle's hypotenuse, so the feature classifier
+    claims ``site bridge`` for all 4 O. Classifying by lateral coordination
+    (4 top-layer neighbours equidistant from each O) must claim hollow."""
+    claims, text = _site_claims(_pt100_frame(W9_HOLLOWS, seed=0), dialect)
+    assert re.findall(r"adsorb \S+ count \d+ site \S+", text) == \
+        ["adsorb O count 4 site hollow"], text
+    assert claims.get("hollow", 0) == 4, f"claims {claims}"
+
+
+@pytest.mark.parametrize("offsets,site", [(W9_HOLLOWS, "hollow"),
+                                          (W9_BRIDGES, "bridge")],
+                         ids=["hollow", "bridge"])
+def test_pt100_sites_over_20_draws_20_translations(offsets, site, dialect):
+    """W9 done-when: Pt(100) 4-fold hollows and bridges >= 90% correct over
+    20 noise draws x 20 random in-plane translations (1600 site calls each).
+    Pre-fix the hollow arm is 0/1600 (every 4-fold hollow is the midpoint of
+    a Delaunay triangle edge -> bridge); the bridge arm already passed and
+    guards the coordination override against over-widening (a window past
+    0.30 a_NN would pull a bridge's 3rd shell, 0.366 a_NN above d_min, into
+    the 3-count hollow override). Measured post-fix: hollow 1600/1600,
+    bridge 1600/1600."""
+    rng = np.random.default_rng(23)
+    good = total = 0
+    for draw in range(20):
+        f = _pt100_frame(offsets, seed=400 + draw)
+        L = f.cell_diag
+        for _ in range(20):
+            g = _shifted(f, (rng.uniform(0, L[0]), rng.uniform(0, L[1]), 0.0))
+            claims, _ = _site_claims(g, dialect)
+            good += claims.get(site, 0)
+            total += len(offsets)
+    assert total == 20 * 20 * len(offsets)
+    assert good / total >= 0.90, \
+        f"Pt(100) {site}: only {good}/{total} correct"
