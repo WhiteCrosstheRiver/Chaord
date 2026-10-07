@@ -1,6 +1,6 @@
 # metal dialect — metals and ordered intermetallics (M1+).
 name: metal
-version: "0.2.5"
+version: "0.2.6"
 
 units: []
 
@@ -228,6 +228,78 @@ thresholds:
                                     # spacing a/2 = 0.80 sigma; scaled x 2.25 for Cu
                                     # (a/2 = 1.8075 A) and widened to also cover
                                     # fcc(111) 2.09 A and bcc(110) Fe 2.03 A
+  # --- W4 step 2 (Review 8, 2026-10-02): the single-species metal slab arm
+  # (lift/slab.py _program_physical_single) carries species and units through
+  # (Cu in conserve atoms, A / eV / K, backend eam). The three thresholds
+  # below are its calibration; every number was measured on MD frames of the
+  # PUBLISHED FBD-1986 Cu_u3 EAM (NIST; the cu_solid_liquid reference
+  # potential, validation in its provenance.json), generated with ASE 3.29
+  # Langevin (dt 2 fs, friction 0.05, NVT at the fixed a0 = 3.615 A cell --
+  # the reference's own condition), Tm(FBD Cu) ~ 1330 K per the reference
+  # provenance. Frames: thermal fcc Cu 4x4x6 (384 atoms, seed 424242) and
+  # thermal hcp Cu in the orthohexagonal setting a x sqrt(3) a x c, ideal
+  # c/a, 4x3x7 (336 atoms, seed 434343) at 0.9 Tm (1197 K) and 1.0 Tm
+  # (1330 K); 600-step equilibration + 3 sample frames 100 steps apart each.
+  # The bench/reference frames themselves are the system under test and
+  # calibrate nothing (O10).
+  site_match_tolerance: 1.0107      # on-site tolerance of the slab fit, A =
+                                    # lj 0.45 sigma x 2.246 A/sigma (the
+                                    # conversion rule of this file's slab
+                                    # block) = 0.395 d_NN(Cu). Before W4 step
+                                    # 2 the unconverted core value 0.45 A
+                                    # (0.176 d_NN) read the DEFECT-FREE
+                                    # reference frame as 81 empty sites +
+                                    # 80 off-lattice atoms in 12 spurious
+                                    # complexes (11 printed frenkel_pair
+                                    # lines); at 1.0107 A that same frame
+                                    # reads 0 / 0 / 0 (match 100.0%), and so
+                                    # do six independent defect-free thermal
+                                    # fcc frames at 0.9 and 1.0 Tm (the
+                                    # protocol above, 416 sites each).
+  chi0_fcc_min: 3.7                 # fcc/hcp discrimination at temperature
+                                    # (chi0 = mean antiparallel neighbour
+                                    # pairs, q6_cutoff 3.0 A, cos < -0.945;
+                                    # metal override of core's 4.5, which
+                                    # the W4 reference's fcc at ~1.0 Tm
+                                    # fails at chi0 4.43 -> "hcp"). Measured
+                                    # 2026-10-02 on the thermal frames of
+                                    # the protocol above: chi0(fcc) =
+                                    # 5.30/5.39/5.38 at 0.9 Tm and
+                                    # 5.08/5.06/5.06 at 1.0 Tm; chi0(hcp) =
+                                    # 2.90/2.98/2.90 and 2.78/2.97/2.89
+                                    # (perfect lattices: 6.00 / 3.00; the
+                                    # hcp frames stay hcp: means <= the
+                                    # ideal 3.00, any fcc-transformed
+                                    # fraction would push the mean above
+                                    # it). The lowest fcc reading on a
+                                    # lifted frame is the W4 reference's
+                                    # crystal region at 1335 K with its
+                                    # premelted interface: 4.43. 3.7 splits
+                                    # the measured bands with ~0.7 margin
+                                    # each side. core/lj keep 4.5 (0 K
+                                    # semantics; their golden texts pin
+                                    # them); chi0_hcp_min stays core's 2.0,
+                                    # below the measured hcp band floor
+                                    # 2.78.
+  slab_defect_print_floor: 1        # W4 step 2 detection floor: a defect
+                                    # complex prints only with at least this
+                                    # many member atoms (empty sites +
+                                    # displaced). Measured 2026-10-02 on
+                                    # six defect-free thermal fcc frames at
+                                    # 0.9 and 1.0 Tm (the protocol above,
+                                    # 416 sites x 6 frames = 2496 site
+                                    # checks at site_match_tolerance
+                                    # 1.0107 A): 0 empty sites, 0
+                                    # off-lattice atoms, 0 complexes --
+                                    # thermal noise at 0.9-1.0 Tm is zero,
+                                    # so every measured complex is signal
+                                    # and the floor is 1 (any complex). The
+                                    # key exists so a future measurement on
+                                    # hotter frames (where noise appears)
+                                    # can raise it with the measurement
+                                    # cited here. lj/core define no floor:
+                                    # every measured complex prints (the
+                                    # golden-text contract).
   slab_packing_margin: 0.05         # atom-atom contact buffer when RSA-packing a
                                     # molecular region against the crystal and itself
                                     # (bench generator protocol: reject below

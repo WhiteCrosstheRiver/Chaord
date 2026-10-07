@@ -9,8 +9,9 @@ it, statistics where it does not: from crystals to gases.
 Status: **v0.1 prototype: 14/14 on the committed inputs (clean run URL in
 `reports/acceptance.json`). Known limits: the LJ glass case reproduces the
 reference's cavitation, not its quench history (Kob-Andersen replacement in
-progress, W7); single-species metal solid-liquid interfaces are not supported
-(W4); strained boxes until W5 lands.** Decisions D1-D16 (Review 8) are
+progress, W7); single-species metal solid-liquid interfaces lift only for
+species the metal dialect parameterises (Cu/Fe/Ni, W4 step 2); strained
+boxes until W5 lands.** Decisions D1-D16 (Review 8) are
 implemented; the open work orders W1-W6 gate Gate A' -- see
 `docs/reviews/open_items_v2.md`.
 Acceptance runs **14/14 criteria PASS** on clean machines (GitHub Actions

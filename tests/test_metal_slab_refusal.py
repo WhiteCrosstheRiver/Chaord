@@ -1,21 +1,33 @@
-"""W4 step 1 (gate) and W11 (assumed T) for the slab lift path.
+"""W4 (Review 8): what the slab lift still refuses after step 2.
 
-W4 step 1 (docs/reviews/open_items_v2.md, gate): the single-species slab
-program is the M0 text -- `units lj`, `backend lj`, epsilon 1 / sigma 1,
-`conserve atoms X <N>`. For a frame whose one species is a real element
-(the Cu solid-liquid reference: 832 Cu at 1335 K) every one of those lines
-is wrong: Cu printed as `X`, Angstrom geometry printed in sigma, and an
-unmarked dialect-default `state T 300.00` (W11). Pre-fix reproducer output
-(commit f4fde65, re-run locally as bookkeeping):
+Step 1 (gate): the single-species slab program was the M0 text -- `units
+lj`, `backend lj`, epsilon 1 / sigma 1, `conserve atoms X <N>` -- so a
+real-element frame (the Cu solid-liquid reference: 832 Cu at 1335 K) was
+refused outright: Cu laundered into `X`, Angstrom geometry in sigma, an
+unmarked dialect-default `state T 300.00` (W11), the fcc solid called hcp,
+11 spurious frenkel_pair lines. Pre-fix reproducer output (commit f4fde65,
+re-run locally as bookkeeping):
 
     units lj / state T 300.00 / conserve atoms X 832 / backend lj /
     lattice hcp / 11 frenkel_pair lines -- all wrong.
 
-The gate: `program_from_result` refuses such frames with the W4 message
-until step 2 carries species and units through the slab path. Frames that
-must keep lifting: pseudo-species `X` (the LJ bench), multi-species real
-elements (the multi arm names each element and prints Angstrom units), and
-`symbols=None` (the byte-identical M0 contract the CLI roundtrip uses).
+Step 2 carries species and units through the single-species metal arm (the
+done-when reproducer is green in tests/test_metal_slab_lift.py: `conserve
+atoms Cu 832`, A/K statements, `backend eam`, `lattice fcc`, zero defect
+lines, builds). This file pins what is STILL refused, honestly narrowed to
+the frames whose program the lift cannot stand behind:
+
+1. a real-element frame under a dialect without metal units (core + lj):
+   the program would state LJ/reduced units for a metal;
+2. a real element the metal dialect's eam_potentials does not parameterise
+   (Au): no metal physics exists to name in the physics block (the build's
+   physics gate refuses the same species).
+
+Frames that must keep lifting: pseudo-species `X` (the LJ bench),
+multi-species real elements (the multi arm names each element and prints
+Angstrom units), `symbols=None` (the byte-identical M0 contract the CLI
+roundtrip uses), and -- since step 2 -- the parameterised single-species
+metals (Cu/Fe/Ni) under core + metal.
 
 W11: the slab path states the dialect-default T when the caller gives none;
 the program's provenance must flag it assumed, exactly as the fluid path
@@ -35,7 +47,7 @@ import numpy as np  # noqa: E402
 
 import acceptance as acc  # noqa: E402
 from chaord.dialects import load_dialect  # noqa: E402
-from chaord.io.frames import read_frame  # noqa: E402
+from chaord.io.frames import Frame, read_frame  # noqa: E402
 from chaord.lang.errors import ChaordError  # noqa: E402
 from chaord.lift import lift_frame  # noqa: E402
 from chaord.lift.slab import decompile, program_from_result  # noqa: E402
@@ -61,38 +73,44 @@ def _provenance_notes(text):
     return re.findall(r'note "([^"]*)"', text)
 
 
-# ------------------------------------------------------------------ W4 gate --
-
-def test_w4_reproducer_single_species_metal_slab_refused():
-    """The W4 reproducer verbatim: lift_frame on the Cu reference (mode auto,
-    the snippet's call) must raise instead of printing Cu as `X` in LJ units.
-    Red before the gate: the lift returned the wrong program
-    (units lj / state T 300.00 / conserve atoms X 832 / lattice hcp /
-    11 frenkel_pair lines).
-
-    The refusal surfaces as a ChaordError; with today's legacy cascade the
-    visible message is the fluid fallback's own guard (the slab arm's
-    `except Exception` re-routes to lift_fluid, which refuses the extended
-    bonded crystal) -- the W4 message itself is asserted by the pinned-mode
-    and direct-call tests below, and W1's fail-closed cascade will surface
-    it in auto too."""
-    frame = read_frame(CU_REF)
-    with pytest.raises(ChaordError):
-        lift_frame(frame, load_dialect(METAL))
+def _au_slab():
+    """The Cu reference geometry with every atom relabelled Au: a real
+    element the metal dialect does not parameterise (eam_potentials: Cu,
+    Fe, Ni). The geometry is Cu's; only the species matters to the gate."""
+    cu = read_frame(CU_REF)
+    return Frame(pos=cu.pos, cell=cu.cell, symbols=["Au"] * len(cu.pos),
+                 pbc=cu.pbc)
 
 
-def test_w4_pinned_slab_mode_refuses():
-    """The pinned arm refuses loudly (not only through the auto cascade)."""
+# -------------------------------------------------- W4 step 2: refused set --
+
+def test_w4_real_element_under_lj_dialect_refuses():
+    """Refusal 1: a real-element frame under a dialect without metal units.
+    The step-1 message keeps its first line verbatim; the reason names the
+    actual wrong (LJ units for a metal)."""
     frame = read_frame(CU_REF)
     with pytest.raises(ChaordError, match=W4_MESSAGE):
-        lift_frame(frame, load_dialect(METAL), mode="slab")
+        lift_frame(frame, load_dialect(LJ), mode="slab")
+    with pytest.raises(ChaordError, match="would be printed in LJ units"):
+        lift_frame(frame, load_dialect(LJ), mode="slab")
+
+
+def test_w4_unparameterised_element_under_metal_refuses():
+    """Refusal 2: Au has no EAM parameters in the metal dialect -- the
+    program would state `backend eam` for a species the dialect cannot
+    realize (the build's physics gate refuses it too; the lift fails
+    closed first)."""
+    with pytest.raises(ChaordError, match=W4_MESSAGE):
+        lift_frame(_au_slab(), load_dialect(METAL), mode="slab")
+    with pytest.raises(ChaordError, match="no EAM parameters"):
+        lift_frame(_au_slab(), load_dialect(METAL), mode="slab")
 
 
 def test_w4_gate_sits_in_program_from_result():
-    """decompile still measures the frame (its numbers are not the lie); the
-    refusal fires where the X/LJ text would be assembled. This pins the
-    gate's location for W4 step 2, which removes it."""
-    frame = read_frame(CU_REF)
+    """decompile still measures the frame (its numbers are not the lie);
+    the refusal fires where the program text would be assembled. Same
+    location as the step-1 gate (W4 step 2 pins it for the narrowed set)."""
+    frame = _au_slab()
     res = decompile(frame.pos, frame.cell_diag, 300.0, load_dialect(METAL),
                     symbols=list(frame.symbols))
     assert res["N"] == 832
@@ -100,9 +118,20 @@ def test_w4_gate_sits_in_program_from_result():
         program_from_result(res, load_dialect(METAL))
 
 
+def test_w4_parameterised_single_species_metal_now_lifts():
+    """The step-1 refusal on this frame is GONE (step 2): the Cu reference
+    lifts through the metal arm. The done-when assertions live in
+    tests/test_metal_slab_lift.py; this pins the direction of the narrowing
+    right next to the refusal set it shrank."""
+    frame = read_frame(CU_REF)
+    text = acc.format_program_text(lift_frame(frame, load_dialect(METAL)))
+    assert "conserve atoms Cu 832" in text
+    assert "units lj" not in text
+
+
 def test_w4_lj_x_species_slab_still_lifts():
-    """The refusal condition is 'real element printed as X in LJ units': the
-    LJ bench's pseudo-species `X` frames keep lifting byte-identically."""
+    """The refusal condition is about real elements: the LJ bench's
+    pseudo-species `X` frames keep lifting byte-identically."""
     frame = read_frame(LJ_BENCH)
     text = acc.format_program_text(lift_frame(frame, load_dialect(LJ), mode="slab"))
     assert "units lj" in text
@@ -122,7 +151,7 @@ def test_w4_symbols_none_m0_path_still_lifts():
     """symbols=None is the byte-identical M0 contract (the CLI roundtrip
     calls decompile this way): the lift does not know the species, so the
     gate does not fire. The species-aware entry point (lift_frame) is what
-    W4 step 1 closes."""
+    W4 governs."""
     frame = read_frame(CU_REF)
     res = decompile(frame.pos, frame.cell_diag, 300.0, load_dialect(METAL))
     program = program_from_result(res, load_dialect(METAL))
