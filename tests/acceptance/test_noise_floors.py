@@ -90,6 +90,12 @@ def test_a5_budget_covers_the_measured_glass_history_rebuild():
     draw by >= 1.5x."""
     budget = acc._a5_budget(2000, KA_HISTORY)
     assert budget >= 1.5 * 366, budget
+    # %g prints sub-1e-4 quench rates in scientific notation (glasses above
+    # ~20k atoms); the parser must still see the step counts
+    sci = ("  history melt 2 for 27144 -> quench to 0.1 at 3.5e-05 "
+           "-> anneal 0.1 for 54288\n")
+    steps = 27144 + round(1.9 / 3.5e-05) + 54288
+    assert acc._a5_budget(100000, sci) == int(acc.A5_MD_RATE * 100000 * steps)
 
 
 def test_a5_budget_linear_floor_for_non_history_rebuilds():

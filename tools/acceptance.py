@@ -1703,9 +1703,10 @@ A5_BUILD_TIMEOUT = 150          # base seconds per rebuild; packing an
 # headroom over the worst measurement: 30 us/(atom*step) ~= 1.6x the loaded
 # box, 2.6x the sweep-day box.
 A5_MD_RATE = 30e-6
+_FLOAT = r"[-+]?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?"   # %g can print 3.5e-05 rates
 _HISTORY_LINE = re.compile(
-    r"history\s+melt\s+([\d.]+)\s+for\s+(\d+)\s+->\s+quench\s+to\s+([\d.]+)"
-    r"\s+at\s+([\d.]+)(?:\s+->\s+anneal\s+[\d.]+\s+for\s+(\d+))?")
+    rf"history\s+melt\s+({_FLOAT})\s+for\s+(\d+)\s+->\s+quench\s+to\s+({_FLOAT})"
+    rf"\s+at\s+({_FLOAT})(?:\s+->\s+anneal\s+{_FLOAT}\s+for\s+(\d+))?")
 
 
 def _a5_budget(n_atoms: int, program_text: str = "") -> int:
