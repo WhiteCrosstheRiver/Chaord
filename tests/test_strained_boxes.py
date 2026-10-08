@@ -217,16 +217,16 @@ def test_strain_matrix_crystal_builds(cid, fraction, axname, axes):
 
 
 def _matrix_params():
-    """One param per (case, strain config); the measured known-gap combos
-    carry a strict xfail mark (see _GAP below)."""
+    """One param per (case, strain config); the known-gap combos carry
+    their strict xfail via the FOILED registry (tests/
+    conftest.py), applied at collection -- _GAP below is the documented
+    mirror, kept in sync by test_gap_set_matches_registry."""
     out = []
     for cid in CRYSTAL_CASES:
         for fraction, axname, axes in _matrix_configs():
             mid = f"{fraction:+.3f}|{axname}"
-            marks = ([pytest.mark.xfail(strict=True, reason=_GAP_REASON)]
-                     if (cid, mid) in _GAP else [])
             out.append(pytest.param(cid, fraction, axname, axes,
-                                    id=f"{cid}-{mid}", marks=marks))
+                                    id=f"{cid}-{mid}"))
     return out
 
 
@@ -237,13 +237,14 @@ def _matrix_params():
 # (cid, matrix-id) combos are the ones whose first lift (defect arm,
 # scan-fitted constant of the jittered strained frame) and re-lift (spglib
 # arm, idealised constant of the exact rebuild) disagree on the single a/c
-# line by 0.001-0.012 A.  Strict xfail: each still counts as enforced
-# (xpass fails the suite and forces its removal from this set when the
-# lift-side snap lands), while the nightly slow suite stays green for the
+# line by 0.001-0.012 A.  Strict xfail via the FOILED registry in
+# tests/adversarial/conftest.py (O12a's sanctioned home for strict xfails;
+# applied at collection): each still counts as enforced -- xpass fails the
+# suite and forces the id out of the registry when the lift-side snap
+# lands -- while the nightly slow suite stays green for the
 # 122 configs that do hold and every new regression still shows red.
-_GAP_REASON = ("lift-side snap not landed (W5 recorded follow-up, needs "
-               "reviewer sign-off): defect-arm scan-fit vs spglib "
-               "idealisation differ on the a/c line under strain")
+# _GAP below is the readable mirror of the registry;
+# test_gap_set_matches_registry keeps the two in sync.
 _GAP = {
     ("crystals/bcc_fe", "+0.005|iso"),
     ("crystals/bcc_fe", "+0.015|x"),
@@ -407,3 +408,21 @@ def test_unstrained_crystal_build_records_no_strain(cid):
     assert "strained_to_cell" not in built.info, (
         f"{cid}: unstrained build carries a strain note "
         f"({built.info.get('strained_to_cell')!r})")
+
+
+def test_gap_set_matches_registry():
+    """_GAP above and the FOILED registry must name exactly the same 94
+    configs: the registry applies the marks, this set is the readable
+    record -- if they drift, one of them silently stops describing the
+    gap."""
+    import ast as _ast
+    conf = (ROOT / "tests" / "conftest.py").read_text(encoding="utf-8")
+    tree = _ast.parse(conf)
+    foiled = next(n.value for n in tree.body
+                  if isinstance(n, _ast.Assign)
+                  and getattr(n.targets[0], "id", "") == "FOILED")
+    registered = {k.value for k in foiled.keys}
+    gap_ids = {"tests/test_strained_boxes.py::"
+               "test_strain_matrix_lift_build_lift_text_identical"
+               f"[{c}-{m}]" for c, m in _GAP}
+    assert registered == gap_ids, sorted(registered ^ gap_ids)[:4]

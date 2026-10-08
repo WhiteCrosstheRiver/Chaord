@@ -30,16 +30,3 @@ for p in (str(ROOT), str(ROOT / "src")):
 # honours the recorded mode), F8 (A14 structured coverage), F5's O half
 # (verifier charge tables ION_CHARGES ∪ OXIDE_ELEMENTS), F3/A5 (averaged
 # protocol on lj_liquid_large: wrong-T power mutations fail the gate).
-FOILED = {
-}
-
-
-def pytest_collection_modifyitems(items):
-    for item in items:
-        if item.nodeid in FOILED:
-            item.add_marker(
-                pytest.mark.xfail(
-                    strict=True,
-                    reason="red team: criterion currently fooled "
-                           "(reports/redteam_findings.md); remove this id "
-                           "when the fix lands"))
