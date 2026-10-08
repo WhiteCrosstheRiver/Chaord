@@ -68,9 +68,11 @@ from chaord.build.crystal import SLOT_COUNTS, build_conventional
 from chaord.build.defects import (apply_defects, assign_occupancy,
                                   nearest_neighbor_distance,
                                   typical_neighbor_distance)
-from chaord.build.molecules import (TEMPLATES, _register_mol, molecule_census,
+from chaord.build.molecules import (TEMPLATES, _register_mol, bond_graph,
+                                    contact_floor_target, molecule_census,
                                     molecular_mass, pack_molecules,
-                                    random_rotation)
+                                    random_rotation,
+                                    relax_intermolecular_contacts)
 from chaord.dialects import load_dialect
 from chaord.io.frames import Frame, write_frame
 from chaord.lang.errors import ChaordError
@@ -130,10 +132,16 @@ DEFECT_CASES = [
      "seed": 149},
 ]
 
-# random-sequential packing of rigid molecules; re-packed per frame
+# random-sequential packing of rigid molecules; re-packed per frame.
+# "pack_then_relax": True (W8, review open_items_v2.md step 3) adds the
+# rigid-body contact-opening relaxation after the RSA (pack-then-relax), so
+# every intermolecular pair clears the 0.75x-Bondi contact floor; the plain
+# RSA packs at the census-safe sphere contact, whose worst O-O (1.75-1.9 A)
+# sits below that floor.  Only the cases W8 regenerates carry the flag:
+# ar_gas_box25 and n2_box22 keep their frozen bytes.
 FLUID_CASES = [
     {"id": "water_box15", "molecules": {"H2O": 60}, "box": (15.0, 15.0, 15.0),
-     "seed": 13},
+     "seed": 13, "pack_then_relax": True},
     {"id": "ar_gas_box25", "molecules": {"Ar": 50}, "box": (25.0, 25.0, 25.0),
      "seed": 151},
     {"id": "n2_box22", "molecules": {"N2": 80}, "box": (22.0, 22.0, 22.0),
@@ -141,7 +149,8 @@ FLUID_CASES = [
 ]
 
 REACTIVE_CASE = {"id": "water_oh_h_box20", "molecules": {"H2O": 50, "OH": 9, "H": 9},
-                 "box": (20.0, 20.0, 20.0), "seed": 3}
+                 "box": (20.0, 20.0, 20.0), "seed": 3,
+                 "pack_then_relax": True}
 
 # LJ glass: overlap-free RSA packing at a stated number density (physics off)
 GLASS_CASE = {"id": "lj_glass_rho085", "n": 200, "rho": 0.85, "species": "X",
@@ -294,7 +303,7 @@ CO2_BOX_EDGE = float(np.ceil((60 * molecular_mass("CO2") * _AMU_PER_A3_TO_G_CM3
 CO2_CASE = {"id": "co2_dense", "molecules": {"CO2": 60},
             "box": (CO2_BOX_EDGE,) * 3,
             "density_target_g_cm3": CO2_DENSITY_G_CM3,
-            "margin": 0.05, "seed": 191}
+            "margin": 0.05, "seed": 191, "pack_then_relax": True}
 
 # diamond Si(001) slab (ASE path of the surface builder) doubled along x so
 # the surface cell holds whole p(2x1) cells, with the missing-row
@@ -410,6 +419,65 @@ def _density_g_cm3(counts: dict, volume: float) -> float:
     """Mass density of a molecule-count spec in a given volume."""
     return sum(n * molecular_mass(name) for name, n in counts.items()) \
         * _AMU_PER_A3_TO_G_CM3 / float(volume)
+
+
+def _contact_floor_worst_margin(frame: Frame, dialect) -> tuple[float, str]:
+    """(worst d - floor over constrained intermolecular pairs, pair name).
+
+    The W8 floor's one definition is chaord.build.molecules.
+    contact_floor_target (0.75 x the Bondi sum on heavy-atom pairs,
+    H...O/N >= 1.5 A, ion solvation pairs exempt); intermolecular = different
+    bond-graph components.  Positive = clearance of the closest pair (the
+    recorded per-frame provenance); negative = violation."""
+    from scipy.sparse import coo_matrix
+    from scipy.sparse.csgraph import connected_components
+    from scipy.spatial import cKDTree
+    edges = bond_graph(frame, dialect)
+    n = len(frame)
+    if edges:
+        rows = [e[0] for e in edges] + [e[1] for e in edges]
+        cols = [e[1] for e in edges] + [e[0] for e in edges]
+        _, labels = connected_components(
+            coo_matrix((np.ones(len(rows)), (rows, cols)), shape=(n, n)),
+            directed=False)
+    else:
+        labels = np.arange(n)
+    L = frame.cell_diag
+    pos = np.mod(frame.pos, L)
+    pos = np.minimum(pos, L * (1 - 1e-9))
+    syms = frame.symbols
+    present = sorted(set(syms))
+    rmax = max(contact_floor_target(a, b, dialect) or 0.0
+               for a in present for b in present) + 1e-6
+    tree = cKDTree(pos, boxsize=L)
+    pairs = tree.query_pairs(rmax, output_type="ndarray")
+    worst, pair = np.inf, "no constrained intermolecular pair"
+    for i, j in pairs:
+        if labels[i] == labels[j]:
+            continue
+        target = contact_floor_target(syms[i], syms[j], dialect)
+        if target is None:
+            continue
+        d = pos[j] - pos[i]
+        d -= L * np.round(d / L)
+        margin = float(np.linalg.norm(d)) - target
+        if margin < worst:
+            worst, pair = margin, f"{syms[i]}-{syms[j]}"
+    return worst, pair
+
+
+def _pack_then_relax(frame: Frame, dialect) -> tuple[Frame, float]:
+    """W8 step 3: open sub-floor intermolecular contacts by rigid-body
+    relaxation (chaord.build.molecules.relax_intermolecular_contacts) and
+    verify the result against the same contact floor (fail loud at generation
+    time, never ship a sub-floor frame).  Returns (frame, worst margin A)."""
+    out = relax_intermolecular_contacts(frame, dialect)
+    worst, pair = _contact_floor_worst_margin(out, dialect)
+    if worst < -1e-9:
+        raise RuntimeError(
+            f"pack-then-relax left an intermolecular {pair} pair "
+            f"{abs(worst):.3f} A below the W8 contact floor")
+    return out, worst
 
 
 def _dense_pack(counts: dict, box, rng, dialect, margin=0.05,
@@ -661,6 +729,7 @@ def generate_defects(out: Path, metal) -> list:
 def _packed_frames(spec, dialect, category, description, out):
     frames = []
     census_list = []
+    margins = []
     for k in range(N_FRAMES):
         rng = np.random.default_rng(spec["seed"] + k)
         frame = pack_molecules(spec["molecules"], spec["box"], rng, dialect)
@@ -669,23 +738,43 @@ def _packed_frames(spec, dialect, category, description, out):
         if planted != spec["molecules"]:
             raise RuntimeError(f"census {census} does not match the packing spec "
                                f"{spec['molecules']}")
+        margin = None
+        if spec.get("pack_then_relax"):
+            # W8 step 3: pack-then-relax opens the RSA packing's sub-floor
+            # intermolecular contacts; the census is re-verified after the
+            # rigid-body moves (a fused or split molecule is a generation
+            # error, never a shipped frame)
+            frame, margin = _pack_then_relax(frame, dialect)
+            census = dict(sorted(molecule_census(frame, dialect).items()))
+            if _census_to_names(census) != spec["molecules"]:
+                raise RuntimeError(
+                    f"census {census} does not survive pack-then-relax "
+                    f"(spec {spec['molecules']})")
         frames.append(_sanitize(frame))
         census_list.append(census)
+        margins.append(margin)
     ground = _gt_header(spec["id"], category, description, spec["seed"],
                          dialect="core+molecular")
     ground["lift_mode"] = "fluid" if category == "fluid" else "reactive"
     ground["lift_dialect"] = ["core", "molecular"]
     ground["molecules"] = spec["molecules"]
     ground["box"] = list(spec["box"])
+    if spec.get("pack_then_relax"):
+        # only the regenerated cases carry the flag: ar_gas_box25 and
+        # n2_box22 keep their frozen ground truths byte-identical
+        ground["pack_then_relax"] = True
     ground["expected"] = {
         "molecules": spec["molecules"],
         "census": census_list[0],
         "counts": _species_counts(frames[0].symbols),
         "n_atoms": len(frames[0]),
     }
-    for k, (frame, census) in enumerate(zip(frames, census_list)):
-        ground["frames"].append(_frame_record(k, spec["seed"] + k, frame,
-                                              census=census))
+    for k, (frame, census, margin) in enumerate(
+            zip(frames, census_list, margins)):
+        rec = _frame_record(k, spec["seed"] + k, frame, census=census)
+        if margin is not None:
+            rec["contact_floor_worst_margin_A"] = round(margin, 4)
+        ground["frames"].append(rec)
     entry = _write_case(out, category, spec["id"], frames, ground)
     print(f"[{category:<8}] {spec['id']}: census={census_list[0]} "
           f"{N_FRAMES} frames x {len(frames[0])} atoms")
@@ -696,11 +785,16 @@ def generate_fluids(out: Path, molecular) -> list:
     entries = []
     for spec in FLUID_CASES:
         main = next(iter(spec["molecules"]))
+        relax_note = ("; W8 pack-then-relax: the RSA packing's sub-floor "
+                      "intermolecular contacts opened by rigid-body "
+                      "relaxation until every pair clears the 0.75x-Bondi "
+                      "contact floor (per-frame worst margin recorded)"
+                      if spec.get("pack_then_relax") else "")
         entries += _packed_frames(
             spec, molecular, "fluid",
             f"{spec['molecules'][main]} {main} packed into a "
             f"{spec['box'][0]:.0f} A cubic box (seeded random-sequential packing, "
-            f"re-packed per frame)", out)
+            f"re-packed per frame){relax_note}", out)
     return entries
 
 
@@ -710,7 +804,10 @@ def generate_reactive(out: Path, molecular) -> list:
         spec, molecular, "reactive",
         "dissociation fragment mixture (water, hydroxide, atomic hydrogen) in "
         "a 20 A box; the species census must be recovered exactly from the bond "
-        "graph of every frame", out)
+        "graph of every frame; W8 pack-then-relax: the RSA packing's sub-floor "
+        "intermolecular contacts opened by rigid-body relaxation until every "
+        "pair clears the 0.75x-Bondi contact floor (per-frame worst margin "
+        "recorded)", out)
 
 
 def generate_glass(out: Path) -> list:
@@ -1095,8 +1192,12 @@ def generate_nacl_aq(out: Path, molecular) -> list:
 
 
 def _dense_solution_case(spec, category, description, out, molecular) -> list:
-    """Shared builder for the atom-level RSA cases (electrolyte, dense CO2)."""
-    frames, censuses = [], []
+    """Shared builder for the atom-level RSA cases (electrolyte, dense CO2).
+
+    "pack_then_relax": True (W8, review open_items_v2.md step 3) opens the
+    packing's sub-floor intermolecular contacts by rigid-body relaxation
+    after the RSA (co2_dense only -- lipf6_ec keeps its frozen bytes)."""
+    frames, censuses, margins = [], [], []
     for k in range(N_FRAMES):
         rng = np.random.default_rng(spec["seed"] + k)
         frame = _dense_pack(spec["molecules"], spec["box"], rng, molecular,
@@ -1105,8 +1206,17 @@ def _dense_solution_case(spec, category, description, out, molecular) -> list:
         if _census_to_names(census) != spec["molecules"]:
             raise RuntimeError(f"{spec['id']} frame {k}: census {census} does "
                                f"not match the packing spec {spec['molecules']}")
+        margin_rec = None
+        if spec.get("pack_then_relax"):
+            frame, margin_rec = _pack_then_relax(frame, molecular)
+            census = dict(sorted(molecule_census(frame, molecular).items()))
+            if _census_to_names(census) != spec["molecules"]:
+                raise RuntimeError(
+                    f"{spec['id']} frame {k}: census {census} does not survive "
+                    f"pack-then-relax (spec {spec['molecules']})")
         frames.append(_sanitize(frame))
         censuses.append(census)
+        margins.append(margin_rec)
     density = _density_g_cm3(spec["molecules"],
                              float(np.prod(np.asarray(spec["box"], float))))
     ground = _gt_header(spec["id"], category, description, spec["seed"],
@@ -1116,6 +1226,10 @@ def _dense_solution_case(spec, category, description, out, molecular) -> list:
     ground["molecules"] = spec["molecules"]
     ground["box"] = list(spec["box"])
     ground["density_g_cm3"] = density
+    if spec.get("pack_then_relax"):
+        # only the regenerated case carries the flag: lipf6_ec keeps its
+        # frozen ground truth byte-identical
+        ground["pack_then_relax"] = True
     if "density_target_g_cm3" in spec:
         ground["density_target_g_cm3"] = spec["density_target_g_cm3"]
     ground["expected"] = {
@@ -1126,9 +1240,12 @@ def _dense_solution_case(spec, category, description, out, molecular) -> list:
         "cell": [float(v) for v in frames[0].cell_diag],
         "density_g_cm3": density,
     }
-    for k, (frame, census) in enumerate(zip(frames, censuses)):
-        ground["frames"].append(_frame_record(k, spec["seed"] + k, frame,
-                                              census=census))
+    for k, (frame, census, margin_rec) in enumerate(
+            zip(frames, censuses, margins)):
+        rec = _frame_record(k, spec["seed"] + k, frame, census=census)
+        if margin_rec is not None:
+            rec["contact_floor_worst_margin_A"] = round(margin_rec, 4)
+        ground["frames"].append(rec)
     entry = _write_case(out, category, spec["id"], frames, ground)
     print(f"[{category:<8}] {spec['id']}: rho={density:.3f} g/cm3 "
           f"census={censuses[0]} {N_FRAMES} frames x {len(frames[0])} atoms")
@@ -1157,7 +1274,10 @@ def generate_co2(out: Path, molecular) -> list:
         f"EOS, about 315 K and 11 MPa; box {spec['box'][0]:.2f} A derived from "
         f"the target density); packed by atom-level RSA with the census bond "
         f"threshold plus a 0.05 A margin as the exclusion, so molecules stay "
-        f"distinct components of the bond graph; the density also stays under "
+        f"distinct components of the bond graph; W8 pack-then-relax then "
+        f"opens the packing's sub-floor intermolecular contacts by rigid-body "
+        f"relaxation until every pair clears the 0.75x-Bondi contact floor "
+        f"(per-frame worst margin recorded); the density also stays under "
         f"the ~0.70 g/cm3 ceiling of the compiler's molecular-sphere packer "
         f"(O5: the pre-2026-10 frames were 2.54 g/cm3 and never rebuilt)", out,
         molecular)

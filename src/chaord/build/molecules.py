@@ -1,7 +1,9 @@
 """Molecule templates and packing (M3).
 
 RDKit is the heavy path for arbitrary SMILES; the core ships exact templates
-for the benchmark molecules (water, N2, O2, CO2, Ar, Na+, Cl-, Li+) and packs
+for the benchmark molecules (water, N2, O2, CO2, Ar, Na+, Cl-, Li+) and the
+electrolyte species (EC, PF6-; W12 -- general species templates, also the
+vocabulary of the later PC/EMC/EC/PF6/Li research case) and packs
 them with a seeded random-sequential algorithm (Packmol is the optional extra).
 """
 from __future__ import annotations
@@ -10,6 +12,12 @@ import numpy as np
 
 from ..io.frames import Frame
 from ..lang.errors import ChaordError
+
+
+class PackingJam(ChaordError):
+    """Random-sequential placement ran out of budget (W8): the jam the grid +
+    minimise fallback exists to recover from.  Still a ChaordError, so every
+    existing caller that catches the packing failure keeps working."""
 
 # Template geometry is exact published data (dialect-exempt per AGENTS.md).
 TEMPLATES: dict[str, dict] = {}
@@ -218,6 +226,216 @@ def random_rotation(rng):
     ])
 
 
+# ------------------------------------------------------------------ W8 floor --
+
+def contact_floor_target(si: str, sj: str, dialect) -> float | None:
+    """W8 contact-floor distance for one unordered intermolecular element
+    pair, or None when the rule does not constrain the pair.
+
+    One definition, used by the builder's pack-then-relax placement (build),
+    the bench sanity check (assert) and the W8 regression tests: heavy-atom
+    pairs sit at >= contact_floor_bondi_fraction x the Bondi van der Waals
+    sum; an H...O/N hydrogen bond needs only contact_floor_hbond_min; other
+    H-involving pairs are outside the rule; ion_solvation_elements pairs are
+    exempt exactly as in the bond graph (a hydration contact is ion
+    solvation, not a van der Waals overlap).  Radii: the Bondi set shipped
+    in ase.data.vdw_radii (A. Bondi, J. Phys. Chem. 68, 441 (1964))."""
+    ions = _ion_solvation_elements(dialect)
+    if si in ions or sj in ions:
+        return None
+    from ase.data import chemical_symbols, vdw_radii
+    if si != "H" and sj != "H":
+        frac = float(dialect.threshold("contact_floor_bondi_fraction"))
+        return frac * (float(vdw_radii[chemical_symbols.index(si)])
+                       + float(vdw_radii[chemical_symbols.index(sj)]))
+    if (si == "H" and sj in ("O", "N")) or (sj == "H" and si in ("O", "N")):
+        return float(dialect.threshold("contact_floor_hbond_min"))
+    return None
+
+
+def _relax_contact_target(si: str, sj: str, dialect) -> float | None:
+    """Relaxation target of one intermolecular pair: the W8 floor, never
+    below the census-safe covalent window, plus contact_floor_margin.
+
+    The window bound keeps the placement census-safe by construction (the
+    packing_radius argument of pack_molecules, applied pairwise): two
+    molecules whose every atom pair sits beyond this can never be perceived
+    as bonded, whatever their relative orientation."""
+    ions = _ion_solvation_elements(dialect)
+    if si in ions or sj in ions:
+        return None
+    floor = contact_floor_target(si, sj, dialect)
+    from ase.data import chemical_symbols, covalent_radii
+    tol = float(dialect.threshold("bond_tolerance"))
+    window = tol * (float(covalent_radii[chemical_symbols.index(si)])
+                    + float(covalent_radii[chemical_symbols.index(sj)]))
+    margin = float(dialect.threshold("contact_floor_margin"))
+    return max(floor if floor is not None else 0.0, window) + margin  # dialect-exempt: numerical-guard: max() identity for an unconstrained floor
+
+
+class _RigidBlock:
+    """One rigid body of the packing: element symbols + atom offsets from
+    the (unwrapped) body centre."""
+
+    __slots__ = ("symbols", "offsets")
+
+    def __init__(self, symbols, offsets):
+        self.symbols = list(symbols)
+        self.offsets = np.asarray(offsets, float)
+
+
+def _relax_rigid_blocks(centres: np.ndarray, blocks, L: np.ndarray,
+                        dialect) -> np.ndarray:
+    """Rigid-body contact-opening relaxation (the 'minimise' half of the W8
+    grid + minimise packing): every intermolecular pair below its
+    _relax_contact_target pushes the two rigid bodies apart along the pair
+    axis by a grid_pack_relax_rate fraction of the deficit, until no
+    violating pair is left.  Deterministic (no randomness inside the loop).
+    Returns wrapped atom positions in block order, or raises ChaordError
+    after grid_pack_relax_steps iterations (fail closed -- never hand out a
+    silently sub-floor frame)."""
+    from scipy.spatial import cKDTree
+    steps = int(dialect.threshold("grid_pack_relax_steps"))
+    rate = float(dialect.threshold("grid_pack_relax_rate"))
+    symbols = [s for blk in blocks for s in blk.symbols]
+    owner = np.repeat(np.arange(len(blocks)),
+                      [len(b.symbols) for b in blocks])
+    offsets = np.vstack([b.offsets for b in blocks])
+    targets: dict[tuple[str, str], float | None] = {}
+    present = sorted(set(symbols))
+    for a in present:
+        for b in present:
+            targets[(a, b)] = _relax_contact_target(a, b, dialect)
+    finite = [t for t in targets.values() if t is not None]
+    if not finite:
+        return np.mod(centres[owner] + offsets, L)
+    rcut = max(finite)  # dialect-exempt: numerical-guard: scan radius = the largest relaxation target
+    sym_idx = {s: i for i, s in enumerate(present)}
+    tmat = np.full((len(present), len(present)), np.nan)
+    for (a, b), t in targets.items():
+        if t is not None:
+            tmat[sym_idx[a], sym_idx[b]] = t
+    sidx = np.array([sym_idx[s] for s in symbols])
+    for _ in range(steps):
+        pos = np.mod(centres[owner] + offsets, L)
+        pos = np.minimum(pos, L * (1 - 1e-9))  # dialect-exempt: numerical-guard: strict upper edge for KD trees
+        tree = cKDTree(pos, boxsize=L)
+        pairs = tree.query_pairs(rcut, output_type="ndarray")
+        if not len(pairs):
+            return pos
+        tgt = tmat[sidx[pairs[:, 0]], sidx[pairs[:, 1]]]
+        dv = pos[pairs[:, 1]] - pos[pairs[:, 0]]
+        dv -= L * np.round(dv / L)
+        d = np.linalg.norm(dv, axis=1)
+        inter = owner[pairs[:, 0]] != owner[pairs[:, 1]]
+        deficit = np.where(np.isnan(tgt), -np.inf, tgt - d)  # dialect-exempt: numerical-guard: NaN target = unconstrained pair
+        bad = inter & (deficit > 1e-9)  # dialect-exempt: numerical-guard: convergence tolerance
+        if not bad.any():
+            return pos
+        u = dv[bad] / d[bad][:, None]
+        push = rate * deficit[bad][:, None] * u / 2.0  # dialect-exempt: numerical-guard: split each pair's correction between its two bodies
+        disp = np.zeros_like(centres)
+        np.add.at(disp, owner[pairs[bad, 0]], -push)
+        np.add.at(disp, owner[pairs[bad, 1]], push)
+        centres = np.mod(centres + disp, L)
+    raise ChaordError(
+        f"grid + minimise packing did not clear the intermolecular contact "
+        f"floor in {steps} relaxation steps at this density")
+
+
+def _grid_centres(total: int, L: np.ndarray, rng) -> np.ndarray:
+    """Cell-centred simple-cubic grid prior (the W8 'grid' half): the
+    smallest k x k x k grid with k^3 >= total sites, total of them kept by
+    seeded choice -- the same placement the water reference uses for its O
+    sites (bench/reference/generate_reference.py make_water_molecules,
+    grid=7)."""
+    k = max(1, int(np.ceil(total ** (1 / 3))))
+    while k ** 3 < total:
+        k += 1
+    g = np.array(np.meshgrid(*[np.arange(k)] * 3, indexing="ij")
+                 ).reshape(3, -1).T
+    sites = (g + 0.5) * (L / k)  # dialect-exempt: exact-geometry: cell-centred grid sites
+    return sites[rng.choice(len(sites), total, replace=False)]
+
+
+def grid_pack_molecules(counts: dict[str, int], box, rng, dialect) -> Frame:
+    """Grid + minimise packing of rigid molecules (W8 builder fallback).
+
+    The placement the molecular reference cases use, carried into the
+    builder for molecular fluids whose whole-molecule random-sequential
+    packing jams (CO2 at liquid density: its census-safe sphere sits above
+    the RSA saturation fraction while the rod-shaped molecule itself does
+    not): molecule centres on a cell-centred cubic-grid subset with seeded
+    random orientations (the 'grid'), then the deterministic rigid-body
+    contact-opening relaxation of _relax_rigid_blocks (the 'minimise').
+
+    Every intermolecular pair ends beyond max(W8 contact floor, census-safe
+    covalent window) + contact_floor_margin, so the census of the packed
+    frame is exact by construction (the packing_radius argument, applied
+    pairwise) and the frame clears the sanity floor of review W8."""
+    L = np.asarray(box, float)
+    names = [name for name, n in counts.items() for _ in range(n)]
+    for name in counts:
+        if name not in TEMPLATES:
+            raise ChaordError(
+                f"no template for molecule {name!r}; known: "
+                f"{', '.join(sorted(TEMPLATES))}")
+    centres = _grid_centres(len(names), L, rng)
+    blocks = []
+    symbols: list[str] = []
+    for name in names:
+        t = TEMPLATES[name]
+        R = random_rotation(rng)
+        blocks.append(_RigidBlock(t["symbols"], t["rel"] @ R.T))
+        symbols.extend(t["symbols"])
+    pos = _relax_rigid_blocks(centres, blocks, L, dialect)
+    return Frame(pos=pos, cell=np.diag(L), symbols=symbols,
+                 pbc=(True, True, True))
+
+
+def relax_intermolecular_contacts(frame: Frame, dialect) -> Frame:
+    """Open sub-floor intermolecular contacts by rigid-body relaxation (the
+    W8 pack-then-relax regeneration step).
+
+    Every bond-graph component of the frame is one rigid body (a packed
+    frame's components are exactly its molecules -- the caller's census
+    check says so); _relax_rigid_blocks moves the bodies until every
+    intermolecular pair clears max(contact floor, covalent window) +
+    contact_floor_margin.  Atom order, symbols, cell and pbc are preserved."""
+    from scipy.sparse import coo_matrix
+    from scipy.sparse.csgraph import connected_components
+    edges = bond_graph(frame, dialect)
+    n = len(frame)
+    if edges:
+        rows = [e[0] for e in edges] + [e[1] for e in edges]
+        cols = [e[1] for e in edges] + [e[0] for e in edges]
+        _, labels = connected_components(
+            coo_matrix((np.ones(len(rows)), (rows, cols)), shape=(n, n)),
+            directed=False)
+    else:
+        labels = np.arange(n)
+    L = frame.cell_diag
+    pos = np.mod(frame.pos, L)
+    blocks = []
+    centres = np.zeros((labels.max() + 1, 3))
+    members: list[np.ndarray] = []
+    for g in range(labels.max() + 1):
+        idx = np.where(labels == g)[0]
+        c = pos[idx].mean(axis=0)
+        centres[g] = c
+        blocks.append(_RigidBlock([frame.symbols[i] for i in idx],
+                                  pos[idx] - c))
+        members.append(idx)
+    relaxed = _relax_rigid_blocks(centres, blocks, L, dialect)
+    out = np.zeros_like(pos)
+    at = 0
+    for blk, idx in zip(blocks, members):
+        out[idx] = relaxed[at:at + len(blk.symbols)]
+        at += len(blk.symbols)
+    return Frame(pos=np.mod(out, L), cell=frame.cell,
+                 symbols=frame.symbols, pbc=frame.pbc)
+
+
 def packing_radius(name: str, dialect) -> float:
     """Census-safe packing radius of a template molecule under `dialect`.
 
@@ -271,7 +489,7 @@ def pack_molecules(counts: dict[str, int], box, rng, dialect) -> Frame:
         while placed < n:
             tries += 1
             if tries > max_tries * max(n, 1):
-                raise ChaordError(
+                raise PackingJam(
                     f"cannot place {n} {name} at this density "
                     f"(packing failed after {tries} tries)")
             c = rng.uniform(0, L)
@@ -412,7 +630,7 @@ def _refuse_extended_components(frame: Frame, edges, labels, dialect) -> None:
     garbage passes every gate; the census refuses loudly instead.
 
     A compact oversized molecule is NOT extended evidence: the shipped EC
-    solvent component (C3H4O3, 7 atoms) exceeds the 3-atom fluid bound of
+    solvent component (C3H4O3, 10 atoms) exceeds the 3-atom fluid bound of
     the molecular dialect while being an ordinary molecule, so size alone
     must not refuse it. Dialects without the bound (the concept is not
     theirs to declare) keep the historical census."""

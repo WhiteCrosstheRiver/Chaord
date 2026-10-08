@@ -242,3 +242,47 @@ thresholds:
                                     # Berthelot LJ energy-shifted at rc
       realization_rc_A: 9.0
       citation: "H. J. C. Berendsen, J. R. Grigera, T. P. Straatsma, J. Phys. Chem. 91, 6269 (1987), SPC/E water; ions: I. S. Joung, T. E. Cheatham III, J. Phys. Chem. B 112, 9020 (2008), Table 3 SPC/E set; realization truncation: C. J. Fennell, J. D. Gezelter, J. Chem. Phys. 124, 234104 (2006), damped shifted force (alpha 0.2 1/A, rc 9 A), the recorded protocol of bench/reference/nacl_aq"
+
+  # ---- W8 (docs/reviews/open_items_v2.md, section W8): intermolecular
+  # contact floor and the grid + minimise packing fallback. Keys appended in
+  # their own section; no template or water_models entry above is touched.
+  contact_floor_bondi_fraction: 0.75
+                                    # sanity floor (review W8 step 1): every
+                                    # INTERMOLECULAR heavy-atom pair must sit
+                                    # at >= this fraction of the Bondi van der
+                                    # Waals contact distance (radii: Bondi
+                                    # set as shipped in ase.data.vdw_radii --
+                                    # A. Bondi, J. Phys. Chem. 68, 441 (1964);
+                                    # O 1.52, C 1.70, N 1.55, H 1.20 A).
+                                    # Pairs whose elements are named by
+                                    # ion_solvation_elements are exempt (the
+                                    # same rule as the bond graph: a
+                                    # hydration contact Na+-O ~2.4 A is ion
+                                    # solvation, not a van der Waals overlap)
+  contact_floor_hbond_min: 1.5      # the H-bond exception, A: an
+                                    # intermolecular H...O or H...N pair needs
+                                    # only this distance (a hydrogen bond
+                                    # legitimately beats the scaled Bondi
+                                    # sum 0.75 x (1.20 + 1.52) = 2.04 A;
+                                    # 1.5 A is the lower bound of the
+                                    # hydrogen-bond distance region --
+                                    # T. Steiner, Angew. Chem. Int. Ed. 41,
+                                    # 48 (2002))
+  contact_floor_margin: 0.05        # numeric buffer ABOVE the floor that
+                                    # pack-then-relax placements target, A
+                                    # (a frame built at exactly the floor
+                                    # would sit on the assert boundary)
+  grid_pack_relax_steps: 5000        # W8 builder fallback (grid + minimise):
+                                    # max rigid-body contact-opening
+                                    # iterations before failing closed.
+                                    # Measured need at the hardest shipped
+                                    # density (60 CO2 at 1.00 g/cm3, 20
+                                    # seeds of the full build path incl.
+                                    # the RSA-jam rng consumption): median
+                                    # ~85, worst 1093 iterations (coupled
+                                    # chains converge geometrically but
+                                    # slowly); 5000 keeps a 4.5x margin
+                                    # over the measured worst
+  grid_pack_relax_rate: 0.5         # fraction of each pair's floor deficit
+                                    # moved per iteration (dimensionless
+                                    # relaxation step, stable < 1)

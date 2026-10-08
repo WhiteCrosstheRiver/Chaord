@@ -127,7 +127,19 @@ def build_fluid(program: Program, dialect, rng, physics=True, md_steps=None) -> 
     templated = {k: v for k, v in counts.items()
                  if k in TEMPLATES and (len(TEMPLATES[k]["symbols"]) > 1 or mono_packs)}
     atomic = {k: v for k, v in counts.items() if k not in templated}
-    frame = pack_molecules(templated, L, rng, dialect) if templated else None
+    frame = None
+    if templated:
+        from .molecules import PackingJam, grid_pack_molecules
+        try:
+            frame = pack_molecules(templated, L, rng, dialect)
+        except PackingJam:
+            # W8 (review open_items_v2.md step 2): the whole-molecule RSA
+            # jammed on its census-safe spheres (CO2 at liquid density) --
+            # fall back to the grid + minimise packing the molecular
+            # reference path uses (grid-centred placement + rigid-body
+            # contact-opening minimisation), which clears the W8 contact
+            # floor or fails closed itself.
+            frame = grid_pack_molecules(templated, L, rng, dialect)
 
     if atomic:
         # atomic species: place with the hard-core rule (M0 rsa)
