@@ -1,0 +1,1246 @@
+........................................................................ [  6%]
+........................................................................ [ 12%]
+........................................................................ [ 18%]
+........................................................................ [ 25%]
+.................................................s...................... [ 31%]
+........................................................................ [ 37%]
+........................................................................ [ 44%]
+........................................................................ [ 50%]
+........................................................................ [ 56%]
+........................................................................ [ 63%]
+........................................................................ [ 69%]
+........................................................................ [ 75%]
+........................................................................ [ 82%]
+........................................................................ [ 88%]
+........................................................................ [ 94%]
+........................................................F.               [100%]
+================================== FAILURES ===================================
+_________________ test_strict_xfail_only_in_red_team_registry _________________
+tests\test_xfail_hygiene.py:25: in test_strict_xfail_only_in_red_team_registry
+    assert not offenders, (
+E   AssertionError: strict xfail outside the red-team registry: ['tests\\test_strained_boxes.py'] -- register the finding in tests/adversarial/conftest.py FOILED or fix the test
+E   assert not ['tests\\test_strained_boxes.py']
+============================== warnings summary ===============================
+tests/acceptance/test_ka_glass_a5.py: 1 warning
+tests/acceptance/test_mutations.py: 83 warnings
+tests/acceptance/test_noise_floors.py: 1 warning
+tests/acceptance/test_o2_o3.py: 236 warnings
+tests/adversarial/test_a02_a03_thermal_frames.py: 12 warnings
+tests/adversarial/test_a06_a13_hcp_misroute.py: 116 warnings
+tests/adversarial/test_a06_conservation_blindspots.py: 1 warning
+tests/adversarial/test_a09_evidence_class.py: 1 warning
+tests/adversarial/test_defended_greens.py: 4 warnings
+tests/adversarial/test_power_mutations.py: 2 warnings
+tests/test_amorphous.py: 1 warning
+tests/test_ase_backend.py: 1 warning
+tests/test_bench.py: 18 warnings
+tests/test_bench_sanity.py: 115 warnings
+tests/test_conservation.py: 1 warning
+tests/test_crystal.py: 74 warnings
+tests/test_defects.py: 27 warnings
+tests/test_determinism.py: 5 warnings
+tests/test_hcp_routing.py: 4 warnings
+tests/test_metal_slab_lift.py: 3 warnings
+tests/test_metal_slab_refusal.py: 1 warning
+tests/test_pipeline_equiv.py: 28 warnings
+tests/test_reactive_interface.py: 4 warnings
+tests/test_shortest_cli.py: 3 warnings
+tests/test_solution_model.py: 2 warnings
+tests/test_sro_invariance.py: 502 warnings
+tests/test_strained_boxes.py: 216 warnings
+tests/test_surface_sites.py: 1627 warnings
+tests/test_surfaces.py: 6 warnings
+tests/test_thermal_roundtrip.py: 112 warnings
+tests/test_translation_invariance.py: 540 warnings
+tests/test_tutor_demo.py: 2 warnings
+tests/test_unit_free_classification.py: 21 warnings
+  C:\hostedtoolcache\windows\Python\3.11.9\x64\Lib\site-packages\spglib\cell.py:57: DeprecationWarning: Set OLD_ERROR_HANDLING to false and catch the errors directly.
+    _set_no_error()
+
+tests/acceptance/test_mutations.py::test_a3_round_trip_and_structure_matcher
+tests/adversarial/test_a06_a13_hcp_misroute.py::test_hcp_ground_truth_lift_mode_is_honored
+tests/test_bench_sanity.py::test_every_lifted_program_builds_physics_off[solutions_lipf6_ec]
+  C:\hostedtoolcache\windows\Python\3.11.9\x64\Lib\site-packages\numpy\_core\fromnumeric.py:3824: RuntimeWarning: Mean of empty slice
+    return _methods._mean(a, axis=axis, dtype=dtype,
+
+tests/acceptance/test_mutations.py::test_a3_round_trip_and_structure_matcher
+tests/adversarial/test_a06_a13_hcp_misroute.py::test_hcp_ground_truth_lift_mode_is_honored
+tests/test_bench_sanity.py::test_every_lifted_program_builds_physics_off[solutions_lipf6_ec]
+  C:\hostedtoolcache\windows\Python\3.11.9\x64\Lib\site-packages\numpy\_core\_methods.py:142: RuntimeWarning: invalid value encountered in scalar divide
+    ret = ret.dtype.type(ret / rcount)
+
+tests/acceptance/test_mutations.py::test_a3_round_trip_and_structure_matcher
+tests/adversarial/test_a06_a13_hcp_misroute.py::test_hcp_ground_truth_lift_mode_is_honored
+tests/test_bench_sanity.py::test_every_lifted_program_builds_physics_off[solutions_lipf6_ec]
+tests/test_metal_slab_refusal.py::test_w4_real_element_under_lj_dialect_refuses
+  D:\a\Chaord\Chaord\src\chaord\lift\slab.py:78: RuntimeWarning: invalid value encountered in divide
+    h = h / h.sum()
+
+tests/test_amorphous.py::test_shortest_controller
+tests/test_pipeline_equiv.py::test_pipeline_within_performance_budget_on_lj_liquid
+tests/test_pipeline_equiv.py::test_pipeline_within_performance_budget_on_lj_liquid
+tests/test_pipeline_equiv.py::test_pipeline_within_performance_budget_on_lj_liquid
+tests/test_pipeline_equiv.py::test_pipeline_within_performance_budget_on_lj_liquid
+tests/test_pipeline_equiv.py::test_pipeline_within_performance_budget_on_lj_liquid
+tests/test_pipeline_equiv.py::test_pipeline_within_performance_budget_on_lj_liquid
+tests/test_shortest_cli.py::test_shortest_conservative_mode_is_old_behaviour
+  C:\hostedtoolcache\windows\Python\3.11.9\x64\Lib\site-packages\spglib\cell.py:79: DeprecationWarning: Set OLD_ERROR_HANDLING to false and catch the errors directly.
+    _set_or_throw_error(exc)
+
+tests/test_crystal.py: 12 warnings
+  C:\hostedtoolcache\windows\Python\3.11.9\x64\Lib\site-packages\spglib\spg.py:438: DeprecationWarning: Set OLD_ERROR_HANDLING to false and catch the errors directly.
+    _set_no_error(_throw)
+
+tests/test_metal_slab_refusal.py::test_w4_real_element_under_lj_dialect_refuses
+  D:\a\Chaord\Chaord\src\chaord\lift\slab.py:407: RuntimeWarning: invalid value encountered in divide
+    bad /= bad.sum()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=================================== PASSES ====================================
+___________ test_amorphous_without_history_assumes_dialect_protocol ___________
+---------------------------- Captured stderr call -----------------------------
+chaord: amorphous program states no history: assumed default protocol from dialect
+________________________ test_monatomic_path_unchanged ________________________
+---------------------------- Captured stderr call -----------------------------
+chaord: amorphous program states no history: assumed default protocol from dialect
+=========================== short test summary info ===========================
+PASSED tests/acceptance/test_ka_glass_a5.py::test_ka_glass_lifts_as_binary_amorphous
+PASSED tests/acceptance/test_mutations.py::test_a1_fmt_idempotence_and_parse
+PASSED tests/acceptance/test_mutations.py::test_a2_canonical_invariance
+PASSED tests/acceptance/test_mutations.py::test_a3_round_trip_and_structure_matcher
+PASSED tests/acceptance/test_mutations.py::test_a3_random_solution_species_canaries
+PASSED tests/acceptance/test_mutations.py::test_a3_ordered_case_forced_to_occupancy_still_fails
+PASSED tests/acceptance/test_mutations.py::test_a4_defect_precision_and_recall
+PASSED tests/acceptance/test_mutations.py::test_a5_noise_floor_gate
+PASSED tests/acceptance/test_mutations.py::test_a5_physics_off_rebuild_fails
+PASSED tests/acceptance/test_mutations.py::test_a5_temperature_power_mutations_fail
+PASSED tests/acceptance/test_mutations.py::test_a6_three_way_conservation
+PASSED tests/acceptance/test_mutations.py::test_a7_phase_labels
+PASSED tests/acceptance/test_mutations.py::test_a7_core_scope_gate
+PASSED tests/acceptance/test_mutations.py::test_a8_reactive_census_independent_construction
+PASSED tests/acceptance/test_mutations.py::test_a8_adsorption_sites_power_mutation
+PASSED tests/acceptance/test_mutations.py::test_a9_compression_gate
+PASSED tests/acceptance/test_mutations.py::test_a10_determinism
+PASSED tests/acceptance/test_mutations.py::test_a11_speed_limit
+PASSED tests/acceptance/test_mutations.py::test_a12_all_four_seed_errors_caught
+PASSED tests/acceptance/test_mutations.py::test_a12_missing_checker_stub_flips_verdict[stub_overlap]
+PASSED tests/acceptance/test_mutations.py::test_a12_missing_checker_stub_flips_verdict[stub_charge]
+PASSED tests/acceptance/test_mutations.py::test_a13_no_crashes
+PASSED tests/acceptance/test_mutations.py::test_a14_reference_coverage
+PASSED tests/acceptance/test_mutations.py::test_runner_report_schema
+PASSED tests/acceptance/test_noise_floors.py::test_a5_discloses_glass_floor_provenance
+PASSED tests/acceptance/test_noise_floors.py::test_a5_budget_covers_the_measured_glass_history_rebuild
+PASSED tests/acceptance/test_noise_floors.py::test_a5_budget_linear_floor_for_non_history_rebuilds
+PASSED tests/acceptance/test_o2_o3.py::test_a3_geometry_check_translation_invariant_reproducer
+PASSED tests/acceptance/test_o2_o3.py::test_geo_fit_thermal_random_translations
+PASSED tests/acceptance/test_o2_o3.py::test_a3_evidence_string_states_the_applied_gate
+PASSED tests/acceptance/test_o2_o3.py::test_structure_matcher_default_primitive_reduction_is_the_blocker
+PASSED tests/acceptance/test_o2_o3.py::test_structure_matcher_primitive_cell_false_fits_small_thermal_frames
+PASSED tests/acceptance/test_o2_o3.py::test_a3_displace_mutation_power_on_the_canary_case
+PASSED tests/acceptance/test_o2_o3.py::test_a4_planted_frames_pass_physical_sanity
+PASSED tests/acceptance/test_o2_o3.py::test_a4_held_out_seed_sets_pass
+PASSED tests/adversarial/test_a01_string_escapes.py::test_a1_backslash_path_survives_parse_fmt_parse
+PASSED tests/adversarial/test_a01_string_escapes.py::test_a1_tab_newline_escapes_corrupt_windows_paths
+PASSED tests/adversarial/test_a02_a03_thermal_frames.py::test_a2_thermal_frame_rigid_transform_invariant[crystals/fcc_cu]
+PASSED tests/adversarial/test_a02_a03_thermal_frames.py::test_a2_thermal_frame_rigid_transform_invariant[crystals/l12_ni3al]
+PASSED tests/adversarial/test_a02_a03_thermal_frames.py::test_a3_thermal_frame_round_trip_builds
+PASSED tests/adversarial/test_a02_a03_thermal_frames.py::test_a3_thermal_frame_round_trip_text
+PASSED tests/adversarial/test_a05_temperature_and_averaging.py::test_a5_wrong_temperature_rebuild_must_fail_the_gate
+PASSED tests/adversarial/test_a05_temperature_and_averaging.py::test_a5_wrong_t_systematic_exceeds_correct_t_by_2x
+PASSED tests/adversarial/test_a05_temperature_and_averaging.py::test_a5_reference_frame_choice_moves_distance_less_than_floor
+PASSED tests/adversarial/test_a05_temperature_and_averaging.py::test_a5_averaged_gate_would_separate_wrong_temperature
+PASSED tests/adversarial/test_a06_a13_hcp_misroute.py::test_hcp_thermal_frame_lifts_as_crystal
+PASSED tests/adversarial/test_a06_a13_hcp_misroute.py::test_hcp_conservation_row_holds_for_the_right_reason
+PASSED tests/adversarial/test_a06_a13_hcp_misroute.py::test_hcp_ground_truth_lift_mode_is_honored
+PASSED tests/adversarial/test_a06_a13_hcp_misroute.py::test_metal_fluid_cutoff_must_exceed_mg_nn_distance
+PASSED tests/adversarial/test_a06_a13_hcp_misroute.py::test_all_five_hcp_frames_misroute
+PASSED tests/adversarial/test_a06_conservation_blindspots.py::test_a6_slab_region_arithmetic_is_audited
+PASSED tests/adversarial/test_a06_conservation_blindspots.py::test_a12_multivalent_ion_charge[Ca2+-2]
+PASSED tests/adversarial/test_a06_conservation_blindspots.py::test_a12_multivalent_ion_charge[Mg2+-2]
+PASSED tests/adversarial/test_a06_conservation_blindspots.py::test_a12_multivalent_ion_charge[Zn2+-2]
+PASSED tests/adversarial/test_a06_conservation_blindspots.py::test_a12_multivalent_ion_charge[Fe3+-3]
+PASSED tests/adversarial/test_a06_conservation_blindspots.py::test_a12_multivalent_ion_charge[O2---2]
+PASSED tests/adversarial/test_a06_conservation_blindspots.py::test_a12_multivalent_ion_charge[SO42---2]
+PASSED tests/adversarial/test_a06_conservation_blindspots.py::test_a12_charge_balanced_but_physically_wrong_is_caught
+PASSED tests/adversarial/test_a06_conservation_blindspots.py::test_a06_acceptance_charge_arithmetic_covers_multivalent_elements
+PASSED tests/adversarial/test_a07_judged_core_scope.py::test_a07_targeted_label_corruption_is_caught
+PASSED tests/adversarial/test_a09_evidence_class.py::test_a09_heterogeneous_tiled_2048_stays_under_gate
+PASSED tests/adversarial/test_a12_a10_a14_statics.py::test_a12_lj_overlap_tolerance_covers_the_sanity_hard_core
+PASSED tests/adversarial/test_a12_a10_a14_statics.py::test_a12_overlap_pair_below_hard_core_is_flagged_in_every_dialect
+PASSED tests/adversarial/test_a12_a10_a14_statics.py::test_a12_lattice_mismatch_boundary[7.23-False]
+PASSED tests/adversarial/test_a12_a10_a14_statics.py::test_a12_lattice_mismatch_boundary[7.3-False]
+PASSED tests/adversarial/test_a12_a10_a14_statics.py::test_a12_lattice_mismatch_boundary[7.5-True]
+PASSED tests/adversarial/test_a13_nan_crash.py::test_a13_nan_positions_refuse_instead_of_segfault
+PASSED tests/adversarial/test_a13_nan_crash.py::test_a13_nan_cell_refuse_instead_of_segfault
+PASSED tests/adversarial/test_a14_prose_coverage.py::test_a14_prose_only_reference_is_rejected
+PASSED tests/adversarial/test_defended_greens.py::test_green_a4_adjacent_vacancies_reported_as_two_vacancies
+PASSED tests/adversarial/test_defended_greens.py::test_green_a4_mixed_defect_cell_detected_exactly
+PASSED tests/adversarial/test_defended_greens.py::test_green_a10_lift_text_stable_across_hash_seeds
+PASSED tests/adversarial/test_defended_greens.py::test_green_a3_l12_thermal_frame_round_trips_byte_identical
+PASSED tests/adversarial/test_power_mutations.py::test_a4_mixed_cell_mutation
+PASSED tests/adversarial/test_power_mutations.py::test_sro_hot_frame_power_mutation
+PASSED tests/test_a5_rebuild_meta.py::test_a5_rebuild_meta_cu_solid_liquid_backend_lj_raises_reason
+PASSED tests/test_a5_rebuild_meta.py::test_a5_rebuild_meta_cu_solid_liquid_eam_history_raises_reason
+PASSED tests/test_a5_rebuild_meta.py::test_a5_rebuild_meta_physics_off_needs_no_tables[backend-lj]
+PASSED tests/test_a5_rebuild_meta.py::test_a5_rebuild_meta_physics_off_needs_no_tables[eam-history]
+PASSED tests/test_a5_rebuild_meta.py::test_a5_rebuild_meta_still_reads_working_dialects
+PASSED tests/test_amorphous.py::test_history_parse
+PASSED tests/test_amorphous.py::test_density_restraint_holds
+PASSED tests/test_amorphous.py::test_ring_statistics_diamond
+PASSED tests/test_amorphous.py::test_voronoi_index_sc
+PASSED tests/test_amorphous.py::test_amorphous_lift_program
+PASSED tests/test_amorphous.py::test_amorphous_without_history_assumes_dialect_protocol
+PASSED tests/test_amorphous.py::test_amorphous_without_history_unknown_dialect_raises
+PASSED tests/test_amorphous.py::test_amorphous_lift_marks_assumed_history
+PASSED tests/test_amorphous.py::test_shortest_controller
+PASSED tests/test_amorphous.py::test_perfect_crystal_never_lifts_as_amorphous[fcc-0.85]
+PASSED tests/test_amorphous.py::test_perfect_crystal_never_lifts_as_amorphous[fcc-1.0]
+PASSED tests/test_amorphous.py::test_perfect_crystal_never_lifts_as_amorphous[bcc-0.85]
+PASSED tests/test_amorphous.py::test_perfect_crystal_never_lifts_as_amorphous[bcc-1.0]
+PASSED tests/test_amorphous.py::test_perfect_crystal_never_lifts_as_amorphous[hcp-0.85]
+PASSED tests/test_amorphous.py::test_perfect_crystal_never_lifts_as_amorphous[hcp-1.0]
+PASSED tests/test_amorphous.py::test_perfect_crystal_never_lifts_as_amorphous[diamond-0.85]
+PASSED tests/test_amorphous.py::test_perfect_crystal_never_lifts_as_amorphous[diamond-1.0]
+PASSED tests/test_amorphous.py::test_perfect_crystal_never_lifts_as_amorphous[sc-0.85]
+PASSED tests/test_amorphous.py::test_thermal_crystal_never_lifts_as_amorphous[0.85-0.03]
+PASSED tests/test_amorphous.py::test_thermal_crystal_never_lifts_as_amorphous[0.85-0.06]
+PASSED tests/test_amorphous.py::test_thermal_crystal_never_lifts_as_amorphous[1.0-0.03]
+PASSED tests/test_amorphous.py::test_thermal_crystal_never_lifts_as_amorphous[1.0-0.06]
+PASSED tests/test_amorphous.py::test_round_trip_floor_excludes_the_system_under_test
+PASSED tests/test_amorphous_binary.py::test_build_multi_species_frame
+PASSED tests/test_amorphous_binary.py::test_lift_multi_species_states_composition_density_and_partials
+PASSED tests/test_amorphous_binary.py::test_lift_states_model_as_assumed
+PASSED tests/test_amorphous_binary.py::test_multi_species_round_trip
+PASSED tests/test_amorphous_binary.py::test_wrong_composition_infers_no_model
+PASSED tests/test_amorphous_binary.py::test_build_refuses_multi_species_without_model
+PASSED tests/test_amorphous_binary.py::test_build_refuses_unknown_model
+PASSED tests/test_amorphous_binary.py::test_build_refuses_model_species_mismatch
+PASSED tests/test_amorphous_binary.py::test_physics_off_returns_packed_species_counts
+PASSED tests/test_amorphous_binary.py::test_monatomic_path_unchanged
+PASSED tests/test_ase_backend.py::test_tip4p_forces_match_ase_calculator
+PASSED tests/test_ase_backend.py::test_solution_ion_forces_are_exact_derivatives
+PASSED tests/test_ase_backend.py::test_solution_without_ions_is_tip4p
+PASSED tests/test_ase_backend.py::test_rigid_water_constraint_preserves_geometry
+PASSED tests/test_ase_backend.py::test_relaxed_water_stays_rigid
+PASSED tests/test_ase_backend.py::test_eam_backend_matches_ase_eam
+PASSED tests/test_ase_backend.py::test_lj_flavor_matches_ase_lj
+PASSED tests/test_ase_backend.py::test_eam_backend_runs_with_run_md
+PASSED tests/test_ase_backend.py::test_classical_water_builds_with_physics
+PASSED tests/test_ase_backend.py::test_classical_solution_builds_with_physics
+PASSED tests/test_ase_backend.py::test_classical_unknown_species_is_an_error
+PASSED tests/test_ase_backend.py::test_unknown_backend_still_raises
+PASSED tests/test_ase_backend.py::test_reference_water_tip4p_round_trip
+PASSED tests/test_ase_backend.py::test_classical_ar_gas_builds_with_physics
+PASSED tests/test_ase_backend.py::test_classical_n2_builds_with_physics
+PASSED tests/test_ase_backend.py::test_lj_fluid_energy_is_published_lj
+PASSED tests/test_ase_backend.py::test_lj_fluid_forces_are_exact_derivatives
+PASSED tests/test_ase_backend.py::test_water_plus_lj_gas_is_an_error
+PASSED tests/test_ase_backend.py::test_fluid_rebuild_is_deterministic
+PASSED tests/test_ase_backend.py::test_nacl_kernel_fits_acceptance_budget
+PASSED tests/test_bench.py::test_manifest_lists_all_cases
+PASSED tests/test_bench.py::test_every_case_has_five_independent_frames
+PASSED tests/test_bench.py::test_crystal_prototype_and_a_recovered[fcc_cu-0]
+PASSED tests/test_bench.py::test_crystal_prototype_and_a_recovered[fcc_cu-4]
+PASSED tests/test_bench.py::test_crystal_prototype_and_a_recovered[rocksalt_nacl-0]
+PASSED tests/test_bench.py::test_crystal_prototype_and_a_recovered[rocksalt_nacl-4]
+PASSED tests/test_bench.py::test_crystal_prototype_and_a_recovered[l12_ni3al-0]
+PASSED tests/test_bench.py::test_crystal_prototype_and_a_recovered[l12_ni3al-4]
+PASSED tests/test_bench.py::test_crystal_prototype_and_a_recovered[perovskite_srtio3-0]
+PASSED tests/test_bench.py::test_crystal_prototype_and_a_recovered[perovskite_srtio3-4]
+PASSED tests/test_bench.py::test_crystal_prototype_and_a_recovered[fcc_crconi-0]
+PASSED tests/test_bench.py::test_crystal_prototype_and_a_recovered[fcc_crconi-4]
+PASSED tests/test_bench.py::test_defect_cases_recover_defects[fcc_cu_vacancies-0]
+PASSED tests/test_bench.py::test_defect_cases_recover_defects[fcc_cu_vacancies-4]
+PASSED tests/test_bench.py::test_defect_cases_recover_defects[l12_ni3al_vac_antisite-0]
+PASSED tests/test_bench.py::test_defect_cases_recover_defects[l12_ni3al_vac_antisite-4]
+PASSED tests/test_bench.py::test_defect_cases_recover_defects[rocksalt_nacl_vna-0]
+PASSED tests/test_bench.py::test_defect_cases_recover_defects[rocksalt_nacl_vna-4]
+PASSED tests/test_bench.py::test_fluid_and_reactive_census_exact_every_frame[ar_gas_box25]
+PASSED tests/test_bench.py::test_fluid_and_reactive_census_exact_every_frame[n2_box22]
+PASSED tests/test_bench.py::test_fluid_and_reactive_census_exact_every_frame[water_box15]
+PASSED tests/test_bench.py::test_fluid_and_reactive_census_exact_every_frame[water_oh_h_box20]
+PASSED tests/test_bench.py::test_fluid_and_reactive_census_exact_every_frame[nacl_aq]
+PASSED tests/test_bench.py::test_fluid_and_reactive_census_exact_every_frame[lipf6_ec]
+PASSED tests/test_bench.py::test_fluid_and_reactive_census_exact_every_frame[co2_dense]
+PASSED tests/test_bench.py::test_glass_density_and_counts_every_frame
+PASSED tests/test_bench.py::test_interface_segmentation_accuracy[0]
+PASSED tests/test_bench.py::test_interface_segmentation_accuracy[1]
+PASSED tests/test_bench.py::test_interface_segmentation_accuracy[2]
+PASSED tests/test_bench.py::test_interface_segmentation_accuracy[3]
+PASSED tests/test_bench.py::test_interface_segmentation_accuracy[4]
+PASSED tests/test_bench.py::test_surface_geometry_every_frame[ni111_o_top]
+PASSED tests/test_bench.py::test_surface_geometry_every_frame[pt111_o]
+PASSED tests/test_bench.py::test_si001_reconstruction_p2x1_every_frame
+PASSED tests/test_bench.py::test_cuau_random_species_split_half_half
+PASSED tests/test_bench.py::test_cu_water_interface_segmentation[0]
+PASSED tests/test_bench.py::test_cu_water_interface_segmentation[1]
+PASSED tests/test_bench.py::test_cu_water_interface_segmentation[2]
+PASSED tests/test_bench.py::test_cu_water_interface_segmentation[3]
+PASSED tests/test_bench.py::test_cu_water_interface_segmentation[4]
+PASSED tests/test_bench.py::test_generation_is_deterministic
+PASSED tests/test_bench_frozen.py::test_bench_data_matches_frozen_checksums
+PASSED tests/test_bench_sanity.py::test_min_pair_distance_respects_the_system_hard_core[crystals_bcc_fe]
+PASSED tests/test_bench_sanity.py::test_min_pair_distance_respects_the_system_hard_core[crystals_diamond_si]
+PASSED tests/test_bench_sanity.py::test_min_pair_distance_respects_the_system_hard_core[crystals_fcc_crconi]
+PASSED tests/test_bench_sanity.py::test_min_pair_distance_respects_the_system_hard_core[crystals_fcc_cu]
+PASSED tests/test_bench_sanity.py::test_min_pair_distance_respects_the_system_hard_core[crystals_hcp_mg]
+PASSED tests/test_bench_sanity.py::test_min_pair_distance_respects_the_system_hard_core[crystals_l12_ni3al]
+PASSED tests/test_bench_sanity.py::test_min_pair_distance_respects_the_system_hard_core[crystals_perovskite_srtio3]
+PASSED tests/test_bench_sanity.py::test_min_pair_distance_respects_the_system_hard_core[crystals_rocksalt_nacl]
+PASSED tests/test_bench_sanity.py::test_min_pair_distance_respects_the_system_hard_core[defects_fcc_cu_vacancies]
+PASSED tests/test_bench_sanity.py::test_min_pair_distance_respects_the_system_hard_core[defects_l12_ni3al_vac_antisite]
+PASSED tests/test_bench_sanity.py::test_min_pair_distance_respects_the_system_hard_core[defects_rocksalt_nacl_vna]
+PASSED tests/test_bench_sanity.py::test_min_pair_distance_respects_the_system_hard_core[fluid_ar_gas_box25]
+PASSED tests/test_bench_sanity.py::test_min_pair_distance_respects_the_system_hard_core[fluid_n2_box22]
+PASSED tests/test_bench_sanity.py::test_min_pair_distance_respects_the_system_hard_core[fluid_water_box15]
+PASSED tests/test_bench_sanity.py::test_min_pair_distance_respects_the_system_hard_core[gases_co2_dense]
+PASSED tests/test_bench_sanity.py::test_min_pair_distance_respects_the_system_hard_core[glass_lj_glass_rho085]
+PASSED tests/test_bench_sanity.py::test_min_pair_distance_respects_the_system_hard_core[interface_lj_solid_liquid]
+PASSED tests/test_bench_sanity.py::test_min_pair_distance_respects_the_system_hard_core[interfaces_cu_water]
+PASSED tests/test_bench_sanity.py::test_min_pair_distance_respects_the_system_hard_core[reactive_water_oh_h_box20]
+PASSED tests/test_bench_sanity.py::test_min_pair_distance_respects_the_system_hard_core[solutions_cuau_random]
+PASSED tests/test_bench_sanity.py::test_min_pair_distance_respects_the_system_hard_core[solutions_lipf6_ec]
+PASSED tests/test_bench_sanity.py::test_min_pair_distance_respects_the_system_hard_core[solutions_nacl_aq]
+PASSED tests/test_bench_sanity.py::test_min_pair_distance_respects_the_system_hard_core[surface_ni111_o_top]
+PASSED tests/test_bench_sanity.py::test_min_pair_distance_respects_the_system_hard_core[surfaces_pt111_o]
+PASSED tests/test_bench_sanity.py::test_min_pair_distance_respects_the_system_hard_core[surfaces_si001_2x1]
+PASSED tests/test_bench_sanity.py::test_density_matches_the_described_target[crystals_bcc_fe]
+PASSED tests/test_bench_sanity.py::test_density_matches_the_described_target[crystals_diamond_si]
+PASSED tests/test_bench_sanity.py::test_density_matches_the_described_target[crystals_fcc_crconi]
+PASSED tests/test_bench_sanity.py::test_density_matches_the_described_target[crystals_fcc_cu]
+PASSED tests/test_bench_sanity.py::test_density_matches_the_described_target[crystals_hcp_mg]
+PASSED tests/test_bench_sanity.py::test_density_matches_the_described_target[crystals_l12_ni3al]
+PASSED tests/test_bench_sanity.py::test_density_matches_the_described_target[crystals_perovskite_srtio3]
+PASSED tests/test_bench_sanity.py::test_density_matches_the_described_target[crystals_rocksalt_nacl]
+PASSED tests/test_bench_sanity.py::test_density_matches_the_described_target[defects_fcc_cu_vacancies]
+PASSED tests/test_bench_sanity.py::test_density_matches_the_described_target[defects_l12_ni3al_vac_antisite]
+PASSED tests/test_bench_sanity.py::test_density_matches_the_described_target[defects_rocksalt_nacl_vna]
+PASSED tests/test_bench_sanity.py::test_density_matches_the_described_target[fluid_ar_gas_box25]
+PASSED tests/test_bench_sanity.py::test_density_matches_the_described_target[fluid_n2_box22]
+PASSED tests/test_bench_sanity.py::test_density_matches_the_described_target[fluid_water_box15]
+PASSED tests/test_bench_sanity.py::test_density_matches_the_described_target[gases_co2_dense]
+PASSED tests/test_bench_sanity.py::test_density_matches_the_described_target[glass_lj_glass_rho085]
+PASSED tests/test_bench_sanity.py::test_density_matches_the_described_target[interface_lj_solid_liquid]
+PASSED tests/test_bench_sanity.py::test_density_matches_the_described_target[interfaces_cu_water]
+PASSED tests/test_bench_sanity.py::test_density_matches_the_described_target[reactive_water_oh_h_box20]
+PASSED tests/test_bench_sanity.py::test_density_matches_the_described_target[solutions_cuau_random]
+PASSED tests/test_bench_sanity.py::test_density_matches_the_described_target[solutions_lipf6_ec]
+PASSED tests/test_bench_sanity.py::test_density_matches_the_described_target[solutions_nacl_aq]
+PASSED tests/test_bench_sanity.py::test_density_matches_the_described_target[surface_ni111_o_top]
+PASSED tests/test_bench_sanity.py::test_density_matches_the_described_target[surfaces_pt111_o]
+PASSED tests/test_bench_sanity.py::test_density_matches_the_described_target[surfaces_si001_2x1]
+PASSED tests/test_bench_sanity.py::test_every_lifted_program_builds_physics_off[crystals_bcc_fe]
+PASSED tests/test_bench_sanity.py::test_every_lifted_program_builds_physics_off[crystals_diamond_si]
+PASSED tests/test_bench_sanity.py::test_every_lifted_program_builds_physics_off[crystals_fcc_crconi]
+PASSED tests/test_bench_sanity.py::test_every_lifted_program_builds_physics_off[crystals_fcc_cu]
+PASSED tests/test_bench_sanity.py::test_every_lifted_program_builds_physics_off[crystals_hcp_mg]
+PASSED tests/test_bench_sanity.py::test_every_lifted_program_builds_physics_off[crystals_l12_ni3al]
+PASSED tests/test_bench_sanity.py::test_every_lifted_program_builds_physics_off[crystals_perovskite_srtio3]
+PASSED tests/test_bench_sanity.py::test_every_lifted_program_builds_physics_off[crystals_rocksalt_nacl]
+PASSED tests/test_bench_sanity.py::test_every_lifted_program_builds_physics_off[defects_fcc_cu_vacancies]
+PASSED tests/test_bench_sanity.py::test_every_lifted_program_builds_physics_off[defects_l12_ni3al_vac_antisite]
+PASSED tests/test_bench_sanity.py::test_every_lifted_program_builds_physics_off[defects_rocksalt_nacl_vna]
+PASSED tests/test_bench_sanity.py::test_every_lifted_program_builds_physics_off[fluid_ar_gas_box25]
+PASSED tests/test_bench_sanity.py::test_every_lifted_program_builds_physics_off[fluid_n2_box22]
+PASSED tests/test_bench_sanity.py::test_every_lifted_program_builds_physics_off[fluid_water_box15]
+PASSED tests/test_bench_sanity.py::test_every_lifted_program_builds_physics_off[gases_co2_dense]
+PASSED tests/test_bench_sanity.py::test_every_lifted_program_builds_physics_off[glass_lj_glass_rho085]
+PASSED tests/test_bench_sanity.py::test_every_lifted_program_builds_physics_off[interface_lj_solid_liquid]
+PASSED tests/test_bench_sanity.py::test_every_lifted_program_builds_physics_off[interfaces_cu_water]
+PASSED tests/test_bench_sanity.py::test_every_lifted_program_builds_physics_off[reactive_water_oh_h_box20]
+PASSED tests/test_bench_sanity.py::test_every_lifted_program_builds_physics_off[solutions_cuau_random]
+PASSED tests/test_bench_sanity.py::test_every_lifted_program_builds_physics_off[solutions_lipf6_ec]
+PASSED tests/test_bench_sanity.py::test_every_lifted_program_builds_physics_off[solutions_nacl_aq]
+PASSED tests/test_bench_sanity.py::test_every_lifted_program_builds_physics_off[surface_ni111_o_top]
+PASSED tests/test_bench_sanity.py::test_every_lifted_program_builds_physics_off[surfaces_pt111_o]
+PASSED tests/test_bench_sanity.py::test_every_lifted_program_builds_physics_off[surfaces_si001_2x1]
+PASSED tests/test_bench_sanity.py::test_co2_dense_regenerated_at_physical_rebuildable_density
+PASSED tests/test_charge.py::test_neutral_electrolyte_passes
+PASSED tests/test_charge.py::test_wrong_conserve_charge_fails
+PASSED tests/test_charge.py::test_missing_conserve_charge_only_warns
+PASSED tests/test_charge.py::test_neutral_system_passes_quietly
+PASSED tests/test_charge.py::test_charge_runs_after_conservation_in_run_checks
+PASSED tests/test_charge.py::test_formal_charge_table_fallback
+PASSED tests/test_cli.py::test_fmt_check_canonical
+PASSED tests/test_cli.py::test_fmt_check_noncanonical
+PASSED tests/test_cli.py::test_diff_ignores_provenance
+PASSED tests/test_cli.py::test_diff_detects_difference
+PASSED tests/test_cli.py::test_lift_writes_program
+PASSED tests/test_cli.py::test_build_and_check
+PASSED tests/test_cli.py::test_roundtrip_no_physics
+PASSED tests/test_conservation.py::test_crystal_defects_three_way_pass
+PASSED tests/test_conservation.py::test_fluid_molecules_three_way_pass
+PASSED tests/test_conservation.py::test_surface_adsorption_three_way_pass
+PASSED tests/test_conservation.py::test_amorphous_declared_bucket_pass
+PASSED tests/test_conservation.py::test_lift_registers_diag_and_auto_runs_checks
+PASSED tests/test_conservation.py::test_mutation_conserve_minus_one_fails
+PASSED tests/test_conservation.py::test_mutation_frame_minus_one_atom_fails
+PASSED tests/test_conservation.py::test_mutation_residual_none_with_unexplained_fails
+PASSED tests/test_conservation.py::test_mutation_residual_lines_mismatch_unexplained
+PASSED tests/test_crystal.py::test_builder_atom_counts[fcc]
+PASSED tests/test_crystal.py::test_builder_atom_counts[bcc]
+PASSED tests/test_crystal.py::test_builder_atom_counts[hcp]
+PASSED tests/test_crystal.py::test_builder_atom_counts[diamond]
+PASSED tests/test_crystal.py::test_builder_atom_counts[rocksalt]
+PASSED tests/test_crystal.py::test_builder_atom_counts[cscl]
+PASSED tests/test_crystal.py::test_builder_atom_counts[zincblende]
+PASSED tests/test_crystal.py::test_builder_atom_counts[wurtzite]
+PASSED tests/test_crystal.py::test_builder_atom_counts[fluorite]
+PASSED tests/test_crystal.py::test_builder_atom_counts[perovskite]
+PASSED tests/test_crystal.py::test_builder_atom_counts[L1_2]
+PASSED tests/test_crystal.py::test_builder_atom_counts[rutile]
+PASSED tests/test_crystal.py::test_spacegroup_cross_check[fcc]
+PASSED tests/test_crystal.py::test_spacegroup_cross_check[bcc]
+PASSED tests/test_crystal.py::test_spacegroup_cross_check[hcp]
+PASSED tests/test_crystal.py::test_spacegroup_cross_check[diamond]
+PASSED tests/test_crystal.py::test_spacegroup_cross_check[rocksalt]
+PASSED tests/test_crystal.py::test_spacegroup_cross_check[cscl]
+PASSED tests/test_crystal.py::test_spacegroup_cross_check[zincblende]
+PASSED tests/test_crystal.py::test_spacegroup_cross_check[wurtzite]
+PASSED tests/test_crystal.py::test_spacegroup_cross_check[fluorite]
+PASSED tests/test_crystal.py::test_spacegroup_cross_check[perovskite]
+PASSED tests/test_crystal.py::test_spacegroup_cross_check[L1_2]
+PASSED tests/test_crystal.py::test_spacegroup_cross_check[rutile]
+PASSED tests/test_crystal.py::test_exact_round_trip[fcc]
+PASSED tests/test_crystal.py::test_exact_round_trip[bcc]
+PASSED tests/test_crystal.py::test_exact_round_trip[hcp]
+PASSED tests/test_crystal.py::test_exact_round_trip[diamond]
+PASSED tests/test_crystal.py::test_exact_round_trip[rocksalt]
+PASSED tests/test_crystal.py::test_exact_round_trip[cscl]
+PASSED tests/test_crystal.py::test_exact_round_trip[zincblende]
+PASSED tests/test_crystal.py::test_exact_round_trip[wurtzite]
+PASSED tests/test_crystal.py::test_exact_round_trip[fluorite]
+PASSED tests/test_crystal.py::test_exact_round_trip[perovskite]
+PASSED tests/test_crystal.py::test_exact_round_trip[L1_2]
+PASSED tests/test_crystal.py::test_exact_round_trip[rutile]
+PASSED tests/test_crystal.py::test_invariance_rotation_translation_reorder_reimage[fcc]
+PASSED tests/test_crystal.py::test_invariance_rotation_translation_reorder_reimage[bcc]
+PASSED tests/test_crystal.py::test_invariance_rotation_translation_reorder_reimage[hcp]
+PASSED tests/test_crystal.py::test_invariance_rotation_translation_reorder_reimage[diamond]
+PASSED tests/test_crystal.py::test_invariance_rotation_translation_reorder_reimage[rocksalt]
+PASSED tests/test_crystal.py::test_invariance_rotation_translation_reorder_reimage[cscl]
+PASSED tests/test_crystal.py::test_invariance_rotation_translation_reorder_reimage[zincblende]
+PASSED tests/test_crystal.py::test_invariance_rotation_translation_reorder_reimage[wurtzite]
+PASSED tests/test_crystal.py::test_invariance_rotation_translation_reorder_reimage[fluorite]
+PASSED tests/test_crystal.py::test_invariance_rotation_translation_reorder_reimage[perovskite]
+PASSED tests/test_crystal.py::test_invariance_rotation_translation_reorder_reimage[L1_2]
+PASSED tests/test_crystal.py::test_invariance_rotation_translation_reorder_reimage[rutile]
+PASSED tests/test_crystal.py::test_replication_scales_counts
+PASSED tests/test_crystal.py::test_lattice_mismatch_is_a_static_error
+PASSED tests/test_crystal.py::test_lift_via_cli_end_to_end
+PASSED tests/test_cv.py::test_cn_matches_brute_force
+PASSED tests/test_cv.py::test_density
+PASSED tests/test_cv.py::test_registry_measure_dispatch
+PASSED tests/test_cv.py::test_registry_unknown_cv
+PASSED tests/test_cv.py::test_registry_unmeasurable_cv
+PASSED tests/test_cv.py::test_one_definition_per_quantity
+PASSED tests/test_cv.py::test_key_cvs_registered
+PASSED tests/test_cv.py::test_angle_mean_tetrahedral
+PASSED tests/test_cv.py::test_gr_drops_intramolecular_pairs_for_molecular_dialects
+PASSED tests/test_cv.py::test_gr_unchanged_for_atomic_dialects
+PASSED tests/test_defects.py::test_planted_vacancies_recovered[fcc-Cu]
+PASSED tests/test_defects.py::test_planted_vacancies_recovered[L12-NiAl]
+PASSED tests/test_defects.py::test_planted_vacancies_recovered[NaCl]
+PASSED tests/test_defects.py::test_planted_antisites_recovered[L12-NiAl]
+PASSED tests/test_defects.py::test_planted_antisites_recovered[NaCl]
+PASSED tests/test_defects.py::test_interstitial_and_frenkel
+PASSED tests/test_defects.py::test_precision_recall_thermal
+PASSED tests/test_defects.py::test_l12_interstitial_08tm_no_false_frenkel
+PASSED tests/test_defects.py::test_l12_vacancy_08tm_no_false_frenkel
+PASSED tests/test_defects.py::test_defect_round_trip_text_stable
+PASSED tests/test_defects.py::test_occupancy_random
+PASSED tests/test_defects.py::test_sqs_target_alpha
+PASSED tests/test_defects.py::test_sro_lift_emits_constrain
+PASSED tests/test_defects.py::test_fcc_crconi_reordering_byte_stable
+PASSED tests/test_defects.py::test_sro_build_round_trip
+PASSED tests/test_defects.py::test_join_count_null_matches_exhaustive_enumeration[na2]
+PASSED tests/test_defects.py::test_join_count_null_matches_exhaustive_enumeration[na3]
+PASSED tests/test_defects.py::test_join_count_null_matches_exhaustive_enumeration[na4]
+PASSED tests/test_defects.py::test_join_count_null_matches_exhaustive_enumeration[na5]
+PASSED tests/test_defects.py::test_join_count_null_degenerate_and_order_invariant
+PASSED tests/test_defects.py::test_conservation_exact_for_defects
+PASSED tests/test_defects.py::test_unary_bcc_diamond_not_degenerate[bcc]
+PASSED tests/test_defects.py::test_unary_bcc_diamond_not_degenerate[diamond]
+PASSED tests/test_determinism.py::test_si001_text_invariant_within_one_process
+PASSED tests/test_determinism.py::test_quantized_keys_ignore_subnano_noise
+PASSED tests/test_determinism.py::test_quantized_lexsort_picks_the_same_representative_under_noise
+PASSED tests/test_dialect.py::test_core_always_first
+PASSED tests/test_dialect.py::test_unknown_dialect_rejected
+PASSED tests/test_dialect.py::test_merge_later_wins
+PASSED tests/test_dialect.py::test_missing_threshold_raises
+PASSED tests/test_dialect.py::test_versions_recorded
+PASSED tests/test_dialect.py::test_units_union
+PASSED tests/test_dialect.py::test_all_eight_dialects_load
+PASSED tests/test_dialect.py::test_md_section_from_lj
+PASSED tests/test_eam.py::test_perfect_crystal_forces_vanish[Cu]
+PASSED tests/test_eam.py::test_perfect_crystal_forces_vanish[Fe]
+PASSED tests/test_eam.py::test_perfect_crystal_forces_vanish[Ni]
+PASSED tests/test_eam.py::test_energy_scan_has_smooth_interior_minimum[Cu]
+PASSED tests/test_eam.py::test_energy_scan_has_smooth_interior_minimum[Fe]
+PASSED tests/test_eam.py::test_energy_scan_has_smooth_interior_minimum[Ni]
+PASSED tests/test_eam.py::test_short_md_holds_temperature
+PASSED tests/test_eam.py::test_backend_eam_program_builds_and_conserves
+PASSED tests/test_extended.py::test_reactive_census_exact
+PASSED tests/test_extended.py::test_dissociation_statement
+PASSED tests/test_extended.py::test_dissociation_zero_without_fragments
+PASSED tests/test_extended.py::test_burgers_family
+PASSED tests/test_extended.py::test_no_burgers_in_perfect_crystal
+PASSED tests/test_extended.py::test_gb_min_pair_distance_above_overlap_floor
+PASSED tests/test_extended.py::test_gb_tied_reference_atoms_all_sigma5
+PASSED tests/test_extended.py::test_gb_deterministic_across_ten_seeds
+PASSED tests/test_extended.py::test_sigma5_detected
+PASSED tests/test_extended.py::test_no_sigma_in_single_crystal
+PASSED tests/test_extended.py::test_gb_sigma_survives_0p10A_noise_20_seeds
+PASSED tests/test_extended.py::test_gb_unwrapped_positions
+PASSED tests/test_extended.py::test_burgers_unwrapped_positions
+PASSED tests/test_extended.py::test_gb_low_angle_twist_returns_none
+PASSED tests/test_extended.py::test_gb_disordered_frame_returns_none
+PASSED tests/test_extended.py::test_gb_sigma13_sigma17_zero_overlap
+PASSED tests/test_extended.py::test_gb_csl_table_integer_matrices
+PASSED tests/test_fluid_md_protocol.py::test_default_equilibration_covers_diffusive_mixing
+PASSED tests/test_fluid_md_protocol.py::test_builder_runs_exactly_the_tables_md_steps
+PASSED tests/test_fluid_routing.py::test_cu_water_slab_is_not_single_phase
+PASSED tests/test_fluid_routing.py::test_extended_component_fails_bonded_arm
+PASSED tests/test_fluid_routing.py::test_small_molecules_stay_single_phase
+PASSED tests/test_fluids.py::test_templates_sane
+PASSED tests/test_fluids.py::test_packing_census_exact[spec0-box0]
+PASSED tests/test_fluids.py::test_packing_census_exact[spec1-box1]
+PASSED tests/test_fluids.py::test_packing_census_exact[spec2-box2]
+PASSED tests/test_fluids.py::test_packing_no_molecular_merges
+PASSED tests/test_fluids.py::test_census_splits_ion_hydration_shells
+PASSED tests/test_fluids.py::test_solution_round_trip_from_solvation_geometry
+PASSED tests/test_fluids.py::test_packing_reaches_true_liquid_density
+PASSED tests/test_fluids.py::test_water_lift_round_trip_conserves
+PASSED tests/test_fluids.py::test_impossible_density_is_a_static_error
+PASSED tests/test_fluids.py::test_backend_without_core_realization_is_an_error
+PASSED tests/test_fluids.py::test_lj_backend_without_temperature_is_an_error
+PASSED tests/test_fluids.py::test_noise_floor_shipped_snapshot
+PASSED tests/test_fluids.py::test_observables_deterministic
+PASSED tests/test_fmt_property.py::test_fmt_laws
+PASSED tests/test_grammar_examples.py::test_example_parses_and_round_trips[01_solid_liquid_lifted.chaord]
+PASSED tests/test_grammar_examples.py::test_example_parses_and_round_trips[02_crystal_defects.chaord]
+PASSED tests/test_grammar_examples.py::test_example_parses_and_round_trips[03_solid_solution_sro.chaord]
+PASSED tests/test_grammar_examples.py::test_example_parses_and_round_trips[04_amorphous_si.chaord]
+PASSED tests/test_grammar_examples.py::test_example_parses_and_round_trips[05_electrolyte.chaord]
+PASSED tests/test_grammar_examples.py::test_example_parses_and_round_trips[06_gas.chaord]
+PASSED tests/test_grammar_examples.py::test_example_parses_and_round_trips[07_reactive_interface.chaord]
+PASSED tests/test_grammar_examples.py::test_example_parses_and_round_trips[08_deposit.chaord]
+PASSED tests/test_grammar_examples.py::test_example_parses_and_round_trips[09_rutile_surface.chaord]
+PASSED tests/test_grammar_examples.py::test_example_parses_and_round_trips[10_brine_spce.chaord]
+PASSED tests/test_grammar_examples.py::test_all_seven_examples
+PASSED tests/test_grammar_examples.py::test_sketch_check_still_passes
+PASSED tests/test_grammar_examples.py::test_parse_gives_line_numbers
+PASSED tests/test_grammar_examples.py::test_comments_preserved
+PASSED tests/test_grammar_examples.py::test_hash_inside_string_is_not_a_comment
+PASSED tests/test_grammar_examples.py::test_residual_multiple_atom_statements
+PASSED tests/test_grammar_examples.py::test_species_block_round_trip
+PASSED tests/test_hcp_routing.py::test_hcp_auto_lifts_crystal_program[0]
+PASSED tests/test_hcp_routing.py::test_hcp_auto_lifts_crystal_program[1]
+PASSED tests/test_hcp_routing.py::test_hcp_auto_lifts_crystal_program[2]
+PASSED tests/test_hcp_routing.py::test_hcp_auto_lifts_crystal_program[3]
+PASSED tests/test_hcp_routing.py::test_hcp_auto_lifts_crystal_program[4]
+PASSED tests/test_hcp_routing.py::test_hcp_crystal_mode_succeeds[0]
+PASSED tests/test_hcp_routing.py::test_hcp_crystal_mode_succeeds[1]
+PASSED tests/test_hcp_routing.py::test_hcp_crystal_mode_succeeds[2]
+PASSED tests/test_hcp_routing.py::test_hcp_crystal_mode_succeeds[3]
+PASSED tests/test_hcp_routing.py::test_hcp_crystal_mode_succeeds[4]
+PASSED tests/test_hcp_routing.py::test_hcp_fit_recovers_ground_truth_a_c_and_counts[0]
+PASSED tests/test_hcp_routing.py::test_hcp_fit_recovers_ground_truth_a_c_and_counts[1]
+PASSED tests/test_hcp_routing.py::test_hcp_fit_recovers_ground_truth_a_c_and_counts[2]
+PASSED tests/test_hcp_routing.py::test_hcp_fit_recovers_ground_truth_a_c_and_counts[3]
+PASSED tests/test_hcp_routing.py::test_hcp_fit_recovers_ground_truth_a_c_and_counts[4]
+PASSED tests/test_hcp_routing.py::test_hcp_program_builds_exact_counts_and_round_trips[0]
+PASSED tests/test_hcp_routing.py::test_hcp_program_builds_exact_counts_and_round_trips[1]
+PASSED tests/test_hcp_routing.py::test_hcp_program_builds_exact_counts_and_round_trips[2]
+PASSED tests/test_hcp_routing.py::test_hcp_program_builds_exact_counts_and_round_trips[3]
+PASSED tests/test_hcp_routing.py::test_hcp_program_builds_exact_counts_and_round_trips[4]
+PASSED tests/test_hcp_routing.py::test_hcp_auto_text_is_rigid_transform_invariant
+PASSED tests/test_hcp_routing.py::test_non_crystal_frame_refuses_loudly_in_crystal_mode
+PASSED tests/test_hcp_routing.py::test_hcp_fit_generalises_beyond_the_bench_values
+PASSED tests/test_hcp_routing.py::test_cubic_bench_frames_still_lift_their_prototype[crystals/fcc_cu-fcc]
+PASSED tests/test_hcp_routing.py::test_cubic_bench_frames_still_lift_their_prototype[crystals/bcc_fe-bcc]
+PASSED tests/test_hcp_routing.py::test_cubic_bench_frames_still_lift_their_prototype[crystals/diamond_si-diamond]
+PASSED tests/test_hcp_routing.py::test_census_refuses_the_bonded_hcp_crystal[0]
+PASSED tests/test_hcp_routing.py::test_census_refuses_the_bonded_hcp_crystal[1]
+PASSED tests/test_hcp_routing.py::test_census_refuses_the_bonded_hcp_crystal[2]
+PASSED tests/test_hcp_routing.py::test_census_refuses_the_bonded_hcp_crystal[3]
+PASSED tests/test_hcp_routing.py::test_census_refuses_the_bonded_hcp_crystal[4]
+PASSED tests/test_hcp_routing.py::test_lift_fluid_refuses_the_bonded_hcp_crystal[0]
+PASSED tests/test_hcp_routing.py::test_lift_fluid_refuses_the_bonded_hcp_crystal[1]
+PASSED tests/test_hcp_routing.py::test_lift_fluid_refuses_the_bonded_hcp_crystal[2]
+PASSED tests/test_hcp_routing.py::test_lift_fluid_refuses_the_bonded_hcp_crystal[3]
+PASSED tests/test_hcp_routing.py::test_lift_fluid_refuses_the_bonded_hcp_crystal[4]
+PASSED tests/test_hcp_routing.py::test_census_refuses_majority_component_without_periodic_wrap
+PASSED tests/test_hcp_routing.py::test_census_refuses_percolating_metal_slab_component
+PASSED tests/test_hcp_routing.py::test_census_keeps_normal_molecular_fluids[fluid/water_box15]
+PASSED tests/test_hcp_routing.py::test_census_keeps_normal_molecular_fluids[fluid/n2_box22]
+PASSED tests/test_hcp_routing.py::test_census_keeps_normal_molecular_fluids[solutions/nacl_aq]
+PASSED tests/test_hcp_routing.py::test_census_keeps_normal_molecular_fluids[solutions/lipf6_ec]
+PASSED tests/test_hcp_routing.py::test_census_keeps_normal_molecular_fluids[gases/co2_dense]
+PASSED tests/test_integrations.py::test_program_schema_is_valid_json_schema
+PASSED tests/test_integrations.py::test_program_from_json_accepts_text_and_dict
+PASSED tests/test_integrations.py::test_scripting_builds_ni3al_program_that_reparses
+PASSED tests/test_integrations.py::test_scripting_string_param_does_not_round_trip_to_ir
+PASSED tests/test_integrations.py::test_laya_identical_text_encodes_to_no_op
+PASSED tests/test_integrations.py::test_laya_one_line_change_is_a_short_patch
+PASSED tests/test_integrations.py::test_laya_ignores_provenance_differences
+PASSED tests/test_integrations.py::test_laya_token_count_of_no_op
+PASSED tests/test_integrations.py::test_example_program_for_prompt_parses
+PASSED tests/test_interface_species.py::test_thin_film_decompile_degrades_instead_of_crashing
+PASSED tests/test_interface_species.py::test_thin_film_lifts_a_real_interface_program
+PASSED tests/test_interface_species.py::test_thin_film_mode_slab_matches_direct_decompile
+PASSED tests/test_interface_species.py::test_thin_film_program_conserves_and_reparses
+PASSED tests/test_interface_species.py::test_thin_film_build_under_the_time_budget
+PASSED tests/test_interface_species.py::test_metal_defines_the_slab_thresholds[bulk_margin]
+PASSED tests/test_interface_species.py::test_metal_defines_the_slab_thresholds[gr_rmax]
+PASSED tests/test_interface_species.py::test_metal_defines_the_slab_thresholds[gr_bins]
+PASSED tests/test_interface_species.py::test_metal_defines_the_slab_thresholds[angle_hist_bin]
+PASSED tests/test_interface_species.py::test_metal_defines_the_slab_thresholds[defect_cluster_rc]
+PASSED tests/test_interface_species.py::test_metal_defines_the_slab_thresholds[thin_slab_margin_fraction]
+PASSED tests/test_interface_species.py::test_metal_defines_the_slab_thresholds[printed_strain_tolerance]
+PASSED tests/test_interface_species.py::test_metal_defines_the_slab_thresholds[rsa_dmin]
+PASSED tests/test_interface_species.py::test_metal_defines_the_slab_thresholds[liquid_margin_shrink]
+PASSED tests/test_interface_species.py::test_cu_water_multispecies_lift
+PASSED tests/test_interface_species.py::test_cu_water_liquid_density_stated
+PASSED tests/test_interface_species.py::test_cu_water_build_under_the_time_budget
+PASSED tests/test_interface_species.py::test_cu_water_build_is_deterministic
+PASSED tests/test_interface_species.py::test_single_species_path_is_unchanged_by_symbols_argument
+PASSED tests/test_io_finiteness.py::test_nan_positions_refuse_with_chaord_error
+PASSED tests/test_io_finiteness.py::test_one_nan_position_refuses
+PASSED tests/test_io_finiteness.py::test_inf_positions_refuse
+PASSED tests/test_io_finiteness.py::test_nan_cell_refuses
+PASSED tests/test_io_finiteness.py::test_read_frame_refuses_nan_npz
+PASSED tests/test_io_finiteness.py::test_finite_frame_still_constructs
+PASSED tests/test_io_formats.py::test_round_trip[extxyz-None-1e-08-True]
+PASSED tests/test_io_formats.py::test_round_trip[vasp-None-1e-08-True]
+PASSED tests/test_io_formats.py::test_round_trip[lmp-None-1e-06-False]
+PASSED tests/test_io_formats.py::test_round_trip[cif-None-0.0005-True]
+PASSED tests/test_io_formats.py::test_npz_round_trip
+PASSED tests/test_io_formats.py::test_lammps_dump_read
+PASSED tests/test_ir_json.py::test_json_round_trip[01_solid_liquid_lifted.chaord]
+PASSED tests/test_ir_json.py::test_json_round_trip[02_crystal_defects.chaord]
+PASSED tests/test_ir_json.py::test_json_round_trip[03_solid_solution_sro.chaord]
+PASSED tests/test_ir_json.py::test_json_round_trip[04_amorphous_si.chaord]
+PASSED tests/test_ir_json.py::test_json_round_trip[05_electrolyte.chaord]
+PASSED tests/test_ir_json.py::test_json_round_trip[06_gas.chaord]
+PASSED tests/test_ir_json.py::test_json_round_trip[07_reactive_interface.chaord]
+PASSED tests/test_ir_json.py::test_json_round_trip[08_deposit.chaord]
+PASSED tests/test_ir_json.py::test_json_round_trip[09_rutile_surface.chaord]
+PASSED tests/test_ir_json.py::test_json_round_trip[10_brine_spce.chaord]
+PASSED tests/test_ir_json.py::test_json_schema_compiles
+PASSED tests/test_ir_json.py::test_ir_equality_ignores_lines
+PASSED tests/test_lift_slab.py::test_golden_lift
+PASSED tests/test_lift_slab.py::test_defects_found
+PASSED tests/test_lift_slab.py::test_lifted_program_reparses
+PASSED tests/test_lift_slab.py::test_conserves_every_atom
+PASSED tests/test_lift_slab.py::test_build_round_trip_exact_counts
+PASSED tests/test_lift_slab.py::test_stated_observables_recovered
+PASSED tests/test_lj_mixture.py::test_hand_computed_pair_energy_and_force[AA-1.1]
+PASSED tests/test_lj_mixture.py::test_hand_computed_pair_energy_and_force[AB-1.1]
+PASSED tests/test_lj_mixture.py::test_hand_computed_pair_energy_and_force[BB-1.1]
+PASSED tests/test_lj_mixture.py::test_hand_computed_pair_energy_and_force[AA-2.0]
+PASSED tests/test_lj_mixture.py::test_hand_computed_pair_energy_and_force[AB-1.9]
+PASSED tests/test_lj_mixture.py::test_hand_computed_pair_energy_and_force[BB-2.05]
+PASSED tests/test_lj_mixture.py::test_hand_computed_pair_energy_and_force[AB-1.122462048309373]
+PASSED tests/test_lj_mixture.py::test_per_pair_cutoffs
+PASSED tests/test_lj_mixture.py::test_minimum_image_pair
+PASSED tests/test_lj_mixture.py::test_forces_are_gradient_of_energy
+PASSED tests/test_lj_mixture.py::test_run_md_integrates_mixture
+PASSED tests/test_lj_mixture.py::test_missing_pair_parameter_refuses
+PASSED tests/test_lj_mixture.py::test_pair_key_unordered
+PASSED tests/test_lj_mixture.py::test_kob_andersen_table_matches_publication
+PASSED tests/test_lj_mixture.py::test_mixture_from_table_reproduces_published_minimum
+PASSED tests/test_m8_completion.py::test_prompt_suite_deterministic_is_100_percent
+PASSED tests/test_m8_completion.py::test_prompt_suite_shape_and_families
+PASSED tests/test_m8_completion.py::test_prompt_suite_file_mode_bridges_real_llm_answers
+PASSED tests/test_m8_completion.py::test_prompt_suite_cli_reports_rate
+PASSED tests/test_m8_completion.py::test_uncertainty_report_fields
+PASSED tests/test_m8_completion.py::test_uncertainty_report_assert_failure_and_residual
+PASSED tests/test_m8_completion.py::test_uncertainty_report_molecular_census
+PASSED tests/test_m8_completion.py::test_propose_frames_orders_by_uncertainty_and_bands
+PASSED tests/test_m8_completion.py::test_propose_frames_labels_the_worst_cases
+PASSED tests/test_m8_completion.py::test_laya_strict_round_trip_on_20_random_program_pairs
+PASSED tests/test_m8_completion.py::test_laya_provenance_only_transition_is_noop
+PASSED tests/test_m8_completion.py::test_laya_round_trip_from_empty_state
+PASSED tests/test_m8_completion.py::test_laya_patch_format_carries_line_numbers_and_ops
+PASSED tests/test_m8_completion.py::test_laya_stale_patch_is_rejected
+PASSED tests/test_magic_numbers.py::test_no_magic_numbers
+PASSED tests/test_malformed.py::test_malformed_reports_line[-1]
+PASSED tests/test_malformed.py::test_malformed_reports_line[system {}\n-1]
+PASSED tests/test_malformed.py::test_malformed_reports_line[chaord\n-1]
+PASSED tests/test_malformed.py::test_malformed_reports_line[chaord 0.1 extra\ndialect core\n-1]
+PASSED tests/test_malformed.py::test_malformed_reports_line[chaord 0.1\ndialect core , lj\n-2]
+PASSED tests/test_malformed.py::test_malformed_reports_line[chaord 0.1\ndialect core +\n\nsystem {\n}\n-2]
+PASSED tests/test_malformed.py::test_malformed_reports_line[chaord 0.1\ndialect\nsystem {\n}\n-2]
+PASSED tests/test_malformed.py::test_malformed_reports_line[chaord 0.1\nfoo {}\n-2]
+PASSED tests/test_malformed.py::test_malformed_reports_line[chaord 0.1\nsystem {\n-2]
+PASSED tests/test_malformed.py::test_malformed_reports_line[chaord 0.1\nsystem }\n-2]
+PASSED tests/test_malformed.py::test_malformed_reports_line[chaord 0.1\nsystem {\n  12\n}\n-3]
+PASSED tests/test_malformed.py::test_malformed_reports_line[chaord 0.1\nsystem {\n  state\n}\n-3]
+PASSED tests/test_malformed.py::test_malformed_reports_line[chaord 0.1\nsystem {\n  a 1 +- x\n}\n-3]
+PASSED tests/test_malformed.py::test_malformed_reports_line[chaord 0.1\nsystem {\n  a .. 2\n}\n-3]
+PASSED tests/test_malformed.py::test_malformed_reports_line[chaord 0.1\nsystem {\n  a 1}\n-3]
+PASSED tests/test_malformed.py::test_malformed_reports_line[chaord 0.1\nsystem {\n  a [001] <110\n}\n-3]
+PASSED tests/test_malformed.py::test_malformed_reports_line[chaord 0.1\nsystem {\n  a 1st x\n}\n-3]
+PASSED tests/test_malformed.py::test_malformed_reports_line[chaord 0.1\nsystem {\n  a "unterminated\n}\n-3]
+PASSED tests/test_malformed.py::test_malformed_reports_line[chaord 0.1\ncrystal A slab z 1 .. 2 {\n}\n-2]
+PASSED tests/test_malformed.py::test_malformed_reports_line[chaord 0.1\ncrystal A : cone 1 {\n}\n-2]
+PASSED tests/test_malformed.py::test_malformed_reports_line[chaord 0.1\ncrystal A : slab q 1 .. 2 {\n}\n-2]
+PASSED tests/test_malformed.py::test_malformed_reports_line[chaord 0.1\ncrystal A : slab z 1 ..\n}\n-2]
+PASSED tests/test_malformed.py::test_malformed_reports_line[chaord 0.1\ncrystal A : slab z 1 .. 2 and {\n}\n-2]
+PASSED tests/test_malformed.py::test_malformed_reports_line[chaord 0.1\ncrystal A : box 1 .. 2 3 .. 4 {\n}\n-2]
+PASSED tests/test_malformed.py::test_malformed_reports_line[chaord 0.1\ncrystal A : sphere center 1 2 3 4 {\n}\n-2]
+PASSED tests/test_malformed.py::test_malformed_reports_line[chaord 0.1\ncrystal A : cylinder axis q center 1 2 radius 3 {\n}\n-2]
+PASSED tests/test_malformed.py::test_malformed_reports_line[chaord 0.1\ninterface A B {\n}\n-2]
+PASSED tests/test_malformed.py::test_malformed_reports_line[chaord 0.1\nspecies {\n  molecule = smiles "X"\n}\n-3]
+PASSED tests/test_malformed.py::test_malformed_reports_line[chaord 0.1\nspecies {\n  molecule X = file\n}\n-3]
+PASSED tests/test_malformed.py::test_malformed_reports_line[chaord 0.1\nresidual none extra\n-2]
+PASSED tests/test_malformed.py::test_malformed_reports_line[chaord 0.1\nsolid x : all {\n}\n-2]
+PASSED tests/test_malformed.py::test_thirty_cases
+PASSED tests/test_metal_slab_lift.py::test_metal_dialect_defines_printed_cutoff
+PASSED tests/test_metal_slab_lift.py::test_w4_step2_reproducer_prints_cu_in_metal_units
+PASSED tests/test_metal_slab_lift.py::test_w4_step2_caller_T_stated_without_assumed_note
+PASSED tests/test_metal_slab_lift.py::test_w4_step2_program_builds_and_conserves
+PASSED tests/test_metal_slab_lift.py::test_w4_step2_discriminator_holds_at_1tm_thermal_amplitude
+PASSED tests/test_metal_slab_lift.py::test_w4_step2_metal_chi0_threshold_is_calibrated_band_split
+PASSED tests/test_metal_slab_refusal.py::test_w4_real_element_under_lj_dialect_refuses
+PASSED tests/test_metal_slab_refusal.py::test_w4_unparameterised_element_under_metal_refuses
+PASSED tests/test_metal_slab_refusal.py::test_w4_gate_sits_in_program_from_result
+PASSED tests/test_metal_slab_refusal.py::test_w4_parameterised_single_species_metal_now_lifts
+PASSED tests/test_metal_slab_refusal.py::test_w4_lj_x_species_slab_still_lifts
+PASSED tests/test_metal_slab_refusal.py::test_w4_multispecies_real_element_slab_still_lifts
+PASSED tests/test_metal_slab_refusal.py::test_w4_symbols_none_m0_path_still_lifts
+PASSED tests/test_metal_slab_refusal.py::test_w11_slab_flags_default_t_as_assumed
+PASSED tests/test_metal_slab_refusal.py::test_w11_slab_caller_given_t_is_not_flagged
+PASSED tests/test_metal_slab_refusal.py::test_w11_multispecies_slab_flags_default_t_as_assumed
+PASSED tests/test_molecular_contacts.py::test_whole_molecule_rsa_still_jams_at_liquid_co2_density
+PASSED tests/test_molecular_contacts.py::test_dense_co2_builds_on_20_seeds_and_clears_the_contact_floor
+PASSED tests/test_molecular_contacts.py::test_grid_packing_is_deterministic_and_census_exact
+PASSED tests/test_molecular_contacts.py::test_grid_packing_serves_liquid_water_too
+PASSED tests/test_molecular_contacts.py::test_grid_packing_fails_closed_on_an_impossible_density
+PASSED tests/test_molecular_templates.py::test_ec_template_exists_with_documented_keys
+PASSED tests/test_molecular_templates.py::test_pf6_template_exists_with_documented_keys
+PASSED tests/test_molecular_templates.py::test_pf6_octahedral_geometry
+PASSED tests/test_molecular_templates.py::test_ec_published_internal_geometry
+PASSED tests/test_molecular_templates.py::test_species_mass_of_the_new_templates
+PASSED tests/test_molecular_templates.py::test_census_sees_one_intact_molecule[EC-C3H4O3]
+PASSED tests/test_molecular_templates.py::test_census_sees_one_intact_molecule[PF6--F6P]
+PASSED tests/test_molecular_templates.py::test_electrolyte_program_builds_the_right_composition
+PASSED tests/test_molecular_templates.py::test_packing_mixed_electrolyte_composition
+PASSED tests/test_multivalent_charge.py::test_charge_magnitude_digits_are_the_valence[Ca2+-2]
+PASSED tests/test_multivalent_charge.py::test_charge_magnitude_digits_are_the_valence[Mg2+-2]
+PASSED tests/test_multivalent_charge.py::test_charge_magnitude_digits_are_the_valence[Zn2+-2]
+PASSED tests/test_multivalent_charge.py::test_charge_magnitude_digits_are_the_valence[Fe3+-3]
+PASSED tests/test_multivalent_charge.py::test_charge_magnitude_digits_are_the_valence[O2---2]
+PASSED tests/test_multivalent_charge.py::test_charge_magnitude_digits_are_the_valence[SO42---2]
+PASSED tests/test_multivalent_charge.py::test_charge_magnitude_digits_are_the_valence[Al3+-3]
+PASSED tests/test_multivalent_charge.py::test_charge_magnitude_digits_are_the_valence[Ti4+-4]
+PASSED tests/test_multivalent_charge.py::test_charge_magnitude_digits_are_the_valence[Li+-1]
+PASSED tests/test_multivalent_charge.py::test_charge_magnitude_digits_are_the_valence[Na+-1]
+PASSED tests/test_multivalent_charge.py::test_charge_magnitude_digits_are_the_valence[Cl---1]
+PASSED tests/test_multivalent_charge.py::test_charge_magnitude_digits_are_the_valence[PF6---1]
+PASSED tests/test_multivalent_charge.py::test_charge_magnitude_digits_are_the_valence[H2O-0]
+PASSED tests/test_multivalent_charge.py::test_charge_digits_are_not_stoichiometry[Ca2+-want0]
+PASSED tests/test_multivalent_charge.py::test_charge_digits_are_not_stoichiometry[O2--want1]
+PASSED tests/test_multivalent_charge.py::test_charge_digits_are_not_stoichiometry[Fe3+-want2]
+PASSED tests/test_multivalent_charge.py::test_charge_digits_are_not_stoichiometry[Hg22+-want3]
+PASSED tests/test_multivalent_charge.py::test_charge_digits_are_not_stoichiometry[SO42--want4]
+PASSED tests/test_multivalent_charge.py::test_charge_digits_are_not_stoichiometry[H2O-want5]
+PASSED tests/test_multivalent_charge.py::test_charge_digits_are_not_stoichiometry[PF6--want6]
+PASSED tests/test_multivalent_charge.py::test_correct_cacl2_solution_passes_the_charge_check
+PASSED tests/test_multivalent_charge.py::test_charge_imbalanced_cacl2_is_caught
+PASSED tests/test_multivalent_charge.py::test_multivalent_fallback_without_species_block
+PASSED tests/test_multivalent_charge.py::test_variable_valence_stays_program_decided
+PASSED tests/test_overlap_sanity_floor.py::test_lj_pair_below_the_hard_core_is_flagged
+PASSED tests/test_overlap_sanity_floor.py::test_lj_pair_above_the_hard_core_still_passes
+PASSED tests/test_overlap_sanity_floor.py::test_metal_pair_below_the_hard_core_fraction_is_flagged
+PASSED tests/test_overlap_sanity_floor.py::test_metal_hot_pair_at_075_dnn_is_legal
+PASSED tests/test_overlap_sanity_floor.py::test_metal_lattice_pair_still_passes
+PASSED tests/test_overlap_sanity_floor.py::test_molecular_species_do_not_get_the_atomic_floor
+PASSED tests/test_pipeline_equiv.py::test_pipeline_matches_legacy_byte_for_byte[crystals_fcc_cu]
+PASSED tests/test_pipeline_equiv.py::test_pipeline_matches_legacy_byte_for_byte[crystals_rocksalt_nacl]
+PASSED tests/test_pipeline_equiv.py::test_pipeline_matches_legacy_byte_for_byte[defects_fcc_cu_vacancies]
+PASSED tests/test_pipeline_equiv.py::test_pipeline_matches_legacy_byte_for_byte[defects_l12_ni3al_vac_antisite]
+PASSED tests/test_pipeline_equiv.py::test_pipeline_matches_legacy_byte_for_byte[fluid_water_box15]
+PASSED tests/test_pipeline_equiv.py::test_pipeline_matches_legacy_byte_for_byte[fluid_ar_gas_box25]
+PASSED tests/test_pipeline_equiv.py::test_pipeline_matches_legacy_byte_for_byte[glass_lj_glass_rho085]
+PASSED tests/test_pipeline_equiv.py::test_pipeline_matches_legacy_byte_for_byte[interface_lj_solid_liquid]
+PASSED tests/test_pipeline_equiv.py::test_pipeline_matches_legacy_byte_for_byte[snap]
+PASSED tests/test_pipeline_equiv.py::test_pipeline_reproduces_slab_golden
+PASSED tests/test_pipeline_equiv.py::test_mode_pipeline_is_routed_and_auto_stays_legacy
+PASSED tests/test_pipeline_equiv.py::test_degraded_region_atoms_go_to_residual
+PASSED tests/test_pipeline_equiv.py::test_degradation_is_recorded_in_provenance
+PASSED tests/test_pipeline_equiv.py::test_degraded_lift_conserves_every_atom
+PASSED tests/test_pipeline_equiv.py::test_degraded_program_reparses
+PASSED tests/test_pipeline_equiv.py::test_composed_program_structure_and_names
+PASSED tests/test_pipeline_equiv.py::test_pipeline_within_performance_budget_on_lj_liquid
+PASSED tests/test_protocols.py::test_deposit_parse_leading_command
+PASSED tests/test_protocols.py::test_deposit_parse_chained_after_arrow
+PASSED tests/test_protocols.py::test_deposit_parse_needs_species
+PASSED tests/test_protocols.py::test_deposit_parse_from_source
+PASSED tests/test_protocols.py::test_deposit_grows_system
+PASSED tests/test_protocols.py::test_deposit_seeded_reproducible
+PASSED tests/test_protocols.py::test_deposit_through_amorphous_builder
+PASSED tests/test_protocols.py::test_melt_quench_anneal_smoke
+PASSED tests/test_protocols.py::test_cn_restraint_pulls_liquid_to_target
+PASSED tests/test_protocols.py::test_cn_restraint_far_target
+PASSED tests/test_protocols.py::test_cn_restraint_unreachable_raises
+PASSED tests/test_reactive_interface.py::test_reactive_overlayer_lift
+PASSED tests/test_reactive_interface.py::test_pure_water_overlayer_no_dissociation
+PASSED tests/test_reference_data.py::test_frames_present_readable_and_consistent[lj_liquid]
+PASSED tests/test_reference_data.py::test_frames_present_readable_and_consistent[lj_liquid_large]
+PASSED tests/test_reference_data.py::test_frames_present_readable_and_consistent[lj_glass]
+PASSED tests/test_reference_data.py::test_frames_present_readable_and_consistent[lj_solid_liquid]
+PASSED tests/test_reference_data.py::test_frames_present_readable_and_consistent[water_tip4p]
+PASSED tests/test_reference_data.py::test_frames_present_readable_and_consistent[nacl_aq]
+PASSED tests/test_reference_data.py::test_frames_present_readable_and_consistent[cu_solid_liquid]
+PASSED tests/test_reference_data.py::test_frames_present_readable_and_consistent[ka_glass]
+PASSED tests/test_reference_data.py::test_provenance_records_everything[lj_liquid]
+PASSED tests/test_reference_data.py::test_provenance_records_everything[lj_liquid_large]
+PASSED tests/test_reference_data.py::test_provenance_records_everything[lj_glass]
+PASSED tests/test_reference_data.py::test_provenance_records_everything[lj_solid_liquid]
+PASSED tests/test_reference_data.py::test_provenance_records_everything[water_tip4p]
+PASSED tests/test_reference_data.py::test_provenance_records_everything[nacl_aq]
+PASSED tests/test_reference_data.py::test_provenance_records_everything[cu_solid_liquid]
+PASSED tests/test_reference_data.py::test_provenance_records_everything[ka_glass]
+PASSED tests/test_reference_data.py::test_lj_unit_mapping_recorded_and_correct[lj_liquid]
+PASSED tests/test_reference_data.py::test_lj_unit_mapping_recorded_and_correct[lj_liquid_large]
+PASSED tests/test_reference_data.py::test_lj_unit_mapping_recorded_and_correct[lj_glass]
+PASSED tests/test_reference_data.py::test_lj_unit_mapping_recorded_and_correct[lj_solid_liquid]
+PASSED tests/test_reference_data.py::test_lj_unit_mapping_recorded_and_correct[ka_glass]
+PASSED tests/test_reference_data.py::test_lj_glass_floor_comes_from_independent_quenches
+PASSED tests/test_reference_data.py::test_lj_liquid_large_has_at_least_2000_atoms
+PASSED tests/test_reference_data.py::test_ka_glass_protocol_matches_work_order
+PASSED tests/test_reference_data.py::test_ka_glass_amorphous_sanity
+PASSED tests/test_reference_data.py::test_amorphous_reference_sanity
+PASSED tests/test_reference_data.py::test_reference_generators_do_not_import_chaord
+PASSED tests/test_reference_data.py::test_check_sanity_cli_passes_on_all_cases
+PASSED tests/test_reference_data.py::test_reported_values_meet_literature_bounds
+PASSED tests/test_reference_data.py::test_rigid_water_geometry_preserved[water_tip4p-0.9572]
+PASSED tests/test_reference_data.py::test_rigid_water_geometry_preserved[nacl_aq-1.0]
+PASSED tests/test_reference_data.py::test_pairwise_noise_floors_written
+PASSED tests/test_rich_observables.py::test_water_oo_partial_gr_first_peak[0]
+PASSED tests/test_rich_observables.py::test_water_oo_partial_gr_first_peak[1]
+PASSED tests/test_rich_observables.py::test_water_oo_partial_gr_first_peak[2]
+PASSED tests/test_rich_observables.py::test_water_oo_partial_gr_first_peak[3]
+PASSED tests/test_rich_observables.py::test_water_oo_partial_gr_first_peak[4]
+PASSED tests/test_rich_observables.py::test_lj_partial_gr_matches_existing_observables[0]
+PASSED tests/test_rich_observables.py::test_lj_partial_gr_matches_existing_observables[1]
+PASSED tests/test_rich_observables.py::test_lj_partial_gr_matches_existing_observables[2]
+PASSED tests/test_rich_observables.py::test_lj_partial_gr_matches_existing_observables[3]
+PASSED tests/test_rich_observables.py::test_lj_partial_gr_matches_existing_observables[4]
+PASSED tests/test_rich_observables.py::test_partial_gr_intramolecular_pairs_excluded_under_molecular
+PASSED tests/test_rich_observables.py::test_partial_gr_atomic_dialect_keeps_all_pairs
+PASSED tests/test_rich_observables.py::test_partial_gr_cross_normalisation_water
+PASSED tests/test_rich_observables.py::test_water_angle_distribution_peak[0]
+PASSED tests/test_rich_observables.py::test_water_angle_distribution_peak[1]
+PASSED tests/test_rich_observables.py::test_water_angle_distribution_peak[2]
+PASSED tests/test_rich_observables.py::test_water_angle_distribution_peak[3]
+PASSED tests/test_rich_observables.py::test_water_angle_distribution_peak[4]
+PASSED tests/test_rich_observables.py::test_angle_distribution_matches_brute_force_water
+PASSED tests/test_rich_observables.py::test_angle_distribution_matches_brute_force_dense_lj
+PASSED tests/test_rich_observables.py::test_density_profile_interface_two_phases[0]
+PASSED tests/test_rich_observables.py::test_density_profile_interface_two_phases[1]
+PASSED tests/test_rich_observables.py::test_density_profile_interface_two_phases[2]
+PASSED tests/test_rich_observables.py::test_density_profile_interface_two_phases[3]
+PASSED tests/test_rich_observables.py::test_density_profile_interface_two_phases[4]
+PASSED tests/test_rich_observables.py::test_density_profile_matches_brute_force[0]
+PASSED tests/test_rich_observables.py::test_density_profile_matches_brute_force[1]
+PASSED tests/test_rich_observables.py::test_density_profile_matches_brute_force[2]
+PASSED tests/test_rich_observables.py::test_observables_default_behaviour_unchanged
+PASSED tests/test_rich_observables.py::test_observables_selection_keys
+PASSED tests/test_rich_observables.py::test_observables_selection_rejects_unknown_group
+PASSED tests/test_rich_observables.py::test_distance_key_filter
+PASSED tests/test_rich_observables.py::test_distance_mismatched_observable_sets_raise
+PASSED tests/test_rich_observables.py::test_within_floor_selection_passthrough
+PASSED tests/test_rich_observables.py::test_rich_observables_deterministic[0]
+PASSED tests/test_rich_observables.py::test_rich_observables_deterministic[3]
+PASSED tests/test_segment3d.py::test_tilted_interface_labels_3d
+PASSED tests/test_segment3d.py::test_tilted_interface_mesh_normals
+PASSED tests/test_segment3d.py::test_z_interface_regression_vs_phase_labels
+PASSED tests/test_shortest_cli.py::test_shortest_search_with_reference
+PASSED tests/test_shortest_cli.py::test_shortest_rolls_back_outside_tolerance
+PASSED tests/test_shortest_cli.py::test_shortest_conservative_mode_is_old_behaviour
+PASSED tests/test_shortest_cli.py::test_roundtrip_samples_cli
+PASSED tests/test_solution_model.py::test_water_models_table_is_published_geometry
+PASSED tests/test_solution_model.py::test_classify_water_model_by_median_oh
+PASSED tests/test_solution_model.py::test_water_templates_per_model
+PASSED tests/test_solution_model.py::test_nacl_aq_lift_states_spce
+PASSED tests/test_solution_model.py::test_water_tip4p_lift_is_the_golden_program_plus_model_line
+PASSED tests/test_solution_model.py::test_unclassifiable_water_emits_no_model_but_notes_geometry
+PASSED tests/test_solution_model.py::test_spce_water_kernel_matches_bruteforce_published_potential
+PASSED tests/test_solution_model.py::test_spce_solution_forces_are_exact_derivatives
+PASSED tests/test_solution_model.py::test_backend_resolves_model_from_water_geometry
+PASSED tests/test_solution_model.py::test_unknown_water_template_is_a_static_error
+PASSED tests/test_solution_model.py::test_unknown_explicit_model_is_rejected
+PASSED tests/test_sro_invariance.py::test_marking_ordering_invariance_50x10
+PASSED tests/test_sro_invariance.py::test_thermal_random_marking_full_first_shell_and_alpha_near_zero
+PASSED tests/test_sro_invariance.py::test_thermal_ordered_marking_emits_measured_alpha
+PASSED tests/test_strained_boxes.py::test_strained_crystal_builds_and_round_trips_at_reproducer_strain[crystals/fcc_cu]
+PASSED tests/test_strained_boxes.py::test_strained_crystal_builds_and_round_trips_at_reproducer_strain[crystals/bcc_fe]
+PASSED tests/test_strained_boxes.py::test_strained_crystal_builds_and_round_trips_at_reproducer_strain[crystals/rocksalt_nacl]
+PASSED tests/test_strained_boxes.py::test_strained_crystal_builds_and_round_trips_at_reproducer_strain[crystals/l12_ni3al]
+PASSED tests/test_strained_boxes.py::test_strained_crystal_builds_and_round_trips_at_reproducer_strain[crystals/hcp_mg]
+PASSED tests/test_strained_boxes.py::test_strained_crystal_builds_and_round_trips_at_reproducer_strain[crystals/diamond_si]
+PASSED tests/test_strained_boxes.py::test_strained_crystal_builds_and_round_trips_at_reproducer_strain[crystals/perovskite_srtio3]
+PASSED tests/test_strained_boxes.py::test_strained_crystal_builds_and_round_trips_at_reproducer_strain[crystals/fcc_crconi]
+PASSED tests/test_strained_boxes.py::test_strained_crystal_builds_and_round_trips_at_reproducer_strain[solutions/cuau_random]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_cu-+0.002|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_cu-+0.002|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_cu-+0.002|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_cu-+0.002|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_cu--0.002|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_cu--0.002|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_cu--0.002|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_cu--0.002|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_cu-+0.005|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_cu-+0.005|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_cu-+0.005|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_cu-+0.005|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_cu--0.005|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_cu--0.005|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_cu--0.005|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_cu--0.005|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_cu-+0.015|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_cu-+0.015|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_cu-+0.015|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_cu-+0.015|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_cu--0.015|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_cu--0.015|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_cu--0.015|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_cu--0.015|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/bcc_fe-+0.002|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/bcc_fe-+0.002|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/bcc_fe-+0.002|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/bcc_fe-+0.002|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/bcc_fe--0.002|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/bcc_fe--0.002|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/bcc_fe--0.002|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/bcc_fe--0.002|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/bcc_fe-+0.005|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/bcc_fe-+0.005|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/bcc_fe-+0.005|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/bcc_fe-+0.005|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/bcc_fe--0.005|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/bcc_fe--0.005|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/bcc_fe--0.005|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/bcc_fe--0.005|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/bcc_fe-+0.015|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/bcc_fe-+0.015|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/bcc_fe-+0.015|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/bcc_fe-+0.015|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/bcc_fe--0.015|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/bcc_fe--0.015|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/bcc_fe--0.015|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/bcc_fe--0.015|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/rocksalt_nacl-+0.002|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/rocksalt_nacl-+0.002|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/rocksalt_nacl-+0.002|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/rocksalt_nacl-+0.002|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/rocksalt_nacl--0.002|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/rocksalt_nacl--0.002|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/rocksalt_nacl--0.002|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/rocksalt_nacl--0.002|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/rocksalt_nacl-+0.005|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/rocksalt_nacl-+0.005|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/rocksalt_nacl-+0.005|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/rocksalt_nacl-+0.005|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/rocksalt_nacl--0.005|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/rocksalt_nacl--0.005|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/rocksalt_nacl--0.005|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/rocksalt_nacl--0.005|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/rocksalt_nacl-+0.015|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/rocksalt_nacl-+0.015|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/rocksalt_nacl-+0.015|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/rocksalt_nacl-+0.015|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/rocksalt_nacl--0.015|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/rocksalt_nacl--0.015|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/rocksalt_nacl--0.015|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/rocksalt_nacl--0.015|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/l12_ni3al-+0.002|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/l12_ni3al-+0.002|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/l12_ni3al-+0.002|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/l12_ni3al-+0.002|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/l12_ni3al--0.002|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/l12_ni3al--0.002|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/l12_ni3al--0.002|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/l12_ni3al--0.002|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/l12_ni3al-+0.005|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/l12_ni3al-+0.005|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/l12_ni3al-+0.005|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/l12_ni3al-+0.005|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/l12_ni3al--0.005|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/l12_ni3al--0.005|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/l12_ni3al--0.005|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/l12_ni3al--0.005|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/l12_ni3al-+0.015|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/l12_ni3al-+0.015|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/l12_ni3al-+0.015|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/l12_ni3al-+0.015|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/l12_ni3al--0.015|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/l12_ni3al--0.015|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/l12_ni3al--0.015|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/l12_ni3al--0.015|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/hcp_mg-+0.002|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/hcp_mg-+0.002|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/hcp_mg-+0.002|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/hcp_mg-+0.002|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/hcp_mg--0.002|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/hcp_mg--0.002|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/hcp_mg--0.002|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/hcp_mg--0.002|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/hcp_mg-+0.005|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/hcp_mg-+0.005|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/hcp_mg-+0.005|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/hcp_mg-+0.005|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/hcp_mg--0.005|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/hcp_mg--0.005|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/hcp_mg--0.005|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/hcp_mg--0.005|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/hcp_mg-+0.015|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/hcp_mg-+0.015|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/hcp_mg-+0.015|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/hcp_mg-+0.015|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/hcp_mg--0.015|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/hcp_mg--0.015|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/hcp_mg--0.015|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/hcp_mg--0.015|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/diamond_si-+0.002|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/diamond_si-+0.002|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/diamond_si-+0.002|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/diamond_si-+0.002|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/diamond_si--0.002|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/diamond_si--0.002|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/diamond_si--0.002|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/diamond_si--0.002|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/diamond_si-+0.005|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/diamond_si-+0.005|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/diamond_si-+0.005|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/diamond_si-+0.005|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/diamond_si--0.005|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/diamond_si--0.005|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/diamond_si--0.005|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/diamond_si--0.005|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/diamond_si-+0.015|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/diamond_si-+0.015|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/diamond_si-+0.015|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/diamond_si-+0.015|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/diamond_si--0.015|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/diamond_si--0.015|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/diamond_si--0.015|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/diamond_si--0.015|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/perovskite_srtio3-+0.002|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/perovskite_srtio3-+0.002|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/perovskite_srtio3-+0.002|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/perovskite_srtio3-+0.002|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/perovskite_srtio3--0.002|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/perovskite_srtio3--0.002|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/perovskite_srtio3--0.002|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/perovskite_srtio3--0.002|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/perovskite_srtio3-+0.005|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/perovskite_srtio3-+0.005|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/perovskite_srtio3-+0.005|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/perovskite_srtio3-+0.005|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/perovskite_srtio3--0.005|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/perovskite_srtio3--0.005|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/perovskite_srtio3--0.005|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/perovskite_srtio3--0.005|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/perovskite_srtio3-+0.015|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/perovskite_srtio3-+0.015|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/perovskite_srtio3-+0.015|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/perovskite_srtio3-+0.015|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/perovskite_srtio3--0.015|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/perovskite_srtio3--0.015|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/perovskite_srtio3--0.015|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/perovskite_srtio3--0.015|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_crconi-+0.002|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_crconi-+0.002|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_crconi-+0.002|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_crconi-+0.002|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_crconi--0.002|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_crconi--0.002|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_crconi--0.002|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_crconi--0.002|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_crconi-+0.005|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_crconi-+0.005|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_crconi-+0.005|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_crconi-+0.005|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_crconi--0.005|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_crconi--0.005|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_crconi--0.005|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_crconi--0.005|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_crconi-+0.015|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_crconi-+0.015|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_crconi-+0.015|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_crconi-+0.015|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_crconi--0.015|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_crconi--0.015|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_crconi--0.015|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[crystals/fcc_crconi--0.015|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[solutions/cuau_random-+0.002|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[solutions/cuau_random-+0.002|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[solutions/cuau_random-+0.002|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[solutions/cuau_random-+0.002|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[solutions/cuau_random--0.002|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[solutions/cuau_random--0.002|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[solutions/cuau_random--0.002|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[solutions/cuau_random--0.002|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[solutions/cuau_random-+0.005|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[solutions/cuau_random-+0.005|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[solutions/cuau_random-+0.005|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[solutions/cuau_random-+0.005|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[solutions/cuau_random--0.005|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[solutions/cuau_random--0.005|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[solutions/cuau_random--0.005|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[solutions/cuau_random--0.005|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[solutions/cuau_random-+0.015|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[solutions/cuau_random-+0.015|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[solutions/cuau_random-+0.015|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[solutions/cuau_random-+0.015|iso]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[solutions/cuau_random--0.015|x]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[solutions/cuau_random--0.015|y]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[solutions/cuau_random--0.015|z]
+PASSED tests/test_strained_boxes.py::test_strain_matrix_crystal_builds[solutions/cuau_random--0.015|iso]
+PASSED tests/test_strained_boxes.py::test_cell_beyond_strain_tolerance_is_refused
+PASSED tests/test_strained_boxes.py::test_unstrained_crystal_build_records_no_strain[crystals/fcc_cu]
+PASSED tests/test_strained_boxes.py::test_unstrained_crystal_build_records_no_strain[crystals/bcc_fe]
+PASSED tests/test_strained_boxes.py::test_unstrained_crystal_build_records_no_strain[crystals/rocksalt_nacl]
+PASSED tests/test_strained_boxes.py::test_unstrained_crystal_build_records_no_strain[crystals/l12_ni3al]
+PASSED tests/test_strained_boxes.py::test_unstrained_crystal_build_records_no_strain[crystals/hcp_mg]
+PASSED tests/test_strained_boxes.py::test_unstrained_crystal_build_records_no_strain[crystals/diamond_si]
+PASSED tests/test_strained_boxes.py::test_unstrained_crystal_build_records_no_strain[crystals/perovskite_srtio3]
+PASSED tests/test_strained_boxes.py::test_unstrained_crystal_build_records_no_strain[crystals/fcc_crconi]
+PASSED tests/test_strained_boxes.py::test_unstrained_crystal_build_records_no_strain[solutions/cuau_random]
+PASSED tests/test_string_escapes.py::test_backslash_path_survives_parse
+PASSED tests/test_string_escapes.py::test_backslash_path_survives_parse_fmt_parse
+PASSED tests/test_string_escapes.py::test_tab_newline_sequences_stay_literal_in_paths
+PASSED tests/test_string_escapes.py::test_statement_level_strings_round_trip
+PASSED tests/test_string_escapes.py::test_recognized_escapes_still_decode
+PASSED tests/test_surface_sites.py::test_site_census_invariant_under_in_plane_translations
+PASSED tests/test_surface_sites.py::test_hollow_adsorbates_classified_hollow[fcc]
+PASSED tests/test_surface_sites.py::test_hollow_adsorbates_classified_hollow[hcp]
+PASSED tests/test_surface_sites.py::test_slab_crossing_the_z_boundary_lifts_unchanged
+PASSED tests/test_surface_sites.py::test_hollow_frame_crossing_the_z_boundary_lifts_unchanged
+PASSED tests/test_surface_sites.py::test_plated_adsorbates_keep_physical_o_o_separation
+PASSED tests/test_surface_sites.py::test_w9_pt100_fourfold_hollow_reproducer
+PASSED tests/test_surface_sites.py::test_pt100_sites_over_20_draws_20_translations[hollow]
+PASSED tests/test_surface_sites.py::test_pt100_sites_over_20_draws_20_translations[bridge]
+PASSED tests/test_surfaces.py::test_surface_geometry
+PASSED tests/test_surfaces.py::test_surface_lift
+PASSED tests/test_surfaces.py::test_other_surfaces_round_trip[001-10.845-10.845]
+PASSED tests/test_surfaces.py::test_other_surfaces_round_trip[110-10.225-7.23]
+PASSED tests/test_surfaces.py::test_segmentation_labels_planted
+PASSED tests/test_surfaces.py::test_interface_position_matches_tanh_fit
+PASSED tests/test_surfaces.py::test_surface_program_round_trip_stable
+PASSED tests/test_surfaces.py::test_wood_lift_missing_row
+PASSED tests/test_surfaces.py::test_wood_no_false_positive
+PASSED tests/test_surfaces.py::test_wood_round_trip_missing_row
+PASSED tests/test_surfaces.py::test_reconstruction_build_lift_round_trip[p(2x1)-56-001-10.225-10.225]
+PASSED tests/test_surfaces.py::test_reconstruction_build_lift_round_trip[p(2x2)-52-001-10.225-10.225]
+PASSED tests/test_surfaces.py::test_reconstruction_build_lift_round_trip[c(2x2)-56-001-10.225-10.225]
+PASSED tests/test_surfaces.py::test_reconstruction_build_lift_round_trip[(r3xr3)R30-30-111-7.669-6.641]
+PASSED tests/test_surfaces.py::test_rutile_110_bridging_oxygen
+PASSED tests/test_surfaces.py::test_rutile_110_round_trip_stable
+PASSED tests/test_surfaces.py::test_interface_width_within_noise_floor
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_cell_is_integer_tiling_of_stated_a[0-crystals/fcc_cu]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_cell_is_integer_tiling_of_stated_a[0-crystals/bcc_fe]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_cell_is_integer_tiling_of_stated_a[0-crystals/rocksalt_nacl]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_cell_is_integer_tiling_of_stated_a[0-crystals/l12_ni3al]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_cell_is_integer_tiling_of_stated_a[0-crystals/diamond_si]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_cell_is_integer_tiling_of_stated_a[0-crystals/perovskite_srtio3]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_cell_is_integer_tiling_of_stated_a[0-crystals/fcc_crconi]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_cell_is_integer_tiling_of_stated_a[0-solutions/cuau_random]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_cell_is_integer_tiling_of_stated_a[1-crystals/fcc_cu]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_cell_is_integer_tiling_of_stated_a[1-crystals/bcc_fe]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_cell_is_integer_tiling_of_stated_a[1-crystals/rocksalt_nacl]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_cell_is_integer_tiling_of_stated_a[1-crystals/l12_ni3al]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_cell_is_integer_tiling_of_stated_a[1-crystals/diamond_si]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_cell_is_integer_tiling_of_stated_a[1-crystals/perovskite_srtio3]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_cell_is_integer_tiling_of_stated_a[1-crystals/fcc_crconi]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_cell_is_integer_tiling_of_stated_a[1-solutions/cuau_random]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_round_trip_builds_and_text_is_stable[0-crystals/fcc_cu]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_round_trip_builds_and_text_is_stable[0-crystals/bcc_fe]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_round_trip_builds_and_text_is_stable[0-crystals/rocksalt_nacl]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_round_trip_builds_and_text_is_stable[0-crystals/l12_ni3al]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_round_trip_builds_and_text_is_stable[0-crystals/diamond_si]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_round_trip_builds_and_text_is_stable[0-crystals/perovskite_srtio3]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_round_trip_builds_and_text_is_stable[0-crystals/fcc_crconi]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_round_trip_builds_and_text_is_stable[0-solutions/cuau_random]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_round_trip_builds_and_text_is_stable[1-crystals/fcc_cu]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_round_trip_builds_and_text_is_stable[1-crystals/bcc_fe]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_round_trip_builds_and_text_is_stable[1-crystals/rocksalt_nacl]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_round_trip_builds_and_text_is_stable[1-crystals/l12_ni3al]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_round_trip_builds_and_text_is_stable[1-crystals/diamond_si]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_round_trip_builds_and_text_is_stable[1-crystals/perovskite_srtio3]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_round_trip_builds_and_text_is_stable[1-crystals/fcc_crconi]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_round_trip_builds_and_text_is_stable[1-solutions/cuau_random]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_rigid_transform_invariant_text_and_a[0-crystals/fcc_cu]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_rigid_transform_invariant_text_and_a[0-crystals/bcc_fe]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_rigid_transform_invariant_text_and_a[0-crystals/rocksalt_nacl]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_rigid_transform_invariant_text_and_a[0-crystals/l12_ni3al]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_rigid_transform_invariant_text_and_a[0-crystals/diamond_si]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_rigid_transform_invariant_text_and_a[0-crystals/perovskite_srtio3]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_rigid_transform_invariant_text_and_a[0-crystals/fcc_crconi]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_rigid_transform_invariant_text_and_a[0-solutions/cuau_random]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_rigid_transform_invariant_text_and_a[1-crystals/fcc_cu]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_rigid_transform_invariant_text_and_a[1-crystals/bcc_fe]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_rigid_transform_invariant_text_and_a[1-crystals/rocksalt_nacl]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_rigid_transform_invariant_text_and_a[1-crystals/l12_ni3al]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_rigid_transform_invariant_text_and_a[1-crystals/diamond_si]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_rigid_transform_invariant_text_and_a[1-crystals/perovskite_srtio3]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_rigid_transform_invariant_text_and_a[1-crystals/fcc_crconi]
+PASSED tests/test_thermal_roundtrip.py::test_crystal_thermal_rigid_transform_invariant_text_and_a[1-solutions/cuau_random]
+PASSED tests/test_thermal_roundtrip.py::test_hcp_thermal_frame_lifts_as_crystal_program[0]
+PASSED tests/test_thermal_roundtrip.py::test_hcp_thermal_frame_lifts_as_crystal_program[1]
+PASSED tests/test_translation_invariance.py::test_o1_named_translation_same_text_and_builds[fcc_cu]
+PASSED tests/test_translation_invariance.py::test_o1_named_translation_same_text_and_builds[bcc_fe]
+PASSED tests/test_translation_invariance.py::test_o1_named_translation_same_text_and_builds[l12_ni3al]
+PASSED tests/test_translation_invariance.py::test_o1_random_translation_scan_40_draws_defect_lift[fcc_cu]
+PASSED tests/test_translation_invariance.py::test_o1_random_translation_scan_40_draws_defect_lift[bcc_fe]
+PASSED tests/test_translation_invariance.py::test_o1_random_translation_scan_40_draws_defect_lift[l12_ni3al]
+PASSED tests/test_translation_invariance.py::test_o1_rigid_transform_50_draws_all_thermal_crystal_cases[crystals/fcc_cu]
+PASSED tests/test_translation_invariance.py::test_o1_rigid_transform_50_draws_all_thermal_crystal_cases[crystals/bcc_fe]
+PASSED tests/test_translation_invariance.py::test_o1_rigid_transform_50_draws_all_thermal_crystal_cases[crystals/rocksalt_nacl]
+PASSED tests/test_translation_invariance.py::test_o1_rigid_transform_50_draws_all_thermal_crystal_cases[crystals/l12_ni3al]
+PASSED tests/test_translation_invariance.py::test_o1_rigid_transform_50_draws_all_thermal_crystal_cases[crystals/hcp_mg]
+PASSED tests/test_translation_invariance.py::test_o1_rigid_transform_50_draws_all_thermal_crystal_cases[crystals/diamond_si]
+PASSED tests/test_translation_invariance.py::test_o1_rigid_transform_50_draws_all_thermal_crystal_cases[crystals/perovskite_srtio3]
+PASSED tests/test_translation_invariance.py::test_o1_rigid_transform_50_draws_all_thermal_crystal_cases[crystals/fcc_crconi]
+PASSED tests/test_translation_invariance.py::test_o1_rigid_transform_50_draws_all_thermal_crystal_cases[solutions/cuau_random]
+PASSED tests/test_tutor_demo.py::test_set_temperature_rewrites_the_state_line
+PASSED tests/test_tutor_demo.py::test_set_temperature_requires_a_state_line
+PASSED tests/test_tutor_demo.py::test_verdict_line_flags_mismatches
+PASSED tests/test_tutor_demo.py::test_shifted_copy_wraps_into_the_cell_and_keeps_the_frame
+PASSED tests/test_tutor_demo.py::test_act0_shifted_cu_frame_lifts_to_the_same_text
+PASSED tests/test_unit_free_classification.py::test_reproducer_no_bench_crystal_is_amorphous
+PASSED tests/test_unit_free_classification.py::test_reproducer_argon_gas_accepted_by_fluid_mode
+PASSED tests/test_unit_free_classification.py::test_lj_crystal_not_amorphous_glass_dialect[fcc-0.85]
+PASSED tests/test_unit_free_classification.py::test_lj_crystal_not_amorphous_glass_dialect[fcc-1.1]
+PASSED tests/test_unit_free_classification.py::test_lj_crystal_not_amorphous_glass_dialect[bcc-0.85]
+PASSED tests/test_unit_free_classification.py::test_lj_crystal_not_amorphous_glass_dialect[bcc-1.1]
+PASSED tests/test_unit_free_classification.py::test_lj_crystal_not_amorphous_glass_dialect[hcp-0.85]
+PASSED tests/test_unit_free_classification.py::test_lj_crystal_not_amorphous_glass_dialect[hcp-1.1]
+PASSED tests/test_unit_free_classification.py::test_lj_crystal_not_amorphous_glass_dialect[sc-0.85]
+PASSED tests/test_unit_free_classification.py::test_lj_crystal_not_amorphous_glass_dialect[sc-1.1]
+PASSED tests/test_unit_free_classification.py::test_lj_crystal_not_amorphous_glass_dialect[diamond-0.85]
+PASSED tests/test_unit_free_classification.py::test_lj_crystal_not_amorphous_glass_dialect[diamond-1.1]
+PASSED tests/test_unit_free_classification.py::test_bench_crystal_lift_prints_no_amorphous
+PASSED tests/test_unit_free_classification.py::test_bench_rsa_glass_lifts_amorphous
+PASSED tests/test_unit_free_classification.py::test_large_liquid_lifts_as_fluid
+PASSED tests/test_unit_free_classification.py::test_fluid_mode_accepts_the_fluid_cases[fluid/ar_gas_box25]
+PASSED tests/test_unit_free_classification.py::test_fluid_mode_accepts_the_fluid_cases[fluid/n2_box22]
+PASSED tests/test_unit_free_classification.py::test_fluid_mode_accepts_the_fluid_cases[gases/co2_dense]
+PASSED tests/test_unit_free_classification.py::test_fluid_mode_accepts_the_fluid_cases[fluid/water_box15]
+PASSED tests/test_unit_free_classification.py::test_gas_atoms_with_few_neighbours_are_not_crystal_like
+PASSED tests/test_unit_free_classification.py::test_is_amorphous_missing_threshold_raises
+PASSED tests/test_unit_free_classification.py::test_legacy_missing_threshold_propagates
+PASSED tests/test_unit_free_classification.py::test_legacy_arm_error_propagates
+PASSED tests/test_unit_free_classification.py::test_legacy_refusal_still_falls_through
+PASSED tests/test_unit_free_classification.py::test_legacy_not_this_phase_exception_falls_through
+PASSED tests/test_unit_free_classification.py::test_threshold_lookup_error_is_not_a_refusal
+PASSED tests/test_unit_free_classification.py::test_glass_dialect_has_no_absolute_q6_cutoff
+PASSED tests/test_xfail_hygiene.py::test_registry_ids_reference_existing_tests
+SKIPPED [1] tests\test_defects.py:71: unary host has no antisites
+FAILED tests/test_xfail_hygiene.py::test_strict_xfail_only_in_red_team_registry - AssertionError: strict xfail outside the red-team registry: ['tests\\test_strained_boxes.py'] -- register the finding in tests/adversarial/conftest.py FOILED or fix the test
+assert not ['tests\\test_strained_boxes.py']
+1 failed, 1136 passed, 1 skipped, 252 deselected, 3801 warnings in 7979.65s (2:12:59)
