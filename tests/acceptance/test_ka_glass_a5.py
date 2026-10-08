@@ -7,16 +7,6 @@ draws, frame-averaged observables, 1.5x max(mean, P90) cross-quench floor),
 plus the power mutation A5 needs (physics-off rebuild must FAIL) and the
 step-7 quench-rate / anneal-truncation resolution measurements.
 
-MAINLINE PATCH APPLIED IN-PROCESS (documented in the W7 report; the file is
-outside this stream's ownership): the legacy cascade's DEFECTS arm
-(lift_crystal_defects -> defects.fit_crystal) raises a bare ValueError on
-placeholder species ('A'/'B' are not ASE elements), which the W1 fail-closed
-ladder correctly refuses to swallow.  fit_crystal must state that verdict as
-its designed no-fit ChaordError instead; until it does, the guard below
-converts it for non-element frames so the cascade reaches the amorphous arm
-(no physics changes: the crystal arms' verdict on a binary glass is
-'not this phase' either way).
-
 Run:  python -m pytest tests/acceptance/test_ka_glass_a5.py -m slow
 """
 from __future__ import annotations
@@ -36,8 +26,8 @@ SEEDS = (7, 13, 29)
 
 @pytest.fixture(scope="module")
 def ka_program_text():
-    from conftest import apply_ka_defects_arm_guard
-    apply_ka_defects_arm_guard()
+    # fit_crystal refuses placeholder species at source (patch A, W7
+    # follow-up); the W7-era in-process conftest guard is retired
     from chaord.dialects import load_dialect
     from chaord.io.frames import read_frame
     from chaord.lift import lift_frame
