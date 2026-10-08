@@ -89,8 +89,13 @@ thresholds:
                                    # the missing threshold, fail-closed)
   fluid_rsa_dmin: 2.8               # hard-core placement for atomic species, A
   fluid_max_bonded_component: 3   # largest bond-graph component (atoms) still one
-                                  # molecule of a single-phase fluid (largest shipped
-                                  # template = 3: H2O, CO2); an extended component is
+                                  # molecule of a single-phase fluid (the water/CO2
+                                  # class; the registry's larger SPECIES templates --
+                                  # EC 10 atoms, PF6- 7 atoms, W12 -- are routing
+                                  # exceptions, not a raised bound: their frames route
+                                  # through the interface arms, and species-block
+                                  # programs naming them build through the template
+                                  # registry); an extended component is
                                   # a second phase (metal slab, network) and lifts as
                                   # interface/amorphous, never as a pseudo-molecule
   density_match_tolerance: 0.05     # stated vs geometric density mismatch (A12)

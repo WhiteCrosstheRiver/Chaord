@@ -56,6 +56,60 @@ _register_mol("Cl-", ["Cl"], [[0.0, 0.0, 0.0]], charge=-1, pack_radius=1.81)
 _register_mol("Li+", ["Li"], [[0.0, 0.0, 0.0]], charge=1, pack_radius=0.90)
 _register_mol("OH", ["O", "H"], [[0.0, 0.0, 0.0], [0.586, 0.757, 0.0]])  # O-H 0.9572 A
 _register_mol("H", ["H"], [[0.0, 0.0, 0.0]])
+# electrolyte species (W12): general SPECIES templates, not tied to one case
+# -- the vocabulary of solutions/lipf6_ec and the later PC/EMC/EC/PF6/Li
+# research case. Promoted VERBATIM from bench/generate.py (where they were
+# case-local registrations): the frozen lipf6_ec reference frames carry this
+# exact geometry, so template, frames and census stay one geometry.
+
+
+def _ec_rel():
+    """Ethylene carbonate (1,3-dioxolan-2-one, C3H4O3), planar: a regular
+    five-membered ring of 1.43 A edges (ester C-O single-bond length; the
+    C-C ring edge is drawn at the same length as the generator's simplified
+    ring), carbonyl C=O 1.20 A, C-H 1.09 A with a 35-deg H-C-H spread.
+    Bond lengths from standard organic geometry (F. H. Allen, O. Kennard,
+    D. G. Watson, L. Brammer, A. G. Orpen, R. Taylor, J. Chem. Soc. Perkin
+    Trans. 2 (1987) S1-S19: ester C-O 1.43 A, ketone C=O 1.21 A, sp3 C-H
+    1.09 A); the construction is bench/generate.py's, the geometry the
+    frozen lipf6_ec frames were generated with."""
+    R = 1.43 / (2.0 * np.sin(np.deg2rad(36.0)))   # pentagon circumradius
+    ring = {}
+    for name, deg in (("C1", 90), ("O2", 162), ("C3", 234), ("C4", 306),
+                      ("O5", 18)):
+        ring[name] = R * np.array([np.cos(np.deg2rad(deg)),
+                                   np.sin(np.deg2rad(deg)), 0.0])
+    ring["O6"] = ring["C1"] + np.array([0.0, 1.20, 0.0])   # carbonyl C=O
+
+    def hydrogens(c):
+        r = np.asarray(c[:2], float)
+        r = r / np.linalg.norm(r)
+        perp = np.array([-r[1], r[0]])
+        out = []
+        for side in (1.0, -1.0):
+            d = (np.cos(np.deg2rad(35.0)) * r
+                 + side * np.sin(np.deg2rad(35.0)) * perp)
+            out.append(np.array([c[0] + 1.09 * d[0], c[1] + 1.09 * d[1], 0.0]))
+        return out
+
+    h3, h4 = hydrogens(ring["C3"]), hydrogens(ring["C4"])
+    return [ring["C1"], ring["O2"], ring["C3"], ring["C4"], ring["O5"],
+            ring["O6"], h3[0], h3[1], h4[0], h4[1]]
+
+
+_register_mol("EC", ["C", "O", "C", "C", "O", "O", "H", "H", "H", "H"],
+              _ec_rel(), charge=0)
+_register_mol("PF6-", ["P"] + ["F"] * 6,                # octahedral P-F
+              [[0.0, 0.0, 0.0], [1.58, 0.0, 0.0], [-1.58, 0.0, 0.0],
+               [0.0, 1.58, 0.0], [0.0, -1.58, 0.0], [0.0, 0.0, 1.58],
+               [0.0, 0.0, -1.58]], charge=-1)            # P-F 1.58 A:
+                                                         # crystallographic
+                                                         # hexafluorophosphate
+                                                         # (LiPF6 structures);
+                                                         # the value the frozen
+                                                         # lipf6_ec frames and
+                                                         # the A12 charge tests
+                                                         # use
 # dialect-exempt-end
 
 
