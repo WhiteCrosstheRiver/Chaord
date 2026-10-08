@@ -35,9 +35,29 @@ Pinned defects (asserted to STILL fail, never skipped: fixing the underlying
 defect flips the pin red and forces the case back into the strict checks):
 
   * solutions/lipf6_ec and surfaces/si001_2x1 lift to programs that name
-    vocabulary the compiler does not implement (species C3H4O3/F6P -- the EC
-    and PF6- templates exist only in bench/generate.py -- and adsorption site
-    'far'); closing those gaps is src work outside this stream.
+    vocabulary the compiler does not implement (species C3H4O3/F6P -- the
+    lifted text carries census formulas, and the compiler's species lines
+    implement neither them nor the display names; the EC and PF6-
+    templates themselves ship in the registry since W12 item 2 -- and
+    adsorption site 'far'); closing those gaps is src work outside this
+    stream.
+
+W8 (review open_items_v2.md, 2026-10-04) adds the molecular CONTACT FLOOR to
+(a): intermolecular heavy-atom pairs >= 0.75 x the Bondi van der Waals sum
+(radii: the Bondi set shipped in ase.data.vdw_radii, A. Bondi, J. Phys. Chem.
+68, 441 (1964)), with an H-bond exception (H...O/N >= 1.5 A, both read from
+the molecular dialect by name).  Measured on the frozen tree, this flags
+MORE cases than the review predicted (the review named co2_dense,
+water_box15 and reactive/water_oh_h_box20): every molecular case carries
+sub-floor contacts because both shipped packings (the census-safe sphere RSA
+of pack_molecules and the atom-level covalent-window RSA of _dense_pack)
+exclude at distances below 0.75 x Bondi.  W8's work order regenerates exactly
+the three named cases (pack-then-relax, step 3); the remaining five are
+PINNED CONTACT-FLOOR VIOLATIONS below (tripwires: each asserts the violation
+persists; a physical regeneration flips the pin red and reverts the case to
+the strict floor -- the same mechanism PINNED_HARDCORE_VIOLATIONS used
+before W6 regenerated interface/lj_solid_liquid).  The rule itself is never
+loosened: the pins record the failures, they do not excuse them.
 
   interface/lj_solid_liquid was the third pin (liquid half uniform random,
   min pair 0.047-0.18 sigma); W6 (Review 8, 2026-10-04) regenerated the
@@ -61,7 +81,8 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from ase.data import atomic_masses, chemical_symbols, covalent_radii  # noqa: E402
 
-from chaord.build.molecules import bond_graph, molecular_mass  # noqa: E402
+from chaord.build.molecules import (bond_graph, contact_floor_target,  # noqa: E402
+                                    molecular_mass)
 from chaord.dialects import load_dialect  # noqa: E402
 from chaord.io.frames import read_frame  # noqa: E402
 
@@ -73,6 +94,13 @@ BOND_TOL = float(MOLECULAR.threshold("bond_tolerance"))
 ION_ELEMENTS = frozenset(MOLECULAR.threshold("ion_solvation_elements"))
 LJ_OVERLAP = float(LJ.threshold("overlap_tolerance"))       # sigma
 CORE_OVERLAP = float(CORE.threshold("overlap_tolerance"))   # A
+# W8 contact floor (review open_items_v2.md step 1), read from the dialect:
+# intermolecular heavy-atom pairs >= this fraction x the Bondi vdW sum, with
+# an H-bond exception H...O/N >= contact_floor_hbond_min.  Radii source:
+# ase.data.vdw_radii is the Bondi set (A. Bondi, J. Phys. Chem. 68, 441
+# (1964); H 1.20, C 1.70, N 1.55, O 1.52, F 1.47, P 1.80, S 1.80, Cl 1.75).
+CONTACT_FLOOR_FRACTION = float(MOLECULAR.threshold("contact_floor_bondi_fraction"))
+CONTACT_FLOOR_HBOND = float(MOLECULAR.threshold("contact_floor_hbond_min"))
 DENSITY_TOL = 0.10          # +-10% against the described density (O5 wording)
 AMU_A3_TO_G_CM3 = 1.66053906660  # CODATA amu/A^3 -> g/cm3
 
@@ -106,6 +134,23 @@ PINNED_COMPILER_GAPS = {
 # half is regenerated physical (RSA >= 0.85 sigma + LJ MD relaxation), so the
 # strict LJ hard-core assert governs it again.
 PINNED_HARDCORE_VIOLATIONS: set = set()
+
+# W8 contact-floor tripwires: molecular cases whose frozen frames carry
+# sub-floor intermolecular contacts and whose regeneration is OUTSIDE the W8
+# work order (it regenerates exactly co2_dense, water_box15 and
+# reactive/water_oh_h_box20).  Each pinned case must STILL violate the floor
+# (asserted); a physical regeneration flips the tripwire red and the case
+# reverts to the strict floor.  This is the same mechanism
+# PINNED_HARDCORE_VIOLATIONS used before W6 -- the pins record the failures,
+# they never excuse them, and the floor rule itself is unchanged for every
+# unpinned case.
+PINNED_CONTACT_FLOOR_VIOLATIONS = {
+    "fluid/ar_gas_box25",       # 2 Ar-Ar pairs at 0.739x contact (whole tree)
+    "fluid/n2_box22",           # 10 N-N pairs, worst 1.979 A = 0.638x contact
+    "solutions/nacl_aq",        # O-O worst 2.076 A = 0.68x; 1 H...O < 1.5 A
+    "solutions/lipf6_ec",       # worst O-O 1.711 A = 0.56x contact
+    "interfaces/cu_water",      # water side O-O worst 1.704 A = 0.56x; H...O < 1.5
+}
 
 
 def _cases():
@@ -185,6 +230,54 @@ def _is_molecular(case_id, gt) -> bool:
             or case_id == "interfaces/cu_water")
 
 
+def _contact_floor_target(si: str, sj: str) -> float | None:
+    """W8 floor distance for one unordered intermolecular element pair, or
+    None when the rule does not constrain the pair.
+
+    One definition (house rule 7): the builder's pack-then-relax placement,
+    the W8 regression tests and this sanity check all ask
+    chaord.build.molecules.contact_floor_target -- heavy-heavy pairs at
+    contact_floor_bondi_fraction x the Bondi vdW sum, H...O/N at the
+    H-bond exception floor, other H pairs outside the rule, and
+    ion_solvation_elements pairs exempt exactly as in the bond graph (a
+    hydration contact Na+-O ~2.4 A is ion solvation, not a van der Waals
+    overlap)."""
+    return contact_floor_target(si, sj, MOLECULAR)
+
+
+def _min_intermolecular_contact_margin(frame) -> tuple[float, str, int]:
+    """(worst margin below the W8 contact floor, pair, pairs below floor).
+
+    Margin is d - target over every intermolecular pair the rule constrains
+    (different bond-graph components); intramolecular distances are template
+    geometry.  >= 0 on a physical frame."""
+    L = frame.cell_diag
+    pos = np.mod(frame.pos, L)
+    pos = np.minimum(pos, L * (1 - 1e-9))
+    syms = frame.symbols
+    labels = _components(frame)
+    present = sorted(set(syms))
+    rmax = max(_contact_floor_target(s, t) or 0.0
+               for s in present for t in present) + 1e-6
+    tree = cKDTree(pos, boxsize=L)
+    pairs = tree.query_pairs(rmax, output_type="ndarray")
+    worst, desc, below = 0.0, "no constrained intermolecular pair below floor", 0
+    for i, j in pairs:
+        if labels[i] == labels[j]:
+            continue                       # intramolecular: template geometry
+        target = _contact_floor_target(syms[i], syms[j])
+        if target is None:
+            continue                       # ion pair / outside the W8 rule
+        d = pos[j] - pos[i]
+        d -= L * np.round(d / L)
+        margin = float(np.linalg.norm(d)) - target
+        if margin < 0.0:
+            below += 1
+            if margin < worst:
+                worst, desc = margin, f"{syms[i]}-{syms[j]}"
+    return worst, desc, below
+
+
 def _density_target(case_id, gt):
     """(kind, target, note) -- the density the case's ground truth describes."""
     exp = gt["expected"]
@@ -226,6 +319,7 @@ def test_min_pair_distance_respects_the_system_hard_core(case_id):
     gt = entry["gt"]
     molecular = _is_molecular(case_id, gt)
     all_x = set(read_frame(entry["frames"][0]).symbols) == {"X"}
+    contact = []            # per-frame (k, margin, pair, pairs-below-floor)
     for k, path in enumerate(entry["frames"]):
         frame = read_frame(path)
         if molecular:
@@ -233,6 +327,7 @@ def test_min_pair_distance_respects_the_system_hard_core(case_id):
             assert worst >= -1e-9, (
                 f"{case_id} frame {k}: unbonded {pair} pair inside the "
                 f"covalent bond window by {-worst:.3f} A (hard core violated)")
+            contact.append((k,) + _min_intermolecular_contact_margin(frame))
         elif all_x:
             floor = LJ_OVERLAP
             got = _min_image_min_pair(frame)
@@ -253,6 +348,26 @@ def test_min_pair_distance_respects_the_system_hard_core(case_id):
             assert got >= CORE_OVERLAP, (
                 f"{case_id} frame {k}: min pair {got:.3f} A < {CORE_OVERLAP} "
                 "A static-overlap floor")
+    if not molecular:
+        return
+    # W8 contact floor (review open_items_v2.md step 1), judged per CASE:
+    # the violation spans the frames of a case (a light case may carry
+    # sub-floor pairs in only some frames), so the strict rule asserts every
+    # frame clean and the tripwire asserts the violation still exists at all.
+    k_w, m_w, pair_w, below_w = min(contact, key=lambda r: r[1])
+    total_below = sum(r[3] for r in contact)
+    if case_id in PINNED_CONTACT_FLOOR_VIOLATIONS:
+        assert m_w < 0.0, (
+            f"{case_id}: every intermolecular contact now clears the "
+            f"{CONTACT_FLOOR_FRACTION:.2f}x-Bondi floor (worst margin "
+            f"{m_w:.3f} A) -- remove the pin and let the strict contact "
+            "floor govern")
+    else:
+        assert m_w >= -1e-9, (
+            f"{case_id} frame {k_w}: intermolecular {pair_w} pair "
+            f"{-m_w:.3f} A BELOW the {CONTACT_FLOOR_FRACTION:.2f}x-Bondi "
+            f"contact floor (W8); pairs below floor across the case: "
+            f"{total_below}")
 
 
 # --------------------------------------------------------------- (b) density --
