@@ -18,6 +18,7 @@ from ..lang.ir import (
     SpecDef, SpeciesBlock, Statement, StrVal, SystemBlock, Wood,
 )
 from ..build.prototypes import PROTOTYPES
+from .crystal import quantize_coord, quantize_coords
 
 
 def _termination_names(dialect):
@@ -67,7 +68,7 @@ def has_vacuum(frame: Frame, dialect) -> bool:
 def _layer_split(z, dialect):
     """Cluster wrapped z coordinates into layers (gap > layer_tolerance)."""
     tol = float(dialect.threshold("layer_tolerance"))
-    order = np.argsort(z, kind="stable")
+    order = np.argsort(quantize_coords(z), kind="stable")  # W10 quantized keys
     layers = []
     current = [order[0]]
     for i in order[1:]:
@@ -131,7 +132,7 @@ def _aligned_z(frame: Frame, dialect):
                 extra.extend(end)
         stack = stack + extra
     idx = np.concatenate(stack)
-    zs = np.sort(z[idx])
+    zs = np.sort(quantize_coords(z[idx]))  # W10 quantized canonical keys
     gaps = np.diff(np.r_[zs, zs[0] + L])
     rot = zs[(int(np.argmax(gaps)) + 1) % len(zs)]
     return np.mod(z - rot, L)
@@ -202,7 +203,7 @@ def _net_vectors(pts2d, cell2d, dialect=None):
                 n = np.linalg.norm(w)
                 if n > 0.5:  # dialect-exempt: numerical-guard: sub-noise duplicate-vector guard, A
                     cand.append((n, w))
-    cand.sort(key=lambda x: x[0])
+    cand.sort(key=lambda x: quantize_coord(x[0]))  # W10 quantized keys
     v1 = cand[0][1]
     area_per_point = abs(A2[0][0] * A2[1][1] - A2[0][1] * A2[1][0]) / len(pts)
     for n, w in cand:

@@ -21,6 +21,7 @@ import numpy as np
 
 from ..io.frames import Frame
 from ..lang.ir import GeoChain, Quantity, RangeVal, ShAll, ShSlab
+from .crystal import quantize_coords
 from .segment import _robust_neighbor_distance, dialect_profile_bin
 
 # canonical region order: crystal first, vacuum last (design 2.7)
@@ -178,7 +179,8 @@ def _components(frame: Frame, labels: np.ndarray, pairs: np.ndarray) -> dict:
         comps = []
         for c in np.unique(lab[idx]):
             m = idx[lab[idx] == c]
-            key = float(np.sort(pos[m].sum(axis=1))[0])  # geometry-derived tiebreak
+            # W10: quantized (1e-6 A) keys on the geometry tiebreak
+            key = float(np.sort(quantize_coords(pos[m].sum(axis=1)))[0])
             comps.append((m, len(m), key))
         comps.sort(key=lambda t: (-t[1], t[2]))
         out[value] = [m for m, _k, _t in comps]

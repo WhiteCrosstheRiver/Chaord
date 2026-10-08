@@ -22,6 +22,7 @@ from ..build.prototypes import PROTOTYPES, basis
 from ..io.frames import Frame
 from ..lang.errors import ChaordError
 from ..realize.lj import mic
+from .crystal import quantize_coords
 from .crystal import snap_a_to_cell
 
 # factor taking d_NN to the cubic lattice constant for each cubic prototype
@@ -218,7 +219,9 @@ def _offset_pool(pos: np.ndarray, a: float, radius: float) -> list[np.ndarray]:
     mean-displacement correction removes the chosen seed's own displacement
     (see `_canonical_shifts`)."""
     offs = np.mod(np.asarray(pos, float), a)
-    order = np.lexsort((offs[:, 2], offs[:, 1], offs[:, 0]))
+    # W10: quantized (1e-6 A) canonical keys on the sublattice offsets
+    qo = quantize_coords(offs)
+    order = np.lexsort((qo[:, 2], qo[:, 1], qo[:, 0]))
     kept: list[np.ndarray] = []
     for idx in order:
         o = offs[idx]

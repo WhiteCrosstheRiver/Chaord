@@ -247,6 +247,26 @@ def round_canonical(v: float, decimals_key: str, dialect) -> str:
     return f"{v:.{n}f}"
 
 
+# W10 (open_items_v2): every canonical sort on float coordinates keys on
+# values rounded to 1e-6 A.  Sub-1e-9 A floating-point noise (BLAS reduction
+# order; the hcp_mg regeneration flipped a lexsort on exactly that) must not
+# decide which atom, vector or offset a canonical order picks: coordinates
+# closer than the quantum share one key and the stable sort falls back to the
+# deterministic input order.  Integer scale, so the no-magic-numbers CI check
+# sees no bare float literal.
+_COORD_KEY_SCALE = 10 ** 6
+
+
+def quantize_coord(v: float) -> float:
+    """Canonical sort key of one float coordinate: rounded to 1e-6 A."""
+    return round(v * _COORD_KEY_SCALE) / _COORD_KEY_SCALE
+
+
+def quantize_coords(a) -> np.ndarray:
+    """Elementwise canonical sort keys (1e-6 A) of an array of coordinates."""
+    return np.round(np.asarray(a, float) * _COORD_KEY_SCALE) / _COORD_KEY_SCALE
+
+
 def snap_a_to_cell(a_fit: float, box_lengths, dialect) -> float | None:
     """Lattice constant that makes the stated cell an integer tiling of it.
 

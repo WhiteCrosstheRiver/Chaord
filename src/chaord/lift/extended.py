@@ -7,6 +7,7 @@ from scipy.spatial import cKDTree
 from ..io.frames import Frame
 from ..lang.errors import ChaordError
 from ..realize.lj import mic
+from .crystal import quantize_coords
 
 
 def _wrap(pos, L):
@@ -41,8 +42,10 @@ def _derived_basis(pos, L, tree, dnn, family, a, dialect):
                      for j in tree.query_ball_point(pos[i0], cn_cut) if j != i0])
     if len(vecs) < 3:
         return None
-    order = np.lexsort((vecs[:, 2], vecs[:, 1], vecs[:, 0],
-                        np.linalg.norm(vecs, axis=1)))
+    # W10: quantized (1e-6 A) canonical keys on the neighbour vectors
+    qv = quantize_coords(vecs)
+    order = np.lexsort((qv[:, 2], qv[:, 1], qv[:, 0],
+                        quantize_coords(np.linalg.norm(vecs, axis=1))))
     vecs = vecs[order]
     v1 = vecs[0]
     v2 = next((v for v in vecs[1:] if np.linalg.norm(np.cross(v, v1)) > 1e-8), None)  # dialect-exempt: numerical-guard: degenerate-vector guard

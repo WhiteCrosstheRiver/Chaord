@@ -34,7 +34,7 @@ from ..lang.ir import (
     InterfaceBlock, Name, PhysicsBlock, Program, ProvenanceBlock, Quantity,
     RegionBlock, ResidualBlock, Statement, StrVal, SystemBlock,
 )
-from .crystal import lift_crystal, round_canonical
+from .crystal import lift_crystal, quantize_coords, round_canonical
 from .defect_program import lift_crystal_defects
 from .defects import _A_FROM_DNN, defect_diff, fit_crystal, group_defects
 from .fluid import lift_fluid
@@ -483,7 +483,10 @@ def _residual_block(ctx: _LiftCtx, idx: list):
     frame = ctx.frame
     pos = np.mod(frame.pos[idx], frame.cell_diag)
     syms = np.array(frame.symbols)[idx]
-    order = np.lexsort((pos[:, 2], pos[:, 1], pos[:, 0], syms))
+    # W10: quantized (1e-6 A) canonical keys -- sub-1e-9 noise must not
+    # decide the canonical atom order
+    q = quantize_coords(pos)
+    order = np.lexsort((q[:, 2], q[:, 1], q[:, 0], syms))
     statements = []
     for k in order:
         x, y, z = pos[k]
