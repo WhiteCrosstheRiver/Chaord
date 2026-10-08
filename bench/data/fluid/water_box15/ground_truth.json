@@ -2,7 +2,7 @@
   "schema": "chaord-bench/2",
   "case": "water_box15",
   "category": "fluid",
-  "description": "60 H2O packed into a 15 A cubic box (seeded random-sequential packing, re-packed per frame)",
+  "description": "60 H2O packed into a 15 A cubic box (seeded random-sequential packing, re-packed per frame); W8 pack-then-relax: the RSA packing's sub-floor intermolecular contacts opened by rigid-body relaxation until every pair clears the 0.75x-Bondi contact floor (per-frame worst margin recorded)",
   "seed": 13,
   "n_frames": 5,
   "dialect": "core+molecular",
@@ -17,7 +17,8 @@
       },
       "census": {
         "H2O": 60
-      }
+      },
+      "contact_floor_worst_margin_A": 0.2893
     },
     {
       "file": "frame_1.npz",
@@ -29,7 +30,8 @@
       },
       "census": {
         "H2O": 60
-      }
+      },
+      "contact_floor_worst_margin_A": 0.1045
     },
     {
       "file": "frame_2.npz",
@@ -41,7 +43,8 @@
       },
       "census": {
         "H2O": 60
-      }
+      },
+      "contact_floor_worst_margin_A": 0.05
     },
     {
       "file": "frame_3.npz",
@@ -53,7 +56,8 @@
       },
       "census": {
         "H2O": 60
-      }
+      },
+      "contact_floor_worst_margin_A": 0.112
     },
     {
       "file": "frame_4.npz",
@@ -65,7 +69,8 @@
       },
       "census": {
         "H2O": 60
-      }
+      },
+      "contact_floor_worst_margin_A": 0.2091
     }
   ],
   "lift_mode": "fluid",
@@ -81,6 +86,7 @@
     15.0,
     15.0
   ],
+  "pack_then_relax": true,
   "expected": {
     "molecules": {
       "H2O": 60
