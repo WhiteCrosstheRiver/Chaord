@@ -2,7 +2,7 @@
   "schema": "chaord-bench/2",
   "case": "water_oh_h_box20",
   "category": "reactive",
-  "description": "dissociation fragment mixture (water, hydroxide, atomic hydrogen) in a 20 A box; the species census must be recovered exactly from the bond graph of every frame",
+  "description": "dissociation fragment mixture (water, hydroxide, atomic hydrogen) in a 20 A box; the species census must be recovered exactly from the bond graph of every frame; W8 pack-then-relax: the RSA packing's sub-floor intermolecular contacts opened by rigid-body relaxation until every pair clears the 0.75x-Bondi contact floor (per-frame worst margin recorded)",
   "seed": 3,
   "n_frames": 5,
   "dialect": "core+molecular",
@@ -19,7 +19,8 @@
         "H": 9,
         "H2O": 50,
         "HO": 9
-      }
+      },
+      "contact_floor_worst_margin_A": 0.1041
     },
     {
       "file": "frame_1.npz",
@@ -33,7 +34,8 @@
         "H": 9,
         "H2O": 50,
         "HO": 9
-      }
+      },
+      "contact_floor_worst_margin_A": 0.3437
     },
     {
       "file": "frame_2.npz",
@@ -47,7 +49,8 @@
         "H": 9,
         "H2O": 50,
         "HO": 9
-      }
+      },
+      "contact_floor_worst_margin_A": 0.4878
     },
     {
       "file": "frame_3.npz",
@@ -61,7 +64,8 @@
         "H": 9,
         "H2O": 50,
         "HO": 9
-      }
+      },
+      "contact_floor_worst_margin_A": 0.2472
     },
     {
       "file": "frame_4.npz",
@@ -75,7 +79,8 @@
         "H": 9,
         "H2O": 50,
         "HO": 9
-      }
+      },
+      "contact_floor_worst_margin_A": 0.3817
     }
   ],
   "lift_mode": "reactive",
@@ -93,6 +98,7 @@
     20.0,
     20.0
   ],
+  "pack_then_relax": true,
   "expected": {
     "molecules": {
       "H2O": 50,
