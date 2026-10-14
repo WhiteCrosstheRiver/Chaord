@@ -16,7 +16,14 @@ version: "0.1.0"
 units: []   # no new units: lengths, densities and charges are in the
             # system's own units (A and e under the molecular stack)
 
-keys: {}    # no new statement vocabulary
+keys:
+  # RD4 (docs/reviews/research_decisions.md): the ONE statement key this
+  # dialect declares is the assert that names its own observable --
+  # `assert field_dipole_p1 <v> +- <tol> along <axis>` in the system block,
+  # next to the assumed `state field` line (RD3, carbon.yaml), measured by
+  # the CV the thresholds below define. Everything else stays as the header
+  # below says: no statement vocabulary lives here.
+  system: [field_dipole_p1]
 
 thresholds:
   # --- dipole-orientation order parameter (cv/field.py dipole_orientation).
@@ -26,8 +33,19 @@ thresholds:
                                # census prints them) of the molecules P1
                                # averages over -- the solvent. The research
                                # case's C3H4O3 (EC) / PC / EMC join when
-                               # their site-charge models are pinned to the
-                               # owner's Moltemplate force field.
+                               # their site-charge models are pinned; the
+                               # table below is keyed by ELEMENT, and EC's
+                               # carbons carry two different published
+                               # charges (Nutakki 2023 Table III: CO +0.99,
+                               # CT +0.22 e), so an element table cannot
+                               # express the model. The first-result round
+                               # (RD4, 2026-10-14) therefore passes the
+                               # carbonate species as a pipeline-level
+                               # measurement view over this dialect (the
+                               # research dumps carry per-atom charges, which
+                               # win over the table, so the table is never
+                               # consulted there); the default list stays
+                               # [H2O] until a per-site charge table exists.
   field_dipole_site_charges:   # per-ELEMENT site charges in e, keyed by
                                # census formula, used when the frame itself
                                # carries no charges (see field.py: a

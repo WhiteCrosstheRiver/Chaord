@@ -34,6 +34,7 @@ statement carries a kind: **build** (no keyword), **state**, **constrain**,
 | `pbc` | `pbc xyz` | periodic directions |
 | `seed` | `seed 7` | sampling seed: same seed, same coordinates |
 | `field` | `state field E 0.10 V/A along z` | external electric field along a cell axis (carbon dialect; macrostate metadata -- the build places no charges, and the lift states it only when the caller supplies the value, flagged assumed in provenance) |
+| `field_dipole_p1` | `assert field_dipole_p1 0.821 +- 0.277 along z` | the stated field's measurable consequence: the dipole-orientation order parameter `<cos theta>` of the dialect's `field_dipole_species` against the axis, measured by the lift from the frame's own charges when a field is supplied (research dialect; RD4) -- `+- tol` is the a-priori standard-error bound `1/sqrt(n_molecules)`, not an empirical noise floor |
 
 ## physics
 

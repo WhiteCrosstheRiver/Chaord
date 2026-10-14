@@ -40,10 +40,19 @@ def lift_frame(frame, dialect, T=None, mode="auto", field=None):
     field = {"component": "E", "value": 0.10, "unit": "V/A", "axis": "z"}
     (component defaults to E, unit to V/A; value and axis are required).
     Given one, every lift path prints the `state field` statement in the
-    system block next to `state T`, with a provenance note recording that the
-    value was assumed, not measured -- the W11 assumed-value rule exactly as
+    system block next to `state T`, with a provenance note recording that
+    the value was assumed, not measured -- the W11 assumed-value rule exactly as
     fluid.AssumedT applies it. Given none, nothing is printed (there is no
-    honest default field)."""
+    honest default field).
+
+    RD4 (same record) adds the statement-level evidence: given a field, the
+    program also ASSERTS the field's measurable consequence --
+    `assert field_dipole_p1 <v> +- <tol> along <axis>` right after the
+    state field statement, measured by cv.field.dipole_orientation from the
+    frame's own charges -- or, when the dialect cannot measure it (no
+    field_dipole_species, no such species, no charge model), records the
+    reason in provenance and keeps RD3's statement. Given none, no
+    field-related statement exists at all."""
     field_parts = _field_parts(field) if field is not None else None
     if T is None:
         try:
@@ -57,7 +66,10 @@ def lift_frame(frame, dialect, T=None, mode="auto", field=None):
         from chaord.lift.legacy import legacy_lift
         program, unexplained = legacy_lift(frame, dialect, T, mode)
     if field_parts is not None:
-        _attach_field(program, *field_parts)
+        stmt, note = field_parts
+        _attach_field(program, stmt, note)
+        _attach_field_observables(program, frame, dialect,
+                                  axis=stmt.values[-1].text)
     return _record_lift_diag(program, frame, dialect, unexplained)
 
 
@@ -99,12 +111,74 @@ def _attach_field(program, stmt, note):
           next((k for k, s in enumerate(system.statements)
                 if s.kind == "conserve"), len(system.statements)))
     system.statements.insert(at, stmt)
+    _append_provenance_note(program, note)
+
+
+def _append_provenance_note(program, text):
+    """Append one `note` statement to the program's provenance block,
+    creating the block when the path emitted none."""
+    from ..lang.ir import ProvenanceBlock, Statement, StrVal
     prov = next((b for b in program.blocks if b.t == "provenance"), None)
     if prov is None:
         prov = ProvenanceBlock(statements=[])
         program.blocks.append(prov)
     prov.statements.append(Statement(kind="build", key="note",
-                                     values=[StrVal(text=note)]))
+                                     values=[StrVal(text=text)]))
+
+
+def _attach_field_observables(program, frame, dialect, axis):
+    """RD4 (docs/reviews/research_decisions.md): assert the field's
+    measurable consequence next to the `state field` statement.
+
+    The value is measured, never assumed: cv.field.dipole_orientation on
+    the frame this lift was given (rule 7 -- the same CV the registry names
+    `field_dipole_p1`), with the frame's own per-atom charges when the
+    reader carried them, else the dialect's site-charge table. The printed
+    tolerance is 1/sqrt(n_molecules): every cos(theta) lies in [-1, 1], so
+    Popoviciu's variance bound (T. Popoviciu, Mathematica (Cluj) 9, 129
+    (1935): a variable in [a, b] has variance at most (b-a)^2/4 = 1 here)
+    caps the standard error of the mean of n cosines -- an a-priori bound,
+    stated as such in provenance, NOT the empirical noise floor (which the
+    analysis measures independently from frame pairs and never enters the
+    text). dipole_orientation returns only the mean and count, so the
+    empirical spread is not available without a second definition of the
+    quantity (cv/ is frozen this round); the bound needs neither.
+
+    Degrade with a note, never silence: when the dialect cannot measure the
+    observable (no field_dipole_species threshold -- e.g. core + lj -- no
+    named species in the frame, no charge model), RD3's binding statement
+    stands and provenance records the reason. With `field=` absent this
+    function is never called: no field statement, no field assert."""
+    import math
+    from ..lang.ir import Name, Quantity, Statement, Tol
+    try:
+        from ..cv.field import dipole_orientation
+        dip = dipole_orientation(frame, dialect, axis=axis)
+    except Exception as e:  # the observable is not this dialect's to measure
+        _append_provenance_note(
+            program, f"field observables not asserted ({type(e).__name__}: {e})")
+        return
+    n = int(dip["n_molecules"])
+    tol = 1 / math.sqrt(n)
+    assert_stmt = Statement(
+        kind="assert", key="field_dipole_p1",
+        values=[Quantity(num=f"{float(dip['P1']):.3f}"),
+                Tol(value=Quantity(num=f"{tol:.3f}")),
+                Name(text="along"), Name(text=axis)])
+    system = next(b for b in program.blocks if b.t == "system")
+    field_at = next(k for k, s in enumerate(system.statements)
+                    if s.kind == "state" and s.key == "field")
+    system.statements.insert(field_at + 1, assert_stmt)
+    source = ("the frame's own per-atom charges"
+              if frame.info.get("charges") is not None
+              else "the dialect's site-charge model")
+    _append_provenance_note(
+        program,
+        f"field P1 measured from {source} (n = {n} molecules); "
+        f"tol = 1/sqrt(n) = {tol:.3f} is the a-priori standard-error bound "
+        "of a mean of n cosines (Popoviciu, Mathematica (Cluj) 9, 129 "
+        "(1935): variance <= 1 for a variable on [-1,1]), not an empirical "
+        "floor")
 
 
 def _record_lift_diag(program, frame, dialect, unexplained):

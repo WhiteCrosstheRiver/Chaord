@@ -5,7 +5,10 @@ Decision record for the first research use (open_items_v2.md section 5, item 2:
 then a red test, then the code. Owner-written, 2026-10-14. The observables
 (dipole orientation, radial density) and the molecular templates (PC, EMC,
 EC, PF6-, Li+) are sibling work packages and are deliberately not touched
-here; this record covers only the three statements that carry them.
+here; this record covers only the three statements that carry them. RD4
+(2026-10-14, same D9 path) extends the record to the first-result round
+(section 5, item 3): the statement-level evidence the field leaves in a
+lifted program.
 
 ## RD1 · A cylindrical region
 
@@ -140,3 +143,129 @@ is printed (there is no honest default field).
 - docs: `docs/reference.md` geometry line + `field` row (citing the actual
   example lines); one new example `spec/examples/11_nanotube_field.chaord`
   exercising all three statements.
+
+## RD4 · The field's measurable consequence, asserted (first-result round)
+
+Owner-written 2026-10-14, before the code (D9 path; red tests in
+`tests/test_field_lift_statements.py`). The trigger is the reviewer's
+done-when for the first research result (open_items_v2.md section 5, item 3):
+"the programs' **statements**, not the coordinates, separate the states".
+RD3's `state field` line is caller-supplied metadata — it names the knob, not
+what the knob did. This record adds the statement-level evidence.
+
+**Decision.** When the caller supplies `field=`, the lifted program asserts
+the field's measurable consequence in the system block, immediately after
+the `state field` statement:
+
+```
+state field E 0.2 V/A along z
+assert field_dipole_p1 0.821 +- 0.277 along z
+```
+
+The value is measured, never assumed: `cv.field.dipole_orientation(frame,
+dialect, axis)` on the frame the lift was given — the frame's own per-atom
+charges (`frame.info["charges"]`, what the LAMMPS reader recorded) when
+present, else the dialect's site-charge table (unchanged RD3-era fallback).
+The key is the registered CV's name (`field_dipole_p1`, cv/field.py
+registry), so rule 7's one-definition-per-quantity holds: assert, measure
+and (later) restrain dispatch to the same code. The statement's provenance
+note records that the value was measured and from which charge source — the
+exact honesty marker that distinguishes it from the assumed `state field`
+line above it.
+
+**The tolerance is the a-priori standard-error bound, not an empirical
+floor.** `assert … v +- tol` prints the spread of the measurement
+(the fluid arm's convention: `cn 4.2 +- 0.5`). `dipole_orientation` returns
+only the mean and the molecule count, and cv/ is frozen this round, so the
+printed tolerance is `1/sqrt(n_molecules)`: each cos θ lies in [-1, 1], so
+Popoviciu's variance bound (T. Popoviciu, Mathematica (Cluj) 9, 129 (1935):
+a variable in [a, b] has variance at most (b-a)^2/4 = 1 here) caps the
+standard error of the mean of n cosines at 1/sqrt(n). The note says so
+explicitly ("the a-priori standard-error bound … not an empirical floor");
+the empirical noise floor of the first-result analysis is measured
+independently from frame pairs (the repo's standing estimator) and never
+enters the program text.
+
+**No radial assert.** The reviewer's observable list marks the radial
+profile's summary scalar as optional here, and on the confined research
+cells it is undefined as specified: `inner_outer_ratio` splits the
+cell-centred profile at half the shorter transverse box edge, and the outer
+shell of a tube-in-vacuum cell is empty — `cv/field.py:280` divides by the
+zero outer mean and raises. Recorded as an open finding against cv/field.py
+(not fixed there this round; the file is frozen for this work package). The
+raw radial profile remains measurable and is reported in the analysis.
+
+**Degrade with a note, never a silent absence, never a broken RD3.** If the
+measurement refuses under the dialect in use (no `field_dipole_species`
+threshold — e.g. the RD3 neon test lifts under `core + lj` — no named
+species in the frame, no charge model), the `state field` statement stands
+exactly as RD3 binds it ("every lift path prints it") and the provenance
+block gains `field observables not asserted (<reason>)`. Refusing the whole
+lift instead would break RD3's binding contract for dialects that simply do
+not define the observable; the note keeps the absence visible in the text.
+With `field=` absent, nothing field-related is printed (no statement, no
+assert) — RD3 unchanged.
+
+**Species view.** The carbonate solvents do NOT join the dialect's default
+`field_dipole_species` ([H2O], unchanged): the site-charge fallback table is
+keyed by ELEMENT, and EC's carbons carry two different published charges
+(Nutakki 2023 Table III: CO +0.99, CT +0.22 e), so an element table cannot
+express the model — the yaml's own join condition ("when their site-charge
+models are pinned") is not met, and pinning an averaged wrong charge model
+would be dishonest. Instead the first-result pipeline passes a
+**measurement view** over the loaded dialect — the same Dialect object with
+`field_dipole_species = [C3H4O3, C4H8O3]` — exactly the way a caller picks
+a centre for the radial profile. The research dumps carry per-atom charges,
+which win over the table, so the table is never consulted for these frames;
+a chargeless carbonate frame under the view fails closed ("no site-charge
+model … and the frame carries no charges"). Nothing is tuned: no numeric
+threshold changes, and the CV code is untouched (rule 7 — one definition
+per quantity; the view only names WHICH neutral solvent species the average
+runs over).
+
+**Vocabulary.** The assert key `field_dipole_p1` is declared in
+`research.yaml keys.system` — the one statement key that names the
+observable the research dialect's own thresholds define (the yaml's
+"no statement vocabulary" note narrows to exactly this exception). The
+grammar needs no change (a system-block body already accepts any
+`KIND? key values…` statement); `docs/reference.md` gains the row.
+
+**The composed research program (first use, not a lift change).** The four
+research systems are mixed frames (a frozen ideal tube + a confined
+molecular fluid) that no single cascade arm serves: `mode="auto"` refuses
+the full frame ("extended bonded component (800 C atoms)"), and the
+pipeline's single-engine chain degrades everything to residual coordinates —
+the exact opposite of "statements, not coordinates". RD1 already deferred
+region-lift composition to "the classifier research", i.e. to this round.
+The composition therefore lives in the analysis pipeline
+(`research/cnt_electrolyte/analyze_first_result.py`): the frozen carbon
+sublattice lifts through RD2's `infer_nanotube_chirality` into a crystal
+region (`nanotube (10,10) length 49.2 A` inside its RD1 cylinder), and the
+electrolyte lifts through `lift_frame(..., mode="fluid")` under a
+**composition dialect**: the research stack plus two recorded views — the
+solvent species view of RD4's P1 measurement, and
+`fluid_max_bonded_component = 15` (the registry's largest molecule of this
+solvent set, EMC; molecular.yaml itself names the larger SPECIES templates
+"routing exceptions, not a raised bound", and `bonded_single_phase` still
+performs its real check: every bond-graph component one molecule of at
+most 15 atoms). Without the routing view, mode="fluid" refuses on EC's 10
+atoms and mode="auto"/"slab" pay a 100–300 s Wigner-Seitz / thin-film scan
+before reaching the same fluid lift. Region statements follow
+`pipeline._fit_fluid_region`'s recipe: density and g(r) recomputed over
+the region volume (a sub-region is not the box), cn as lifted.
+
+**RD2's inference is fed the full-precision frozen sublattice, with one
+recorded workaround.** The production dump rounds coordinates to 6
+significant digits, which cannot pass RD2's exact single-radius gate
+(1e-6 relative), so the chirality comes from `final.data`'s tube
+(1e-6-A text precision; the tube is frozen, so it IS every frame's tube —
+the pipeline asserts the dump's tube matches it within 1e-3 A every
+frame). Second, `infer_nanotube_chirality` re-anchors perpendicular
+coordinates by minimum image, which is unique only below half the
+perpendicular cell edge: the cnt16 tube's diameter (21.71 A) exceeds its
+cell's half-width (20.86 A), so the inference runs with the two
+perpendicular cell lengths tripled — no wrap actually occurs in either
+system (each tube sits centred, entirely inside its box), the axial
+period and every consistency gate are unchanged, and the cnt10 inference
+is identical with and without the tripling. Fixing the anchoring inside
+`lift/nanotube.py` is next round's item, not this round's.
