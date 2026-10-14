@@ -91,11 +91,12 @@ thresholds:
   fluid_max_bonded_component: 3   # largest bond-graph component (atoms) still one
                                   # molecule of a single-phase fluid (the water/CO2
                                   # class; the registry's larger SPECIES templates --
-                                  # EC 10 atoms, PF6- 7 atoms, W12 -- are routing
-                                  # exceptions, not a raised bound: their frames route
-                                  # through the interface arms, and species-block
-                                  # programs naming them build through the template
-                                  # registry); an extended component is
+                                  # EC 10 atoms, PF6- 7 atoms, W12; PC 13 atoms,
+                                  # EMC 15 atoms, the post-gate research species --
+                                  # are routing exceptions, not a raised bound: their
+                                  # frames route through the interface arms, and
+                                  # species-block programs naming them build through
+                                  # the template registry); an extended component is
                                   # a second phase (metal slab, network) and lifts as
                                   # interface/amorphous, never as a pseudo-molecule
   density_match_tolerance: 0.05     # stated vs geometric density mismatch (A12)

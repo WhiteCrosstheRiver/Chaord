@@ -118,6 +118,144 @@ _register_mol("PF6-", ["P"] + ["F"] * 6,                # octahedral P-F
                                                          # lipf6_ec frames and
                                                          # the A12 charge tests
                                                          # use
+
+# Post-gate research species (Gate A' research phase, docs/reviews/
+# open_items_v2.md section 5): the carbonate solvents of the CNT research
+# case, registered with the same pattern as the EC/PF6- pair above -- these
+# TEMPLATES are the single source of truth the research-frame generator
+# matches. Bond lengths from the crystallographic compilation the EC
+# template cites (F. H. Allen, O. Kennard, D. G. Watson, L. Brammer,
+# A. G. Orpen, R. Taylor, J. Chem. Soc. Perkin Trans. 2 (1987) S1-S19:
+# ester C-O 1.43 A, sp3 C-C 1.51 A, sp3 C-H 1.09 A; the ester C(=O)-O
+# class of the same tables gives the carbonate O-C(=O) 1.35 A; ketone C=O
+# 1.21 A -- the registry's EC value 1.20 A kept for the whole carbonate
+# family). Angles: the ideal tetrahedral arccos(-1/3) = 109.47 deg at every
+# sp3 centre, and the EC template's carbonyl-centre convention (O=C-O
+# 126 deg, O-C-O = 360 - 2 x 126 = 108 deg) at the carbonate carbon. PC and
+# EMC are the solvent species of the carbonate-electrolyte MD literature
+# (OPLS-AA carbonate solvent models); every length above is the standard
+# value quoted there.
+
+_TET_DEG = np.degrees(np.arccos(-1.0 / 3.0))   # ideal tetrahedral 109.4712
+
+
+def _tet_flank(origin, u1, u2, r):
+    """The two ideal-tetrahedral sites r A from `origin` flanking the plane
+    of its two neighbours along u1, u2: each exactly 109.47 deg from BOTH
+    bonds (arccos(-1/3)), one either side of the plane. Used for the
+    substituents of a ring/backbone sp3 carbon whose neighbours are fixed."""
+    u1 = np.asarray(u1, float) / np.linalg.norm(u1)
+    u2 = np.asarray(u2, float) / np.linalg.norm(u2)
+    bis = u1 + u2
+    bis /= np.linalg.norm(bis)
+    a = (1.0 / 3.0) / np.dot(u1, bis)   # cos(109.47) = -1/3 at both bonds
+    c = np.sqrt(1.0 - a * a)
+    n = np.cross(u1, u2)
+    n /= np.linalg.norm(n)
+    return (origin + r * (-a * bis + c * n),
+            origin + r * (-a * bis - c * n))
+
+
+def _methyl_h(parent, u):
+    """Three staggered hydrogens on a methyl carbon `parent` whose bond to
+    the rest of the molecule points along `u`: C-H 1.09 A, H-C-X
+    109.47 deg, azimuths 120 deg apart about the C-X bond."""
+    u = np.asarray(u, float)
+    u = u / np.linalg.norm(u)
+    m = np.cross(u, (0.0, 0.0, 1.0))
+    if np.linalg.norm(m) < 1e-9:
+        m = np.cross(u, (1.0, 0.0, 0.0))
+    m /= np.linalg.norm(m)
+    n = np.cross(u, m)
+    out = []
+    for phi in (90.0, 210.0, 330.0):
+        d = (-1.0 / 3.0) * u + np.sqrt(8.0 / 9.0) * (
+            np.cos(np.deg2rad(phi)) * m + np.sin(np.deg2rad(phi)) * n)
+        out.append(parent + 1.09 * d)
+    return out
+
+
+def _nerf(a, b, c, length, angle_deg, dihedral_deg):
+    """Position D from A-B-C-D internal coordinates (the standard NeRF
+    construction): |CD| = length, angle(B-C-D) = angle_deg, dihedral
+    (A-B-C-D) = dihedral_deg."""
+    ang = np.deg2rad(angle_deg)
+    tor = np.deg2rad(dihedral_deg)
+    d_local = np.array([-length * np.cos(ang),
+                        length * np.cos(tor) * np.sin(ang),
+                        length * np.sin(tor) * np.sin(ang)])
+    bc = np.asarray(c, float) - np.asarray(b, float)
+    bc /= np.linalg.norm(bc)
+    n = np.cross(np.asarray(b, float) - np.asarray(a, float), bc)
+    n /= np.linalg.norm(n)
+    return np.asarray(c, float) + np.column_stack(
+        [bc, np.cross(n, bc), n]) @ d_local
+
+
+def _pc_rel():
+    """Propylene carbonate (4-methyl-1,3-dioxolan-2-one, C4H6O3): the
+    5-membered cyclic carbonate ring O=C1(-O2)-O5-C4-C3(-CH3)-O2, the
+    methyl on the ring CH. The ring skeleton is built mirror-symmetric
+    about the C1...C3C4-midpoint bisector from the cited lengths
+    (O-C(=O) 1.35 A, ester C-O 1.43 A, sp3 C-C 1.51 A) with the EC
+    convention at the carbonyl centre (O=C-O 126 deg, O2-C1-O5
+    = 360 - 2 x 126 = 108 deg); the O2-C3-C4 angle closes the ring exactly
+    at the cited C-C length (gamma = arccos((1.51/2 - 1.35 sin(54 deg))
+    / 1.43) = 103.64 deg, the squeezed O-C-C angle five-membered carbonate
+    rings carry; the C1-O2-C3 angle follows at 112.36 deg, the ester C-O-C
+    class value). Carbonyl O6 1.20 A out along the ring bisector. The
+    methyl (C-C 1.51 A) and the ring hydrogen take the two tetrahedral
+    sites flanking the ring plane (109.47 deg to both ring bonds, exocyclic
+    C-C-H angle 114.74 deg); the CH2 and CH3 hydrogens (C-H 1.09 A) are
+    ideal tetrahedral throughout."""
+    a = np.deg2rad(54.0)                     # half of the 108 deg O2-C1-O5
+    C1 = np.zeros(3)
+    O2 = 1.35 * np.array([np.sin(a), -np.cos(a), 0.0])
+    O5 = 1.35 * np.array([-np.sin(a), -np.cos(a), 0.0])
+    O6 = np.array([0.0, 1.20, 0.0])          # carbonyl on the ring bisector
+    gamma = np.degrees(np.arccos((0.5 * 1.51 - 1.35 * np.sin(a)) / 1.43))
+    C3 = O2 + 1.43 * np.array([np.cos(np.deg2rad(gamma)),
+                               -np.sin(np.deg2rad(gamma)), 0.0])
+    C4 = np.array([-C3[0], C3[1], 0.0])      # mirror: |C3-C4| = 1.51 exact
+    C7 = _tet_flank(C3, O2 - C3, C4 - C3, 1.51)[0]   # the CH3
+    H8 = _tet_flank(C3, O2 - C3, C4 - C3, 1.09)[1]   # the ring C3-H
+    H9, H10 = _tet_flank(C4, C3 - C4, O5 - C4, 1.09)
+    H11, H12, H13 = _methyl_h(C7, C3 - C7)
+    return [C1, O2, C3, C4, O5, O6, C7, H8, H9, H10, H11, H12, H13]
+
+
+_register_mol("PC", ["C", "O", "C", "C", "O", "O", "C"] + ["H"] * 6,
+              _pc_rel(), charge=0)
+
+
+def _emc_rel():
+    """Ethyl methyl carbonate (C4H8O3): the linear carbonate
+    CH3-O-C(=O)-O-CH2-CH3 as the extended anti/anti backbone -- every
+    heavy-atom chain dihedral C1-O2-C3-O5-C6-C7 exactly 180 deg (each alkyl
+    syn to the carbonyl oxygen: the extended carbonate backbone), terminal
+    carbons 4.54 A apart, no folded contact. The carbonate centre is planar
+    with the EC convention (O=C-O 126 deg, O-C-O = 108 deg; O-C(=O) 1.35 A,
+    C=O 1.20 A); ester C-O 1.43 A with the ideal tetrahedral C-O-C angle
+    109.47 deg at both alkoxy oxygens; ethyl C-C 1.51 A; every sp3 angle
+    ideal tetrahedral; C-H 1.09 A."""
+    a = np.deg2rad(54.0)                     # half of the 108 deg O2-C3-O5
+    C3 = np.zeros(3)
+    O4 = np.array([0.0, 1.20, 0.0])          # carbonyl oxygen
+    O2 = 1.35 * np.array([np.sin(a), -np.cos(a), 0.0])
+    O5 = 1.35 * np.array([-np.sin(a), -np.cos(a), 0.0])
+    # dihedral 0 to the carbonyl oxygen = chain dihedral 180 (extended)
+    C1 = _nerf(O4, C3, O2, 1.43, _TET_DEG, 0.0)
+    C6 = _nerf(O4, C3, O5, 1.43, _TET_DEG, 0.0)
+    C7 = _nerf(C3, O5, C6, 1.51, _TET_DEG, 180.0)
+    H17, H18 = _tet_flank(C6, O5 - C6, C7 - C6, 1.09)
+    H14, H15, H16 = _methyl_h(C1, O2 - C1)
+    H19, H20, H21 = _methyl_h(C7, C6 - C7)
+    return [C1, O2, C3, O4, O5, C6, C7,
+            H14, H15, H16, H17, H18, H19, H20, H21]
+
+
+_register_mol("EMC", ["C", "O", "C", "O", "O", "C", "C"] + ["H"] * 8,
+              _emc_rel(), charge=0)
 # dialect-exempt-end
 
 
