@@ -58,6 +58,7 @@ _raw_value: NUMBER
          | PLANE
          | WOOD
          | KV
+         | CHIRAL
          | ARROW
          | AT
          | PLUS
@@ -71,7 +72,7 @@ shape: "all" -> all_shape
      | "slab" AXIS range -> slab_shape
      | "box" range range range -> box_shape
      | "sphere" "center" NUMBER NUMBER NUMBER "radius" quantity -> sphere_shape
-     | "cylinder" "axis" AXIS "center" NUMBER NUMBER "radius" quantity -> cylinder_shape
+     | "cylinder" "axis" AXIS "center" NUMBER NUMBER [NUMBER] "radius" quantity ["length" quantity] -> cylinder_shape
 range: quantity DOTS quantity
 quantity: NUMBER [WORD]
 
@@ -97,6 +98,7 @@ DIRECTION: /\[\s*-?\d(?:\s*-?\d){2,3}\s*\]/
 FAMILY: /<\s*-?\d(?:\s*-?\d){2,3}\s*>/
 WOOD: /[pc]?\(\s*\w+\s*x\s*\w+\s*\)(?:R\d+)?/
 PLANE: /\(\s*-?\d(?:\s*-?\d){2,3}\s*\)/
+CHIRAL: /\(\s*\d+\s*,\s*\d+\s*\)/
 KV: /(?:V|[A-Z][a-z]?)_(?:[A-Z][a-z]?|i)(?:\^(?:x|\.+|'+))?(?![A-Za-z0-9_])/
 WORD: /[A-Za-z_%][A-Za-z0-9_+\-\/%^.]*/
 NL: /\r?\n/

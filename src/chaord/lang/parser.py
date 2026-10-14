@@ -14,10 +14,11 @@ from lark import Lark, Token, Tree, UnexpectedInput
 
 from .errors import ChaordSyntaxError
 from .ir import (
-    At, Arrow, Direction, Eq, Family, GeoChain, InterfaceBlock, KVDefect, Name,
-    Plane, Plus, Program, Quantity, RangeVal, RegionBlock, ResidualBlock,
-    ShAll, ShBox, ShCylinder, ShSlab, ShSphere, ShRest, SpecDef, SpeciesBlock,
-    Statement, StrVal, SystemBlock, PhysicsBlock, ProvenanceBlock, Tol, Wood,
+    At, Arrow, Chirality, Direction, Eq, Family, GeoChain, InterfaceBlock,
+    KVDefect, Name, Plane, Plus, Program, Quantity, RangeVal, RegionBlock,
+    ResidualBlock, ShAll, ShBox, ShCylinder, ShSlab, ShSphere, ShRest, SpecDef,
+    SpeciesBlock, Statement, StrVal, SystemBlock, PhysicsBlock, ProvenanceBlock,
+    Tol, Wood,
 )
 
 _GRAMMAR = (_files("chaord.lang") / "chaord.lark").read_text(encoding="utf-8")
@@ -200,6 +201,11 @@ def _statement(tree: Tree, comments: dict[int, str], units: frozenset) -> Statem
         elif t == "WOOD":
             values.append(Wood(text=tok.value, line=_tok_line(tok)))
             pos += 1
+        elif t == "CHIRAL":
+            import re
+            n, m = (int(s) for s in re.findall(r"\d+", tok.value))
+            values.append(Chirality(n=n, m=m, line=_tok_line(tok)))
+            pos += 1
         elif t == "KV":
             values.append(KVDefect(text=tok.value, line=_tok_line(tok)))
             pos += 1
@@ -304,11 +310,20 @@ def _shape(tree: Tree):
             cz=Quantity(num=c[2].value), radius=_quantity(c[3]),
         )
     if data == "cylinder_shape":
-        c = tree.children  # [AXIS, NUMBER, NUMBER, quantity]
+        # children: AXIS, NUMBER, NUMBER, [NUMBER], quantity, ["length", quantity]
+        # (anonymous keyword literals are filtered; with maybe_placeholders
+        # off, the optionals are simply absent when not written)
+        toks = [c for c in tree.children
+                if isinstance(c, Token) and c.type == "NUMBER"]
+        axis = next(c.value for c in tree.children
+                    if isinstance(c, Token) and c.type == "AXIS")
+        quants = [_quantity(c) for c in tree.children if isinstance(c, Tree)]
         return ShCylinder(
-            axis=c[0].value,
-            cx=Quantity(num=c[1].value), cy=Quantity(num=c[2].value),
-            radius=_quantity(c[3]),
+            axis=axis,
+            cx=Quantity(num=toks[0].value), cy=Quantity(num=toks[1].value),
+            cz=Quantity(num=toks[2].value) if len(toks) > 2 else None,
+            radius=quants[0],
+            length=quants[1] if len(quants) > 1 else None,
         )
     raise ChaordSyntaxError(f"unknown shape {data!r}")  # pragma: no cover
 

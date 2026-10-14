@@ -22,9 +22,9 @@ def test_example_parses_and_round_trips(path):
 
 
 def test_all_seven_examples():
-    # the original seven plus deposit (08), rutile surface (09) and the
-    # SPC/E brine water-model example (10)
-    assert len(EXAMPLES) == 10
+    # the original seven plus deposit (08), rutile surface (09), the SPC/E
+    # brine water-model example (10) and the nanotube-field example (11)
+    assert len(EXAMPLES) == 11
 
 
 def test_sketch_check_still_passes():

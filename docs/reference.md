@@ -33,6 +33,7 @@ statement carries a kind: **build** (no keyword), **state**, **constrain**,
 | `cell` | `cell 21.432 21.432 21.432 A` | box edge lengths; `auto` derives from density |
 | `pbc` | `pbc xyz` | periodic directions |
 | `seed` | `seed 7` | sampling seed: same seed, same coordinates |
+| `field` | `state field E 0.10 V/A along z` | external electric field along a cell axis (carbon dialect; macrostate metadata -- the build places no charges, and the lift states it only when the caller supplies the value, flagged assumed in provenance) |
 
 ## physics
 
@@ -86,7 +87,7 @@ statement carries a kind: **build** (no keyword), **state**, **constrain**,
 | `chirality` | `chirality (14,3)` | nanotube handedness (carbon dialect) |
 | `forcefield` | `forcefield "trappe-ua"` | classical force-field tag |
 | `lift_version` | `lift_version "0.1.0"` | provenance: lifting tool version |
-| `nanotube` | `nanotube count 1` | carbon dialect construction |
+| `nanotube` | `nanotube (10,10) length 39.36 A` | chirality (n,m) + target length; the built tube is commensurate (the nearest whole number of translation periods) |
 | `note` | `note "any text"` | free-form provenance note |
 | `source` | `source "dump.lammpstrj"` | provenance: origin file |
 | `stacking` | `stacking AB` | layer stacking order |
@@ -107,7 +108,9 @@ statement carries a kind: **build** (no keyword), **state**, **constrain**,
 ## geometry
 
 `all`, `rest`, `slab z 0 .. 18 A`, `box .. .. ..`, `sphere center x y z radius r`,
-`cylinder axis z center x y radius r`, joined by `and`, `or`, `minus`.
+`cylinder axis z center x y radius r`, `cylinder axis z center x y cz radius r length 40.0 A`
+(the finite form: extent along the axis, centred on the centre's axis coordinate),
+joined by `and`, `or`, `minus`.
 
 ## dialects
 

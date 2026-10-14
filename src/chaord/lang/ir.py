@@ -81,6 +81,14 @@ class KVDefect(BaseModel):
     line: int = Line
 
 
+class Chirality(BaseModel):
+    """A nanotube chirality pair (n, m), printed canonically as (n,m)."""
+    t: Literal["chir"] = "chir"
+    n: int
+    m: int
+    line: int = Line
+
+
 class Arrow(BaseModel):
     t: Literal["arrow"] = "arrow"
     line: int = Line
@@ -104,7 +112,7 @@ class Eq(BaseModel):
 Value = Annotated[
     Union[
         Quantity, RangeVal, Tol, Name, StrVal, Direction, Family, Plane, Wood,
-        KVDefect, Arrow, At, Plus, Eq,
+        KVDefect, Chirality, Arrow, At, Plus, Eq,
     ],
     Field(discriminator="t"),
 ]
@@ -162,11 +170,18 @@ class ShSphere(BaseModel):
 
 
 class ShCylinder(BaseModel):
+    """A cylinder along one axis. The legacy form names only the two
+    perpendicular centre coordinates and no length: an axis-infinite
+    cylinder. `cz` (the axis coordinate of the centre) and `length` (the
+    extent along the axis, centred on the centre, inclusive) make it finite
+    (RD1, docs/reviews/research_decisions.md)."""
     t: Literal["cylinder"] = "cylinder"
     axis: Axis
     cx: Quantity
     cy: Quantity
+    cz: Optional[Quantity] = None
     radius: Quantity
+    length: Optional[Quantity] = None
 
 
 Shape = Annotated[

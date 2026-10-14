@@ -31,6 +31,12 @@ def build_program(program: Program, dialect, rng=None, physics: bool = True,
     if phases == {"crystal"}:
         if len(regions) != 1:
             raise ChaordError("the M1 builder supports one crystal region")
+        if any(s.key == "nanotube" for s in regions[0].statements):
+            # RD2 (docs/reviews/research_decisions.md): the nanotube
+            # construction is exact geometry, not a prototype tiling
+            from .nanotube import build_nanotube_region
+            return build_nanotube_region(regions[0], _system_map(program),
+                                         dialect, rng=rng)
         return build_crystal_region(regions[0], _system_map(program), dialect, rng=rng)
     if phases in ({"liquid"}, {"gas"}, {"liquid", "gas"}):
         return build_fluid(program, dialect, rng, physics=physics, md_steps=md_steps)

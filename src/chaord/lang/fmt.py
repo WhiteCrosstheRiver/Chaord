@@ -32,6 +32,8 @@ def fmt_value(v) -> str:
         return "+"
     if t == "eq":
         return "="
+    if t == "chir":
+        return f"({v.n},{v.m})"
     return v.text  # n, dir, fam, pl, wood, kv
 
 
@@ -62,8 +64,13 @@ def fmt_shape(sh) -> str:
         return (f"sphere center {sh.cx.num} {sh.cy.num} {sh.cz.num} "
                 f"radius {fmt_value(sh.radius)}")
     if t == "cylinder":
-        return (f"cylinder axis {sh.axis} center {sh.cx.num} {sh.cy.num} "
-                f"radius {fmt_value(sh.radius)}")
+        out = (f"cylinder axis {sh.axis} center {sh.cx.num} {sh.cy.num} ")
+        if sh.cz is not None:
+            out += f"{sh.cz.num} "
+        out += f"radius {fmt_value(sh.radius)}"
+        if sh.length is not None:
+            out += f" length {fmt_value(sh.length)}"
+        return out
     raise ValueError(f"unknown shape {t!r}")
 
 

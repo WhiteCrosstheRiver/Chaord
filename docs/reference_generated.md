@@ -17,13 +17,14 @@ One row per statement key declared in `src/chaord/dialects/*.yaml`, with a passi
 | `dialects` | core:provenance | `(no example in spec/examples/ - add one)` | - | yes (entry; no example exists in spec/examples (reported)) |
 | `dissociate` | core:interface | `dissociate H2O -> OH @ Ti_5c + H @ O_br count 9` | 07_reactive_interface.chaord | yes (entry + cited example `dissociate H2O -> OH @ Ti_5c + H @ O_br count 9`) |
 | `epsilon` | core:physics | `epsilon 1` | 01_solid_liquid_lifted.chaord | yes (entry + cited example `epsilon 1`) |
+| `field` | carbon:system | `state field E 0.10 V/A along z` | 11_nanotube_field.chaord | yes (entry + cited example `state field E 0.10 V/A along z`) |
 | `forcefield` | core:physics | `forcefield "trappe-ua"` | 06_gas.chaord | yes (entry + cited example `forcefield "trappe-ua"`) |
 | `history` | glass:region_amorphous, lj_mixtures:region_amorphous | `history melt 3000 K for 20 ps -> quench to 300 K at 1 K/ps -> anneal 300 K for 50 ps` | 04_amorphous_si.chaord | yes (entry + cited example `history melt 3000 K for 20 ps -> quench to 300 K at 1 K/ps -> anneal 300 K for 50 ps`) |
 | `lattice` | metal:region_crystal | `lattice fcc` | 01_solid_liquid_lifted.chaord | yes (entry + cited example `lattice fcc`) |
 | `lift_version` | core:provenance | `(no example in spec/examples/ - add one)` | - | yes (entry; no example exists in spec/examples (reported)) |
 | `model` | core:physics, lj_mixtures:physics, molecular:physics | `model "mace-mp-0"` | 03_solid_solution_sro.chaord | yes (entry + cited example `model "mace-mp-0"`) |
 | `molecules` | molecular:region_gas, molecular:region_liquid | `molecules EC 600 Li+ 45 PF6- 45  # about 1 M` | 05_electrolyte.chaord | yes (entry + cited example `molecules H2O 620`) |
-| `nanotube` | carbon:region_crystal | `(no example in spec/examples/ - add one)` | - | yes (entry; no example exists in spec/examples (reported)) |
+| `nanotube` | carbon:region_crystal | `nanotube (10,10) length 39.36 A` | 11_nanotube_field.chaord | yes (entry + cited example `nanotube (10,10) length 39.36 A`) |
 | `note` | core:provenance | `(no example in spec/examples/ - add one)` | - | yes (entry; no example exists in spec/examples (reported)) |
 | `orient` | ionic:region_crystal, metal:region_crystal | `orient x <100> z <001>` | 01_solid_liquid_lifted.chaord | yes (entry + cited example `orient x [100] y [010] z [001]`) |
 | `pbc` | core:system, lj:system | `pbc xyz` | 01_solid_liquid_lifted.chaord | yes (entry + cited example `pbc xyz`) |

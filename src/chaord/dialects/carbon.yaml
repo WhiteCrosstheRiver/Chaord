@@ -2,10 +2,12 @@
 name: carbon
 version: "0.1.0"
 
-units: []
+units: [V/A]          # external electric-field gradient (RD3)
 
 keys:
+  system: [field]     # `state field E 0.10 V/A along z` (RD3)
   region_crystal: [nanotube, stacking, chirality]
 
 thresholds:
   cn_cutoff: 1.85                 # C-C first shell, A
+  nanotube_vacuum_margin: 10.0    # A of vacuum around an auto-celled tube (RD2)

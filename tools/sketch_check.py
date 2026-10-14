@@ -10,6 +10,7 @@ TOKENS = [
     ("FAMILY", r"<\s*-?\d(?:\s*-?\d){2,3}\s*>"),
     ("WOOD", r"[pc]?\(\s*\w+\s*x\s*\w+\s*\)(?:R\d+)?"),
     ("PLANE", r"\(\s*-?\d(?:\s*-?\d){2,3}\s*\)"),
+    ("CHIRAL", r"\(\s*\d+\s*,\s*\d+\s*\)"),
     ("KV", r"(?:V|[A-Z][a-z]?)_(?:[A-Z][a-z]?|i)(?:\^(?:x|\.+|'+))?(?![A-Za-z0-9_])"),
     ("ARROW", r"->"), ("RANGE", r"\.\."), ("PM", r"\+-"),
     ("NUMBER", r"[+-]?(?:\d+/\d+|(?:\d+\.\d*|\.\d+|\d+)(?:[eE][+-]?\d+)?)(?![A-Za-z_])"),
@@ -19,7 +20,7 @@ TOKENS = [
 LEX = re.compile("|".join(f"(?P<{n}>{p})" for n, p in TOKENS))
 PHASES = {"crystal", "amorphous", "liquid", "gas", "fluid", "cluster", "vacuum"}
 KINDS = {"state", "constrain", "assert", "history", "conserve"}
-VALUE = {"NUMBER", "WORD", "STRING", "DIRECTION", "FAMILY", "PLANE", "WOOD", "KV", "RANGE", "PM", "ARROW"}
+VALUE = {"NUMBER", "WORD", "STRING", "DIRECTION", "FAMILY", "PLANE", "WOOD", "KV", "RANGE", "PM", "ARROW", "CHIRAL"}
 
 def lex(src):
     pos, line, out = 0, 1, []
@@ -81,7 +82,7 @@ class P:
         raise SyntaxError(f"line {s.peek()[2]}: unknown block {w!r}")
     def qty(s):
         s.take("NUMBER")
-        if s.peek()[0] == "WORD" and s.peek()[1] not in ("and", "or", "minus", "radius", "center"): s.i += 1
+        if s.peek()[0] == "WORD" and s.peek()[1] not in ("and", "or", "minus", "radius", "center", "length"): s.i += 1
     def rng(s): s.qty(); s.take("RANGE"); s.qty()
     def geometry(s):
         s.shape()
@@ -95,7 +96,10 @@ class P:
             s.take("WORD", "center"); [s.take("NUMBER") for _ in range(3)]; s.take("WORD", "radius"); s.qty(); return
         if w == "cylinder":
             s.take("WORD", "axis"); s.take("WORD"); s.take("WORD", "center"); s.take("NUMBER"); s.take("NUMBER")
-            s.take("WORD", "radius"); s.qty(); return
+            if s.peek()[0] == "NUMBER": s.i += 1  # optional axis coordinate of the centre (finite form)
+            s.take("WORD", "radius"); s.qty()
+            if s.peek()[1] == "length": s.i += 1; s.qty()  # optional extent along the axis (finite form)
+            return
         raise SyntaxError(f"line {s.peek()[2]}: unknown shape {w!r}")
     def body(s):
         s.take("SYM", "{"); stmts = []
