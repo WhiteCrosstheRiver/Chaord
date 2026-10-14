@@ -80,7 +80,7 @@ def infer_nanotube_chirality(positions, cell) -> NanotubeChirality:
     # lengths); every downstream periodic container is half-open [0, box),
     # so clamp the wrapped coordinates just under the upper face -- the
     # repo's standing wrap idiom (bench sanity, cv helpers)
-    pos = np.minimum(pos, L * (1 - 1e-9))
+    pos = np.minimum(pos, L * (1 - 1e-9))  # dialect-exempt: numerical-guard: np.mod box clamp
     if pos.ndim != 2 or pos.shape[1] != 3 or len(pos) < 2:
         raise ChaordError("a nanotube frame needs an (N, 3) position array")
     axis = _tube_axis(pos)
@@ -143,9 +143,9 @@ def _unroll(pos: np.ndarray, L: np.ndarray, axis: int, perp) -> tuple:
         raise ChaordError("the atoms do not sit on one radius about the "
                           "axis: not a nanotube frame")
     x = np.mod(R * np.arctan2(d[:, 1], d[:, 0]), 2 * np.pi * R)
-    x = np.minimum(x, 2 * np.pi * R * (1 - 1e-9))   # np.mod can return the box
+    x = np.minimum(x, 2 * np.pi * R * (1 - 1e-9))  # dialect-exempt: numerical-guard: np.mod box clamp
     y = np.mod(pos[:, axis] - pos[0, axis], L[axis])
-    y = np.minimum(y, L[axis] * (1 - 1e-9))         # exactly L (see above)
+    y = np.minimum(y, L[axis] * (1 - 1e-9))  # dialect-exempt: numerical-guard: np.mod box clamp
     return x, y, R
 
 

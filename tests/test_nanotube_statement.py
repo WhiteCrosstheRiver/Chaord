@@ -241,8 +241,11 @@ def test_lift_survives_boundary_rounding():
     inference must clamp, not raise."""
     frame, built, _atoms, _ch = _build((10, 10), 39.36)
     pos = frame.pos.copy()
-    pos[0, 2] = 0.0                         # the reference atom sits at 0
-    pos[len(pos) // 2, 2] = -1e-15          # wraps to exactly L (np.mod)
+    # rigid translation so the lowest atom sits EXACTLY on the origin (the
+    # lattice is untouched; the inference is translation-invariant), then a
+    # uniform hair below zero: np.mod wraps that one atom to exactly L
+    pos[:, 2] -= pos[:, 2].min()
+    pos[:, 2] -= 1e-15
     from chaord.io.frames import Frame
     shifted = Frame(pos=pos, cell=frame.cell, symbols=frame.symbols)
     got = _infer(shifted)
