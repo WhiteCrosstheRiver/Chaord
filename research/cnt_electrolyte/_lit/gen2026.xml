@@ -1,0 +1,635 @@
+<?xml version="1.0" encoding="UTF-8"?><article xml:lang="en" article-type="research-article"><front><journal-meta><journal-id journal-id-type="pmc-domain-id">3686</journal-id><journal-id journal-id-type="pmc-domain">acsomega</journal-id><journal-title-group><journal-title>ACS Omega</journal-title><abbrev-journal-title>ACS Omega</abbrev-journal-title></journal-title-group><publisher><publisher-name>American Chemical Society</publisher-name></publisher></journal-meta><article-meta><article-id pub-id-type="pmcid">PMC13520033</article-id><article-id pub-id-type="pmcaid">13520033</article-id><article-id pub-id-type="pmcaiid">13520033</article-id><article-id pub-id-type="pmid">42662196</article-id><article-id pub-id-type="doi">10.1021/acsomega.6c01811</article-id><title-group><article-title>Accelerating Electrolyte Discovery Using Generative
+Models and Molecular Dynamics Simulations</article-title></title-group><contrib-group content-type="author"><contrib><name name-style="western"><surname>Deerattrakul</surname><given-names initials="V">Varisara</given-names></name><xref ref-type="aff" rid="aff1">†</xref><xref ref-type="aff" rid="aff2">‡</xref></contrib><contrib><name name-style="western"><surname>Duangdangchote</surname><given-names initials="S">Salatan</given-names></name><xref ref-type="aff" rid="aff3">§</xref></contrib><contrib><name name-style="western"><surname>Boonchun</surname><given-names initials="A">Adisak</given-names></name><xref ref-type="aff" rid="aff4">∥</xref></contrib><contrib><name name-style="western"><surname>Iamprasertkun</surname><given-names initials="P">Pawin</given-names></name><xref ref-type="aff" rid="aff1">†</xref><xref ref-type="aff" rid="aff2">‡</xref><xref rid="cor1" ref-type="author-notes">*</xref></contrib></contrib-group><aff id="aff1">
+<label>†</label>
+School
+of Bio-Chemical Engineering and Technology, Sirindhron International
+Institute of Technology, Thammasat University, Pathum Thani
+12120, Thailand
+</aff><aff id="aff2">
+<label>‡</label>
+Research
+Unit in Sustainable Electrochemical Intelligent, Thammasat University, Pathum Thani
+12120, Thailand
+</aff><aff id="aff3">
+<label>§</label>
+Maple
+Synapse Inc, North York, Ontario
+M2K 0C4, Canada
+</aff><aff id="aff4">
+<label>∥</label>
+Department
+of Physics, Faculty of Science, Kasetsart
+University, Bangkok
+10900, Thailand
+</aff><author-notes><fn id="cor1"><label>*</label><p>
+Email address: <email>pawin@siit.tu.ac.th</email>.</p></fn></author-notes><pub-date><day>10</day><month>8</month><year>2026</year></pub-date><volume>11</volume><issue>33</issue><fpage>49205</fpage><page-range>49205–49213</page-range><pub-history><event event-type="pmc-release"><date><day>28</day><month>8</month><year>2026</year></date></event></pub-history><permissions><copyright-statement>© 2026 The Authors. Published by American Chemical Society</copyright-statement><license><license-p>This article is licensed under CC-BY 4.0</license-p></license></permissions><self-uri xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="ao6c01811.pdf" content-type="pmc-pdf"><?cloudpmc-path 6de6/13520033/1a2343149628/ao6c01811.pdf?><?cloudpmc-bucket app?><?size 4463475?></self-uri><abstract id="abstract1"><title>Abstract</title><p>Operating lithium-ion
+batteries (LIBs) at high voltages and low
+temperatures demands electrolyte solvents with highly tailored electronic
+properties. Because traditional discovery is limited by historical
+solvent libraries and human intuition, expanding the accessible chemical
+space requires advanced computational methods. Here, we deploy the
+generative machine learning model G-SchNet, trained on the QM9-GCDQE
+database, to invert the design process for three designed targeted
+electrolyte environments: general-purpose, high-voltage, and low-temperature.
+We filtered the generated molecular space using a multistage framework
+based on validity, uniqueness, and novelty, followed by DFT and molecular
+dynamics (MD) validation. We identified a computationally promising
+candidate, trifluoro­((fluoromethoxy)­methoxy)­methane, which is a fluorinated
+ether that exhibits computed transport properties enhanced relative
+to a conventional EC/DEC electrolyte under identical simulation conditions.
+This workflow illustrates the capacity of generative models to identify
+computationally promising electrolyte candidates that warrant further
+computational and experimental investigation.</p></abstract><abstract id="abstract2" abstract-type="graphical"><graphic xmlns:xlink="http://www.w3.org/1999/xlink" content-type="image" id="abs1" xlink:href="ao6c01811_0007.webp"><?cloudpmc-path blobs/6de6/13520033/8856c873e233/ao6c01811_0007.webp?><?cloudpmc-bucket cdn?><?image-server-status LOAD_COMPLETED?><?original-height 558?><?original-width 1263?><?scaled-height 558?><?scaled-width 1263?></graphic></abstract><abstract id="abstract3" abstract-type="toc-graphic"><graphic xmlns:xlink="http://www.w3.org/1999/xlink" content-type="image" id="tgr1" xlink:href="ao6c01811_0005.webp"><?cloudpmc-path blobs/6de6/13520033/8856c873e233/ao6c01811_0005.webp?><?cloudpmc-bucket cdn?><?image-server-status LOAD_COMPLETED?><?original-height 558?><?original-width 1263?><?scaled-height 558?><?scaled-width 1263?></graphic></abstract><custom-meta-group><custom-meta><meta-name>status</meta-name><meta-value>released</meta-value></custom-meta><custom-meta><meta-name>display-pdf</meta-name><meta-value>yes</meta-value></custom-meta><custom-meta><meta-name>is-olf</meta-name><meta-value>no</meta-value></custom-meta><custom-meta><meta-name>is-manuscript</meta-name><meta-value>no</meta-value></custom-meta><custom-meta><meta-name>is-preprint</meta-name><meta-value>no</meta-value></custom-meta><custom-meta><meta-name>is-journal-matter</meta-name><meta-value>no</meta-value></custom-meta><custom-meta><meta-name>is-scanned</meta-name><meta-value>no</meta-value></custom-meta><custom-meta><meta-name>is-retracted</meta-name><meta-value>no</meta-value></custom-meta></custom-meta-group></article-meta><notes notes-type="article-notes"><sec id="historyarticle-meta1" sec-type="history" disp-level="2"><p>Received 2026 Feb 16; Accepted 2026 Jul 30; Revised 2026 Jun 3; Collection date 2026 Aug 25.</p></sec></notes></front><body><sec id="sec1" disp-level="1"><title>Introduction</title><p>The increasing demands on for global energy
+storage, driven by
+electric vehicles and grid-scale storage, continue to raise the performance
+bar for (LIBs).<italic>
+,
+</italic> While electrode materials have
+seen steady improvements in energy density, the electrolyte remains
+a critical bottleneck, particularly for operations requiring high
+voltage stability (&gt;4.5 V) and low-temperature conductivity.<italic>
+−
+
+</italic> Commercial electrolytes, predominantly composed of cyclic and linear
+carbonates such as ethylene carbonate (EC) and diethyl carbonate (DEC),
+suffer from narrow electrochemical stability windows and sluggish
+ion transport at subzero temperatures. Although the industry has historically
+relied on additives like fluoroethylene carbonate (FEC) to stabilize
+the solid–electrolyte interphase (SEI), these solutions often impose a penalty in viscosity that compromises
+high-rate capability. Consequently, the discovery of novel solvent
+architectures that intrinsically balance wide electrochemical windows
+with rapid ion transport remains an important goal for modern battery
+chemistry.<italic>
+−
+
+
+</italic>
+</p><p>Traditional electrolyte discovery has long been dominated
+by chemical
+intuition and iterative experimental screening. While effective for
+incremental improvements, the trial-and-error approach is inefficient
+for exploring the vast chemical space of potential organic solvents,
+which is estimated to exceed 10<sup>60</sup> distinct molecules.<italic>
+,
+</italic> To overcome these limitations, recent research has pivoted toward
+data-driven methodologies. High-throughput computational screening,
+often coupled with density functional theory (DFT), has been employed
+to evaluate large libraries of known compounds for properties such
+as redox potential and solvation energy. More recently, machine learning (ML) has emerged as a powerful tool
+to accelerate this process.<italic>
+−
+
+
+</italic>
+</p><p>However, most of these existing computational
+approaches are selective
+filtering rather than generative; they are limited to screening known
+libraries or optimizing existing formulations. To explore chemical
+spaces beyond known databases, an inverse design paradigm using generative
+deep learning. Generative models, such
+as variational autoencoders (VAEs) and
+generative adversarial networks (GANs), have shown promise in drug discovery, but their application remains
+underexplored in electrolyte discovery for energy storage applications.
+In this work, we employ G-SchNet with
+SchNetPack 2.0, a continuous-filter convolutional
+neural network designed for generating 3D molecular structures. We
+selected this specific architecture because, unlike string-based models
+(e.g., SMILES generators), G-SchNet explicitly captures the spatial
+symmetries and rotational invariances of molecules, which are critical
+for accurately predicting the quantum mechanical descriptors, HOMO,
+LUMO, and dipole moment, that are foundational descriptors for initial
+electrolyte screening. We also include vertical ionization potential,
+electron affinity, and a synthetic-accessibility
+score during the screening state which
+together provide a more insights into molecular and electronic properties
+in order to comparison with the conventional electrolyte solvents.</p><p>As a proof of concept, we combine this generative capability with
+high-throughput molecular dynamics (MD) simulations to establish a
+sequential generation, screening, and validation pipeline. While generative
+models can propose chemically valid structures, they cannot predict
+bulk transport phenomena such as viscosity or ionic conductivity.
+Therefore, we utilize MD simulations with the OPLS-AA force field
+to validate the dynamic behavior of the AI-generated compounds, employing
+transport quantities (diffusion coefficient, Nernst–Einstein
+conductivity, and transference number). This multiscale approach allows
+us to not only identify molecules with the electronic signatures for
+high-voltage stability but also ensure they possess the necessary
+solvation dynamics for rapid lithium transport. Through this pipeline,
+we identify a class of fluorinated ether solvents that show computationally
+promising transport properties relative to conventional carbonate
+solvents, providing initial targets that warrant experimental investigation.</p></sec><sec id="sec2" disp-level="1"><title>Experimental Section</title><sec id="sec2.1" disp-level="2"><title>Generative Model Architecture
+and Training</title><p>The G-SchNet model
+was used to produce 3D molecular structures
+conditioned on target electronic properties. At each generation step,
+the model predicts (i) the element type of the next atom and (ii)
+a probability distribution over distances to all previously placed
+atoms, from which the 3D position of the new atom is sampled. The
+model was conditioned on three simultaneous target properties, including
+HOMO energy (range: −12.0 to −2.0 eV), LUMO energy (range:
+−7.0 to 5.0 eV), and dipole moment (range: 0.0 to 15.0 D),
+via a dedicated conditioning module. The model was trained on the
+QM9-GCDQE data set, containing 443,106
+molecules composed of hydrogen, carbon, nitrogen, oxygen, and fluorine.
+The data set was split in a ratio of 70:20:10 for training, validation,
+and testing, respectively. Training was performed using the AdamW
+optimizer (learning rate = 1 × 10<sup>–4</sup>) with a
+batch size of 100. The learning rate was reduced on plateau (factor
+= 0.5, patience = 10 epochs, cooldown = 10 epochs, minimum LR = 1
+× 10<sup>–6</sup>). Early stopping with a patience of
+25 epochs on the validation loss was employed. Additional training
+details are provided in <ext-link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://pubs.acs.org/doi/suppl/10.1021/acsomega.6c01811/suppl_file/ao6c01811_si_001.pdf" ext-link-type="uri">Supporting Information</ext-link>.</p></sec><sec id="sec2.2" disp-level="2"><title>Target Profiles and Generation</title><p>We defined three distinct
+target profiles to direct the generation process. Group I (General)
+targeted a balanced electronic profile (HOMO ∼ −7.2
+eV, Dipole ∼ 4.0 D).<italic>
+,
+</italic> Group II (High Voltage)
+targeted deep HOMO levels (&lt;−8.4 eV) to promote resistance
+against oxidative decomposition at high potentials, paired with a
+high dipole moment (5.5 D) to maintain salt solubility.<italic>
+−
+
+</italic> Group III (Low Temperature) prioritized moderate polarity (Dipole
+∼ 2.2 D) to minimize the desolvation energy, which is often
+the rate-limiting step at low temperatures.<italic>
+−
+
+
+</italic> For each group, 5000 molecules
+were generated using the trained model with ancestral sampling.</p></sec><sec id="sec2.3" disp-level="2"><title>Chemical Validity and Screening</title><p>Generated 3D structures
+were processed through a multistage automated screening pipeline.
+First, a 3D-to-SMILES conversion was performed to simultaneously verify
+structural integrity: bond connectivity was inferred from atomic positions,
+and the resulting molecular graphs were converted to canonical SMILES
+using RDKit. Molecules were classified
+as valid only if they (i) produced a parseable SMILES representation
+of a neutral (charge = 0) species and (ii) contained no radical electrons.
+This step implicitly enforces correct valence, elemental consistency
+(H, C, N, O, F only), and chemically reasonable 3D geometries; structures
+with unphysical bond lengths, incorrect atom connectivity, or strained
+arrangements that cannot be resolved into a valid Lewis structure
+are rejected at this stage. Second, canonical SMILES strings were
+compared to identify and remove duplicate structures (grouped by molecular
+formula, with stereoisomers treated as distinct). Third, the remaining
+unique molecules were compared against the QM9-GCDQE training and
+validation databases to identify novel structures that do not present
+in the training data. Quantitative validation of the generative model
+including validity rate, uniqueness rate, novelty rate, conditioning
+fidelity (mean absolute error between target and DFT-computed property
+values), and Tanimoto similarity to the nearest training-set neighbor
+is reported in <ext-link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://pubs.acs.org/doi/suppl/10.1021/acsomega.6c01811/suppl_file/ao6c01811_si_001.pdf" ext-link-type="uri">Table S2</ext-link> and <ext-link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://pubs.acs.org/doi/suppl/10.1021/acsomega.6c01811/suppl_file/ao6c01811_si_001.pdf" ext-link-type="uri">Figure S8</ext-link>.</p></sec><sec id="sec2.4" disp-level="2"><title>DFT Calculations</title><p>Electronic properties of generated
+molecules and the QM9-GCDQE training data set (HOMO, LUMO, and dipole
+moment) were computed at the B3LYP/6-31G­(d) level of theory with geometry
+optimization and frequency analysis using Gaussian 16. For candidates A–F and reference solvents
+(EC, DEC, DMC, FEC), we additionally computed: vertical ionization
+potential (vIP) and vertical electron affinity (vEA) from single-point
+energies of the cation- and anion-radical states at the optimized
+neutral geometry. The synthetic-accessibility SAscore was computed from canonical SMILES. These descriptors are
+reported in the <xref rid="tbl1" ref-type="table">Table 
+</xref>.</p><table-wrap id="tbl1" position="float"><?disp-level 3?><label>1</label><caption><title>Electronic and Physicochemical Properties
+of Conventional Electrolyte Solvents and Generated Molecules</title></caption><table frame="hsides" rules="groups"><colgroup span="1"><col align="left" span="1"/><col align="char" char="." span="1"/><col align="char" char="." span="1"/><col align="char" char="." span="1"/><col align="char" char="." span="1"/><col align="char" char="." span="1"/><col align="char" char="." span="1"/><col align="left" span="1"/></colgroup><thead><tr><th align="center" colspan="1" rowspan="1">solvent</th><th align="center" colspan="1" rowspan="1">HOMO (eV)</th><th align="center" colspan="1" rowspan="1">LUMO (eV)</th><th align="center" colspan="1" rowspan="1">μ (D)</th><th align="center" colspan="1" rowspan="1">vIP (eV)</th><th align="center" colspan="1" rowspan="1">vEA (eV)</th><th align="center" colspan="1" rowspan="1">SAscore</th><th align="center" colspan="1" rowspan="1">source</th></tr></thead><tbody><tr><td align="left" colspan="1" rowspan="1">EC</td><td align="center" colspan="1" rowspan="1">–8.23</td><td align="center" colspan="1" rowspan="1">0.626</td><td align="center" colspan="1" rowspan="1">5.3</td><td align="center" colspan="1" rowspan="1">8.07</td><td align="center" colspan="1" rowspan="1">–0.79</td><td align="center" colspan="1" rowspan="1">2.79</td><td align="left" colspan="1" rowspan="1">
+<italic>
+,
+</italic>
+</td></tr><tr><td align="left" colspan="1" rowspan="1">DEC</td><td align="center" colspan="1" rowspan="1">–7.88</td><td align="center" colspan="1" rowspan="1">1.03</td><td align="center" colspan="1" rowspan="1">1.1</td><td align="center" colspan="1" rowspan="1">7.86</td><td align="center" colspan="1" rowspan="1">–1.14</td><td align="center" colspan="1" rowspan="1">1.81</td><td align="left" colspan="1" rowspan="1">
+<italic>
+,
+</italic>
+</td></tr><tr><td align="left" colspan="1" rowspan="1">DMC</td><td align="center" colspan="1" rowspan="1">–7.98</td><td align="center" colspan="1" rowspan="1">0.989</td><td align="center" colspan="1" rowspan="1">0.3</td><td align="center" colspan="1" rowspan="1">8.17</td><td align="center" colspan="1" rowspan="1">–1.17</td><td align="center" colspan="1" rowspan="1">2.26</td><td align="left" colspan="1" rowspan="1">
+<italic>
+,
+</italic>
+</td></tr><tr><td align="left" colspan="1" rowspan="1">FEC</td><td align="center" colspan="1" rowspan="1">–8.70</td><td align="center" colspan="1" rowspan="1">0.309</td><td align="center" colspan="1" rowspan="1">5.6</td><td align="center" colspan="1" rowspan="1">8.34</td><td align="center" colspan="1" rowspan="1">–0.53</td><td align="center" colspan="1" rowspan="1">4.11</td><td align="left" colspan="1" rowspan="1">
+<italic>
+,
+</italic>
+</td></tr><tr><td align="left" colspan="1" rowspan="1">cand. A</td><td align="center" colspan="1" rowspan="1">–6.83</td><td align="center" colspan="1" rowspan="1">2.26</td><td align="center" colspan="1" rowspan="1">1.78</td><td align="center" colspan="1" rowspan="1">6.59</td><td align="center" colspan="1" rowspan="1">–2.08</td><td align="center" colspan="1" rowspan="1">2.79</td><td align="left" colspan="1" rowspan="1">this work</td></tr><tr><td align="left" colspan="1" rowspan="1">cand.
+B</td><td align="center" colspan="1" rowspan="1">–6.90</td><td align="center" colspan="1" rowspan="1">0.37</td><td align="center" colspan="1" rowspan="1">2.56</td><td align="center" colspan="1" rowspan="1">6.36</td><td align="center" colspan="1" rowspan="1">–0.20</td><td align="center" colspan="1" rowspan="1">4.31</td><td align="left" colspan="1" rowspan="1">this work</td></tr><tr><td align="left" colspan="1" rowspan="1">cand. C</td><td align="center" colspan="1" rowspan="1">–7.75</td><td align="center" colspan="1" rowspan="1">–0.48</td><td align="center" colspan="1" rowspan="1">2.69</td><td align="center" colspan="1" rowspan="1">7.00</td><td align="center" colspan="1" rowspan="1">0.43</td><td align="center" colspan="1" rowspan="1">4.68</td><td align="left" colspan="1" rowspan="1">this work</td></tr><tr><td align="left" colspan="1" rowspan="1">cand. D</td><td align="center" colspan="1" rowspan="1">–8.74</td><td align="center" colspan="1" rowspan="1">2.45</td><td align="center" colspan="1" rowspan="1">0.75</td><td align="center" colspan="1" rowspan="1">7.83</td><td align="center" colspan="1" rowspan="1">–2.18</td><td align="center" colspan="1" rowspan="1">3.42</td><td align="left" colspan="1" rowspan="1">this work</td></tr><tr><td align="left" colspan="1" rowspan="1">cand. E</td><td align="center" colspan="1" rowspan="1">–6.54</td><td align="center" colspan="1" rowspan="1">0.45</td><td align="center" colspan="1" rowspan="1">2.19</td><td align="center" colspan="1" rowspan="1">6.15</td><td align="center" colspan="1" rowspan="1">–0.03</td><td align="center" colspan="1" rowspan="1">4.52</td><td align="left" colspan="1" rowspan="1">this work</td></tr><tr><td align="left" colspan="1" rowspan="1">cand. F</td><td align="center" colspan="1" rowspan="1">–6.23</td><td align="center" colspan="1" rowspan="1">0.50</td><td align="center" colspan="1" rowspan="1">1.07</td><td align="center" colspan="1" rowspan="1">6.15</td><td align="center" colspan="1" rowspan="1">–0.03</td><td align="center" colspan="1" rowspan="1">4.52</td><td align="left" colspan="1" rowspan="1">this work</td></tr></tbody></table></table-wrap></sec><sec id="sec2.5" disp-level="2"><title>MD Simulation Protocol</title><p>The classical
+molecular dynamics
+(MD) simulations were performed using the optimized potentials for
+liquid simulations for all-atom (OPLS-AA)<italic>
+−
+
+
+</italic> force field for bonded interactions
+(bonds, angles, dihedrals, and impropers). The partial atomic charges
+for all molecules were obtained by first optimizing the geometry using
+B3LYP level of theory based on density
+functional theory (DFT) with the aug-cc-pvdz basis set using the Gaussian
+16 simulation package. Subsequently,
+the electrostatic potential surface was fitted by the RESP<italic>
+,
+</italic> method. An approximately 55 Å cubic simulation boxes were constructed
+with randomly placed 70 Li<sup>+</sup>, 70 PF<sub>6</sub>
+<sup>–</sup>, and 600 total solvent molecules using PACKMOL (∼1 M). The initial configuration was then energy
+minimized with a conjugate gradient algorithm for 20,000 steps. Following
+the minimization, the system was equilibrated in the isothermal–isobaric
+(<italic>NPT</italic>) ensemble for 2 ns with a time step of 0.5 fs
+at a temperature of 300 K. For production runs, 20 ns simulations
+were carried out in the <italic>NVT</italic> ensemble with the Nosé–Hoover
+chain (NHC) thermostat, a time step of
+1 fs, and a temperature of 300 K. The last 4 ns of the production
+runs were used for the MD analysis in this publication. All classical
+MD simulations were performed with the GROMACS<italic>
+−
+
+
+
+
+</italic> simulation package on a 24-core Unix-based cluster. Self-diffusion
+coefficients D were extracted from the Einstein relation in the linear
+regime of the mean square displacement (MSD). The Li<sup>+</sup> transference
+number <italic>t</italic>
+<sub>Li<sup>+</sup>
+</sub> was computed from
+the ratio of ionic diffusivities. Ionic conductivity σ was estimated
+using the Nernst–Einstein relation. The static dielectric constant
+ε was estimated from total-dipole fluctuations of the simulation
+cell. We note that the nonpolarizable OPLS-AA force field systematically
+underestimates absolute Li<sup>+</sup> diffusion by 1–2 orders
+of magnitude; our conclusions therefore rest on relative rankings
+between systems simulated under identical protocols, and absolute
+quantitative predictions should be interpreted with appropriate caution.</p></sec></sec><sec id="sec3" disp-level="1"><title>Results and Discussion</title><sec id="sec3.1" disp-level="2"><title>Training Data Set Characterization</title><p>The training data
+set provides a chemically diverse scaffold dominated by small organic
+molecules with an average of 20 atoms, making a reasonable starting
+point for solvent design (<xref rid="fig1" ref-type="fig">Figure 
+</xref>). The elemental composition is heavily weighted toward
+carbon and hydrogen, with oxygen, nitrogen, and fluorine present in
+varying proportions. The HOMO distribution spans approximately −11
+to −5 eV, the LUMO distribution spans −4 to +6 eV, and
+the dipole moment distribution ranges from 0 to ∼ 10 D, providing
+broad coverage of the target property space for electrolyte design.</p><fig id="fig1" position="float"><?disp-level 3?><label>1</label><caption><p>Characterization
+of the QM9-QCDGE training library showing (a)
+atom count distribution, (b) elemental composition, and (c–e)
+the distribution of HOMO, LUMO, and dipole moment values.</p></caption><alternatives><graphic xmlns:xlink="http://www.w3.org/1999/xlink" content-type="image" id="gr1" xlink:href="ao6c01811_0001.webp"><?cloudpmc-path blobs/6de6/13520033/582e09e45cc0/ao6c01811_0001.webp?><?cloudpmc-bucket cdn?><?image-server-status LOAD_COMPLETED?><?original-height 846?><?original-width 1600?><?scaled-height 846?><?scaled-width 1600?></graphic><graphic xmlns:xlink="http://www.w3.org/1999/xlink" content-type="thumb" xlink:href="ao6c01811_0001.gif"><?cloudpmc-path blobs/6de6/13520033/aeeb779c9a10/ao6c01811_0001.gif?><?cloudpmc-bucket cdn?></graphic></alternatives></fig></sec><sec id="sec3.2" disp-level="2"><title>Generative Model Validation</title><p>The generative model exhibited
+good fidelity in reproducing the targeted electronic properties across
+all three groups. The distribution of generated HOMO and LUMO values
+aligned closely with the specified targets, demonstrating the model’s
+ability to learn complex structure–property relationships (<xref rid="fig2" ref-type="fig">Figure 
+</xref>). The training and
+validation loss curves (<ext-link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://pubs.acs.org/doi/suppl/10.1021/acsomega.6c01811/suppl_file/ao6c01811_si_001.pdf" ext-link-type="uri">Figure S2</ext-link>) confirm
+smooth convergence with minimal overfitting, and the test set loss
+is consistent with the validation loss, indicating robust generalization.
+Quantitative validation metrics are reported in <ext-link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://pubs.acs.org/doi/suppl/10.1021/acsomega.6c01811/suppl_file/ao6c01811_si_001.pdf" ext-link-type="uri">Table S2</ext-link>: the model achieves a validity rate of more than
+70% across all three target groups, whereas all valid structure produced
+a parseable, neutral, and radical-free. All structure groups have
+a uniqueness rate of 100.0%, and a novelty rate of 91.1%, 90.1%, and
+94.7% for Groups I, II, and III, respectively, against the QM9-GCDQE
+training and validation sets. Conditioning fidelity, measured as the
+mean absolute error between target and DFT-computed property values,
+is 0.47–0.83 eV for HOMO, 1.88–2.76 eV for LUMO, and
+1.05–2.03 D for dipole moment across the three groups. The
+tighter HOMO conditioning relative to LUMO is consistent with the
+well-known asymmetry in the predictability of frontier orbitals: occupied
+orbitals are anchored to filled bonding states, whereas virtual orbitals
+are more sensitive to basis-set and exchange–correlation choices. Structural novelty was further assessed by computing
+the Tanimoto similarity of each generated
+molecule to its nearest neighbor in the training set: the median similarity
+is 0.536, with 36.9% of generated molecules having similarity below
+0.5, a commonly used threshold for chemically distinct substructure
+(<ext-link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://pubs.acs.org/doi/suppl/10.1021/acsomega.6c01811/suppl_file/ao6c01811_si_001.pdf" ext-link-type="uri">Figure S8</ext-link>). The combination of structural
+uniqueness, novelty against training, and a moderate median fingerprint
+similarity is consistent with a generative model that explores nearby
+chemical space within the QM9-GCDQE elemental envelope, proposing
+new combinations of familiar substructures rather than entirely new
+molecular scaffolds. This is the expected and appropriate behavior
+for an inverse-design model trained on a constrained data set and
+supports the interpretation that the model produces designed chemistry
+rather than memorized training molecules. However, a divergence was
+observed in the dipole moment distribution for groups II and III,
+where the generated molecules consistently exhibited dipole moments
+slightly lower than the targeted 5.5 D value. This observation likely
+arises from a physicochemical constraint: the incorporation of highly
+electronegative fluorinated groups, necessary for lowering the HOMO
+to achieve high-voltage stability, often introduces opposing polarity
+vectors that reduce the net molecular dipole.
+</p><fig id="fig2" position="float"><?disp-level 3?><label>2</label><caption><p>Statistical
+validation of the generative model. Violin plots for
+(a) group I, (b) group II, and (c) roup III. Red dashed lines indicate
+target reference values.</p></caption><alternatives><graphic xmlns:xlink="http://www.w3.org/1999/xlink" content-type="image" id="gr2" xlink:href="ao6c01811_0002.webp"><?cloudpmc-path blobs/6de6/13520033/5efda8557444/ao6c01811_0002.webp?><?cloudpmc-bucket cdn?><?image-server-status LOAD_COMPLETED?><?original-height 2129?><?original-width 1600?><?scaled-height 2129?><?scaled-width 1600?></graphic><graphic xmlns:xlink="http://www.w3.org/1999/xlink" content-type="thumb" xlink:href="ao6c01811_0002.gif"><?cloudpmc-path blobs/6de6/13520033/8c774cc2e465/ao6c01811_0002.gif?><?cloudpmc-bucket cdn?></graphic></alternatives></fig></sec><sec id="sec3.3" disp-level="2"><title>Candidate Selection and
+Characterization</title><p>Despite this
+constraint, the screening pipeline yielded a diverse array of stable
+candidates, predominantly featuring ether, ketone, and nitrile functionalities
+(<ext-link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://pubs.acs.org/doi/suppl/10.1021/acsomega.6c01811/suppl_file/ao6c01811_si_001.pdf" ext-link-type="uri">Figure S3</ext-link>). The chemical structures of
+the six selected candidates are shown in <xref rid="fig3" ref-type="fig">Figure 
+</xref>. For detailed electronic and transport characterization,
+we selected six candidates, labeled A through F, which chosen to span
+the functional-motif diversity present in the top-ranked output of
+the composite ranking: fluorinated ethers (A and D), substituted dihydropyrans
+(B and C), a methylenetetrahydropyran (E), and a bicyclic dioxin–dioxolane
+(F). Candidates A and D are notable as fluorinated ethers, specifically
+identified as 1-(fluoromethoxy)-2-methoxyethane (A) and trifluoro­((fluoromethoxy)­methoxy)­methane
+(D). These structures share substantial homology with hydrofluoroethers
+(HFEs), a class of solvents valued for their nonflammability and low
+viscosity, and they feature oxygen coordination sites that may facilitate
+lithium solvation.</p><fig id="fig3" position="float"><?disp-level 3?><label>3</label><caption><p>Chemical structures of candidates electrolyte molecules
+(A) 1-(fluoromethoxy)-2-metgoxyethane,
+(B) (R)-2-fluoro-3,3-dimethyl-3,6-dihydro-2<italic>H</italic>-pyran,
+(C) (R)-2,3,3-trifluoro-3,6-dihydro-2<italic>H</italic>-pyran, (D)
+trifluoro­((fluoromethoxy)­methoxy)­methane, (E) (2<italic>R</italic>,5<italic>S</italic>)-2-fluoro-5-methoxy-4-methylenetetrahydro-2<italic>H</italic>-pyran, and (F) 6-(1,3,-dioxolan-2-yl)-4<italic>H</italic>-1,3-dioxine.</p></caption><alternatives><graphic xmlns:xlink="http://www.w3.org/1999/xlink" content-type="image" id="gr3" xlink:href="ao6c01811_0003.webp"><?cloudpmc-path blobs/6de6/13520033/74ccf057aa72/ao6c01811_0003.webp?><?cloudpmc-bucket cdn?><?image-server-status LOAD_COMPLETED?><?original-height 1567?><?original-width 1600?><?scaled-height 1567?><?scaled-width 1600?></graphic><graphic xmlns:xlink="http://www.w3.org/1999/xlink" content-type="thumb" xlink:href="ao6c01811_0003.gif"><?cloudpmc-path blobs/6de6/13520033/51a158c36b0c/ao6c01811_0003.gif?><?cloudpmc-bucket cdn?></graphic></alternatives></fig></sec><sec id="sec3.4" disp-level="2"><title>Benchmarking Against Conventional
+Solvents</title><p>To place
+the generated candidates in appropriate scientific context, <xref rid="tbl1" ref-type="table">Table 
+</xref> presents a systematic
+comparison of the electronic and physicochemical properties of candidates
+A–F against five widely used electrolyte solvents: ethylene
+carbonate (EC), diethyl carbonate (DEC), dimethyl carbonate (DMC),
+and fluoroethylene carbonate (FEC). Computed DFT values, including
+vertical ionization potential (vIP), vertical electron affinity (vEA),
+and synthetic accessibility (SAscore) are presented alongside experimental
+literature values where available.</p><p>The comparison shows that
+candidate D exhibits the deepest HOMO among the candidates (−8.74
+eV), deeper than EC (−8.23 eV) and DEC (−7.88 eV), and
+FEC (−8.70 eV). However, the vertical ionization potential,
+places candidate D at 7.83 eV, marginally below EC (8.07 eV), DEC
+(7.86 eV), and FEC (8.34 eV). The deep HOMO of candidate D does not
+translate into superior oxidative stability when the full ionization
+cost is computed. Candidate D is therefore best characterized as offering
+oxidative stability comparable to conventional carbonate electrolytes.
+At the same time, candidate D shows a notably negative vertical electron
+affinity (vEA = −2.18 eV), substantially more negative than
+EC (−0.79 eV), indicating strong resistance to reduction. Across
+the descriptor set, candidate D thus presents a balanced electrochemical
+profile rather than a high-voltage breakthrough: oxidative stability
+matching the carbonate baseline and reductive stability superior to
+EC. Candidate C also shows a relatively deep HOMO (−7.75 eV),
+comparable to DMC (−7.98 eV). In contrast, candidates A, B,
+E, and F exhibit shallower HOMO levels (−6.2 to −6.9
+eV), indicating that their value lies not in oxidative resistance
+but in other properties such as low molecular weight (A, 108 g/mol),
+moderate polarity (B, E), or structural novelty (F, the only fluorine-free
+candidate). Candidate D’s very low dipole moment (0.75 D) suggests
+weak Li<sup>+</sup> coordination, which is consistent with the contact
+ion pair formation and enhanced transport observed in the MD simulations.
+This weak-solvation design philosophy mirrors recent developments
+in fluorinated ether cosolvents for high-voltage and localized high-concentration
+electrolytes.<italic>
+−
+
+</italic> Synthetic accessibility scores (SAscore) for the
+candidates range from 2.79 (A) to 4.68 (C), comparable to the most
+synthetically demanding reference (FEC, SAscore 4.11) but higher than
+the simpler carbonates (DEC 1.81, DMC 2.26, EC 2.79). Candidate D’s
+SAscore of 3.42 indicates synthetic accessibility comparable to FEC,
+suggesting practical synthetic routes are not the primary barrier
+to experimental evaluation.</p></sec><sec id="sec3.5" disp-level="2"><title>Transport Properties</title><p>The bulk transport
+properties
+derived from the MD simulations provide an initial computational assessment
+of the candidates’ potential as electrolyte solvents. The MSD
+trajectories reveal a notable separation in diffusive behavior between
+the generated candidates and the conventional control (<ext-link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://pubs.acs.org/doi/suppl/10.1021/acsomega.6c01811/suppl_file/ao6c01811_si_001.pdf" ext-link-type="uri">Figure S5</ext-link>). Among the candidates examined, candidate
+D exhibited the highest computed Li<sup>+</sup> diffusion coefficient
+(<italic>D</italic>
+<sub>Li<sup>+</sup>
+</sub>) of 15.09 ± 5.50
+× 10<sup>–11</sup> m<sup>2</sup> s<sup>–1</sup>, compared to 0.48 ± 0.13 × 10<sup>–11</sup> m<sup>2</sup> s<sup>–1</sup> for the EC/DEC control under identical
+simulation conditions. While the magnitude of this difference is notable,
+we caution that absolute diffusion values from classical MD with nonpolarizable
+force fields should be interpreted with care, particularly for fluorinated
+solvents (see Methods, Methodological Limitations). The relative ranking
+among candidates, however, is expected to be more reliable. Candidate
+A also showed enhanced transport (13.93 ± 9.56 × 10<sup>–11</sup> m<sup>2</sup> s<sup>–1</sup>). In contrast,
+candidates C and E exhibited diffusion coefficients only marginally
+higher than the control, despite satisfying the target electronic
+criteria. This observation suggests that electronic descriptors alone
+are insufficient to predict bulk transport, and that molecular shape,
+flexibility, and solvation shell geometry play important mediating
+roles, a finding that motivates the incorporation of additional descriptors
+in future iterations of the workflow.</p><p>The Li<sup>+</sup> transference
+number (<italic>t</italic>
+<sub>Li<sup>+</sup>
+</sub>) for candidate
+D was calculated to be 0.50, compared to 0.35 for the EC/DEC (<xref rid="fig4" ref-type="fig">Figure 
+</xref>). If confirmed experimentally,
+a higher transference number would help minimize concentration polarization
+during high-rate charging, suggesting that candidate D could potentially
+offer advantages in power density applications.</p><fig id="fig4" position="float"><?disp-level 3?><label>4</label><caption><p>Comparative transport
+properties. (a) Self-diffusion coefficients
+(<italic>D</italic>), and (b) transference numbers.</p></caption><alternatives><graphic xmlns:xlink="http://www.w3.org/1999/xlink" content-type="image" id="gr4" xlink:href="ao6c01811_0004.webp"><?cloudpmc-path blobs/6de6/13520033/11dadfc9d84b/ao6c01811_0004.webp?><?cloudpmc-bucket cdn?><?image-server-status LOAD_COMPLETED?><?original-height 554?><?original-width 1600?><?scaled-height 554?><?scaled-width 1600?></graphic><graphic xmlns:xlink="http://www.w3.org/1999/xlink" content-type="thumb" xlink:href="ao6c01811_0004.gif"><?cloudpmc-path blobs/6de6/13520033/7197f63599a0/ao6c01811_0004.gif?><?cloudpmc-bucket cdn?></graphic></alternatives></fig></sec><sec id="sec3.6" disp-level="2"><title>Solvation Structure Analysis</title><p>To explore the atomistic
+origins of this enhanced transport, we analyzed the radial pair distribution
+functions (RDFs) and their corresponding coordination number integrals
+(<ext-link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://pubs.acs.org/doi/suppl/10.1021/acsomega.6c01811/suppl_file/ao6c01811_si_001.pdf" ext-link-type="uri">Figures S6 and S7</ext-link>). In the control electrolyte,
+the solvation shell is dominated by the carbonyl oxygens of EC, forming
+a tight coordination environment that largely separates Li<sup>+</sup> from the PF<sub>6</sub>
+<sup>–</sup> anion. Conversely, the
+RDFs for candidates A and D suggest a different solvation structure
+where the fluorinated ether oxygens coordinate with lithium in a geometry
+that permits a higher degree of anion interaction.</p><p>The coordination
+number analysis indicates that candidates A and D appear to favor
+the formation of contact ion pairs (CIPs) within the first solvation
+shell. While conventional electrolyte design often seeks to maximize
+ion dissociation, recent literature suggests that excessive dissociation
+can lead to high viscosity and high desolvation energy barriers.<italic>
+−
+
+</italic> The fluorinated ethers identified here may occupy an intermediate
+regime: they interact weakly enough with Li<sup>+</sup> to enable
+low desolvation penalties, while their low viscosity facilitates collective
+transport of the ion–solvent cluster.<italic>
+,
+</italic> This interpretation is broadly consistent with recent findings in
+high-concentration electrolyte research, where weak-binding solvents
+have been shown to enhance overall conductivity by modifying the residence
+time of the solvation sheath.<italic>
+,
+</italic>
+</p></sec></sec><sec id="sec4" disp-level="1"><title>Conclusion</title><p>This study presents a proof-of-concept computational workflow for
+the design of battery electrolytes. By leveraging the spatial awareness
+of the G-SchNet generative model, we explored a chemical space of
+over 400,000 molecules to identify fluorinated ether candidates that
+show computationally promising properties relative to commercial carbonate
+electrolytes. The generative model produced chemically valid, structurally
+unique, and largely novel candidates (∼74% structural validity
+rate against 5000 generations per group, 100% uniqueness within validated
+pools, and ∼ 92% novelty against the training set), with HOMO
+conditioning fidelity of 0.47–0.83 eV. Our lead candidate,
+trifluoro­((fluoromethoxy)­methoxy)­methane (candidate D), exhibits electronic
+stability descriptors comparable to conventional carbonates (vIP 7.83
+eV) with notably stronger resistance to reduction (vEA −2.18
+eV), and computed transport properties that are enhanced relative
+to the EC/DEC. The MD simulations also suggest that this transport
+behavior may be related to a solvation mechanism that balances weak
+solvent coordination with controlled ion pairing. Candidate D thus
+emerges as a computationally promising screening hit, with oxidative
+stability comparable to conventional carbonates and notably enhanced
+reductive stability, which should warrant further computational and
+experimental evaluation.</p><p>Several important limitations must
+be noted. The generative model
+is constrained to the elemental palette and molecular size range of
+the QM9-GCDQE training set. The design criteria (HOMO, LUMO, dipole
+moment) represent necessary but might be not sufficient conditions
+for real-world electrolyte performance; properties such as SEI-forming
+tendency, flammability, chemical stability toward electrode materials,
+and long-term cycling behavior which require further computational
+and/or experimental investigations, especially for low-temperature
+applications. The MD simulations, while providing internally consistent
+relative rankings, are subject to force field approximations that
+systematically underestimate absolute transport values. Moreover,
+to ensure valid comparisons, one should be aware that all analyses
+must be performed under identical, force-field-dependent simulation
+conditions. The six candidates examined represent a small subset of
+the generated chemical space.</p><p>Despite these limitations, this
+work demonstrates that generative
+deep learning, combined with physics-based screening, can efficiently
+propose novel molecular candidates with targeted electronic properties
+and favorable computed transport characteristics. The framework is
+intentionally modular: the generative model, the screening filters,
+and the MD validation can each be independently improved.</p></sec><sec id="sec16" disp-level="1"><title>Supplementary Material</title><supplementary-material id="sifile1" position="float"><media xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="ao6c01811_si_001.pdf" mimetype="application" mime-subtype="pdf"><?cloudpmc-path 6de6/13520033/1dee69026b22/ao6c01811_si_001.pdf?><?cloudpmc-bucket app?><?size 1528062?></media></supplementary-material></sec><sec id="ack1" sec-type="ack" disp-level="1"><title>Acknowledgments</title><p>This research has received funding
+support from
+the National Science, Research and Innovation Fund (NSRF) via the
+Program Management Unit for Human Resources &amp; Institutional Development,
+Research and Innovation [grant number: B13F680076].</p></sec><sec id="notes4" disp-level="1"><p>The generated
+molecular data set is deposited in a publicly accessible repository,
+please refer to the doi: <ext-link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://doi.org/10.6084/m9.figshare" ext-link-type="uri">10.6084/m9.figshare.32070408</ext-link>
+</p></sec><sec id="notes1" disp-level="1"><p>The Supporting Information is
+available free of charge at <ext-link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://pubs.acs.org/doi/10.1021/acsomega.6c01811?goto=supporting-info" ext-link-type="uri">https://pubs.acs.org/doi/10.1021/acsomega.6c01811</ext-link>.</p><list list-type="simple" id="silist"><list-item><p>Detailed description of
+the G-SchNet architecture, training
+protocols, and specific DFT/MD simulation parameters and functional
+group screening criteria (<ext-link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://pubs.acs.org/doi/suppl/10.1021/acsomega.6c01811/suppl_file/ao6c01811_si_001.pdf" ext-link-type="uri">PDF</ext-link>)</p></list-item></list></sec><sec id="notes3" disp-level="1"><p>P.I. conceived
+the research concept and initiated the project. V.D. and S.D. conduct
+machine learning and theoretical simulations with A.B., V.D. wrote
+the manuscript with input from all authors. All authors have given
+approval to the final version of the manuscript.</p></sec><sec id="notes2" disp-level="1"><p>The authors
+declare no competing financial interest.</p></sec><sec id="ref-list1" sec-type="ref-list" disp-level="1"><title>References</title><sec id="ref-list1_sec2" disp-level="2"><ref-list><ref id="ref1"><mixed-citation id="cit1"><named-content content-type="citation-string">Nasajpour-Esfahani N., Garmestani H., Bagheritabar M., Jasim D. J., Toghraie D., Dadkhah S., Firoozeh H.. Comprehensive review of lithium-ion
+battery materials and development challenges. Renewable Sustainable Energy Rev. 2024;203:114783. doi: 10.1016/j.rser.2024.114783.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1016/j.rser.2024.114783"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Renewable Sustainable Energy Rev.&amp;title=Comprehensive review of lithium-ion battery materials and development challenges&amp;author=N. Nasajpour-Esfahani&amp;author=H. Garmestani&amp;author=M. Bagheritabar&amp;author=D. J. Jasim&amp;author=D. Toghraie&amp;volume=203&amp;publication_year=2024&amp;pages=114783&amp;doi=10.1016/j.rser.2024.114783&amp;"/></mixed-citation></ref><ref id="ref2"><mixed-citation id="cit2"><named-content content-type="citation-string">Huang Y., Li J.. Key Challenges for
+Grid-Scale Lithium-Ion Battery Energy Storage. Adv. Energy Mater. 2022;12(48):2202197. doi: 10.1002/aenm.202202197.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1002/aenm.202202197"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Adv. Energy Mater.&amp;title=Key Challenges for Grid-Scale Lithium-Ion Battery Energy Storage&amp;author=Y. Huang&amp;author=J. Li&amp;volume=12&amp;issue=48&amp;publication_year=2022&amp;pages=2202197&amp;doi=10.1002/aenm.202202197&amp;"/></mixed-citation></ref><ref id="ref3"><mixed-citation id="cit3"><named-content content-type="citation-string">Xu J., Zhang J., Pollard T. P., Li Q., Tan S., Hou S., Wan H., Chen F., He H., Hu E.. et al. Electrolyte design for Li-ion batteries under
+extreme operating conditions. Nature. 2023;614(7949):694–700. doi: 10.1038/s41586-022-05627-8.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1038/s41586-022-05627-8"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="36755091"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Nature&amp;title=Electrolyte design for Li-ion batteries under extreme operating conditions&amp;author=J. Xu&amp;author=J. Zhang&amp;author=T. P. Pollard&amp;author=Q. Li&amp;author=S. Tan&amp;volume=614&amp;issue=7949&amp;publication_year=2023&amp;pages=694-700&amp;pmid=36755091&amp;doi=10.1038/s41586-022-05627-8&amp;"/></mixed-citation></ref><ref id="ref4"><mixed-citation id="cit4"><named-content content-type="citation-string">Aurbach D., Talyosef Y., Markovsky B., Markevich E., Zinigrad E., Asraf L., Gnanaraj J. S., Kim H.-J.. Design
+of electrolyte solutions for Li and Li-ion batteries: a review. Electrochim. Acta. 2004;50(2):247–254. doi: 10.1016/j.electacta.2004.01.090.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1016/j.electacta.2004.01.090"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Electrochim. Acta&amp;title=Design of electrolyte solutions for Li and Li-ion batteries: a review&amp;author=D. Aurbach&amp;author=Y. Talyosef&amp;author=B. Markovsky&amp;author=E. Markevich&amp;author=E. Zinigrad&amp;volume=50&amp;issue=2&amp;publication_year=2004&amp;pages=247-254&amp;doi=10.1016/j.electacta.2004.01.090&amp;"/></mixed-citation></ref><ref id="ref5"><mixed-citation id="cit5"><named-content content-type="citation-string">Hubble D., Brown D. E., Zhao Y., Fang C., Lau J., McCloskey B. D., Liu G.. Liquid electrolyte development for
+low-temperature lithium-ion batteries. Energy
+Environ. Sci. 2022;15(2):550–578. doi: 10.1039/D1EE01789F.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1039/D1EE01789F"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Energy Environ. Sci.&amp;title=Liquid electrolyte development for low-temperature lithium-ion batteries&amp;author=D. Hubble&amp;author=D. E. Brown&amp;author=Y. Zhao&amp;author=C. Fang&amp;author=J. Lau&amp;volume=15&amp;issue=2&amp;publication_year=2022&amp;pages=550-578&amp;doi=10.1039/D1EE01789F&amp;"/></mixed-citation></ref><ref id="ref6"><mixed-citation id="cit6"><named-content content-type="citation-string">Duangdangchote S., Phattharasupakun N., Chomkhuntod P., Chiochan P., Sarawutanukul S., Tomon C., Joraleechanchai N., Sawangphruk M.. Effect of
+fluoroethylene carbonate on the transport property of electrolytes
+towards Ni-rich Li-ion batteries with high safety. Chem. Commun. 2021;57(55):6732–6735. doi: 10.1039/D1CC02120F.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1039/D1CC02120F"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="34109336"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Chem. Commun.&amp;title=Effect of fluoroethylene carbonate on the transport property of electrolytes towards Ni-rich Li-ion batteries with high safety&amp;author=S. Duangdangchote&amp;author=N. Phattharasupakun&amp;author=P. Chomkhuntod&amp;author=P. Chiochan&amp;author=S. Sarawutanukul&amp;volume=57&amp;issue=55&amp;publication_year=2021&amp;pages=6732-6735&amp;pmid=34109336&amp;doi=10.1039/D1CC02120F&amp;"/></mixed-citation></ref><ref id="ref7"><mixed-citation id="cit7"><named-content content-type="citation-string">
+
+Barthel, J.
+; 
+Kunz, W.
+; 
+Turq, P.
+; 
+Bernard, O.
+. 
+Electrolyte Solutions, Transport Properties. In Encyclopedia of Physical Science and Technology, 3rd ed.; 
+Meyers, R. A.
+, Ed.; Academic Press, 2002; Vol. 5, pp 243–259.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="title=Encyclopedia of Physical Science and Technology&amp;publication_year=2002&amp;"/></mixed-citation></ref><ref id="ref8"><mixed-citation id="cit8"><named-content content-type="citation-string">Valo̷en L. O., Reimers J. N.. Transport
+Properties of LiPF­[sub 6]-Based Li-Ion Battery
+Electrolytes. J. Electrochem. Soc. 2005;152(5):A882. doi: 10.1149/1.1872737.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1149/1.1872737"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Electrochem. Soc.&amp;title=Transport Properties of LiPF­[sub 6]-Based Li-Ion Battery Electrolytes&amp;author=L. O. Valo̷en&amp;author=J. N. Reimers&amp;volume=152&amp;issue=5&amp;publication_year=2005&amp;pages=A882&amp;doi=10.1149/1.1872737&amp;"/></mixed-citation></ref><ref id="ref9"><mixed-citation id="cit9"><named-content content-type="citation-string">Read J.. Ether-Based
+Electrolytes for the Lithium/Oxygen Organic Electrolyte Battery. J. Electrochem. Soc. 2006;153(1):A96–A100. doi: 10.1149/1.2131827.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1149/1.2131827"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Electrochem. Soc.&amp;title=Ether-Based Electrolytes for the Lithium/Oxygen Organic Electrolyte Battery&amp;author=J. Read&amp;volume=153&amp;issue=1&amp;publication_year=2006&amp;pages=A96-A100&amp;doi=10.1149/1.2131827&amp;"/></mixed-citation></ref><ref id="ref10"><mixed-citation id="cit10"><named-content content-type="citation-string">
+
+Golodnitsky, D.
+
+Secondary
+BatteriesLITHIUM Rechargeable Systems | Electrolytes: Single
+Lithium Ion Conducting Polymers. In Encyclopedia
+of Electrochemical Power Sources; 
+Garche, J.
+, Ed.; Elsevier, 2009; pp 112–128.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="title=Encyclopedia of Electrochemical Power Sources&amp;publication_year=2009&amp;"/></mixed-citation></ref><ref id="ref11"><mixed-citation id="cit11"><named-content content-type="citation-string">Vogt M.. Exploring
+chemical spaceGenerative models and their evaluation. Artif. Intell. Life Sci. 2023;3:100064. doi: 10.1016/j.ailsci.2023.100064.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1016/j.ailsci.2023.100064"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Artif. Intell. Life Sci.&amp;title=Exploring chemical spaceGenerative models and their evaluation&amp;author=M. Vogt&amp;volume=3&amp;publication_year=2023&amp;pages=100064&amp;doi=10.1016/j.ailsci.2023.100064&amp;"/></mixed-citation></ref><ref id="ref12"><mixed-citation id="cit12"><named-content content-type="citation-string">Reymond J.-L.. The Chemical
+Space Project. Acc. Chem. Res. 2015;48(3):722–730. doi: 10.1021/ar500432k.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/ar500432k"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="25687211"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Acc. Chem. Res.&amp;title=The Chemical Space Project&amp;author=J.-L. Reymond&amp;volume=48&amp;issue=3&amp;publication_year=2015&amp;pages=722-730&amp;pmid=25687211&amp;doi=10.1021/ar500432k&amp;"/></mixed-citation></ref><ref id="ref13"><mixed-citation id="cit13"><named-content content-type="citation-string">Urban A., Seo D.-H., Ceder G.. Computational
+understanding of Li-ion
+batteries. npj Comput. Mater. 2016;2:16002. doi: 10.1038/npjcompumats.2016.2.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1038/npjcompumats.2016.2"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=npj Comput. Mater.&amp;title=Computational understanding of Li-ion batteries&amp;author=A. Urban&amp;author=D.-H. Seo&amp;author=G. Ceder&amp;volume=2&amp;publication_year=2016&amp;pages=16002&amp;doi=10.1038/npjcompumats.2016.2&amp;"/></mixed-citation></ref><ref id="ref14"><mixed-citation id="cit14"><named-content content-type="citation-string">Guo H., Wang Q., Stuke A., Urban A., Artrith N.. Accelerated
+Atomistic Modeling of Solid-State Battery Materials With Machine Learning. Front. Energy Res. 2021;9:Review. doi: 10.3389/fenrg.2021.695902.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.3389/fenrg.2021.695902"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Front. Energy Res.&amp;title=Accelerated Atomistic Modeling of Solid-State Battery Materials With Machine Learning&amp;author=H. Guo&amp;author=Q. Wang&amp;author=A. Stuke&amp;author=A. Urban&amp;author=N. Artrith&amp;volume=9&amp;publication_year=2021&amp;pages=Review&amp;doi=10.3389/fenrg.2021.695902&amp;"/></mixed-citation></ref><ref id="ref15"><mixed-citation id="cit15"><named-content content-type="citation-string">Juan Y., Dai Y., Yang Y., Zhang J.. Accelerating materials discovery
+using machine learning. J. Mater. Sci. Technol. 2021;79:178–190. doi: 10.1016/j.jmst.2020.12.010.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1016/j.jmst.2020.12.010"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Mater. Sci. Technol.&amp;title=Accelerating materials discovery using machine learning&amp;author=Y. Juan&amp;author=Y. Dai&amp;author=Y. Yang&amp;author=J. Zhang&amp;volume=79&amp;publication_year=2021&amp;pages=178-190&amp;doi=10.1016/j.jmst.2020.12.010&amp;"/></mixed-citation></ref><ref id="ref16"><mixed-citation id="cit16"><named-content content-type="citation-string">Guo X., Wang Z., Yang J.-H., Gong X.-G.. Machine-learning
+assisted high-throughput discovery of solid-state electrolytes for
+Li-ion batteries. J. Mater. Chem. A. 2024;12(17):10124–10136. doi: 10.1039/D4TA00721B.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1039/D4TA00721B"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Mater. Chem. A&amp;title=Machine-learning assisted high-throughput discovery of solid-state electrolytes for Li-ion batteries&amp;author=X. Guo&amp;author=Z. Wang&amp;author=J.-H. Yang&amp;author=X.-G. Gong&amp;volume=12&amp;issue=17&amp;publication_year=2024&amp;pages=10124-10136&amp;doi=10.1039/D4TA00721B&amp;"/></mixed-citation></ref><ref id="ref17"><mixed-citation id="cit17"><named-content content-type="citation-string">Botu V., Batra R., Chapman J., Ramprasad R.. Machine Learning
+Force Fields: Construction, Validation, and Outlook. J. Phys. Chem. C. 2017;121(1):511–522. doi: 10.1021/acs.jpcc.6b10908.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/acs.jpcc.6b10908"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Phys. Chem. C&amp;title=Machine Learning Force Fields: Construction, Validation, and Outlook&amp;author=V. Botu&amp;author=R. Batra&amp;author=J. Chapman&amp;author=R. Ramprasad&amp;volume=121&amp;issue=1&amp;publication_year=2017&amp;pages=511-522&amp;doi=10.1021/acs.jpcc.6b10908&amp;"/></mixed-citation></ref><ref id="ref18"><mixed-citation id="cit18"><named-content content-type="citation-string">Iamprasertkun P.. How to Efficiently
+Design 2D Materials for Electrochemical Applications Using Machine
+Learning. Precis. Chem. 2026;4(1):65–67. doi: 10.1021/prechem.5c00046.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/prechem.5c00046"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmcid" xlink:href="PMC12848818"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="41613578"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Precis. Chem.&amp;title=How to Efficiently Design 2D Materials for Electrochemical Applications Using Machine Learning&amp;author=P. Iamprasertkun&amp;volume=4&amp;issue=1&amp;publication_year=2026&amp;pages=65-67&amp;pmid=41613578&amp;doi=10.1021/prechem.5c00046&amp;"/></mixed-citation></ref><ref id="ref19"><mixed-citation id="cit19"><named-content content-type="citation-string">
+
+Chen, Y.
+; 
+Liu, J.
+; 
+Peng, L.
+; 
+Wu, Y.
+; 
+Xu, Y.
+; 
+Zhang, Z.
+. 
+Auto-Encoding Variational Bayes. Cambridge
+Explorations in Arts and Sciences
+2024, 2. 10.61603/ceas.v2i1.33.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.61603/ceas.v2i1.33"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Cambridge Explorations in Arts and Sciences&amp;title=Auto-Encoding Variational Bayes&amp;volume=2&amp;publication_year=2024&amp;doi=10.61603/ceas.v2i1.33&amp;"/></mixed-citation></ref><ref id="ref20"><mixed-citation id="cit20"><named-content content-type="citation-string">Goodfellow I., Pouget-Abadie J., Mirza M., Xu B., Warde-Farley D., Ozair S., Courville A., Bengio Y.. Generative Adversarial
+Networks. Commun. ACM. 2020;63:139–144. doi: 10.1145/3422622.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1145/3422622"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Commun. ACM&amp;title=Generative Adversarial Networks&amp;author=I. Goodfellow&amp;author=J. Pouget-Abadie&amp;author=M. Mirza&amp;author=B. Xu&amp;author=D. Warde-Farley&amp;volume=63&amp;publication_year=2020&amp;pages=139-144&amp;doi=10.1145/3422622&amp;"/></mixed-citation></ref><ref id="ref21"><mixed-citation id="cit21"><named-content content-type="citation-string">Gebauer N. W. A., Gastegger M., Hessmann S. S. P., Müller K.-R., Schütt K. T.. Inverse design of 3d molecular structures with conditional
+generative neural networks. Nat. Commun. 2022;13(1):973. doi: 10.1038/s41467-022-28526-y.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1038/s41467-022-28526-y"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmcid" xlink:href="PMC8861047"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="35190542"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Nat. Commun.&amp;title=Inverse design of 3d molecular structures with conditional generative neural networks&amp;author=N. W. A. Gebauer&amp;author=M. Gastegger&amp;author=S. S. P. Hessmann&amp;author=K.-R. Müller&amp;author=K. T. Schütt&amp;volume=13&amp;issue=1&amp;publication_year=2022&amp;pages=973&amp;pmid=35190542&amp;doi=10.1038/s41467-022-28526-y&amp;"/></mixed-citation></ref><ref id="ref22"><mixed-citation id="cit22"><named-content content-type="citation-string">Schütt K. T., Hessmann S. S. P., Gebauer N. W. A., Lederer J., Gastegger M.. SchNetPack
+2.0: A neural network toolbox for atomistic machine learning. J. Chem. Phys. 2023;158(14):144801. doi: 10.1063/5.0138367.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1063/5.0138367"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="37061495"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Chem. Phys.&amp;title=SchNetPack 2.0: A neural network toolbox for atomistic machine learning&amp;author=K. T. Schütt&amp;author=S. S. P. Hessmann&amp;author=N. W. A. Gebauer&amp;author=J. Lederer&amp;author=M. Gastegger&amp;volume=158&amp;issue=14&amp;publication_year=2023&amp;pages=144801&amp;pmid=37061495&amp;doi=10.1063/5.0138367&amp;"/></mixed-citation></ref><ref id="ref23"><mixed-citation id="cit23"><named-content content-type="citation-string">Mester D., Kállay M.. Vertical Ionization
+Potentials and Electron Affinities
+at the Double-Hybrid Density Functional Level. J. Chem. Theory Comput. 2023;19(13):3982–3995. doi: 10.1021/acs.jctc.3c00363.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/acs.jctc.3c00363"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmcid" xlink:href="PMC10339736"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="37326360"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Chem. Theory Comput.&amp;title=Vertical Ionization Potentials and Electron Affinities at the Double-Hybrid Density Functional Level&amp;author=D. Mester&amp;author=M. Kállay&amp;volume=19&amp;issue=13&amp;publication_year=2023&amp;pages=3982-3995&amp;pmid=37326360&amp;doi=10.1021/acs.jctc.3c00363&amp;"/></mixed-citation></ref><ref id="ref24"><mixed-citation id="cit24"><named-content content-type="citation-string">Ertl P., Schuffenhauer A.. Estimation of synthetic accessibility
+score of drug-like
+molecules based on molecular complexity and fragment contributions. J. Cheminf. 2009;1(1):8. doi: 10.1186/1758-2946-1-8.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1186/1758-2946-1-8"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmcid" xlink:href="PMC3225829"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="20298526"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Cheminf.&amp;title=Estimation of synthetic accessibility score of drug-like molecules based on molecular complexity and fragment contributions&amp;author=P. Ertl&amp;author=A. Schuffenhauer&amp;volume=1&amp;issue=1&amp;publication_year=2009&amp;pages=8&amp;pmid=20298526&amp;doi=10.1186/1758-2946-1-8&amp;"/></mixed-citation></ref><ref id="ref25"><mixed-citation id="cit25"><named-content content-type="citation-string">Zhu Y., Li M., Xu C., Lan Z.. Quantum Chemistry Dataset with Ground-
+and Excited-state Properties of 450 Kilo Molecules. Sci. Data. 2024;11(1):948. doi: 10.1038/s41597-024-03788-x.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1038/s41597-024-03788-x"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmcid" xlink:href="PMC11362161"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="39209851"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Sci. Data&amp;title=Quantum Chemistry Dataset with Ground- and Excited-state Properties of 450 Kilo Molecules&amp;author=Y. Zhu&amp;author=M. Li&amp;author=C. Xu&amp;author=Z. Lan&amp;volume=11&amp;issue=1&amp;publication_year=2024&amp;pages=948&amp;pmid=39209851&amp;doi=10.1038/s41597-024-03788-x&amp;"/></mixed-citation></ref><ref id="ref26"><mixed-citation id="cit26"><named-content content-type="citation-string">Xu K.. Nonaqueous
+Liquid Electrolytes for Lithium-Based Rechargeable Batteries. Chem. Rev. 2004;104(10):4303–4418. doi: 10.1021/cr030203g.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/cr030203g"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="15669157"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Chem. Rev.&amp;title=Nonaqueous Liquid Electrolytes for Lithium-Based Rechargeable Batteries&amp;author=K. Xu&amp;volume=104&amp;issue=10&amp;publication_year=2004&amp;pages=4303-4418&amp;pmid=15669157&amp;doi=10.1021/cr030203g&amp;"/></mixed-citation></ref><ref id="ref27"><mixed-citation id="cit27"><named-content content-type="citation-string">Guo K., Qi S., Wang H., Huang J., Wu M., Yang Y., Li X., Ren Y., Ma J.. High-Voltage Electrolyte Chemistry
+for Lithium Batteries. Small Sci. 2022;2(5):2100107. doi: 10.1002/smsc.202100107.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1002/smsc.202100107"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmcid" xlink:href="PMC11935967"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="40212600"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Small Sci.&amp;title=High-Voltage Electrolyte Chemistry for Lithium Batteries&amp;author=K. Guo&amp;author=S. Qi&amp;author=H. Wang&amp;author=J. Huang&amp;author=M. Wu&amp;volume=2&amp;issue=5&amp;publication_year=2022&amp;pages=2100107&amp;pmid=40212600&amp;doi=10.1002/smsc.202100107&amp;"/></mixed-citation></ref><ref id="ref28"><mixed-citation id="cit28"><named-content content-type="citation-string">Park K.-H., Kaup K., Assoud A., Zhang Q., Wu X., Nazar L. F.. High-Voltage Superionic Halide Solid Electrolytes for
+All-Solid-State Li-Ion Batteries. ACS Energy
+Lett. 2020;5(2):533–539. doi: 10.1021/acsenergylett.9b02599.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/acsenergylett.9b02599"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=ACS Energy Lett.&amp;title=High-Voltage Superionic Halide Solid Electrolytes for All-Solid-State Li-Ion Batteries&amp;author=K.-H. Park&amp;author=K. Kaup&amp;author=A. Assoud&amp;author=Q. Zhang&amp;author=X. Wu&amp;volume=5&amp;issue=2&amp;publication_year=2020&amp;pages=533-539&amp;doi=10.1021/acsenergylett.9b02599&amp;"/></mixed-citation></ref><ref id="ref29"><mixed-citation id="cit29"><named-content content-type="citation-string">Goodenough J. B., Kim Y.. Challenges for Rechargeable
+Li Batteries. Chem.
+Mater. 2010;22(3):587–603. doi: 10.1021/cm901452z.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/cm901452z"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Chem. Mater.&amp;title=Challenges for Rechargeable Li Batteries&amp;author=J. B. Goodenough&amp;author=Y. Kim&amp;volume=22&amp;issue=3&amp;publication_year=2010&amp;pages=587-603&amp;doi=10.1021/cm901452z&amp;"/></mixed-citation></ref><ref id="ref30"><mixed-citation id="cit30"><named-content content-type="citation-string">Zhang S. S., Xu K., Jow T. R.. The low
+temperature performance of Li-ion batteries. J. Power Sources. 2003;115(1):137–140. doi: 10.1016/S0378-7753(02)00618-3.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1016/S0378-7753(02)00618-3"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Power Sources&amp;title=The low temperature performance of Li-ion batteries&amp;author=S. S. Zhang&amp;author=K. Xu&amp;author=T. R. Jow&amp;volume=115&amp;issue=1&amp;publication_year=2003&amp;pages=137-140&amp;doi=10.1016/S0378-7753(02)00618-3&amp;"/></mixed-citation></ref><ref id="ref31"><mixed-citation id="cit31"><named-content content-type="citation-string">Dong Y., Zhang N., Wang Z., Li J., Ni Y., Hu H., Cheng F.. Cell-nucleus structured electrolyte
+for low-temperature
+aqueous zinc batteries. J. Energy Chem. 2023;83:324–332. doi: 10.1016/j.jechem.2023.04.017.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1016/j.jechem.2023.04.017"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Energy Chem.&amp;title=Cell-nucleus structured electrolyte for low-temperature aqueous zinc batteries&amp;author=Y. Dong&amp;author=N. Zhang&amp;author=Z. Wang&amp;author=J. Li&amp;author=Y. Ni&amp;volume=83&amp;publication_year=2023&amp;pages=324-332&amp;doi=10.1016/j.jechem.2023.04.017&amp;"/></mixed-citation></ref><ref id="ref32"><mixed-citation id="cit32"><named-content content-type="citation-string">Luo D., Li M., Zheng Y., Ma Q., Gao R., Zhang Z., Dou H., Wen G., Shui L., Yu A.. et al. Electrolyte
+Design for Lithium Metal Anode-Based Batteries Toward Extreme Temperature
+Application. Adv. Sci. 2021;8(18):2101051. doi: 10.1002/advs.202101051.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1002/advs.202101051"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmcid" xlink:href="PMC8456284"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="34272930"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Adv. Sci.&amp;title=Electrolyte Design for Lithium Metal Anode-Based Batteries Toward Extreme Temperature Application&amp;author=D. Luo&amp;author=M. Li&amp;author=Y. Zheng&amp;author=Q. Ma&amp;author=R. Gao&amp;volume=8&amp;issue=18&amp;publication_year=2021&amp;pages=2101051&amp;pmid=34272930&amp;doi=10.1002/advs.202101051&amp;"/></mixed-citation></ref><ref id="ref33"><mixed-citation id="cit33"><named-content content-type="citation-string">Qi Y., Bao C., Li X., Yan J., Cen K., Bo Z., Yang H.. A Dipole-Engineered Electrolyte Paradigm to Overcome Desolvation
+Barriers for Exceptional Ultralow-Temperature Energy Storage. Adv. Mater. 2025;37(42):e09768.  doi: 10.1002/adma.202509768.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1002/adma.202509768"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="40770943"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Adv. Mater.&amp;title=A Dipole-Engineered Electrolyte Paradigm to Overcome Desolvation Barriers for Exceptional Ultralow-Temperature Energy Storage&amp;author=Y. Qi&amp;author=C. Bao&amp;author=X. Li&amp;author=J. Yan&amp;author=K. Cen&amp;volume=37&amp;issue=42&amp;publication_year=2025&amp;pages=e09768&amp;pmid=40770943&amp;doi=10.1002/adma.202509768&amp;"/></mixed-citation></ref><ref id="ref34"><mixed-citation id="cit34"><named-content content-type="citation-string">
+
+Landrum, G.
+
+RDKit: Open-source
+cheminformatics. <ext-link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://www.rdkit.org" ext-link-type="uri">http://www.rdkit.org</ext-link>, 2016.  (Accessed January 2nd
+2026).</named-content></mixed-citation></ref><ref id="ref35"><mixed-citation id="cit35"><named-content content-type="citation-string">
+
+Frisch, M. J.
+; et al. 
+Gaussian
+16 Rev. B.01; Wallingford,
+CT, 2016.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="title=Gaussian 16&amp;publication_year=2016&amp;"/></mixed-citation></ref><ref id="ref36"><mixed-citation id="cit36"><named-content content-type="citation-string">Son C. Y., McDaniel J. G., Schmidt J. R., Cui Q., Yethiraj A.. First-Principles
+United Atom Force Field for the Ionic Liquid BMIM+BF4–: An
+Alternative to Charge Scaling. J. Phys. Chem.
+B. 2016;120(14):3560–3568. doi: 10.1021/acs.jpcb.5b12371.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/acs.jpcb.5b12371"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="26900644"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Phys. Chem. B&amp;title=First-Principles United Atom Force Field for the Ionic Liquid BMIM+BF4–: An Alternative to Charge Scaling&amp;author=C. Y. Son&amp;author=J. G. McDaniel&amp;author=J. R. Schmidt&amp;author=Q. Cui&amp;author=A. Yethiraj&amp;volume=120&amp;issue=14&amp;publication_year=2016&amp;pages=3560-3568&amp;pmid=26900644&amp;doi=10.1021/acs.jpcb.5b12371&amp;"/></mixed-citation></ref><ref id="ref37"><mixed-citation id="cit37"><named-content content-type="citation-string">Takeuchi M., Kameda Y., Umebayashi Y., Ogawa S., Sonoda T., Ishiguro S.-i., Fujita M., Sano M.. Ion–ion interactions
+of LiPF6 and LiBF4 in propylene carbonate solutions. J. Mol. Liq. 2009;148(2):99–108. doi: 10.1016/j.molliq.2009.07.003.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1016/j.molliq.2009.07.003"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Mol. Liq.&amp;title=Ion–ion interactions of LiPF6 and LiBF4 in propylene carbonate solutions&amp;author=M. Takeuchi&amp;author=Y. Kameda&amp;author=Y. Umebayashi&amp;author=S. Ogawa&amp;author=T. Sonoda&amp;volume=148&amp;issue=2&amp;publication_year=2009&amp;pages=99-108&amp;doi=10.1016/j.molliq.2009.07.003&amp;"/></mixed-citation></ref><ref id="ref38"><mixed-citation id="cit38"><named-content content-type="citation-string">Jensen K. P., Jorgensen W. L.. Halide, Ammonium, and Alkali Metal
+Ion Parameters for
+Modeling Aqueous Solutions. J. Chem. Theory
+Comput. 2006;2(6):1499–1509. doi: 10.1021/ct600252r.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/ct600252r"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="26627020"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Chem. Theory Comput.&amp;title=Halide, Ammonium, and Alkali Metal Ion Parameters for Modeling Aqueous Solutions&amp;author=K. P. Jensen&amp;author=W. L. Jorgensen&amp;volume=2&amp;issue=6&amp;publication_year=2006&amp;pages=1499-1509&amp;pmid=26627020&amp;doi=10.1021/ct600252r&amp;"/></mixed-citation></ref><ref id="ref39"><mixed-citation id="cit39"><named-content content-type="citation-string">Canongia
+Lopes J. N., Pádua A. A. H.. Molecular Force Field for Ionic Liquids
+Composed of Triflate or Bistriflylimide Anions. J. Phys. Chem. B. 2004;108(43):16893–16898. doi: 10.1021/jp0476545.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/jp0476545"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Phys. Chem. B&amp;title=Molecular Force Field for Ionic Liquids Composed of Triflate or Bistriflylimide Anions&amp;author=J. N. Canongia Lopes&amp;author=A. A. H. Pádua&amp;volume=108&amp;issue=43&amp;publication_year=2004&amp;pages=16893-16898&amp;doi=10.1021/jp0476545&amp;"/></mixed-citation></ref><ref id="ref40"><mixed-citation id="cit40"><named-content content-type="citation-string">Becke A. D.. Density-functional
+thermochemistry. III. The role of exact exchange. J. Chem. Phys. 1993;98(7):5648–5652. doi: 10.1063/1.464913.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1063/1.464913"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Chem. Phys.&amp;title=Density-functional thermochemistry. III. The role of exact exchange&amp;author=A. D. Becke&amp;volume=98&amp;issue=7&amp;publication_year=1993&amp;pages=5648-5652&amp;doi=10.1063/1.464913&amp;"/></mixed-citation></ref><ref id="ref41"><mixed-citation id="cit41"><named-content content-type="citation-string">Rajput N. N., Murugesan V., Shin Y., Han K. S., Lau K. C., Chen J., Liu J., Curtiss L. A., Mueller K. T., Persson K. A.. Elucidating the Solvation Structure and Dynamics of
+Lithium Polysulfides Resulting from Competitive Salt and Solvent Interactions. Chem. Mater. 2017;29(8):3375–3379. doi: 10.1021/acs.chemmater.7b00068.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/acs.chemmater.7b00068"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Chem. Mater.&amp;title=Elucidating the Solvation Structure and Dynamics of Lithium Polysulfides Resulting from Competitive Salt and Solvent Interactions&amp;author=N. N. Rajput&amp;author=V. Murugesan&amp;author=Y. Shin&amp;author=K. S. Han&amp;author=K. C. Lau&amp;volume=29&amp;issue=8&amp;publication_year=2017&amp;pages=3375-3379&amp;doi=10.1021/acs.chemmater.7b00068&amp;"/></mixed-citation></ref><ref id="ref42"><mixed-citation id="cit42"><named-content content-type="citation-string">Bayly C. I., Cieplak P., Cornell W., Kollman P. A.. A well-behaved
+electrostatic
+potential based method using charge restraints for deriving atomic
+charges: the RESP model. J. Phys. Chem. 1993;97(40):10269–10280. doi: 10.1021/j100142a004.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/j100142a004"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Phys. Chem.&amp;title=A well-behaved electrostatic potential based method using charge restraints for deriving atomic charges: the RESP model&amp;author=C. I. Bayly&amp;author=P. Cieplak&amp;author=W. Cornell&amp;author=P. A. Kollman&amp;volume=97&amp;issue=40&amp;publication_year=1993&amp;pages=10269-10280&amp;doi=10.1021/j100142a004&amp;"/></mixed-citation></ref><ref id="ref43"><mixed-citation id="cit43"><named-content content-type="citation-string">Martínez L., Andrade R., Birgin E. G., Martínez J. M.. PACKMOL:
+A package for building initial configurations for molecular dynamics
+simulations. J. Comput. Chem. 2009;30(13):2157–2164. doi: 10.1002/jcc.21224.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1002/jcc.21224"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="19229944"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Comput. Chem.&amp;title=PACKMOL: A package for building initial configurations for molecular dynamics simulations&amp;author=L. Martínez&amp;author=R. Andrade&amp;author=E. G. Birgin&amp;author=J. M. Martínez&amp;volume=30&amp;issue=13&amp;publication_year=2009&amp;pages=2157-2164&amp;pmid=19229944&amp;doi=10.1002/jcc.21224&amp;"/></mixed-citation></ref><ref id="ref44"><mixed-citation id="cit44"><named-content content-type="citation-string">Nosé S.. A molecular
+dynamics method for simulations in the canonical ensemble. Mol. Phys. 1984;52(2):255–268. doi: 10.1080/00268978400101201.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1080/00268978400101201"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Mol. Phys.&amp;title=A molecular dynamics method for simulations in the canonical ensemble&amp;author=S. Nosé&amp;volume=52&amp;issue=2&amp;publication_year=1984&amp;pages=255-268&amp;doi=10.1080/00268978400101201&amp;"/></mixed-citation></ref><ref id="ref45"><mixed-citation id="cit45"><named-content content-type="citation-string">Abraham M. J., Murtola T., Schulz R., Páll S., Smith J. C., Hess B., Lindahl E.. GROMACS: High performance
+molecular simulations through multi-level parallelism from laptops
+to supercomputers. SoftwareX. 2015;1–2:19–25. doi: 10.1016/j.softx.2015.06.001.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1016/j.softx.2015.06.001"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=SoftwareX&amp;title=GROMACS: High performance molecular simulations through multi-level parallelism from laptops to supercomputers&amp;author=M. J. Abraham&amp;author=T. Murtola&amp;author=R. Schulz&amp;author=S. Páll&amp;author=J. C. Smith&amp;volume=1–2&amp;publication_year=2015&amp;pages=19-25&amp;doi=10.1016/j.softx.2015.06.001&amp;"/></mixed-citation></ref><ref id="ref46"><mixed-citation id="cit46"><named-content content-type="citation-string">Pronk S., Páll S., Schulz R., Larsson P., Bjelkmar P., Apostolov R., Shirts M. R., Smith J. C., Kasson P. M., van der Spoel D.. et al. GROMACS 4.5: a high-throughput
+and highly parallel
+open source molecular simulation toolkit. Bioinformatics. 2013;29(7):845–854. doi: 10.1093/bioinformatics/btt055.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1093/bioinformatics/btt055"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmcid" xlink:href="PMC3605599"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="23407358"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Bioinformatics&amp;title=GROMACS 4.5: a high-throughput and highly parallel open source molecular simulation toolkit&amp;author=S. Pronk&amp;author=S. Páll&amp;author=R. Schulz&amp;author=P. Larsson&amp;author=P. Bjelkmar&amp;volume=29&amp;issue=7&amp;publication_year=2013&amp;pages=845-854&amp;pmid=23407358&amp;doi=10.1093/bioinformatics/btt055&amp;"/></mixed-citation></ref><ref id="ref47"><mixed-citation id="cit47"><named-content content-type="citation-string">Hess B., Kutzner C., van der
+Spoel D., Lindahl E.. GROMACS 4: Algorithms
+for Highly Efficient, Load-Balanced, and Scalable Molecular Simulation. J. Chem. Theory Comput. 2008;4(3):435–447. doi: 10.1021/ct700301q.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/ct700301q"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="26620784"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Chem. Theory Comput.&amp;title=GROMACS 4: Algorithms for Highly Efficient, Load-Balanced, and Scalable Molecular Simulation&amp;author=B. Hess&amp;author=C. Kutzner&amp;author=D. van der Spoel&amp;author=E. Lindahl&amp;volume=4&amp;issue=3&amp;publication_year=2008&amp;pages=435-447&amp;pmid=26620784&amp;doi=10.1021/ct700301q&amp;"/></mixed-citation></ref><ref id="ref48"><mixed-citation id="cit48"><named-content content-type="citation-string">Van
+Der Spoel D., Lindahl E., Hess B., Groenhof G., Mark A. E., Berendsen H. J. C.. GROMACS: Fast, flexible, and free. J. Comput. Chem. 2005;26(16):1701–1718. doi: 10.1002/jcc.20291.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1002/jcc.20291"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="16211538"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Comput. Chem.&amp;title=GROMACS: Fast, flexible, and free&amp;author=D. Van Der Spoel&amp;author=E. Lindahl&amp;author=B. Hess&amp;author=G. Groenhof&amp;author=A. E. Mark&amp;volume=26&amp;issue=16&amp;publication_year=2005&amp;pages=1701-1718&amp;pmid=16211538&amp;doi=10.1002/jcc.20291&amp;"/></mixed-citation></ref><ref id="ref49"><mixed-citation id="cit49"><named-content content-type="citation-string">Lindahl E., Hess B., van der Spoel D.. GROMACS 3.0: a package for molecular
+simulation and trajectory analysis. J. Mol.
+Model. 2001;7(8):306–317. doi: 10.1007/s008940100045.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1007/s008940100045"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Mol. Model.&amp;title=GROMACS 3.0: a package for molecular simulation and trajectory analysis&amp;author=E. Lindahl&amp;author=B. Hess&amp;author=D. van der Spoel&amp;volume=7&amp;issue=8&amp;publication_year=2001&amp;pages=306-317&amp;doi=10.1007/s008940100045&amp;"/></mixed-citation></ref><ref id="ref50"><mixed-citation id="cit50"><named-content content-type="citation-string">Berendsen H. J. C., van der Spoel D., van Drunen R.. GROMACS: A
+message-passing parallel molecular dynamics implementation. Comput. Phys. Commun. 1995;91(1):43–56. doi: 10.1016/0010-4655(95)00042-E.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1016/0010-4655(95)00042-E"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Comput. Phys. Commun.&amp;title=GROMACS: A message-passing parallel molecular dynamics implementation&amp;author=H. J. C. Berendsen&amp;author=D. van der Spoel&amp;author=R. van Drunen&amp;volume=91&amp;issue=1&amp;publication_year=1995&amp;pages=43-56&amp;doi=10.1016/0010-4655(95)00042-E&amp;"/></mixed-citation></ref><ref id="ref51"><mixed-citation id="cit51"><named-content content-type="citation-string">Yu J., Su N. Q., Yang W.. Describing Chemical Reactivity with
+Frontier Molecular Orbitalets. JACS Au. 2022;2(6):1383–1394. doi: 10.1021/jacsau.2c00085.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/jacsau.2c00085"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmcid" xlink:href="PMC9241161"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="35783161"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=JACS Au&amp;title=Describing Chemical Reactivity with Frontier Molecular Orbitalets&amp;author=J. Yu&amp;author=N. Q. Su&amp;author=W. Yang&amp;volume=2&amp;issue=6&amp;publication_year=2022&amp;pages=1383-1394&amp;pmid=35783161&amp;doi=10.1021/jacsau.2c00085&amp;"/></mixed-citation></ref><ref id="ref52"><mixed-citation id="cit52"><named-content content-type="citation-string">Zhou H., Skolnick J.. Utility of the Morgan
+Fingerprint in Structure-Based
+Virtual Ligand Screening. J. Phys. Chem. B. 2024;128(22):5363–5370. doi: 10.1021/acs.jpcb.4c01875.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/acs.jpcb.4c01875"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmcid" xlink:href="PMC11163432"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="38783525"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Phys. Chem. B&amp;title=Utility of the Morgan Fingerprint in Structure-Based Virtual Ligand Screening&amp;author=H. Zhou&amp;author=J. Skolnick&amp;volume=128&amp;issue=22&amp;publication_year=2024&amp;pages=5363-5370&amp;pmid=38783525&amp;doi=10.1021/acs.jpcb.4c01875&amp;"/></mixed-citation></ref><ref id="ref53"><mixed-citation id="cit53"><named-content content-type="citation-string">Leopold M., Pfeiffer F., Muschiol E. C., Wölke C., Yan P., Brüning K., Nowak S., Esselen M., Winter M., Cekic-Laskovic I.. Importance
+of Fluorine in High Voltage
+Electrolytes for LNMO||SiGr Cell Chemistry. Small. 2025;21(35):e2505254.  doi: 10.1002/smll.202505254.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1002/smll.202505254"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmcid" xlink:href="PMC12410896"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="40641267"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Small&amp;title=Importance of Fluorine in High Voltage Electrolytes for LNMO||SiGr Cell Chemistry&amp;author=M. Leopold&amp;author=F. Pfeiffer&amp;author=E. C. Muschiol&amp;author=C. Wölke&amp;author=P. Yan&amp;volume=21&amp;issue=35&amp;publication_year=2025&amp;pages=e2505254&amp;pmid=40641267&amp;doi=10.1002/smll.202505254&amp;"/></mixed-citation></ref><ref id="ref54"><mixed-citation id="cit54"><named-content content-type="citation-string">Ma Q., Fu S., Wu A.-J., Deng Q., Li W.-D., Yue D., Zhang B., Wu X.-W., Wang Z.-L., Guo Y.-G.. Designing
+Bidirectionally Functional Polymer Electrolytes for Stable Solid Lithium
+Metal Batteries. Adv. Energy Mater. 2023;13(11):2203892. doi: 10.1002/aenm.202203892.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1002/aenm.202203892"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Adv. Energy Mater.&amp;title=Designing Bidirectionally Functional Polymer Electrolytes for Stable Solid Lithium Metal Batteries&amp;author=Q. Ma&amp;author=S. Fu&amp;author=A.-J. Wu&amp;author=Q. Deng&amp;author=W.-D. Li&amp;volume=13&amp;issue=11&amp;publication_year=2023&amp;pages=2203892&amp;doi=10.1002/aenm.202203892&amp;"/></mixed-citation></ref><ref id="ref55"><mixed-citation id="cit55"><named-content content-type="citation-string">Sharma V., Giammona M., Zubarev D., Tek A., Nugyuen K., Sundberg L., Congiu D., La Y.-H.. Formulation
+Graphs
+for Mapping Structure-Composition of Battery Electrolytes to Device
+Performance. J. Chem. Inf. Model. 2023;63(22):6998–7010. doi: 10.1021/acs.jcim.3c01030.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/acs.jcim.3c01030"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmcid" xlink:href="PMC10685446"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="37948621"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Chem. Inf. Model.&amp;title=Formulation Graphs for Mapping Structure-Composition of Battery Electrolytes to Device Performance&amp;author=V. Sharma&amp;author=M. Giammona&amp;author=D. Zubarev&amp;author=A. Tek&amp;author=K. Nugyuen&amp;volume=63&amp;issue=22&amp;publication_year=2023&amp;pages=6998-7010&amp;pmid=37948621&amp;doi=10.1021/acs.jcim.3c01030&amp;"/></mixed-citation></ref><ref id="ref56"><mixed-citation id="cit56"><named-content content-type="citation-string">He H., Liu R., Wu Z., Li J., Guo J., Guo Z., Li Z., Xie W., Chen H., He G.. et al. Insight
+into the Tuning Fluorination of Carbonates for Lithium-Ion Batteries:
+A Theoretical Study. J. Phys. Chem. B. 2025;129(28):7248–7269. doi: 10.1021/acs.jpcb.5c01888.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/acs.jpcb.5c01888"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="40591404"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Phys. Chem. B&amp;title=Insight into the Tuning Fluorination of Carbonates for Lithium-Ion Batteries: A Theoretical Study&amp;author=H. He&amp;author=R. Liu&amp;author=Z. Wu&amp;author=J. Li&amp;author=J. Guo&amp;volume=129&amp;issue=28&amp;publication_year=2025&amp;pages=7248-7269&amp;pmid=40591404&amp;doi=10.1021/acs.jpcb.5c01888&amp;"/></mixed-citation></ref><ref id="ref57"><mixed-citation id="cit57"><named-content content-type="citation-string">Takegawa S., Hamaguchi K., Hosono E., Sato S., Watanabe G., Uchida J., Kato T.. Lithium-ion batteries with fluorinated
+mesogen-based liquid-crystalline electrolytes: molecular design towards
+enhancing oxidation stability. Nanoscale. 2024;16(45):21118–21127. doi: 10.1039/D4NR03559C.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1039/D4NR03559C"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="39466412"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Nanoscale&amp;title=Lithium-ion batteries with fluorinated mesogen-based liquid-crystalline electrolytes: molecular design towards enhancing oxidation stability&amp;author=S. Takegawa&amp;author=K. Hamaguchi&amp;author=E. Hosono&amp;author=S. Sato&amp;author=G. Watanabe&amp;volume=16&amp;issue=45&amp;publication_year=2024&amp;pages=21118-21127&amp;pmid=39466412&amp;doi=10.1039/D4NR03559C&amp;"/></mixed-citation></ref><ref id="ref58"><mixed-citation id="cit58"><named-content content-type="citation-string">Krämer S., Weintz D., Winter M., Cekic-Laskovic I., Grünebaum M.. Importance of High-Concentration
+Electrolytes for Lithium-Based
+Batteries. Encyclopedia. 2025;5(1):20. doi: 10.3390/encyclopedia5010020.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.3390/encyclopedia5010020"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Encyclopedia&amp;title=Importance of High-Concentration Electrolytes for Lithium-Based Batteries&amp;author=S. Krämer&amp;author=D. Weintz&amp;author=M. Winter&amp;author=I. Cekic-Laskovic&amp;author=M. Grünebaum&amp;volume=5&amp;issue=1&amp;publication_year=2025&amp;pages=20&amp;doi=10.3390/encyclopedia5010020&amp;"/></mixed-citation></ref><ref id="ref59"><mixed-citation id="cit59"><named-content content-type="citation-string">Yang T., Zheng Y., Liu Y., Luo D., Yu A., Chen Z.. Reviving Low-Temperature Performance of Lithium Batteries
+by Emerging
+Electrolyte Systems. Renewables. 2023;1(1):2–20. doi: 10.31635/renewables.022.202200007.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.31635/renewables.022.202200007"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Renewables&amp;title=Reviving Low-Temperature Performance of Lithium Batteries by Emerging Electrolyte Systems&amp;author=T. Yang&amp;author=Y. Zheng&amp;author=Y. Liu&amp;author=D. Luo&amp;author=A. Yu&amp;volume=1&amp;issue=1&amp;publication_year=2023&amp;pages=2-20&amp;doi=10.31635/renewables.022.202200007&amp;"/></mixed-citation></ref><ref id="ref60"><mixed-citation id="cit60"><named-content content-type="citation-string">Fan Z., Zhang J., Wu L., Yu H., Li J., Li K., Zhao Q.. Solvation structure
+dependent ion transport and desolvation
+mechanism for fast-charging Li-ion batteries. Chem. Sci. 2024;15(41):17161–17172. doi: 10.1039/D4SC05464D.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1039/D4SC05464D"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmcid" xlink:href="PMC11441466"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="39360011"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Chem. Sci.&amp;title=Solvation structure dependent ion transport and desolvation mechanism for fast-charging Li-ion batteries&amp;author=Z. Fan&amp;author=J. Zhang&amp;author=L. Wu&amp;author=H. Yu&amp;author=J. Li&amp;volume=15&amp;issue=41&amp;publication_year=2024&amp;pages=17161-17172&amp;pmid=39360011&amp;doi=10.1039/D4SC05464D&amp;"/></mixed-citation></ref><ref id="ref61"><mixed-citation id="cit61"><named-content content-type="citation-string">Li M., Li S., Yan D., Ma Y., Niu X., Wang L.. Electrolyte
+design weakens lithium-ion solvation for a fast-charging and long-cycling
+Si anode. Chem. Sci. 2025;16(6):2609–2618. doi: 10.1039/D4SC08125K.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1039/D4SC08125K"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmcid" xlink:href="PMC11728059"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="39811004"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Chem. Sci.&amp;title=Electrolyte design weakens lithium-ion solvation for a fast-charging and long-cycling Si anode&amp;author=M. Li&amp;author=S. Li&amp;author=D. Yan&amp;author=Y. Ma&amp;author=X. Niu&amp;volume=16&amp;issue=6&amp;publication_year=2025&amp;pages=2609-2618&amp;pmid=39811004&amp;doi=10.1039/D4SC08125K&amp;"/></mixed-citation></ref><ref id="ref62"><mixed-citation id="cit62"><named-content content-type="citation-string">Gao W., Peng Y., Lu Y., Liu X., Xu Y., Yang K., Wu Y., He J.. Localized high-concentration
+electrolytes for rechargeable batteries. Energy
+Storage Mater. 2025;80:104378. doi: 10.1016/j.ensm.2025.104378.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1016/j.ensm.2025.104378"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Energy Storage Mater.&amp;title=Localized high-concentration electrolytes for rechargeable batteries&amp;author=W. Gao&amp;author=Y. Peng&amp;author=Y. Lu&amp;author=X. Liu&amp;author=Y. Xu&amp;volume=80&amp;publication_year=2025&amp;pages=104378&amp;doi=10.1016/j.ensm.2025.104378&amp;"/></mixed-citation></ref></ref-list></sec></sec><sec id="_ad93_" xml:lang="en" sec-type="associated-data" disp-level="1"><title>Associated Data</title><sec id="_adsm93_" xml:lang="en" sec-type="supplementary-materials" disp-level="2"><title>Supplementary Materials</title><supplementary-material id="db_ds_supplementary-material1_reqid_" position="float"><media xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="ao6c01811_si_001.pdf" mimetype="application" mime-subtype="pdf"><?cloudpmc-path 6de6/13520033/1dee69026b22/ao6c01811_si_001.pdf?><?cloudpmc-bucket app?><?size 1528062?></media></supplementary-material></sec><sec id="_adda93_" xml:lang="en" sec-type="data-availability-statement" disp-level="2"><title>Data Availability Statement</title><p>The generated
+molecular data set is deposited in a publicly accessible repository,
+please refer to the doi: <ext-link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://doi.org/10.6084/m9.figshare" ext-link-type="uri">10.6084/m9.figshare.32070408</ext-link>
+</p></sec></sec></body></article>

@@ -1,0 +1,788 @@
+{
+  "system": "cnt10_field0",
+  "expected_n_atoms": 971,
+  "expected_composition": {
+    "EC": 8,
+    "EMC": 5,
+    "PF6": 2,
+    "Li": 2
+  },
+  "frames": [
+    {
+      "n_atoms": 971,
+      "composition": {
+        "EC": 8,
+        "EMC": 5,
+        "PF6": 2,
+        "Li": 2
+      },
+      "max_mobile_radius_A": 4.468376620854603,
+      "n_mobile_outside_tube_R": 0,
+      "n_outside_box": 0,
+      "density_in_tube_geom_g_cm3": 0.3572,
+      "mobile_mass_amu": 1528.8,
+      "min_intermol_heavy_A": 2.7035,
+      "bondi_worst": {
+        "ratio": 1.1857,
+        "dist_A": 2.7035,
+        "floor_A": 2.28,
+        "pair": "F-C"
+      },
+      "min_intermol_heavy_cationpair_A": 1.802,
+      "min_intermol_any_A": 1.802,
+      "min_intermol_H_involving_A": 2.0703,
+      "lj08_worst": {
+        "ratio": 1.1124,
+        "dist_A": 2.9448,
+        "floor_A": 2.6472
+      },
+      "t_ps": 0.0
+    },
+    {
+      "n_atoms": 971,
+      "composition": {
+        "EC": 8,
+        "EMC": 5,
+        "PF6": 2,
+        "Li": 2
+      },
+      "max_mobile_radius_A": 4.510908183503628,
+      "n_mobile_outside_tube_R": 0,
+      "n_outside_box": 1,
+      "density_in_tube_geom_g_cm3": 0.3572,
+      "mobile_mass_amu": 1528.8,
+      "min_intermol_heavy_A": 2.8099,
+      "bondi_worst": {
+        "ratio": 1.2272,
+        "dist_A": 2.9177,
+        "floor_A": 2.3775,
+        "pair": "C-C"
+      },
+      "min_intermol_heavy_cationpair_A": 1.8734,
+      "min_intermol_any_A": 1.8734,
+      "min_intermol_H_involving_A": 2.3474,
+      "lj08_worst": {
+        "ratio": 1.1022,
+        "dist_A": 2.9177,
+        "floor_A": 2.6472
+      },
+      "t_ps": 5.0
+    },
+    {
+      "n_atoms": 971,
+      "composition": {
+        "EC": 8,
+        "EMC": 5,
+        "PF6": 2,
+        "Li": 2
+      },
+      "max_mobile_radius_A": 4.360311225818634,
+      "n_mobile_outside_tube_R": 0,
+      "n_outside_box": 0,
+      "density_in_tube_geom_g_cm3": 0.3572,
+      "mobile_mass_amu": 1528.8,
+      "min_intermol_heavy_A": 2.7862,
+      "bondi_worst": {
+        "ratio": 1.1796,
+        "dist_A": 2.8487,
+        "floor_A": 2.415,
+        "pair": "F-C"
+      },
+      "min_intermol_heavy_cationpair_A": 1.8434,
+      "min_intermol_any_A": 1.8434,
+      "min_intermol_H_involving_A": 2.1511,
+      "lj08_worst": {
+        "ratio": 1.1024,
+        "dist_A": 2.8487,
+        "floor_A": 2.584
+      },
+      "t_ps": 10.0
+    },
+    {
+      "n_atoms": 971,
+      "composition": {
+        "EC": 8,
+        "EMC": 5,
+        "PF6": 2,
+        "Li": 2
+      },
+      "max_mobile_radius_A": 4.415598200261092,
+      "n_mobile_outside_tube_R": 0,
+      "n_outside_box": 0,
+      "density_in_tube_geom_g_cm3": 0.3572,
+      "mobile_mass_amu": 1528.8,
+      "min_intermol_heavy_A": 2.8797,
+      "bondi_worst": {
+        "ratio": 1.2112,
+        "dist_A": 2.8797,
+        "floor_A": 2.3775,
+        "pair": "C-F"
+      },
+      "min_intermol_heavy_cationpair_A": 1.8577,
+      "min_intermol_any_A": 1.8577,
+      "min_intermol_H_involving_A": 2.1816,
+      "lj08_worst": {
+        "ratio": 1.1045,
+        "dist_A": 2.8797,
+        "floor_A": 2.6072
+      },
+      "t_ps": 15.0
+    },
+    {
+      "n_atoms": 971,
+      "composition": {
+        "EC": 8,
+        "EMC": 5,
+        "PF6": 2,
+        "Li": 2
+      },
+      "max_mobile_radius_A": 4.437114836467499,
+      "n_mobile_outside_tube_R": 0,
+      "n_outside_box": 1,
+      "density_in_tube_geom_g_cm3": 0.3572,
+      "mobile_mass_amu": 1528.8,
+      "min_intermol_heavy_A": 2.8045,
+      "bondi_worst": {
+        "ratio": 1.2222,
+        "dist_A": 2.9517,
+        "floor_A": 2.415,
+        "pair": "O-O"
+      },
+      "min_intermol_heavy_cationpair_A": 1.8012,
+      "min_intermol_any_A": 1.8012,
+      "min_intermol_H_involving_A": 1.8918,
+      "lj08_worst": {
+        "ratio": 1.0796,
+        "dist_A": 2.9658,
+        "floor_A": 2.7472
+      },
+      "t_ps": 20.0
+    },
+    {
+      "n_atoms": 971,
+      "composition": {
+        "EC": 8,
+        "EMC": 5,
+        "PF6": 2,
+        "Li": 2
+      },
+      "max_mobile_radius_A": 4.35749983312679,
+      "n_mobile_outside_tube_R": 0,
+      "n_outside_box": 0,
+      "density_in_tube_geom_g_cm3": 0.3572,
+      "mobile_mass_amu": 1528.8,
+      "min_intermol_heavy_A": 2.7808,
+      "bondi_worst": {
+        "ratio": 1.1955,
+        "dist_A": 2.887,
+        "floor_A": 2.415,
+        "pair": "C-C"
+      },
+      "min_intermol_heavy_cationpair_A": 1.8717,
+      "min_intermol_any_A": 1.8717,
+      "min_intermol_H_involving_A": 2.0936,
+      "lj08_worst": {
+        "ratio": 1.0562,
+        "dist_A": 2.9017,
+        "floor_A": 2.7472
+      },
+      "t_ps": 25.0
+    },
+    {
+      "n_atoms": 971,
+      "composition": {
+        "EC": 8,
+        "EMC": 5,
+        "PF6": 2,
+        "Li": 2
+      },
+      "max_mobile_radius_A": 4.292520702277114,
+      "n_mobile_outside_tube_R": 0,
+      "n_outside_box": 0,
+      "density_in_tube_geom_g_cm3": 0.3572,
+      "mobile_mass_amu": 1528.8,
+      "min_intermol_heavy_A": 2.9042,
+      "bondi_worst": {
+        "ratio": 1.2351,
+        "dist_A": 2.9365,
+        "floor_A": 2.3775,
+        "pair": "F-C"
+      },
+      "min_intermol_heavy_cationpair_A": 1.8521,
+      "min_intermol_any_A": 1.8521,
+      "min_intermol_H_involving_A": 2.1266,
+      "lj08_worst": {
+        "ratio": 1.1093,
+        "dist_A": 2.9365,
+        "floor_A": 2.6472
+      },
+      "t_ps": 30.0
+    },
+    {
+      "n_atoms": 971,
+      "composition": {
+        "EC": 8,
+        "EMC": 5,
+        "PF6": 2,
+        "Li": 2
+      },
+      "max_mobile_radius_A": 4.4820543732757185,
+      "n_mobile_outside_tube_R": 0,
+      "n_outside_box": 0,
+      "density_in_tube_geom_g_cm3": 0.3572,
+      "mobile_mass_amu": 1528.8,
+      "min_intermol_heavy_A": 2.7688,
+      "bondi_worst": {
+        "ratio": 1.1947,
+        "dist_A": 2.8403,
+        "floor_A": 2.3775,
+        "pair": "F-C"
+      },
+      "min_intermol_heavy_cationpair_A": 1.8714,
+      "min_intermol_any_A": 1.8714,
+      "min_intermol_H_involving_A": 2.2739,
+      "lj08_worst": {
+        "ratio": 1.0729,
+        "dist_A": 2.8403,
+        "floor_A": 2.6472
+      },
+      "t_ps": 35.0
+    },
+    {
+      "n_atoms": 971,
+      "composition": {
+        "EC": 8,
+        "EMC": 5,
+        "PF6": 2,
+        "Li": 2
+      },
+      "max_mobile_radius_A": 4.393760094272786,
+      "n_mobile_outside_tube_R": 0,
+      "n_outside_box": 1,
+      "density_in_tube_geom_g_cm3": 0.3572,
+      "mobile_mass_amu": 1528.8,
+      "min_intermol_heavy_A": 2.7352,
+      "bondi_worst": {
+        "ratio": 1.2066,
+        "dist_A": 2.751,
+        "floor_A": 2.28,
+        "pair": "F-C"
+      },
+      "min_intermol_heavy_cationpair_A": 1.8714,
+      "min_intermol_any_A": 1.8714,
+      "min_intermol_H_involving_A": 2.2142,
+      "lj08_worst": {
+        "ratio": 1.0625,
+        "dist_A": 2.919,
+        "floor_A": 2.7472
+      },
+      "t_ps": 40.0
+    },
+    {
+      "n_atoms": 971,
+      "composition": {
+        "EC": 8,
+        "EMC": 5,
+        "PF6": 2,
+        "Li": 2
+      },
+      "max_mobile_radius_A": 4.418894685189952,
+      "n_mobile_outside_tube_R": 0,
+      "n_outside_box": 1,
+      "density_in_tube_geom_g_cm3": 0.3572,
+      "mobile_mass_amu": 1528.8,
+      "min_intermol_heavy_A": 2.7789,
+      "bondi_worst": {
+        "ratio": 1.1966,
+        "dist_A": 2.8897,
+        "floor_A": 2.415,
+        "pair": "C-C"
+      },
+      "min_intermol_heavy_cationpair_A": 1.8566,
+      "min_intermol_any_A": 1.8566,
+      "min_intermol_H_involving_A": 2.3159,
+      "lj08_worst": {
+        "ratio": 1.1077,
+        "dist_A": 3.043,
+        "floor_A": 2.7472
+      },
+      "t_ps": 45.0
+    },
+    {
+      "n_atoms": 971,
+      "composition": {
+        "EC": 8,
+        "EMC": 5,
+        "PF6": 2,
+        "Li": 2
+      },
+      "max_mobile_radius_A": 4.384557259645066,
+      "n_mobile_outside_tube_R": 0,
+      "n_outside_box": 1,
+      "density_in_tube_geom_g_cm3": 0.3572,
+      "mobile_mass_amu": 1528.8,
+      "min_intermol_heavy_A": 2.7605,
+      "bondi_worst": {
+        "ratio": 1.2219,
+        "dist_A": 2.786,
+        "floor_A": 2.28,
+        "pair": "F-C"
+      },
+      "min_intermol_heavy_cationpair_A": 1.8716,
+      "min_intermol_any_A": 1.8716,
+      "min_intermol_H_involving_A": 1.9686,
+      "lj08_worst": {
+        "ratio": 1.128,
+        "dist_A": 2.7605,
+        "floor_A": 2.4472
+      },
+      "t_ps": 50.0
+    },
+    {
+      "n_atoms": 971,
+      "composition": {
+        "EC": 8,
+        "EMC": 5,
+        "PF6": 2,
+        "Li": 2
+      },
+      "max_mobile_radius_A": 4.354569681105127,
+      "n_mobile_outside_tube_R": 0,
+      "n_outside_box": 0,
+      "density_in_tube_geom_g_cm3": 0.3572,
+      "mobile_mass_amu": 1528.8,
+      "min_intermol_heavy_A": 2.7185,
+      "bondi_worst": {
+        "ratio": 1.2105,
+        "dist_A": 2.878,
+        "floor_A": 2.3775,
+        "pair": "C-F"
+      },
+      "min_intermol_heavy_cationpair_A": 1.8897,
+      "min_intermol_any_A": 1.8897,
+      "min_intermol_H_involving_A": 2.1177,
+      "lj08_worst": {
+        "ratio": 1.0872,
+        "dist_A": 2.878,
+        "floor_A": 2.6472
+      },
+      "t_ps": 55.0
+    },
+    {
+      "n_atoms": 971,
+      "composition": {
+        "EC": 8,
+        "EMC": 5,
+        "PF6": 2,
+        "Li": 2
+      },
+      "max_mobile_radius_A": 4.571033842271243,
+      "n_mobile_outside_tube_R": 0,
+      "n_outside_box": 0,
+      "density_in_tube_geom_g_cm3": 0.3572,
+      "mobile_mass_amu": 1528.8,
+      "min_intermol_heavy_A": 2.7851,
+      "bondi_worst": {
+        "ratio": 1.2021,
+        "dist_A": 2.858,
+        "floor_A": 2.3775,
+        "pair": "C-O"
+      },
+      "min_intermol_heavy_cationpair_A": 1.8446,
+      "min_intermol_any_A": 1.8446,
+      "min_intermol_H_involving_A": 2.0962,
+      "lj08_worst": {
+        "ratio": 1.0676,
+        "dist_A": 2.9328,
+        "floor_A": 2.7472
+      },
+      "t_ps": 60.0
+    },
+    {
+      "n_atoms": 971,
+      "composition": {
+        "EC": 8,
+        "EMC": 5,
+        "PF6": 2,
+        "Li": 2
+      },
+      "max_mobile_radius_A": 4.453695322515899,
+      "n_mobile_outside_tube_R": 0,
+      "n_outside_box": 0,
+      "density_in_tube_geom_g_cm3": 0.3572,
+      "mobile_mass_amu": 1528.8,
+      "min_intermol_heavy_A": 2.8174,
+      "bondi_worst": {
+        "ratio": 1.1792,
+        "dist_A": 2.8479,
+        "floor_A": 2.415,
+        "pair": "F-C"
+      },
+      "min_intermol_heavy_cationpair_A": 1.8901,
+      "min_intermol_any_A": 1.8901,
+      "min_intermol_H_involving_A": 1.9412,
+      "lj08_worst": {
+        "ratio": 1.0584,
+        "dist_A": 2.9076,
+        "floor_A": 2.7472
+      },
+      "t_ps": 65.0
+    },
+    {
+      "n_atoms": 971,
+      "composition": {
+        "EC": 8,
+        "EMC": 5,
+        "PF6": 2,
+        "Li": 2
+      },
+      "max_mobile_radius_A": 4.544065693154095,
+      "n_mobile_outside_tube_R": 0,
+      "n_outside_box": 0,
+      "density_in_tube_geom_g_cm3": 0.3572,
+      "mobile_mass_amu": 1528.8,
+      "min_intermol_heavy_A": 2.6709,
+      "bondi_worst": {
+        "ratio": 1.191,
+        "dist_A": 2.6709,
+        "floor_A": 2.2425,
+        "pair": "F-C"
+      },
+      "min_intermol_heavy_cationpair_A": 1.8546,
+      "min_intermol_any_A": 1.8546,
+      "min_intermol_H_involving_A": 2.2031,
+      "lj08_worst": {
+        "ratio": 1.0765,
+        "dist_A": 2.9574,
+        "floor_A": 2.7472
+      },
+      "t_ps": 70.0
+    },
+    {
+      "n_atoms": 971,
+      "composition": {
+        "EC": 8,
+        "EMC": 5,
+        "PF6": 2,
+        "Li": 2
+      },
+      "max_mobile_radius_A": 4.492800722444742,
+      "n_mobile_outside_tube_R": 0,
+      "n_outside_box": 0,
+      "density_in_tube_geom_g_cm3": 0.3572,
+      "mobile_mass_amu": 1528.8,
+      "min_intermol_heavy_A": 2.7211,
+      "bondi_worst": {
+        "ratio": 1.2025,
+        "dist_A": 2.9041,
+        "floor_A": 2.415,
+        "pair": "O-C"
+      },
+      "min_intermol_heavy_cationpair_A": 1.9111,
+      "min_intermol_any_A": 1.9111,
+      "min_intermol_H_involving_A": 2.1462,
+      "lj08_worst": {
+        "ratio": 1.1193,
+        "dist_A": 2.7211,
+        "floor_A": 2.4312
+      },
+      "t_ps": 75.0
+    },
+    {
+      "n_atoms": 971,
+      "composition": {
+        "EC": 8,
+        "EMC": 5,
+        "PF6": 2,
+        "Li": 2
+      },
+      "max_mobile_radius_A": 4.467069968111088,
+      "n_mobile_outside_tube_R": 0,
+      "n_outside_box": 0,
+      "density_in_tube_geom_g_cm3": 0.3572,
+      "mobile_mass_amu": 1528.8,
+      "min_intermol_heavy_A": 2.7206,
+      "bondi_worst": {
+        "ratio": 1.1932,
+        "dist_A": 2.7206,
+        "floor_A": 2.28,
+        "pair": "C-C"
+      },
+      "min_intermol_heavy_cationpair_A": 1.8983,
+      "min_intermol_any_A": 1.8983,
+      "min_intermol_H_involving_A": 2.1732,
+      "lj08_worst": {
+        "ratio": 1.1452,
+        "dist_A": 3.1462,
+        "floor_A": 2.7472
+      },
+      "t_ps": 80.0
+    },
+    {
+      "n_atoms": 971,
+      "composition": {
+        "EC": 8,
+        "EMC": 5,
+        "PF6": 2,
+        "Li": 2
+      },
+      "max_mobile_radius_A": 4.369449840025629,
+      "n_mobile_outside_tube_R": 0,
+      "n_outside_box": 0,
+      "density_in_tube_geom_g_cm3": 0.3572,
+      "mobile_mass_amu": 1528.8,
+      "min_intermol_heavy_A": 2.8581,
+      "bondi_worst": {
+        "ratio": 1.2015,
+        "dist_A": 2.9016,
+        "floor_A": 2.415,
+        "pair": "F-C"
+      },
+      "min_intermol_heavy_cationpair_A": 1.8888,
+      "min_intermol_any_A": 1.8888,
+      "min_intermol_H_involving_A": 1.9493,
+      "lj08_worst": {
+        "ratio": 1.0747,
+        "dist_A": 2.9016,
+        "floor_A": 2.7
+      },
+      "t_ps": 85.0
+    },
+    {
+      "n_atoms": 971,
+      "composition": {
+        "EC": 8,
+        "EMC": 5,
+        "PF6": 2,
+        "Li": 2
+      },
+      "max_mobile_radius_A": 4.3756552488170275,
+      "n_mobile_outside_tube_R": 0,
+      "n_outside_box": 0,
+      "density_in_tube_geom_g_cm3": 0.3572,
+      "mobile_mass_amu": 1528.8,
+      "min_intermol_heavy_A": 2.6848,
+      "bondi_worst": {
+        "ratio": 1.1775,
+        "dist_A": 2.6848,
+        "floor_A": 2.28,
+        "pair": "C-C"
+      },
+      "min_intermol_heavy_cationpair_A": 1.877,
+      "min_intermol_any_A": 1.877,
+      "min_intermol_H_involving_A": 2.2262,
+      "lj08_worst": {
+        "ratio": 1.1065,
+        "dist_A": 2.9699,
+        "floor_A": 2.684
+      },
+      "t_ps": 90.0
+    },
+    {
+      "n_atoms": 971,
+      "composition": {
+        "EC": 8,
+        "EMC": 5,
+        "PF6": 2,
+        "Li": 2
+      },
+      "max_mobile_radius_A": 4.541975537449425,
+      "n_mobile_outside_tube_R": 0,
+      "n_outside_box": 0,
+      "density_in_tube_geom_g_cm3": 0.3572,
+      "mobile_mass_amu": 1528.8,
+      "min_intermol_heavy_A": 2.7337,
+      "bondi_worst": {
+        "ratio": 1.199,
+        "dist_A": 2.7337,
+        "floor_A": 2.28,
+        "pair": "O-O"
+      },
+      "min_intermol_heavy_cationpair_A": 1.86,
+      "min_intermol_any_A": 1.86,
+      "min_intermol_H_involving_A": 2.0994,
+      "lj08_worst": {
+        "ratio": 1.141,
+        "dist_A": 3.0204,
+        "floor_A": 2.6472
+      },
+      "t_ps": 95.0
+    },
+    {
+      "n_atoms": 971,
+      "composition": {
+        "EC": 8,
+        "EMC": 5,
+        "PF6": 2,
+        "Li": 2
+      },
+      "max_mobile_radius_A": 4.5436409317308515,
+      "n_mobile_outside_tube_R": 0,
+      "n_outside_box": 0,
+      "density_in_tube_geom_g_cm3": 0.3572,
+      "mobile_mass_amu": 1528.8,
+      "min_intermol_heavy_A": 2.7471,
+      "bondi_worst": {
+        "ratio": 1.2049,
+        "dist_A": 2.7471,
+        "floor_A": 2.28,
+        "pair": "O-O"
+      },
+      "min_intermol_heavy_cationpair_A": 1.8709,
+      "min_intermol_any_A": 1.8709,
+      "min_intermol_H_involving_A": 2.2752,
+      "lj08_worst": {
+        "ratio": 1.0843,
+        "dist_A": 2.8703,
+        "floor_A": 2.6472
+      },
+      "t_ps": 100.0
+    }
+  ],
+  "equil_density_vs_t": [
+    {
+      "t_ps": 50.0,
+      "density_g_cm3": 0.3572
+    },
+    {
+      "t_ps": 75.0,
+      "density_g_cm3": 0.3572
+    },
+    {
+      "t_ps": 100.0,
+      "density_g_cm3": 0.3572
+    },
+    {
+      "t_ps": 125.0,
+      "density_g_cm3": 0.3572
+    },
+    {
+      "t_ps": 150.0,
+      "density_g_cm3": 0.3572
+    },
+    {
+      "t_ps": 175.0,
+      "density_g_cm3": 0.3572
+    },
+    {
+      "t_ps": 200.0,
+      "density_g_cm3": 0.3572
+    },
+    {
+      "t_ps": 225.0,
+      "density_g_cm3": 0.3572
+    },
+    {
+      "t_ps": 250.0,
+      "density_g_cm3": 0.3572
+    },
+    {
+      "t_ps": 275.0,
+      "density_g_cm3": 0.3572
+    },
+    {
+      "t_ps": 300.0,
+      "density_g_cm3": 0.3572
+    },
+    {
+      "t_ps": 325.0,
+      "density_g_cm3": 0.3572
+    },
+    {
+      "t_ps": 350.0,
+      "density_g_cm3": 0.3572
+    },
+    {
+      "t_ps": 375.0,
+      "density_g_cm3": 0.3572
+    },
+    {
+      "t_ps": 400.0,
+      "density_g_cm3": 0.3572
+    },
+    {
+      "t_ps": 425.0,
+      "density_g_cm3": 0.3572
+    },
+    {
+      "t_ps": 450.0,
+      "density_g_cm3": 0.3572
+    }
+  ],
+  "errors": [],
+  "n_prod_frames": 21,
+  "frame_times_ps": [
+    0.0,
+    5.0,
+    10.0,
+    15.0,
+    20.0,
+    25.0,
+    30.0,
+    35.0,
+    40.0,
+    45.0,
+    50.0,
+    55.0,
+    60.0,
+    65.0,
+    70.0,
+    75.0,
+    80.0,
+    85.0,
+    90.0,
+    95.0,
+    100.0
+  ],
+  "frame_spacing_ps": 5.0,
+  "prod_min_intermol_heavy_A": 2.6709,
+  "prod_min_intermol_any_A": 1.8012,
+  "prod_min_intermol_H_involving_A": 1.8918,
+  "prod_min_intermol_heavy_cationpair_A": 1.8012,
+  "prod_bondi_worst": {
+    "ratio": 1.1775,
+    "dist_A": 2.6848,
+    "floor_A": 2.28,
+    "pair": "C-C"
+  },
+  "prod_bondi_pass": true,
+  "prod_lj08_worst": {
+    "ratio": 1.0562,
+    "dist_A": 2.9017,
+    "floor_A": 2.7472
+  },
+  "prod_lj08_pass": true,
+  "prod_density_in_tube_geom_g_cm3": [
+    0.3572,
+    0.3572,
+    0.3572,
+    0.3572,
+    0.3572,
+    0.3572,
+    0.3572,
+    0.3572,
+    0.3572,
+    0.3572,
+    0.3572,
+    0.3572,
+    0.3572,
+    0.3572,
+    0.3572,
+    0.3572,
+    0.3572,
+    0.3572,
+    0.3572,
+    0.3572,
+    0.3572
+  ],
+  "prod_density_in_tube_vdw_g_cm3": 1.2805,
+  "prod_max_mobile_radius_A": 4.571033842271243,
+  "prod_n_mobile_outside_tube": 0,
+  "composition_stable": true,
+  "composition_observed": {
+    "EC": 8,
+    "EMC": 5,
+    "Li": 2,
+    "PF6": 2
+  }
+}

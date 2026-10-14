@@ -1,0 +1,63 @@
+{
+  "system": "cnt16_field1",
+  "n_sections": 3,
+  "wall_times": [
+    {
+      "steps": 50000,
+      "wall_s": 271.98
+    },
+    {
+      "steps": 400000,
+      "wall_s": 2198.84
+    },
+    {
+      "steps": 100000,
+      "wall_s": 549.53
+    }
+  ],
+  "total_wall_s": 3020.36,
+  "ramp": {
+    "steps": [
+      0,
+      50000
+    ],
+    "Tmob_mean_K": 156.53,
+    "Tmob_std_K": 78.27,
+    "PE_mean_kcal_mol": -6722.844,
+    "PE_std_kcal_mol": 162.127,
+    "n_samples": 101
+  },
+  "equil": {
+    "steps": [
+      50000,
+      450000
+    ],
+    "Tmob_mean_K": 300.72,
+    "Tmob_std_K": 21.67,
+    "PE_mean_kcal_mol": -6734.293,
+    "PE_std_kcal_mol": 21.391,
+    "n_samples": 801,
+    "PE_quarter_means_kcal_mol": [
+      -6732.006,
+      -6738.322,
+      -6745.458,
+      -6721.332
+    ],
+    "PE_slope_last_half_kcal_per_ps": 0.22824,
+    "Tmob_mean_last_half_K": 301.66,
+    "Tmob_std_last_half_K": 20.1,
+    "PE_q4_minus_q1_kcal_mol": 10.674,
+    "PE_q4_minus_q1_per_molecule_kT": 0.2453
+  },
+  "prod": {
+    "steps": [
+      0,
+      100000
+    ],
+    "Tmob_mean_K": 298.91,
+    "Tmob_std_K": 21.03,
+    "PE_mean_kcal_mol": -6744.22,
+    "PE_std_kcal_mol": 25.367,
+    "n_samples": 201
+  }
+}

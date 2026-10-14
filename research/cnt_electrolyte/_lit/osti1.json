@@ -1,0 +1,418 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<records>
+<record>
+  <osti_id>3369040</osti_id>
+  <title>Mechanism of ion pairing–induced co-ion penetration into the stern layer</title>
+  <description>In classical electric double layer (EDL) theory, co-ions—ions carrying the same charge as the electrode—are assumed to be excluded from the Stern layer because of electrostatic repulsion. However, ion pairing with adsorbed counterions may enable co-ions to access the EDL, a phenomenon that remains underexplored. Key questions therefore remain unresolved, including how deeply co-ions penetrate, how ion-specific properties govern them, and how ion pairing within the EDL differs from bulk solution. Here, in this study, we employ molecular dynamics simulations combined with well-tempered metadynamics to quantify co-ion penetration and ion-pairing thermodynamics at positively charged Mg-Al layered double hydroxide interfaces (σ = +20.6 μC/cm&lt;sup&gt;2&lt;/sup&gt;) in aqueous chloride electrolytes across 0.005–3 M range. We reveal a concentration-driven crossover: at dilute conditions, counterion–co-ion contact ion pairing (CIP) is thermodynamically unfavorable or only weakly favorable (ΔG&lt;sub&gt;CIP&lt;/sub&gt; = +0.12 kcal/mol for Li&lt;sup&gt;+&lt;/sup&gt; to −0.42 kcal/mol for K&lt;sup&gt;+&lt;/sup&gt;), leading to co-ion exclusion. As concentration increases (≥0.5 M), enhanced screening reduces surface repulsion and stabilizes CIP thermodynamics (ΔG&lt;sub&gt;CIP&lt;/sub&gt; = −0.89 kcal/mol for Li&lt;sup&gt;+&lt;/sup&gt; to −1.05 kcal/mol for K&lt;sup&gt;+&lt;/sup&gt; at 3 M), enabling monovalent co-ions to penetrate the Stern layer following the hydration hierarchy K&lt;sup&gt;+&lt;/sup&gt; &amp;gt; Na&lt;sup&gt;+&lt;/sup&gt; &amp;gt; Li&lt;sup&gt;+&lt;/sup&gt;, while divalent co-ions (Mg&lt;sup&gt;2+&lt;/sup&gt;, Ca&lt;sup&gt;2+&lt;/sup&gt;) remain in the diffuse layer, forming only solvent-separated pairs. Comparison with bulk solution shows interfacial ion pairing is suppressed at low concentrations but converges to bulk-like thermodynamics at high concentrations, indicating surface effects vanish under strong screening. These results establish a quantitative framework linking ion-pairing thermodynamics to co-ion penetration and providing strategies to design electrochemical interfaces.</description>
+  <authors>
+      <author>Choudhary, Aditya [Sandia National Laboratories (SNL-NM), Albuquerque, NM (United States)]</author><author>Ho, Tuan Anh [Sandia National Laboratories (SNL-NM), Albuquerque, NM (United States)] (ORCID:0000000281291027)</author>
+  </authors>
+  <product_type>Journal Article</product_type>
+  <doi>10.1016/j.cej.2026.178018</doi>
+  <journal_name>Chemical Engineering Journal</journal_name>
+  <journal_volume>542</journal_volume>
+  <journal_issue>178018</journal_issue>
+  <journal_issn>ISSN 1385-8947</journal_issn>
+  <article_type>Accepted Manuscript</article_type>
+  
+  <publication_date>2026-06-03T00:00:00</publication_date>
+  <publisher>Elsevier</publisher>
+  <country_publication>United States</country_publication>
+  <format>Article No. 178018</format>
+  <language>English</language>
+  <availability></availability>
+  <research_orgs>
+      <research_org>Sandia National Laboratories (SNL-NM), Albuquerque, NM (United States)</research_org>
+  </research_orgs>
+  <sponsor_orgs>
+      <sponsor_org>USDOE Laboratory Directed Research and Development (LDRD) Program</sponsor_org><sponsor_org>USDOE National Nuclear Security Administration (NNSA)</sponsor_org>
+  </sponsor_orgs>
+  <contributing_org></contributing_org>
+  <subjects>
+      <subject>Co-ion penetration</subject><subject>Electric double layer</subject><subject>Ion pairing</subject><subject>Metadynamics</subject><subject>Molecular dynamics simulation</subject>
+  </subjects>
+  <doe_contract_number>NA0003525</doe_contract_number>
+    <report_number>SAND2026-22401J</report_number>
+      <other_identifiers><identifier>Journal ID: ISSN 1385-8947;1790923</identifier></other_identifiers>
+  
+  <entry_date>2026-07-28T11:49:58</entry_date>
+  <links>
+      <link rel="citation" href="https://www.osti.gov/biblio/3369040" /><link rel="fulltext" href="https://www.osti.gov/servlets/purl/3369040" /><link rel="citation_doe_pages" href="https://www.osti.gov/pages/biblio/3369040" />
+  </links>
+</record>
+<record>
+  <osti_id>3377758</osti_id>
+  <title>Molecular Tuning of Ether Cosolvent Chemistry for High-Voltage Sodium-Ion Batteries</title>
+  <description>Ethers as electrolyte cosolvents in sodium-ion batteries (SIBs) provide favorable Na&lt;sup&gt;+&lt;/sup&gt; solvation and interfacial properties, but their low oxidative stability limits their use in high-voltage SIBs. Herein, we address this limitation via molecular tuning of ether cosolvents for high-voltage (4.2 V) hard carbon || NaNi&lt;sub&gt;0.33&lt;/sub&gt;Fe&lt;sub&gt;0.33&lt;/sub&gt;Mn&lt;sub&gt;0.33&lt;/sub&gt;O&lt;sub&gt;2&lt;/sub&gt; full cells. Tetrahydropyran (THP) is functionalized with a nitrile group to form tetrahydropyran-4-carbonitrile (THPCN). To delineate the effect of nitrile functionalization and benchmark ether against a conventional carbonate, THP, THPCN, and diethyl carbonate (DEC) are evaluated as cosolvents with ethylene carbonate. Nitrile functionalization lowers the HOMO energy of the ether, extends the electrolyte stability window, and alters Na⁺ solvation. Spectroscopic techniques and molecular dynamics simulations reveal that THPCN exhibits predominantly aggregate-dominated solvation (95.1 %) with weakened Na&lt;sup&gt;+&lt;/sup&gt;-solvent interactions, producing the most anion-rich environment relative to DEC and THP cosolvents. THPCN-modified solvation promotes the formation of highly conductive, fluorine-enriched interphases that suppress parasitic reactions. Pouch full cells with THPCN sustained ~ 600 cycles at 4.2 V, outperforming THP and DEC. Operando gas analysis reveals that THPCN reduces CO&lt;sub&gt;2&lt;/sub&gt; generation by 45% and H&lt;sub&gt;2&lt;/sub&gt; generation by 30% relative to THP. Furthermore, the findings demonstrate nitrile functionalization as a molecular design strategy to stabilize ethers and enable high-voltage SIBs.</description>
+  <authors>
+      <author>Maddala, Nagalakshmi Gayathri [University of Texas at Austin, TX (United States)]</author><author>Pai, Min-Hao [University of Texas at Austin, TX (United States)]</author><author>Ingebrand, Tara [University of Texas at Austin, TX (United States)]</author><author>Manthiram, Arumugam [University of Texas at Austin, TX (United States)] (ORCID:0000000302379563)</author>
+  </authors>
+  <product_type>Journal Article</product_type>
+  <doi>10.1021/jacs.6c07263</doi>
+  <journal_name>Journal of the American Chemical Society</journal_name>
+  <journal_volume>148</journal_volume>
+  <journal_issue>27</journal_issue>
+  <journal_issn>ISSN 1520-5126</journal_issn>
+  <article_type>Accepted Manuscript</article_type>
+  
+  <publication_date>2026-06-30T00:00:00</publication_date>
+  <publisher>American Chemical Society (ACS)</publisher>
+  <country_publication>United States</country_publication>
+  <format>p. 29037-29049</format>
+  <language>English</language>
+  <availability></availability>
+  <research_orgs>
+      <research_org>University of Texas at Austin, TX (United States)</research_org>
+  </research_orgs>
+  <sponsor_orgs>
+      <sponsor_org>USDOE Office of Science (SC), Basic Energy Sciences (BES). Materials Sciences &amp; Engineering Division (MSE)</sponsor_org>
+  </sponsor_orgs>
+  <contributing_org></contributing_org>
+  <subjects>
+      <subject>25 ENERGY STORAGE</subject><subject>Ether electrolytes</subject><subject>batteries</subject><subject>electrodes</subject><subject>electrolytes</subject><subject>high-voltage</subject><subject>inorganic carbon compounds</subject><subject>molecular tuning</subject><subject>sodium-ion batteries</subject><subject>solvation</subject><subject>weakly solvating electrolyte</subject>
+  </subjects>
+  <doe_contract_number>SC0005397</doe_contract_number>
+    <report_number></report_number>
+      <other_identifiers><identifier>Journal ID: ISSN 0002-7863; Journal ID: ISSN 1520-5126</identifier></other_identifiers>
+  
+  <entry_date>2026-07-17T08:42:37</entry_date>
+  <links>
+      <link rel="citation" href="https://www.osti.gov/biblio/3377758" /><link rel="fulltext" href="https://www.osti.gov/servlets/purl/3377758" /><link rel="citation_doe_pages" href="https://www.osti.gov/pages/biblio/3377758" />
+  </links>
+</record>
+<record>
+  <osti_id>17065265</osti_id>
+  <title>The Three-Component Problem: Deconvoluting Electrolyte Component Roles in Solvation Structure and Silicon Calendar Aging</title>
+  <description>In this work, we deconvolute the roles of LiPF6, ethyl methyl carbonate (EMC), and
+vinylene carbonate (VC) in the electrolyte solvation structure and silicon anode calendar aging.
+By varying the molar ratios of the electrolyte constituents and utilizing a V-hold protocol, we
+extract the roles of each component in the silicon anode calendar lifetime. Interestingly, the LiPF6
+concentration does not affect calendar aging whereas increasing and decreasing the EMC and VC
+molar ratios, respectively, lowers the electrode surface passivity. The calendar lifetime results align
+with EMC coordination numbers derived from molecular dynamics simulations which indicate the
+inner solvation sheath’s role in calendar aging mechanisms. X-ray photoelectron spectroscopy
+shows that the solid electrolyte interphase (SEI) species can be tuned through the electrolyte
+formulation and solvation structure. Li+
+-EMC coordination structures form insoluble alkanes,
+carbonyls, and lithium carbonate (Li2CO3) while the anion coordination complex decomposes into
+LiF and LixPOyFz. Post-aging, the surface lithium content of the SEI is partially replaced by
+carbonyl species. However, the inorganic lithium species (LiF, LixPOyFz, and Li2CO3) remain constant suggesting the dissolution of organolithium species due to EMC’s low relative
+permittivity and high coordination number. This triggers continuous electrolyte decomposition to
+reform the SEI which lowers the silicon anode’s calendar lifetime. </description>
+  <authors>
+      <author>Lam, Steven</author><author>Majaya, Nessa</author><author>Gering, Kevin L.</author><author>Sacci, Robert L.</author><author>Meyers, Lydia</author><author>Verma, Ankit </author><author>Schulze, Maxwell C.</author><author>Robertson, Lily A.</author><author>Zhang, Zhengcheng</author><author>Rodrigues, Marco-Tulio Fonseca</author><author>Trask, Stephen E. (ORCID:0000000208794779)</author><author>Persson, Kristin</author><author>Veith, Gabriel M. </author>
+  </authors>
+  <product_type>Journal Article</product_type>
+  <doi>10.1021/acsami.5c23255</doi>
+  <journal_name>ACS Applied Materials &amp; Interfaces</journal_name>
+  <journal_volume></journal_volume>
+  <journal_issue></journal_issue>
+  <journal_issn>ISSN 1944-8244</journal_issn>
+  <article_type>Accepted Manuscript</article_type>
+  
+  <publication_date>2026-09-21T00:00:00</publication_date>
+  <publisher></publisher>
+  <country_publication>United States</country_publication>
+  <format></format>
+  <language>English</language>
+  <availability></availability>
+  <research_orgs>
+      <research_org>Argonne National Laboratory (ANL)</research_org>
+  </research_orgs>
+  <sponsor_orgs>
+      <sponsor_org>US Department of Energy</sponsor_org><sponsor_org>USDOE Office of Energy Efficiency and Renewable Energy (EERE) - Office of Vehicle Technologies (VTO)</sponsor_org>
+  </sponsor_orgs>
+  <contributing_org></contributing_org>
+  <subjects>
+      <subject>calendar aging</subject><subject>liquid electrolytes</subject><subject>parasitic currents</subject><subject>silicon anodes</subject><subject>solid electrolyte interphase</subject><subject>solvation structures</subject>
+  </subjects>
+  <doe_contract_number>AC02-06CH11357</doe_contract_number>
+    <report_number></report_number>
+      <other_identifiers><identifier>Journal ID: ISSN 1944-8244;199177</identifier></other_identifiers>
+  
+  <entry_date>2026-10-02T10:23:55</entry_date>
+  <links>
+      <link rel="citation" href="https://www.osti.gov/biblio/17065265" /><link rel="fulltext" href="https://www.osti.gov/servlets/purl/17065265" /><link rel="citation_doe_pages" href="https://www.osti.gov/pages/biblio/17065265" />
+  </links>
+</record>
+<record>
+  <osti_id>3377306</osti_id>
+  <title>Tuning Solid Electrolyte Interphase Formation before Plating Onset in Anode-Free Sodium Batteries</title>
+  <description>Sodium (Na) batteries are of growing interest due to the higher earth abundance of sodium than lithium, as well as their promising theoretical energy density when metallic Na anodes are used. However, Na plating and stripping are heavily influenced by the physicochemical properties of the solid electrolyte interphase (SEI), which is directly influenced by the solvent and salt used for the electrolyte. While most studies focus on the SEI that forms on the surface of Na metal after plating, we expand this analysis by identifying a nanoscale “pre-plating” SEI that forms on the current collector (CC) prior to the onset of Na plating. Here, we systematically investigate an array of Na salt and glyme solvents in the electrolyte and determine the associated impacts on pre-plating SEI formation on aluminum CCs. By combining analytical electrochemistry approaches with a multimodal suite of spectroscopy techniques (X-ray, infrared, and Raman), supported by density functional theory calculations, we reveal a direct correlation between the Na&lt;sup&gt;+&lt;/sup&gt; coordination environment and pre-plating SEI composition. We find that longer-chain glymes produce larger proportions of organic alkoxide products in the interphase, consistent with increased Na&lt;sup&gt;+&lt;/sup&gt;−glyme interactions, while the fraction of salt-derived inorganic products (e.g., NaF) correlates with Na&lt;sup&gt;+&lt;/sup&gt;−anion coordination. These insights highlight the critical influence of electrolyte composition particularly solvent identity and Na&lt;sup&gt;+&lt;/sup&gt; coordination on the initial SEI formation in anode-free Na batteries.</description>
+  <authors>
+      <author>Melemed, Aaron M. [University of Michigan, Ann Arbor, MI (United States); Argonne National Laboratory (ANL), Argonne, IL (United States)]</author><author>Hong, Sungil [Argonne National Laboratory (ANL), Argonne, IL (United States)] (ORCID:0000000187290861)</author><author>Thurston, Jonathan R. [University of Michigan, Ann Arbor, MI (United States); Argonne National Laboratory (ANL), Argonne, IL (United States)]</author><author>Luglio, Alexis [University of Michigan, Ann Arbor, MI (United States); Argonne National Laboratory (ANL), Argonne, IL (United States)]</author><author>Rose, Ethan B. [University of Michigan, Ann Arbor, MI (United States); Argonne National Laboratory (ANL), Argonne, IL (United States)]</author><author>Marchese, Thomas S. [University of Chicago, IL (United States); Argonne National Laboratory (ANL), Argonne, IL (United States)]</author><author>Lai, Jianwei [Lawrence Berkeley National Laboratory (LBNL), Berkeley, CA (United States); Argonne National Laboratory (ANL), Argonne, IL (United States)] (ORCID:0000000158411134)</author><author>Crumlin, Ethan J. [Lawrence Berkeley National Laboratory (LBNL), Berkeley, CA (United States); Argonne National Laboratory (ANL), Argonne, IL (United States)] (ORCID:000000033132190X)</author><author>Meng, Ying Shirley [University of Chicago, IL (United States); Argonne National Laboratory (ANL), Argonne, IL (United States)] (ORCID:0000000189368845)</author><author>Singh, Nirala [University of Michigan, Ann Arbor, MI (United States); Argonne National Laboratory (ANL), Argonne, IL (United States)] (ORCID:0000000303893927)</author><author>Assary, Rajeev S. [Argonne National Laboratory (ANL), Argonne, IL (United States)] (ORCID:0000000295713307)</author><author>Dasgupta, Neil P. [University of Michigan, Ann Arbor, MI (United States); Argonne National Laboratory (ANL), Argonne, IL (United States)] (ORCID:0000000251804063)</author>
+  </authors>
+  <product_type>Journal Article</product_type>
+  <doi>10.1021/jacsau.6c00193</doi>
+  <journal_name>JACS Au</journal_name>
+  <journal_volume>6</journal_volume>
+  <journal_issue>6</journal_issue>
+  <journal_issn>ISSN 2691-3704</journal_issn>
+  <article_type>Accepted Manuscript</article_type>
+  
+  <publication_date>2026-05-28T00:00:00</publication_date>
+  <publisher>American Chemical Society (ACS)</publisher>
+  <country_publication>United States</country_publication>
+  <format>p. 3203-3218</format>
+  <language>English</language>
+  <availability></availability>
+  <research_orgs>
+      <research_org>Argonne National Laboratory (ANL), Argonne, IL (United States)</research_org>
+  </research_orgs>
+  <sponsor_orgs>
+      <sponsor_org>National Science Foundation Graduate Research Fellowship Program</sponsor_org><sponsor_org>USDOE Office of Science (SC), Basic Energy Sciences (BES)</sponsor_org>
+  </sponsor_orgs>
+  <contributing_org></contributing_org>
+  <subjects>
+      <subject>anode-free batteries</subject><subject>batteries</subject><subject>electrodes</subject><subject>electrolyte coordination</subject><subject>electrolytes</subject><subject>metals</subject><subject>sodium metal anode</subject><subject>solid electrolyte interphase</subject><subject>surface chemistry</subject>
+  </subjects>
+  <doe_contract_number>AC02-06CH11357</doe_contract_number>
+    <report_number></report_number>
+      <other_identifiers><identifier>Journal ID: ISSN 2691-3704</identifier></other_identifiers>
+  
+  <entry_date>2026-07-13T13:53:16</entry_date>
+  <links>
+      <link rel="citation" href="https://www.osti.gov/biblio/3377306" /><link rel="fulltext" href="https://www.osti.gov/servlets/purl/3377306" /><link rel="citation_doe_pages" href="https://www.osti.gov/pages/biblio/3377306" />
+  </links>
+</record>
+<record>
+  <osti_id>3374475</osti_id>
+  <title>Impact of the LiPF6 Concentration on the Interfacial Charge Transfer and Fast-charging Capabilities of Lithium-Ion Batteries</title>
+  <description>Fast-charging lithium-ion batteries (LIB) demand optimized electrolyte formulations to balance ionic conductivity, viscosity, and interfacial charge transfer kinetics. This study examines how LiPF&lt;sub&gt;6&lt;/sub&gt; concentration shapes solvation structure, desolvation energy, charge transfer activation energy, and solid electrolyte interphase (SEI) properties, which are critical for fast-charging performance. Using Raman spectroscopy, electrochemical cycling, X-ray photoelectron spectroscopy, and atomistic modeling, we analyze how varying LiPF&lt;sub&gt;6&lt;/sub&gt; concentrations impact interfacial and bulk transport properties. Our findings show that increasing LiPF&lt;sub&gt;6&lt;/sub&gt; concentration alters lithium solvation structures, reduces desolvation energy, and accelerates charge transfer at the electrode interface. Higher concentrations lower the activation energy for charge transfer and suppress excessive SEI growth, improving interfacial kinetics. However, concentrations above a certain threshold increase viscosity and reduce ionic conductivity, limiting transport efficiency. These results offer insights into electrolyte solvation and interfacial charge transfer mechanisms, providing guidelines for designing next-generation fast-charging LIB electrolytes with enhanced efficiency, stability, and longevity.</description>
+  <authors>
+      <author>Son, Seoung-Bum [Argonne National Laboratory (ANL), Argonne, IL (United States)] (ORCID:0000000237236186)</author><author>Zhu, Qijia [Argonne National Laboratory (ANL), Argonne, IL (United States); Northern Illinois University, DeKalb, IL (United States)]</author><author>Garcia, Juan Sanchez [Argonne National Laboratory (ANL), Argonne, IL (United States)]</author><author>Liu, Qian [Argonne National Laboratory (ANL), Argonne, IL (United States)]</author><author>Iddir, Hakim [Argonne National Laboratory (ANL), Argonne, IL (United States)] (ORCID:0000000152856474)</author><author>Ingram, Brian J. [Argonne National Laboratory (ANL), Argonne, IL (United States)]</author><author>Bloom, Ira [Argonne National Laboratory (ANL), Argonne, IL (United States)] (ORCID:000000024877473X)</author>
+  </authors>
+  <product_type>Journal Article</product_type>
+  <doi>10.1149/1945-7111/adfd19</doi>
+  <journal_name>Journal of the Electrochemical Society</journal_name>
+  <journal_volume>172</journal_volume>
+  <journal_issue>8</journal_issue>
+  <journal_issn>ISSN 0013-4651</journal_issn>
+  <article_type>Accepted Manuscript</article_type>
+  
+  <publication_date>2025-08-28T00:00:00</publication_date>
+  <publisher>IOP Publishing</publisher>
+  <country_publication>United States</country_publication>
+  <format>Article No. 080532</format>
+  <language>English</language>
+  <availability></availability>
+  <research_orgs>
+      <research_org>Argonne National Laboratory (ANL), Argonne, IL (United States)</research_org>
+  </research_orgs>
+  <sponsor_orgs>
+      <sponsor_org>USDOE Office of Energy Efficiency and Renewable Energy (EERE), Office of Sustainable Transportation. Vehicle Technologies Office (VTO)</sponsor_org>
+  </sponsor_orgs>
+  <contributing_org></contributing_org>
+  <subjects>
+      
+  </subjects>
+  <doe_contract_number>AC02-06CH11357</doe_contract_number>
+    <report_number></report_number>
+      <other_identifiers><identifier>Journal ID: ISSN 0013-4651;196061</identifier></other_identifiers>
+  
+  <entry_date>2026-08-11T15:37:30</entry_date>
+  <links>
+      <link rel="citation" href="https://www.osti.gov/biblio/3374475" /><link rel="fulltext" href="https://www.osti.gov/servlets/purl/3374475" /><link rel="citation_doe_pages" href="https://www.osti.gov/pages/biblio/3374475" />
+  </links>
+</record>
+<record>
+  <osti_id>3408026</osti_id>
+  <title>Prediction and Experimental Verification of Electrolyte Solvation Structure from an OMol25-Trained Interatomic Potential</title>
+  <description>A molecular-level understanding of electrolyte solvation structure and ion–ion correlations is critical to developing next-generation battery chemistries. Atomistic simulation capabilities with sufficient accuracy, speed, and transferability to deliver reliable structural insights while avoiding arduous system-specific reparameterization are thus highly desirable. Machine learning interatomic potentials (MLIPs) trained on large, chemically diverse data sets are revolutionizing computational chemistry, enabling molecular dynamics simulations of battery electrolytes with near-DFT accuracy over 10,000× faster than DFT. While previous MLIP training data sets with suitable elemental coverage for electrolytes have been based on inorganic materials, the Open Molecules 2025 (OMol25) data set provides large-scale molecular DFT MLIP training data with broad elemental coverage and specifically samples tens of millions of electrolyte configurations. Here, we integrate computational modeling with experimental validation to systematically assess the ability of large-scale MLIPs pretrained on materials data or on OMol25 to accurately resolve nanoscale structural organization and ion-solvation characteristics in Na-ion battery electrolytes across diverse physicochemical conditions and compositional regimes. We find that the OMol25-trained Universal Model of Atoms (UMA-OMol) predicts experimentally measured densities and X-ray structure factors in substantially better agreement compared to state-of-the-art models trained only on inorganic materials data. Using UMA-OMol, we further analyze systematic trends in solvation structure as a function of cation identity, anion chemistry, salt concentration, and solvent topology. We observe that increasing system temperature amplifies the heterogeneity within the solvation environment, perturbing cation–solvent interactions and promoting the formation of contact ion pairs (CIPs). Moreover, subtle variations in the solvent topology of glyme-based electrolytes cause pronounced changes in ion correlations and solvation structure. The experimental agreement and microscopic insights shown here position OMol25-trained MLIPs as a practical route to predictive, high-throughput electrolyte simulations beyond the limits of classical force fields and direct DFT molecular dynamics, serving as a powerful tool for accelerating the design of next-generation Na-ion battery electrolytes and beyond.</description>
+  <authors>
+      <author>Kumar, Nitesh [Argonne National Laboratory (ANL), Argonne, IL (United States); Lawrence Berkeley National Laboratory (LBNL), Berkeley, CA (United States). AmeriFlux] (ORCID:0000000333228450)</author><author>Lai, Jianwei [Argonne National Laboratory (ANL), Argonne, IL (United States); Lawrence Berkeley National Laboratory (LBNL), Berkeley, CA (United States)] (ORCID:0000000158411134)</author><author>Mezerkor, Casey S. [Argonne National Laboratory (ANL), Argonne, IL (United States); University of Oregon, Eugene, OR (United States); Pacific Northwest National Laboratory (PNNL), Richland, WA (United States)]</author><author>Wang, Jiaqi [Argonne National Laboratory (ANL), Argonne, IL (United States)] (ORCID:000000031176704X)</author><author>Wiaderek, Kamila M. [Argonne National Laboratory (ANL), Argonne, IL (United States)] (ORCID:0000000200513661)</author><author>Bazak, J. David [Argonne National Laboratory (ANL), Argonne, IL (United States); Pacific Northwest National Laboratory (PNNL), Richland, WA (United States)] (ORCID:0000000245993208)</author><author>Blau, Samuel M. [Argonne National Laboratory (ANL), Argonne, IL (United States); Lawrence Berkeley National Laboratory (LBNL), Berkeley, CA (United States); University of California, Berkeley, CA (United States)] (ORCID:0000000331323032)</author><author>Crumlin, Ethan J. [Argonne National Laboratory (ANL), Argonne, IL (United States); Lawrence Berkeley National Laboratory (LBNL), Berkeley, CA (United States)] (ORCID:000000033132190X)</author>
+  </authors>
+  <product_type>Journal Article</product_type>
+  <doi>10.1021/acs.jpclett.6c01037</doi>
+  <journal_name>Journal of Physical Chemistry Letters</journal_name>
+  <journal_volume>17</journal_volume>
+  <journal_issue>31</journal_issue>
+  <journal_issn>ISSN 1948-7185</journal_issn>
+  <article_type>Accepted Manuscript</article_type>
+  
+  <publication_date>2026-07-24T00:00:00</publication_date>
+  <publisher>American Chemical Society</publisher>
+  <country_publication>United States</country_publication>
+  <format>p. 9073-9084</format>
+  <language>English</language>
+  <availability></availability>
+  <research_orgs>
+      <research_org>Argonne National Laboratory (ANL), Argonne, IL (United States)</research_org><research_org>Pacific Northwest National Laboratory (PNNL), Richland, WA (United States)</research_org>
+  </research_orgs>
+  <sponsor_orgs>
+      <sponsor_org>USDOE</sponsor_org><sponsor_org>USDOE Office of Science (SC), Basic Energy Sciences (BES). Scientific User Facilities (SUF)</sponsor_org>
+  </sponsor_orgs>
+  <contributing_org></contributing_org>
+  <subjects>
+      <subject> MLIPs</subject><subject> Machine Learning Interatomic Potentials</subject><subject> OMol25</subject><subject> UMA-OMol</subject><subject> electrolyte structure</subject><subject> molecular dynamics</subject><subject>sodium-ion batteries</subject>
+  </subjects>
+  <doe_contract_number>AC02-05CH11231; AC02-06CH11357; AC05-76RL01830</doe_contract_number>
+    <report_number>PNNL-SA-221749</report_number>
+      <other_identifiers><identifier>Journal ID: ISSN 1948-7185</identifier></other_identifiers>
+  
+  <entry_date>2026-08-12T08:19:53</entry_date>
+  <links>
+      <link rel="citation" href="https://www.osti.gov/biblio/3408026" /><link rel="fulltext" href="https://www.osti.gov/servlets/purl/3408026" /><link rel="citation_doe_pages" href="https://www.osti.gov/pages/biblio/3408026" />
+  </links>
+</record>
+<record>
+  <osti_id>3408029</osti_id>
+  <title>Electrolyte Design for Fast‐Charging Lithium‐Based Batteries</title>
+  <description>Fast charging is essential for the widespread adoption of lithium (Li)-ion batteries, but it is fundamentally limited by sluggish interfacial kinetics, Li plating, and electrolyte instability at high current densities. Over the past decade, electrolyte engineering has emerged as a key strategy to address these challenges. This review summarizes the development of fast-charging electrolytes over the past ten years and outlines a design framework. Electrolyte formulations are first deconstructed into their main components—solvents, salts, and functional additives—and representative strategies for tuning solvation structure and interphase chemistry are discussed to suppress Li plating and improve interfacial kinetics. The discussion then extends to advanced electrolyte systems, particularly localized high-concentration electrolytes (LHCEs), and their compatibility with different anode chemistries. Advanced characterization techniques are also summarized and categorized based on destructiveness, spatial and temporal resolution, quantitative analysis, and the chemical species or processes probed across multiple length scales. Recent progress in AI-enabled electrolyte discovery and battery management system (BMS) strategies for optimized fast-charging protocols is further highlighted. Finally, perspectives are presented on translating electrolyte innovations from academic research to practical applications, with emphasis on cell format, realistic operating conditions, and manufacturability.</description>
+  <authors>
+      <author>Liu, Chen [University of Texas at Austin, TX (United States)]</author><author>Cui, Zehao [University of Texas at Austin, TX (United States)]</author><author>Manthiram, Arumugam [University of Texas at Austin, TX (United States)] (ORCID:0000000302379563)</author>
+  </authors>
+  <product_type>Journal Article</product_type>
+  <doi>10.1002/adma.74532</doi>
+  <journal_name>Advanced Materials</journal_name>
+  <journal_volume></journal_volume>
+  <journal_issue></journal_issue>
+  <journal_issn>ISSN 0935-9648</journal_issn>
+  <article_type>Accepted Manuscript</article_type>
+  
+  <publication_date>2026-08-10T00:00:00</publication_date>
+  <publisher>Wiley</publisher>
+  <country_publication>United States</country_publication>
+  <format>Article No. e74532</format>
+  <language>English</language>
+  <availability></availability>
+  <research_orgs>
+      <research_org>University of Texas at Austin, TX (United States)</research_org>
+  </research_orgs>
+  <sponsor_orgs>
+      <sponsor_org>USDOE Office of Science (SC), Basic Energy Sciences (BES). Materials Sciences &amp; Engineering Division (MSE)</sponsor_org><sponsor_org>Welch Foundation</sponsor_org>
+  </sponsor_orgs>
+  <contributing_org></contributing_org>
+  <subjects>
+      <subject>25 ENERGY STORAGE</subject><subject>electrolytes</subject><subject>fast-charging</subject><subject>interphase chemistry</subject><subject>lithium plating</subject><subject>lithium-ion batteries</subject><subject>solvation structure</subject>
+  </subjects>
+  <doe_contract_number>SC0005397</doe_contract_number>
+    <report_number></report_number>
+      <other_identifiers><identifier>Journal ID: ISSN 0935-9648; Journal ID: ISSN 1521-4095</identifier></other_identifiers>
+  
+  <entry_date>2026-08-12T08:34:38</entry_date>
+  <links>
+      <link rel="citation" href="https://www.osti.gov/biblio/3408029" /><link rel="fulltext" href="https://www.osti.gov/servlets/purl/3408029" /><link rel="citation_doe_pages" href="https://www.osti.gov/pages/biblio/3408029" />
+  </links>
+</record>
+<record>
+  <osti_id>3375334</osti_id>
+  <title>Reactivity of Carbonate Solvent Electrolytes on Lithium Silicon Anodes</title>
+  <description>Silicon (Si) is promising for lithium-ion battery (LIB) anodes due to their high theoretical capacity and low electrochemical potential. However, significant challenges remain, including severe volumetric expansion during cycling and the electrochemical instability of electrolytes, which leads to the formation of a nonuniform solid electrolyte interphase (SEI). To investigate SEI formation mechanisms, computational molecular dynamics simulations offer valuable insights. In this work, we examine the trajectories and charge transfer behavior of lithium hexafluorophosphate (LiPF 6 ) salt with various solvent compositions using density functional theory (DFT) and ab initio molecular dynamics (AIMD). Among the tested electrolyte systems, LiPF 6 with vinylene carbonate (VC) added to ethyl methyl carbonate (EMC) exhibits the lowest reactivity with the Si anode. In contrast, the effects of fluoroethylene carbonate (FEC) and VC depend on whether the primary solvent is EMC alone or a mixture of ethylene carbonate (EC) and EMC. Moreover, we show that electrolyte reactivity varies with the degree of lithiation of the Si anode (LiSi vs Li&lt;sub&gt;15&lt;/sub&gt;Si&lt;sub&gt;4&lt;/sub&gt;) and under different charge states. To decouple electrolyte reactivity from surface effects, we analyze the dissociation and formation energies of individual species from solvated configurations. Overall, these first-principles-based findings provide a strategic foundation for electrolyte design to improve cycling stability and extend calendar life in LIBs using Si anodes.</description>
+  <authors>
+      <author>Jeong, Heonjae [Gachon University, Gyeonggi (Korea, Republic of); Sogang Univ. Seoul (Korea, Republic of)] (ORCID:000000034452049X)</author><author>Johnson, Christopher S. [Argonne National Laboratory (ANL), Lemont, IL (United States)] (ORCID:0000000343576889)</author>
+  </authors>
+  <product_type>Journal Article</product_type>
+  <doi>10.1021/acsami.5c08232</doi>
+  <journal_name>ACS Applied Materials and Interfaces</journal_name>
+  <journal_volume>17</journal_volume>
+  <journal_issue>39</journal_issue>
+  <journal_issn>ISSN 1944-8252</journal_issn>
+  <article_type>Accepted Manuscript</article_type>
+  
+  <publication_date>2025-09-18T00:00:00</publication_date>
+  <publisher>American Chemical Society (ACS)</publisher>
+  <country_publication>United States</country_publication>
+  <format>p. 54633-54645</format>
+  <language>English</language>
+  <availability></availability>
+  <research_orgs>
+      <research_org>Argonne National Laboratory (ANL), Argonne, IL (United States)</research_org>
+  </research_orgs>
+  <sponsor_orgs>
+      <sponsor_org>Gachon University</sponsor_org><sponsor_org>USDOE Office of Energy Efficiency and Renewable Energy (EERE), Office of Sustainable Transportation. Vehicle Technologies Office (VTO)</sponsor_org><sponsor_org>USDOE Office of Science (SC)</sponsor_org>
+  </sponsor_orgs>
+  <contributing_org></contributing_org>
+  <subjects>
+      <subject>37 INORGANIC, ORGANIC, PHYSICAL, AND ANALYTICAL CHEMISTRY</subject><subject>LiPF6</subject><subject>Si anode</subject><subject>ab initio molecular dynamics</subject><subject>carbonate solvent</subject><subject>solvent reactivity</subject>
+  </subjects>
+  <doe_contract_number>AC02-06CH11357</doe_contract_number>
+    <report_number></report_number>
+      <other_identifiers><identifier>Journal ID: ISSN 1944-8244; Journal ID: ISSN 1944-8252;199151</identifier></other_identifiers>
+  
+  <entry_date>2026-08-20T10:23:41</entry_date>
+  <links>
+      <link rel="citation" href="https://www.osti.gov/biblio/3375334" /><link rel="fulltext" href="https://www.osti.gov/servlets/purl/3375334" /><link rel="citation_doe_pages" href="https://www.osti.gov/pages/biblio/3375334" />
+  </links>
+</record>
+<record>
+  <osti_id>3024726</osti_id>
+  <title>Conductivity-Driven Origin of the Limiting Current in Concentrated Electrolytes</title>
+  <description>Next-generation electrolyte materials are hindered by their ability to support high currents essential for fast-charge and high-power battery applications. The maximum current supported by an electrolyte, the limiting current, is dictated by the formation of concentration gradients across the electrolyte under an electric field. Most of the literature attributes the onset of the limiting current in concentrated electrolytes to the salt concentration at the positive electrode approaching the solubility limit. Here, in this study, we leverage operando X-ray transmission imaging to measure spatiotemporal salt concentration profiles of a polymer electrolyte in a lithium–indium symmetric cell at a current exceeding the limiting current. The measurement of concentration profiles enables mapping the spatiotemporal electric potential, which comprises an ohmic contribution, governed by conductivity, and an overpotential related to maintaining concentration gradients. We find that a precipitous drop in conductivity at the positive electrode drives the divergence of electric potential, rather than a thermodynamic solubility limit.</description>
+  <authors>
+      <author>Abdo, Emily E. [University of California, Berkeley, CA (United States); Lawrence Berkeley National Laboratory (LBNL), Berkeley, CA (United States)] (ORCID:0000000278117837)</author><author>Hesse, Sarah A. [SLAC National Accelerator Laboratory (SLAC), Menlo Park, CA (United States). Stanford Synchrotron Radiation Lightsource (SSRL)] (ORCID:0000000223834476)</author><author>Dudchenko, Alexander V. [SLAC National Accelerator Laboratory (SLAC), Menlo Park, CA (United States)] (ORCID:0000000248086195)</author><author>Arthur, Ross J. [SLAC National Accelerator Laboratory (SLAC), Menlo Park, CA (United States). Stanford Synchrotron Radiation Lightsource (SSRL)]</author><author>Takacs, Christopher J. [SLAC National Accelerator Laboratory (SLAC), Menlo Park, CA (United States). Stanford Synchrotron Radiation Lightsource (SSRL)]</author><author>Balsara, Nitash P. [University of California, Berkeley, CA (United States); Lawrence Berkeley National Laboratory (LBNL), Berkeley, CA (United States)] (ORCID:0000000201065565)</author>
+  </authors>
+  <product_type>Journal Article</product_type>
+  <doi>10.1021/acsenergylett.6c00220</doi>
+  <journal_name>ACS Energy Letters</journal_name>
+  <journal_volume>11</journal_volume>
+  <journal_issue>4</journal_issue>
+  <journal_issn>ISSN 2380-8195</journal_issn>
+  <article_type>Accepted Manuscript</article_type>
+  
+  <publication_date>2026-03-26T00:00:00</publication_date>
+  <publisher>American Chemical Society (ACS)</publisher>
+  <country_publication>United States</country_publication>
+  <format>p. 3464-3470</format>
+  <language>English</language>
+  <availability></availability>
+  <research_orgs>
+      <research_org>Lawrence Berkeley National Laboratory (LBNL), Berkeley, CA (United States)</research_org>
+  </research_orgs>
+  <sponsor_orgs>
+      <sponsor_org>National Science Foundation (NSF)</sponsor_org><sponsor_org>USDOE Office of Energy Efficiency and Renewable Energy (EERE), Office of Sustainable Transportation. Vehicle Technologies Office (VTO)</sponsor_org><sponsor_org>USDOE Office of Science (SC), Basic Energy Sciences (BES). Materials Sciences &amp; Engineering Division (MSE)</sponsor_org>
+  </sponsor_orgs>
+  <contributing_org></contributing_org>
+  <subjects>
+      
+  </subjects>
+  <doe_contract_number>AC02-05CH11231; AC02-76SF00515</doe_contract_number>
+    <report_number></report_number>
+      <other_identifiers><identifier>Journal ID: ISSN 2380-8195;ark:/13030/qt2958m68j; https://escholarship.org/uc/item/2958m68j</identifier></other_identifiers>
+  
+  <entry_date>2026-05-14T12:59:34</entry_date>
+  <links>
+      <link rel="citation" href="https://www.osti.gov/biblio/3024726" /><link rel="fulltext" href="https://www.osti.gov/servlets/purl/3024726" /><link rel="citation_doe_pages" href="https://www.osti.gov/pages/biblio/3024726" />
+  </links>
+</record>
+<record>
+  <osti_id>2588388</osti_id>
+  <title>High Li&lt;sup&gt;+&lt;/sup&gt; Transference Number Electrolyte Enabled by Fluoride Acceptor for Low-Temperature Li-Ion Batteries</title>
+  <description>To enable wide-temperature operation of lithium-ion batteries (LIBs), new electrolyte formulations have been developed to enhance the performance, particularly at low temperatures. A key challenge lies in achieving both high ionic conductivity and a high lithium-ion transference number due to their inherent trade-off. In this study, we designed an electrolyte system comprising tris(pentafluorophenyl)borane (TPFPB), a fluoride acceptor, and LiF salt in ethylene carbonate (EC)-free solvents. TPFPB, with its electron-deficient boron center, facilitates fluoride transfer reactions that promote the dissociation of otherwise insoluble LiF. When methyl acetate (MA) was used as the solvent, the electrolyte exhibited a high transference number (t&lt;sub&gt;Li&lt;sup&gt;+&lt;/sup&gt;&lt;/sub&gt; = 0.85) and ionic conductivity (σ = 5.0 × 10&lt;sup&gt;–3&lt;/sup&gt; S cm&lt;sup&gt;–1&lt;/sup&gt;). The optimized electrolyte demonstrated excellent performance at −20 °C, with no evidence of lithium plating. This work presents a new strategy for electrolyte design by leveraging cation desolvation to achieve high-performance LIBs for low-temperature and high-power applications.</description>
+  <authors>
+      <author>Hossain, Md Anwar [Argonne National Laboratory (ANL), Argonne, IL (United States)]</author><author>Wu, Dezhen [Argonne National Laboratory (ANL), Argonne, IL (United States)]</author><author>Zhu, Qijia [Argonne National Laboratory (ANL), Argonne, IL (United States)]</author><author>Liu, Qian [Argonne National Laboratory (ANL), Argonne, IL (United States)]</author><author>Yang, Jingtian [Argonne National Laboratory (ANL), Argonne, IL (United States)]</author><author>Xu, Jiayi [Argonne National Laboratory (ANL), Argonne, IL (United States)] (ORCID:0000000317636251)</author><author>Liu, Cong [Argonne National Laboratory (ANL), Argonne, IL (United States)] (ORCID:0000000221455034)</author><author>Kang, Seungyeop [Korea Univ., Seoul, (Korea, Republic of)]</author><author>Yang, Zhenzhen [Argonne National Laboratory (ANL), Argonne, IL (United States)] (ORCID:0000000210733799)</author><author>Son, Seoung-Bum [Argonne National Laboratory (ANL), Argonne, IL (United States)] (ORCID:0000000237236186)</author><author>Yoo, Dong-Joo [Korea Univ., Seoul, (Korea, Republic of)] (ORCID:0000000156568613)</author><author>Zhang, Zhengcheng [Argonne National Laboratory (ANL), Argonne, IL (United States);  Univ. of Chicago, IL (United States)] (ORCID:0000000204675801)</author>
+  </authors>
+  <product_type>Journal Article</product_type>
+  <doi>10.1021/acsenergylett.5c01343</doi>
+  <journal_name>ACS Energy Letters</journal_name>
+  <journal_volume>10</journal_volume>
+  <journal_issue>7</journal_issue>
+  <journal_issn>ISSN 2380-8195</journal_issn>
+  <article_type>Accepted Manuscript</article_type>
+  
+  <publication_date>2025-07-01T00:00:00</publication_date>
+  <publisher>American Chemical Society (ACS)</publisher>
+  <country_publication>United States</country_publication>
+  <format>p. 3629-3637</format>
+  <language>English</language>
+  <availability></availability>
+  <research_orgs>
+      <research_org>Argonne National Laboratory (ANL), Argonne, IL (United States)</research_org>
+  </research_orgs>
+  <sponsor_orgs>
+      <sponsor_org>USDOE Office of Energy Efficiency and Renewable Energy (EERE), Office of Sustainable Transportation. Vehicle Technologies Office (VTO)</sponsor_org>
+  </sponsor_orgs>
+  <contributing_org></contributing_org>
+  <subjects>
+      <subject>anions</subject><subject>electrolytes</subject><subject>ions</subject><subject>solvation</subject><subject>solvents</subject>
+  </subjects>
+  <doe_contract_number>AC02-06CH11357</doe_contract_number>
+    <report_number></report_number>
+      <other_identifiers><identifier>Journal ID: ISSN 2380-8195;197342</identifier></other_identifiers>
+  
+  <entry_date>2025-10-09T13:37:05</entry_date>
+  <links>
+      <link rel="citation" href="https://www.osti.gov/biblio/2588388" /><link rel="fulltext" href="https://www.osti.gov/servlets/purl/2588388" /><link rel="citation_doe_pages" href="https://www.osti.gov/pages/biblio/2588388" />
+  </links>
+</record>
+</records>

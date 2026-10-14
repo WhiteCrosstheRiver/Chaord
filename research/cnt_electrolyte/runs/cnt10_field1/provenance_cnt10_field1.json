@@ -1,0 +1,389 @@
+{
+  "system": "cnt10_field1",
+  "generated_utc": "2026-10-14T16:41:00.894457+00:00",
+  "engine": {
+    "name": "LAMMPS",
+    "version": "LAMMPS (22 Jul 2025 - Update 4)",
+    "executable": "C:/ProgramData/anaconda3/Scripts/lmp.exe (serial, 1 MPI rank, Windows)"
+  },
+  "potential": {
+    "name": "OPLS-AA-based rigid LiPF6 / EC:EMC model + Werder sp2-C for the CNT; LJ + point charges; Lorentz-Berthelot mixing (recorded deviation from OPLS geometric sigma)",
+    "cutoff_A": 12.0,
+    "long_range": "PPPM rel-acc 0.0001",
+    "citations": [
+      {
+        "key": "Nutakki2023",
+        "ref": "J. S. C. Nutakki, 'Molecular Modelling of Lithium Salts in the Binary Mixtures of Ethylene and Ethyl Methyl Carbonates', M.S. thesis, University of Illinois Chicago (2023); Tables II-III.",
+        "url": "https://indigo.uic.edu (file 44990929)",
+        "local_file": "_lit/nutakki2023.pdf",
+        "used_for": "All LiPF6 (Li, P, F) and EC/EMC (CO, OS, CT, OC, HC, HM) LJ parameters and charges; equilibrium internal coordinates (verified against the PDF tables on 2026-10-14)"
+      },
+      {
+        "key": "Jorgensen96",
+        "ref": "W. L. Jorgensen, D. S. Maxwell, J. Tirado-Rives, J. Am. Chem. Soc. 118, 11225 (1996).",
+        "local_file": null,
+        "used_for": "OPLS-AA framework; terminal alkyl C (opls_135) LJ and uncharged alkyl sites for the EMC methyl tail"
+      },
+      {
+        "key": "Joung08",
+        "ref": "I. S. Joung, T. E. Cheatham III, J. Phys. Chem. B 112, 9020 (2008); Table 5.",
+        "local_file": "_lit/jc2008.xml",
+        "used_for": "ALTERNATIVE ONLY, NOT USED in the runs: Li+/SPC/E (Rmin/2 = 0.791 A, eps = 0.3367344 kcal/mol), re-verified from the local XML on 2026-10-14"
+      },
+      {
+        "key": "Werder03",
+        "ref": "T. Werder, J. H. Walther, R. L. Jaffe, T. Halicioglu, P. Koumoutsakos, J. Phys. Chem. B 107, 1345 (2003).",
+        "local_file": null,
+        "used_for": "CNT sp2-carbon LJ (sigma = 3.40 A, eps = 0.0853 kcal/mol)"
+      },
+      {
+        "key": "Saito98",
+        "ref": "R. Saito, G. Dresselhaus, M. S. Dresselhaus, 'Physical Properties of Carbon Nanotubes', Imperial College Press (1998).",
+        "local_file": null,
+        "used_for": "graphene lattice constant a = 2.46 A; armchair (n,n) tube geometry (d = a*n*sqrt(3)/pi; unit cell a with 4n atoms)"
+      },
+      {
+        "key": "Xie2023",
+        "ref": "Y. Xie et al., 'A computational study of the effect of external heat flux and electric field on the water flow inside CNTs' (2023), doi:10.1016/j.c2tec.2023.100157.",
+        "local_file": "_lit/esi_field2023.pdf (ESI only)",
+        "used_for": "context for the 0.2 V/A field strength (0.1 V/A used there; 0.1-0.5 V/A is the common MD range for field-driven transport in nanopores)"
+      }
+    ]
+  },
+  "system_definition": {
+    "cnt_chirality": [
+      10,
+      10
+    ],
+    "cnt_diameter_A": 13.5627,
+    "cnt_length_A": 49.2,
+    "cnt_atoms": 800,
+    "box_A": [
+      -16.7813,
+      16.7813,
+      -16.7813,
+      16.7813,
+      0.0,
+      49.2
+    ],
+    "composition": {
+      "n_EC": 8,
+      "n_EMC": 5,
+      "n_LiPF6": 2
+    },
+    "n_atoms_total": 971,
+    "n_bonds_topology_only": 162,
+    "pore_volume_geom_nm3": 7.108,
+    "pore_volume_vdw_nm3": 1.9825,
+    "molarity_M_vdw_volume": 1.675,
+    "external_field_V_per_A": 0.2
+  },
+  "protocol": {
+    "ensemble": "NVT (tube atoms frozen)",
+    "temperature_K": 300.0,
+    "timestep_fs": 1.0,
+    "thermostat": "Nose-Hoover, damping 100 fs: fix rigid/nvt/small molecule on multi-atom bodies, fix nvt on Li+ atoms (identical targets/damping)",
+    "stage1_ramp_ps": 50.0,
+    "stage2_equil_ps": 400.0,
+    "stage3_production_ps": 100.0,
+    "field_present_during_all_stages": true
+  },
+  "seeds": {
+    "build": 20261002,
+    "velocity": 730102,
+    "note": "original planned seed set (20261001-04). During the resume, intermediate builds scanned other seeds after the EMC geometry fix; the pack-then-relax packer restored the original seeds. Data files were built with exactly these seeds."
+  },
+  "outputs": {
+    "data_file": "data/cnt10_field1.data",
+    "data_sha256": "98af2ae5df179ecf90e1471fdc245638308a223ee8e1171245c2deb56831cf10",
+    "production_dump": "runs/cnt10_field1/prod.dump",
+    "prod_sha256": "286bb6b6fc8deb38f55fe49612d676d8de2b57d3dde3300fbdc95af6cb711c33",
+    "dump_columns": "id mol type q x y z (unscaled) + box bounds",
+    "n_frames": 21,
+    "frame_times_ps": [
+      0.0,
+      5.0,
+      10.0,
+      15.0,
+      20.0,
+      25.0,
+      30.0,
+      35.0,
+      40.0,
+      45.0,
+      50.0,
+      55.0,
+      60.0,
+      65.0,
+      70.0,
+      75.0,
+      80.0,
+      85.0,
+      90.0,
+      95.0,
+      100.0
+    ],
+    "frame_spacing_ps": 5.0,
+    "final_config": "runs/cnt10_field1/final.data"
+  },
+  "wall_time_s": 761.73,
+  "lammps_total_wall_hms": 761,
+  "equilibration_evidence": {
+    "Tmob_mean_K": 298.01,
+    "Tmob_std_K": 43.79,
+    "Tmob_mean_last_half_K": 296.05,
+    "PE_quarter_means_kcal_mol": [
+      -1568.989,
+      -1588.802,
+      -1600.885,
+      -1601.488
+    ],
+    "PE_q4_minus_q1_kcal_mol": -32.499,
+    "PE_q4_minus_q1_per_molecule_kT": -3.2067,
+    "PE_slope_last_half_kcal_per_ps": -0.01418,
+    "density_vs_t_equil": [
+      {
+        "t_ps": 50.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 75.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 100.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 125.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 150.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 175.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 200.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 225.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 250.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 275.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 300.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 325.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 350.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 375.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 400.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 425.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 450.0,
+        "density_g_cm3": 0.3572
+      }
+    ],
+    "prod_PE_mean_kcal_mol": -1602.613
+  },
+  "sanity": {
+    "n_atoms_all_frames": [
+      971,
+      971,
+      971,
+      971,
+      971,
+      971,
+      971,
+      971,
+      971,
+      971,
+      971,
+      971,
+      971,
+      971,
+      971,
+      971,
+      971,
+      971,
+      971,
+      971,
+      971
+    ],
+    "composition_stable": true,
+    "composition_observed": {
+      "EC": 8,
+      "EMC": 5,
+      "Li": 2,
+      "PF6": 2
+    },
+    "min_intermol_heavy_A": 2.6469,
+    "bondi_floor": {
+      "rule": "intermolecular heavy-atom pairs >= 0.75 x Bondi vdW sum (ase set: C 1.70, O 1.52, Li 1.82, P 1.80, F 1.47 A); cation pairs exempt (ion solvation); H-involving pairs outside rule",
+      "worst": {
+        "ratio": 1.1453,
+        "dist_A": 2.7229,
+        "floor_A": 2.3775,
+        "pair": "C-O"
+      },
+      "pass": true
+    },
+    "lj08_floor": {
+      "worst": {
+        "ratio": 1.0286,
+        "dist_A": 2.7229,
+        "floor_A": 2.6472
+      },
+      "pass": true
+    },
+    "min_intermol_any_A": 1.799,
+    "min_intermol_H_involving_A": 1.9133,
+    "min_intermol_heavy_cationpair_A": 1.799,
+    "density_in_tube_geom_g_cm3": 0.3572,
+    "density_in_tube_vdw_g_cm3": 1.2805,
+    "bulk_reference_g_cm3": 1.17,
+    "n_mobile_outside_tube_all_frames": 0,
+    "max_mobile_radius_A": 4.542594473866228,
+    "cnt_radius_A": 6.78135
+  },
+  "type_map": {
+    "1": {
+      "label": "C_tube",
+      "element": "C",
+      "sigma_A": 3.4,
+      "eps_kcal_mol": 0.0853,
+      "source": "Werder03"
+    },
+    "2": {
+      "label": "CO",
+      "element": "C",
+      "sigma_A": 3.75,
+      "eps_kcal_mol": 0.104995,
+      "source": "Nutakki2023 T3"
+    },
+    "3": {
+      "label": "OS",
+      "element": "O",
+      "sigma_A": 3.0,
+      "eps_kcal_mol": 0.170005,
+      "source": "Nutakki2023 T3"
+    },
+    "4": {
+      "label": "CT",
+      "element": "C",
+      "sigma_A": 3.5,
+      "eps_kcal_mol": 0.065989,
+      "source": "Nutakki2023 T3"
+    },
+    "5": {
+      "label": "OC",
+      "element": "O",
+      "sigma_A": 2.96,
+      "eps_kcal_mol": 0.20999,
+      "source": "Nutakki2023 T3"
+    },
+    "6": {
+      "label": "HC",
+      "element": "H",
+      "sigma_A": 2.42,
+      "eps_kcal_mol": 0.01501,
+      "source": "Nutakki2023 T3"
+    },
+    "7": {
+      "label": "HM",
+      "element": "H",
+      "sigma_A": 2.5,
+      "eps_kcal_mol": 0.029995,
+      "source": "Nutakki2023 T3 / Jorgensen96"
+    },
+    "8": {
+      "label": "C_term",
+      "element": "C",
+      "sigma_A": 3.5,
+      "eps_kcal_mol": 0.066,
+      "source": "Jorgensen96 opls_135"
+    },
+    "9": {
+      "label": "Li",
+      "element": "Li",
+      "sigma_A": 1.51,
+      "eps_kcal_mol": 0.165057,
+      "source": "Nutakki2023 T2"
+    },
+    "10": {
+      "label": "P",
+      "element": "P",
+      "sigma_A": 3.74,
+      "eps_kcal_mol": 0.2,
+      "source": "Nutakki2023 T2"
+    },
+    "11": {
+      "label": "F",
+      "element": "F",
+      "sigma_A": 3.118,
+      "eps_kcal_mol": 0.060994,
+      "source": "Nutakki2023 T2"
+    }
+  },
+  "masses_amu": {
+    "1": 12.011,
+    "2": 12.011,
+    "3": 15.999,
+    "4": 12.011,
+    "5": 15.999,
+    "6": 1.008,
+    "7": 1.008,
+    "8": 12.011,
+    "9": 6.94,
+    "10": 30.974,
+    "11": 18.998
+  },
+  "deviations_and_notes": [
+    "Molecules rigid (fixed literature geometry; LJ + point charges); no intra-molecular bonded dynamics - the documented first-result simplification allowed by the task.",
+    "EMC charges: the thesis EMC column does not sum to zero (+0.68 e with its own H typing); charges transplanted from the chemically equivalent EC sites + OPLS-AA uncharged alkyl tail, terminal methyl C absorbs the residual (exact neutrality). Verified against the local PDF on 2026-10-14.",
+    "Combining rule Lorentz-Berthelot (LAMMPS default; arithmetic sigma) - recorded deviation from strict OPLS-AA geometric sigma.",
+    "EC ring angle closure: thesis angles at the carbonate carbon (2x123.4 + 118.18 = 364.98 deg) cannot coexist; OC-CO-OS = 123.4 enforced on both sides, fixing OS-CO-OS = 113.2 deg.",
+    "EMC template REBUILT 2026-10-14: the original z-matrix builder placed the ethoxy OS 0.68 A from the carbonyl OC (enforced OC-CO-OS = 143.7/30.6 instead of 123.4 deg). The rebuild is an explicit planar construction asserting every bond/angle/dihedral of Table III (dihedrals: OC-CO-OS-CT = 0 deg ester s-cis; CO-OS-CT-CT = 180 deg anti ethyl, both documented conformer choices).",
+    "EMC H-bond wiring fixed (original bonded CT_me to the terminal-methyl H's; harmless because bonds are zero-force and molecule-intra neighbour exclusions supersede 1-2/1-3 terms, but wrong).",
+    "(16,16) composition trimmed 37/24 -> 36/23 (EC/EMC) after the EMC geometry fix: with the correct extended EMC, 37/24 exhausted 1M insertion attempts per molecule on every seed tried (20261003-38 range). 36/23 keeps EC:EMC 1:1 by volume (2401 vs 2394 volume units), the same 6 LiPF6 (same molarity), and a vdW-pore density closer to the bulk mixture.",
+    "cnt16 build seeds re-chosen by scan (see per-system seeds); the original seeds 20261003/20261004 were chosen against the broken EMC template.",
+    "Li+ integration: fix rigid/nvt/small (and fix rigid/nvt) reject single-particle bodies, so Li+ atoms carry their own Nose-Hoover fix nvt (same Tstart/Tstop/Tdamp); multi-atom molecules use fix rigid/nvt/small molecule. Found on first execution; the previous agent's input plan had never been run.",
+    "Velocities created at 10 K (the plan's 300 K create + 10 K ramp start was an internal inconsistency - quench-then-reheat).",
+    "Equilibration dump every 25 ps and thermo 500 added (equilibration evidence); thermo displays v_Tmob = 2KE/(DOF*kB) of the mobile subsystem because the default temperature is diluted by the frozen zero-velocity tube atoms.",
+    "Real-space intra-molecular nonbonded excluded (zero-K bonds + special_bonds 0 0 0 + neigh_modify exclude molecule/intra); the Ewald reciprocal intra-body term remains as a constant energy offset (zero net force/torque on rigid bodies).",
+    "Joung-Cheatham Li+ recorded as alternative only - the run uses the thesis Li+ so the whole electrolyte comes from one parameterization."
+  ],
+  "analysis_files": {
+    "sanity": "runs/cnt10_field1/sanity_cnt10_field1.json",
+    "equil": "runs/cnt10_field1/equil_cnt10_field1.json",
+    "screen_log": "runs/cnt10_field1/screen.log",
+    "lammps_log": "runs/cnt10_field1/log.lammps"
+  }
+}

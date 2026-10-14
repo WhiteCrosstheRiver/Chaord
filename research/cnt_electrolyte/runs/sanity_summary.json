@@ -1,0 +1,626 @@
+{
+  "cnt10_field0": {
+    "system": "cnt10_field0",
+    "expected_n_atoms": 971,
+    "expected_composition": {
+      "EC": 8,
+      "EMC": 5,
+      "PF6": 2,
+      "Li": 2
+    },
+    "equil_density_vs_t": [
+      {
+        "t_ps": 50.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 75.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 100.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 125.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 150.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 175.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 200.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 225.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 250.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 275.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 300.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 325.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 350.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 375.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 400.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 425.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 450.0,
+        "density_g_cm3": 0.3572
+      }
+    ],
+    "errors": [],
+    "n_prod_frames": 21,
+    "frame_times_ps": [
+      0.0,
+      5.0,
+      10.0,
+      15.0,
+      20.0,
+      25.0,
+      30.0,
+      35.0,
+      40.0,
+      45.0,
+      50.0,
+      55.0,
+      60.0,
+      65.0,
+      70.0,
+      75.0,
+      80.0,
+      85.0,
+      90.0,
+      95.0,
+      100.0
+    ],
+    "frame_spacing_ps": 5.0,
+    "prod_min_intermol_heavy_A": 2.6709,
+    "prod_min_intermol_any_A": 1.8012,
+    "prod_min_intermol_H_involving_A": 1.8918,
+    "prod_min_intermol_heavy_cationpair_A": 1.8012,
+    "prod_bondi_worst": {
+      "ratio": 1.1775,
+      "dist_A": 2.6848,
+      "floor_A": 2.28,
+      "pair": "C-C"
+    },
+    "prod_bondi_pass": true,
+    "prod_lj08_worst": {
+      "ratio": 1.0562,
+      "dist_A": 2.9017,
+      "floor_A": 2.7472
+    },
+    "prod_lj08_pass": true,
+    "prod_density_in_tube_geom_g_cm3": [
+      0.3572,
+      0.3572,
+      0.3572,
+      0.3572,
+      0.3572,
+      0.3572,
+      0.3572,
+      0.3572,
+      0.3572,
+      0.3572,
+      0.3572,
+      0.3572,
+      0.3572,
+      0.3572,
+      0.3572,
+      0.3572,
+      0.3572,
+      0.3572,
+      0.3572,
+      0.3572,
+      0.3572
+    ],
+    "prod_density_in_tube_vdw_g_cm3": 1.2805,
+    "prod_max_mobile_radius_A": 4.571033842271243,
+    "prod_n_mobile_outside_tube": 0,
+    "composition_stable": true,
+    "composition_observed": {
+      "EC": 8,
+      "EMC": 5,
+      "Li": 2,
+      "PF6": 2
+    }
+  },
+  "cnt10_field1": {
+    "system": "cnt10_field1",
+    "expected_n_atoms": 971,
+    "expected_composition": {
+      "EC": 8,
+      "EMC": 5,
+      "PF6": 2,
+      "Li": 2
+    },
+    "equil_density_vs_t": [
+      {
+        "t_ps": 50.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 75.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 100.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 125.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 150.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 175.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 200.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 225.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 250.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 275.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 300.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 325.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 350.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 375.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 400.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 425.0,
+        "density_g_cm3": 0.3572
+      },
+      {
+        "t_ps": 450.0,
+        "density_g_cm3": 0.3572
+      }
+    ],
+    "errors": [],
+    "n_prod_frames": 21,
+    "frame_times_ps": [
+      0.0,
+      5.0,
+      10.0,
+      15.0,
+      20.0,
+      25.0,
+      30.0,
+      35.0,
+      40.0,
+      45.0,
+      50.0,
+      55.0,
+      60.0,
+      65.0,
+      70.0,
+      75.0,
+      80.0,
+      85.0,
+      90.0,
+      95.0,
+      100.0
+    ],
+    "frame_spacing_ps": 5.0,
+    "prod_min_intermol_heavy_A": 2.6469,
+    "prod_min_intermol_any_A": 1.799,
+    "prod_min_intermol_H_involving_A": 1.9133,
+    "prod_min_intermol_heavy_cationpair_A": 1.799,
+    "prod_bondi_worst": {
+      "ratio": 1.1453,
+      "dist_A": 2.7229,
+      "floor_A": 2.3775,
+      "pair": "C-O"
+    },
+    "prod_bondi_pass": true,
+    "prod_lj08_worst": {
+      "ratio": 1.0286,
+      "dist_A": 2.7229,
+      "floor_A": 2.6472
+    },
+    "prod_lj08_pass": true,
+    "prod_density_in_tube_geom_g_cm3": [
+      0.3572,
+      0.3572,
+      0.3572,
+      0.3572,
+      0.3572,
+      0.3572,
+      0.3572,
+      0.3572,
+      0.3572,
+      0.3572,
+      0.3572,
+      0.3572,
+      0.3572,
+      0.3572,
+      0.3572,
+      0.3572,
+      0.3572,
+      0.3572,
+      0.3572,
+      0.3572,
+      0.3572
+    ],
+    "prod_density_in_tube_vdw_g_cm3": 1.2805,
+    "prod_max_mobile_radius_A": 4.542594473866228,
+    "prod_n_mobile_outside_tube": 0,
+    "composition_stable": true,
+    "composition_observed": {
+      "EC": 8,
+      "EMC": 5,
+      "Li": 2,
+      "PF6": 2
+    }
+  },
+  "cnt16_field0": {
+    "system": "cnt16_field0",
+    "expected_n_atoms": 2058,
+    "expected_composition": {
+      "EC": 37,
+      "EMC": 24,
+      "PF6": 6,
+      "Li": 6
+    },
+    "equil_density_vs_t": [
+      {
+        "t_ps": 50.0,
+        "density_g_cm3": 0.6085
+      },
+      {
+        "t_ps": 75.0,
+        "density_g_cm3": 0.6085
+      },
+      {
+        "t_ps": 100.0,
+        "density_g_cm3": 0.6085
+      },
+      {
+        "t_ps": 125.0,
+        "density_g_cm3": 0.6085
+      },
+      {
+        "t_ps": 150.0,
+        "density_g_cm3": 0.6085
+      },
+      {
+        "t_ps": 175.0,
+        "density_g_cm3": 0.6085
+      },
+      {
+        "t_ps": 200.0,
+        "density_g_cm3": 0.6085
+      },
+      {
+        "t_ps": 225.0,
+        "density_g_cm3": 0.6085
+      },
+      {
+        "t_ps": 250.0,
+        "density_g_cm3": 0.6085
+      },
+      {
+        "t_ps": 275.0,
+        "density_g_cm3": 0.6085
+      },
+      {
+        "t_ps": 300.0,
+        "density_g_cm3": 0.6085
+      },
+      {
+        "t_ps": 325.0,
+        "density_g_cm3": 0.6085
+      },
+      {
+        "t_ps": 350.0,
+        "density_g_cm3": 0.6085
+      },
+      {
+        "t_ps": 375.0,
+        "density_g_cm3": 0.6085
+      },
+      {
+        "t_ps": 400.0,
+        "density_g_cm3": 0.6085
+      },
+      {
+        "t_ps": 425.0,
+        "density_g_cm3": 0.6085
+      },
+      {
+        "t_ps": 450.0,
+        "density_g_cm3": 0.6085
+      }
+    ],
+    "errors": [],
+    "n_prod_frames": 21,
+    "frame_times_ps": [
+      0.0,
+      5.0,
+      10.0,
+      15.0,
+      20.0,
+      25.0,
+      30.0,
+      35.0,
+      40.0,
+      45.0,
+      50.0,
+      55.0,
+      60.0,
+      65.0,
+      70.0,
+      75.0,
+      80.0,
+      85.0,
+      90.0,
+      95.0,
+      100.0
+    ],
+    "frame_spacing_ps": 5.0,
+    "prod_min_intermol_heavy_A": 2.5156,
+    "prod_min_intermol_any_A": 1.7929,
+    "prod_min_intermol_H_involving_A": 1.7982,
+    "prod_min_intermol_heavy_cationpair_A": 1.7929,
+    "prod_bondi_worst": {
+      "ratio": 1.1033,
+      "dist_A": 2.5156,
+      "floor_A": 2.28,
+      "pair": "O-O"
+    },
+    "prod_bondi_pass": true,
+    "prod_lj08_worst": {
+      "ratio": 1.0134,
+      "dist_A": 2.6828,
+      "floor_A": 2.6472
+    },
+    "prod_lj08_pass": true,
+    "prod_density_in_tube_geom_g_cm3": [
+      0.6085,
+      0.6085,
+      0.6085,
+      0.6085,
+      0.6085,
+      0.6085,
+      0.6085,
+      0.6085,
+      0.6085,
+      0.6085,
+      0.6085,
+      0.6085,
+      0.6085,
+      0.6085,
+      0.6085,
+      0.6085,
+      0.6085,
+      0.6085,
+      0.6085,
+      0.6085,
+      0.6085
+    ],
+    "prod_density_in_tube_vdw_g_cm3": 1.2241,
+    "prod_max_mobile_radius_A": 8.686784368343675,
+    "prod_n_mobile_outside_tube": 0,
+    "composition_stable": true,
+    "composition_observed": {
+      "EC": 37,
+      "EMC": 24,
+      "Li": 6,
+      "PF6": 6
+    }
+  },
+  "cnt16_field1": {
+    "system": "cnt16_field1",
+    "expected_n_atoms": 2058,
+    "expected_composition": {
+      "EC": 37,
+      "EMC": 24,
+      "PF6": 6,
+      "Li": 6
+    },
+    "equil_density_vs_t": [
+      {
+        "t_ps": 50.0,
+        "density_g_cm3": 0.6085
+      },
+      {
+        "t_ps": 75.0,
+        "density_g_cm3": 0.6085
+      },
+      {
+        "t_ps": 100.0,
+        "density_g_cm3": 0.6085
+      },
+      {
+        "t_ps": 125.0,
+        "density_g_cm3": 0.6085
+      },
+      {
+        "t_ps": 150.0,
+        "density_g_cm3": 0.6085
+      },
+      {
+        "t_ps": 175.0,
+        "density_g_cm3": 0.6085
+      },
+      {
+        "t_ps": 200.0,
+        "density_g_cm3": 0.6085
+      },
+      {
+        "t_ps": 225.0,
+        "density_g_cm3": 0.6085
+      },
+      {
+        "t_ps": 250.0,
+        "density_g_cm3": 0.6085
+      },
+      {
+        "t_ps": 275.0,
+        "density_g_cm3": 0.6085
+      },
+      {
+        "t_ps": 300.0,
+        "density_g_cm3": 0.6085
+      },
+      {
+        "t_ps": 325.0,
+        "density_g_cm3": 0.6085
+      },
+      {
+        "t_ps": 350.0,
+        "density_g_cm3": 0.6085
+      },
+      {
+        "t_ps": 375.0,
+        "density_g_cm3": 0.6085
+      },
+      {
+        "t_ps": 400.0,
+        "density_g_cm3": 0.6085
+      },
+      {
+        "t_ps": 425.0,
+        "density_g_cm3": 0.6085
+      },
+      {
+        "t_ps": 450.0,
+        "density_g_cm3": 0.6085
+      }
+    ],
+    "errors": [],
+    "n_prod_frames": 21,
+    "frame_times_ps": [
+      0.0,
+      5.0,
+      10.0,
+      15.0,
+      20.0,
+      25.0,
+      30.0,
+      35.0,
+      40.0,
+      45.0,
+      50.0,
+      55.0,
+      60.0,
+      65.0,
+      70.0,
+      75.0,
+      80.0,
+      85.0,
+      90.0,
+      95.0,
+      100.0
+    ],
+    "frame_spacing_ps": 5.0,
+    "prod_min_intermol_heavy_A": 2.5527,
+    "prod_min_intermol_any_A": 1.7717,
+    "prod_min_intermol_H_involving_A": 1.8156,
+    "prod_min_intermol_heavy_cationpair_A": 1.7717,
+    "prod_bondi_worst": {
+      "ratio": 1.1316,
+      "dist_A": 2.7328,
+      "floor_A": 2.415,
+      "pair": "C-O"
+    },
+    "prod_bondi_pass": true,
+    "prod_lj08_worst": {
+      "ratio": 1.0219,
+      "dist_A": 2.8074,
+      "floor_A": 2.7472
+    },
+    "prod_lj08_pass": true,
+    "prod_density_in_tube_geom_g_cm3": [
+      0.6085,
+      0.6085,
+      0.6085,
+      0.6085,
+      0.6085,
+      0.6085,
+      0.6085,
+      0.6085,
+      0.6085,
+      0.6085,
+      0.6085,
+      0.6085,
+      0.6085,
+      0.6085,
+      0.6085,
+      0.6085,
+      0.6085,
+      0.6085,
+      0.6085,
+      0.6085,
+      0.6085
+    ],
+    "prod_density_in_tube_vdw_g_cm3": 1.2241,
+    "prod_max_mobile_radius_A": 8.638220683804043,
+    "prod_n_mobile_outside_tube": 0,
+    "composition_stable": true,
+    "composition_observed": {
+      "EC": 37,
+      "EMC": 24,
+      "Li": 6,
+      "PF6": 6
+    }
+  }
+}

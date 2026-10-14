@@ -1,0 +1,170 @@
+{
+  "cnt10_field0": {
+    "name": "cnt10_field0",
+    "cnt_chirality": [
+      10,
+      10
+    ],
+    "cnt_diameter_A": 13.5627,
+    "cnt_length_A": 49.2,
+    "cnt_atoms": 800,
+    "R_pack_A": 3.881345413688043,
+    "box": [
+      -16.7813,
+      16.7813,
+      -16.7813,
+      16.7813,
+      0.0,
+      49.2
+    ],
+    "composition": {
+      "n_EC": 8,
+      "n_EMC": 5,
+      "n_LiPF6": 2
+    },
+    "n_atoms_total": 971,
+    "n_bonds": 162,
+    "V_pore_geom_nm3": 7.108,
+    "V_pore_vdw_nm3": 1.9825,
+    "molarity_M_vdw_volume": 1.675,
+    "ec_ring_angles": {
+      "OS_CO_OS": 113.2,
+      "CO_OC": 0.0,
+      "C_O_C": 109.31,
+      "O_CH2_CH2": 104.09,
+      "OC_CO_OS": 123.4
+    },
+    "initial_min_atom_gap_A": 2.385,
+    "initial_min_wall_gap_A": 2.478,
+    "build_seed": 20261001,
+    "packer": "rejection + pack-then-relax (W8-style push-apart, 2026-10-14): strict floor = max(2.0 A, 2.2 A with H, 0.85 x LB-mixed sigma) inter-body and wall; tolerant insert >= 0.70 x floor then relaxed back above floor",
+    "n_tolerant_inserts": 2,
+    "final_relax_converged_sweep": 0
+  },
+  "cnt10_field1": {
+    "name": "cnt10_field1",
+    "cnt_chirality": [
+      10,
+      10
+    ],
+    "cnt_diameter_A": 13.5627,
+    "cnt_length_A": 49.2,
+    "cnt_atoms": 800,
+    "R_pack_A": 3.881345413688043,
+    "box": [
+      -16.7813,
+      16.7813,
+      -16.7813,
+      16.7813,
+      0.0,
+      49.2
+    ],
+    "composition": {
+      "n_EC": 8,
+      "n_EMC": 5,
+      "n_LiPF6": 2
+    },
+    "n_atoms_total": 971,
+    "n_bonds": 162,
+    "V_pore_geom_nm3": 7.108,
+    "V_pore_vdw_nm3": 1.9825,
+    "molarity_M_vdw_volume": 1.675,
+    "ec_ring_angles": {
+      "OS_CO_OS": 113.2,
+      "CO_OC": 0.0,
+      "C_O_C": 109.31,
+      "O_CH2_CH2": 104.09,
+      "OC_CO_OS": 123.4
+    },
+    "initial_min_atom_gap_A": 2.004,
+    "initial_min_wall_gap_A": 2.478,
+    "build_seed": 20261002,
+    "packer": "rejection + pack-then-relax (W8-style push-apart, 2026-10-14): strict floor = max(2.0 A, 2.2 A with H, 0.85 x LB-mixed sigma) inter-body and wall; tolerant insert >= 0.70 x floor then relaxed back above floor",
+    "n_tolerant_inserts": 3,
+    "final_relax_converged_sweep": null
+  },
+  "cnt16_field0": {
+    "name": "cnt16_field0",
+    "cnt_chirality": [
+      16,
+      16
+    ],
+    "cnt_diameter_A": 21.7003,
+    "cnt_length_A": 49.2,
+    "cnt_atoms": 1280,
+    "R_pack_A": 7.950152661900868,
+    "box": [
+      -20.8502,
+      20.8502,
+      -20.8502,
+      20.8502,
+      0.0,
+      49.2
+    ],
+    "composition": {
+      "n_EC": 37,
+      "n_EMC": 24,
+      "n_LiPF6": 6
+    },
+    "n_atoms_total": 2058,
+    "n_bonds": 742,
+    "V_pore_geom_nm3": 18.1965,
+    "V_pore_vdw_nm3": 9.046,
+    "molarity_M_vdw_volume": 1.101,
+    "ec_ring_angles": {
+      "OS_CO_OS": 113.2,
+      "CO_OC": 0.0,
+      "C_O_C": 109.31,
+      "O_CH2_CH2": 104.09,
+      "OC_CO_OS": 123.4
+    },
+    "initial_min_atom_gap_A": 2.004,
+    "initial_min_wall_gap_A": 2.478,
+    "build_seed": 20261003,
+    "packer": "rejection + pack-then-relax (W8-style push-apart, 2026-10-14): strict floor = max(2.0 A, 2.2 A with H, 0.85 x LB-mixed sigma) inter-body and wall; tolerant insert >= 0.70 x floor then relaxed back above floor",
+    "n_tolerant_inserts": 17,
+    "final_relax_converged_sweep": null
+  },
+  "cnt16_field1": {
+    "name": "cnt16_field1",
+    "cnt_chirality": [
+      16,
+      16
+    ],
+    "cnt_diameter_A": 21.7003,
+    "cnt_length_A": 49.2,
+    "cnt_atoms": 1280,
+    "R_pack_A": 7.950152661900868,
+    "box": [
+      -20.8502,
+      20.8502,
+      -20.8502,
+      20.8502,
+      0.0,
+      49.2
+    ],
+    "composition": {
+      "n_EC": 37,
+      "n_EMC": 24,
+      "n_LiPF6": 6
+    },
+    "n_atoms_total": 2058,
+    "n_bonds": 742,
+    "V_pore_geom_nm3": 18.1965,
+    "V_pore_vdw_nm3": 9.046,
+    "molarity_M_vdw_volume": 1.101,
+    "ec_ring_angles": {
+      "OS_CO_OS": 113.2,
+      "CO_OC": 0.0,
+      "C_O_C": 109.31,
+      "O_CH2_CH2": 104.09,
+      "OC_CO_OS": 123.4
+    },
+    "initial_min_atom_gap_A": 2.004,
+    "initial_min_wall_gap_A": 2.478,
+    "build_seed": 20261004,
+    "packer": "rejection + pack-then-relax (W8-style push-apart, 2026-10-14): strict floor = max(2.0 A, 2.2 A with H, 0.85 x LB-mixed sigma) inter-body and wall; tolerant insert >= 0.70 x floor then relaxed back above floor",
+    "n_tolerant_inserts": 15,
+    "final_relax_converged_sweep": null
+  }
+}

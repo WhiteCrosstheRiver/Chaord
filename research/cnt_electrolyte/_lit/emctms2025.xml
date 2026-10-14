@@ -1,0 +1,757 @@
+<?xml version="1.0" encoding="UTF-8"?><article xml:lang="en" article-type="research-article"><front><journal-meta><journal-id journal-id-type="pmc-domain-id">3686</journal-id><journal-id journal-id-type="pmc-domain">acsomega</journal-id><journal-title-group><journal-title>ACS Omega</journal-title><abbrev-journal-title>ACS Omega</abbrev-journal-title></journal-title-group><publisher><publisher-name>American Chemical Society</publisher-name></publisher></journal-meta><article-meta><article-id pub-id-type="pmcid">PMC11755145</article-id><article-id pub-id-type="pmcaid">11755145</article-id><article-id pub-id-type="pmcaiid">11755145</article-id><article-id pub-id-type="pmid">39866615</article-id><article-id pub-id-type="doi">10.1021/acsomega.4c08854</article-id><title-group><article-title>Enhanced Ion Solvation and Conductivity in Lithium-Ion
+Electrolytes via Tailored EMC-TMS Solvent Mixtures: A Molecular Dynamics
+Study</article-title></title-group><contrib-group content-type="author"><contrib><name name-style="western"><surname>Kasemchainan</surname><given-names initials="J">Jitti</given-names></name><xref ref-type="aff" rid="aff1">1</xref></contrib><contrib><name name-style="western"><surname>Teeraburanapong</surname><given-names initials="S">Siriporn</given-names></name><xref ref-type="aff" rid="aff1">1</xref></contrib><contrib><name name-style="western"><surname>Suttipong</surname><given-names initials="M">Manaswee</given-names></name><xref ref-type="aff" rid="aff1">1</xref><xref rid="cor1" ref-type="author-notes">*</xref></contrib></contrib-group><aff id="aff1"><label>1</label>Department of Chemical Technology,
+Faculty of Science, Chulalongkorn University, Bangkok 10330, Thailand</aff><author-notes><fn id="cor1"><label>*</label><p>Email: <email>manaswee.s@chula.ac.th</email>.</p></fn></author-notes><pub-date><day>7</day><month>1</month><year>2025</year></pub-date><volume>10</volume><issue>2</issue><fpage>2141</fpage><page-range>2141–2149</page-range><pub-history><event event-type="pmc-release"><date><day>24</day><month>1</month><year>2025</year></date></event></pub-history><permissions><copyright-statement>© 2025 The Authors. Published by American Chemical Society</copyright-statement><license><license-p>Permits non-commercial access and re-use, provided that author attribution and integrity are maintained; but does not permit creation of adaptations or other derivative works (<ext-link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://creativecommons.org/licenses/by-nc-nd/4.0/" ext-link-type="uri">https://creativecommons.org/licenses/by-nc-nd/4.0/</ext-link>).</license-p></license></permissions><self-uri xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="ao4c08854.pdf" content-type="pmc-pdf"><?cloudpmc-path 8e29/11755145/61cd5123f8aa/ao4c08854.pdf?><?cloudpmc-bucket app?><?size 4982257?></self-uri><abstract id="abstract1"><title>Abstract</title><graphic xmlns:xlink="http://www.w3.org/1999/xlink" content-type="image" id="ab-tgr1" xlink:href="ao4c08854_0008.jpg"><?cloudpmc-path blobs/8e29/11755145/df7f0f70c1bb/ao4c08854_0008.jpg?><?cloudpmc-bucket cdn?><?image-server-status LOAD_COMPLETED?><?original-height 464?><?original-width 1000?><?scaled-height 309?><?scaled-width 666?></graphic><p>The development of
+stable, high-performance electrolytes is essential
+to addressing the safety concerns and limited lifespan caused by the
+thermal and chemical instability of traditional organic carbonate-based
+electrolytes in lithium-ion batteries (LIBs). This study examined
+the potential of mixed solvent systems, specifically ethyl methyl
+carbonate (EMC) and tetramethylene sulfone (TMS), to modify ion solvation
+and improve ionic conductivity in LIB electrolytes. Through molecular
+dynamics simulations, we investigated the solvation structure and
+transport properties of lithium ions (Li<sup>+</sup>) in these solvent
+environments. The inclusion of TMS altered the solvation structure,
+with TMS molecules preferentially coordinating with Li<sup>+</sup> ions, displacing PF<sub>6</sub><sup>–</sup> anions and reducing
+their electrostatic interference. Our results demonstrated a synergistic
+interaction between EMC and TMS, where an EMC/TMS ratio of 1:2 led
+to a significant improvement in ionic conductivity, reaching 0.91
+mS/cm, with a corresponding Li<sup>+</sup> transference number of
+0.40. These findings provide key insights into the molecular-level
+interaction governing electrolyte behavior, offering guidance for
+the design of future solvent mixtures to improve the safety and efficiency
+of LIBs.</p></abstract><custom-meta-group><custom-meta><meta-name>status</meta-name><meta-value>released</meta-value></custom-meta><custom-meta><meta-name>display-pdf</meta-name><meta-value>yes</meta-value></custom-meta><custom-meta><meta-name>is-olf</meta-name><meta-value>no</meta-value></custom-meta><custom-meta><meta-name>is-manuscript</meta-name><meta-value>no</meta-value></custom-meta><custom-meta><meta-name>is-preprint</meta-name><meta-value>no</meta-value></custom-meta><custom-meta><meta-name>is-journal-matter</meta-name><meta-value>no</meta-value></custom-meta><custom-meta><meta-name>is-scanned</meta-name><meta-value>no</meta-value></custom-meta><custom-meta><meta-name>is-retracted</meta-name><meta-value>no</meta-value></custom-meta></custom-meta-group></article-meta><notes notes-type="article-notes"><sec id="historyarticle-meta1" sec-type="history" disp-level="2"><p>Received 2024 Sep 27; Accepted 2024 Dec 31; Revised 2024 Dec 25; Collection date 2025 Jan 21.</p></sec></notes></front><body><sec id="sec1" disp-level="1"><title>Introduction</title><p>The electrolyte in lithium-ion batteries
+(LIBs) plays a crucial
+role in facilitating the transport of lithium ions (Li<sup>+</sup>) between the anode and cathode during charge and discharge cycles.
+The performance and safety of LIBs are inherently linked to the properties
+of the electrolyte, as it influences key parameters such as energy
+density, charging speed, and overall battery stability. For optimal
+performance, electrolytes must exhibit high ionic conductivity, chemical
+stability, and resistance to electrochemical degradation.<sup><xref rid="ref1" ref-type="bibr">1</xref></sup></p><p>Most commercial LIBs rely on nonaqueous
+liquid electrolytes, typically
+composed of lithium hexafluorophosphate (LiPF<sub>6</sub>) dissolved
+in organic carbonates like ethylene carbonate (EC), propylene carbonate
+(PC), dimethyl carbonate (DMC), or ethyl methyl carbonate (EMC).<sup><xref rid="ref2" ref-type="bibr">2</xref>,<xref rid="ref3" ref-type="bibr">3</xref></sup> These solvents effectively facilitate ion transport, yet they come
+with significant drawbacks, such as flammability, toxicity, and instability
+at high voltages and temperatures. Addressing these limitations by
+developing safer and more stable electrolytes, without compromising
+on energy density and power output, is essential for advancing LIB
+technology.</p><p>Significant research has focused on conventional
+solvent systems,
+particularly those based on EC. However, mixed solvent systems that
+could overcome the limitations of traditional electrolytes have been
+relatively underexplored. One promising approach involves combining
+low-viscosity solvents, such as EMC, with highly stable alternatives
+such as tetramethylene sulfone (TMS).<sup><xref rid="ref4" ref-type="bibr">4</xref>,<xref rid="ref5" ref-type="bibr">5</xref></sup> TMS is recognized
+for its excellent electrochemical stability and oxidation resistance,
+properties that can enhance electrolyte performance, especially at
+elevated temperatures. In contrast, EMC, with its lower viscosity,
+complements TMS by improving ion mobility and reducing the viscosity
+challenges posed by TMS. Together, these solvents have the potential
+to create a stable, high-performance electrolyte system.</p><p>High
+oxidation potential of TMS (&gt;6.5 V) and desirable thermal
+properties, such as a flash point of 166 °C and a boiling point
+of 285 °C, make it an attractive solvent for high-voltage applications.
+Despite these advantages, its high viscosity (10.34 cP at 25 °C)
+and melting point (26 °C) present challenges for practical use
+by hindering ion movement. To overcome these limitations, researchers
+have explored blending TMS with lower-viscosity cosolvents. For example,
+Li et al. proposed a novel electrolyte using lithium bis(oxalato)borate
+(LiBOB) in a sulfolane/diethyl carbonate (DEC) mixture for high-voltage
+LIBs,<sup><xref rid="ref6" ref-type="bibr">6</xref></sup> while Watanabe et al. demonstrated
+improved cycling performance in lithium cells when sulfolane was mixed
+with ester-based solvents.<sup><xref rid="ref7" ref-type="bibr">7</xref></sup></p><p>Molecular
+dynamics (MD) simulations have proven invaluable in uncovering
+the molecular-level interaction within these systems. They provide
+a detailed examination of solvation structures, ion coordination,
+and transport mechanisms at the atomic scale.<sup><xref rid="ref8" ref-type="bibr">8</xref>,<xref rid="ref9" ref-type="bibr">9</xref></sup> Prior
+studies, including those by Kumar and Seminario and Ong et al.,<sup><xref rid="ref10" ref-type="bibr">10</xref></sup> have utilized MD simulations to explore how
+solvent environments influence solvation shell structure and ion mobility.
+These tools provide insights into how EMC and TMS combinations impact
+the solvation dynamics and overall performance of LIB electrolytes.</p><p>Extending this understanding, the solvation structure of Li<sup>+</sup> in organic solvents, particularly in the presence of PF<sub>6</sub><sup>–</sup> anions, has been widely examined through
+both experimental and computational approaches. Research on mixed
+carbonate electrolytes highlights how solvent composition affects
+solvation shell rigidity and ion-pairing dynamics.<sup><xref rid="ref11" ref-type="bibr">11</xref></sup> Additionally, PF<sub>6</sub><sup>–</sup> anions
+are known to interact competitively with solvent molecules for coordination
+sites, influencing solvation environments and ionic mobility. These
+findings underscore the critical role of solvent-anion interaction
+in shaping ionic transport properties and emphasize the importance
+of designing tailored solvent systems to enhance battery performance.<sup><xref rid="ref12" ref-type="bibr">12</xref></sup></p><p>Motivated by these insights, the current
+study aims to elucidate
+the effects of TMS on the solvation dynamics and overall performance
+of Li<sup>+</sup> ions in mixed solvent electrolytes, particularly
+in combination with EMC. Using MD simulations, we investigate the
+molecular-level interaction governing Li<sup>+</sup> solvation and
+transport within LiPF<sub>6</sub>-based electrolytes containing varying
+ratios of EMC and TMS. These simulations provide critical insights
+into how solvent composition influences electrolyte behavior, guiding
+the development of safer and more efficient electrolyte systems for
+LIBs.</p></sec><sec id="sec2" disp-level="1"><title>Methodology</title><p>MD simulations were performed using the
+GROMACS 2023.2 package
+to investigate the behavior of lithium-ion electrolytes.<sup><xref rid="ref13" ref-type="bibr">13</xref></sup> The molecular structures of the Li<sup>+</sup> cation, PF<sub>6</sub><sup>–</sup> anion, EMC, and TMS are
+shown in <xref rid="fig1" ref-type="fig">Figure <xref rid="fig1" ref-type="fig">1</xref></xref>.
+The optimized potential for liquid simulations-all atom (OPLS-AA)
+force field was employed to model the EMC and TMS molecules, ensuring
+accurate representation of their interaction.<sup><xref rid="ref14" ref-type="bibr">14</xref></sup> The parameters for the Li<sup>+</sup> ions were derived from the
+work of Lee and Rassiah,<sup><xref rid="ref15" ref-type="bibr">15</xref></sup> while those
+for the PF<sub>6</sub><sup>–</sup> anions were taken from Bhargava
+and Balasubramanian.<sup><xref rid="ref16" ref-type="bibr">16</xref></sup> Lennard-Jones parameters
+and partial charges were adopted from the study of Jorgensen and co-workers.<sup><xref rid="ref14" ref-type="bibr">14</xref></sup></p><fig id="fig1" position="float"><?disp-level 2?><label>Figure 1</label><caption><p>Molecular structures of Li<sup>+</sup>, PF<sub>6</sub><sup>–</sup>, EMC, and TMS used in MD simulations. The color
+coding is as follows:
+purple = lithium, brown = phosphorus, pink = fluorine, cyan = carbon,
+red = oxygen, white = hydrogen, and yellow = sulfur.</p></caption><alternatives><graphic xmlns:xlink="http://www.w3.org/1999/xlink" content-type="image" id="gr1" xlink:href="ao4c08854_0001.jpg"><?cloudpmc-path blobs/8e29/11755145/eda10fd65936/ao4c08854_0001.jpg?><?cloudpmc-bucket cdn?><?image-server-status LOAD_COMPLETED?><?original-height 266?><?original-width 1000?><?scaled-height 177?><?scaled-width 666?></graphic><graphic xmlns:xlink="http://www.w3.org/1999/xlink" content-type="thumb" xlink:href="ao4c08854_0001.gif"><?cloudpmc-path blobs/8e29/11755145/8bdb2b45a374/ao4c08854_0001.gif?><?cloudpmc-bucket cdn?></graphic></alternatives></fig><p><xref rid="tbl1" ref-type="table">Table <xref rid="tbl1" ref-type="table">1</xref></xref> summarizes
+the composition, concentration, and density of the simulation systems.
+Each system contained 30 LiPF<sub>6</sub> molecules and 300 solvent
+molecules, resulting in a concentration of approximately 1 M. To investigate
+the effects of different solvent environments, we examined a range
+of EMC/TMS molar ratios, from pure EMC (1:0) to pure TMS (0:1), as
+well as intermediate ratios of 2:1, 1:1, and 1:2. These variations
+were chosen to capture a broad spectrum of solvation dynamics and
+ionic transport behavior. Periodic boundary conditions were applied
+in all three dimensions (<italic>XYZ</italic>) to simulate bulk behavior.
+Long-range electrostatic interaction was calculated using the particle-mesh
+Ewald (PME) method with a 12 Å cutoff, and Lennard-Jones interaction
+was treated using the same cutoff distance.</p><table-wrap id="tbl1" position="float"><?disp-level 2?><label>Table 1</label><caption><title>Composition,
+Concentration, and Density
+of Systems Containing 30 LiPF<sub>6</sub> Molecules and Varying Numbers
+of EMC and TMS Molecules</title></caption><table frame="hsides" rules="groups" border="0"><colgroup span="1"><col align="left" span="1"/><col align="left" span="1"/><col align="left" span="1"/><col align="left" span="1"/><col align="left" span="1"/><col align="left" span="1"/><col align="char" char="." span="1"/><col align="char" char="±" span="1"/></colgroup><thead><tr><th rowspan="2" style="border:none;" align="center" colspan="1">system</th><th rowspan="2" style="border:none;" align="center" colspan="1">EMC/TMS</th><th colspan="3" align="center" rowspan="1">number of molecules</th><th rowspan="2" style="border:none;" align="center" colspan="1">volume (Å<sup>3</sup>)</th><th rowspan="2" style="border:none;" align="center" colspan="1">concentration (M)</th><th rowspan="2" style="border:none;" align="center" colspan="1">simulated density (g/cm<sup>3</sup>)</th></tr><tr><th style="border:none;" align="center" colspan="1" rowspan="1">LiPF<sub>6</sub></th><th style="border:none;" align="center" colspan="1" rowspan="1">EMC</th><th style="border:none;" align="center" colspan="1" rowspan="1">TMS</th></tr></thead><tbody><tr><td style="border:none;" align="left" colspan="1" rowspan="1">1</td><td style="border:none;" align="left" colspan="1" rowspan="1">1:0 (pure EMC)</td><td style="border:none;" align="left" colspan="1" rowspan="1">30</td><td style="border:none;" align="left" colspan="1" rowspan="1">300</td><td style="border:none;" align="left" colspan="1" rowspan="1">0</td><td style="border:none;" align="left" colspan="1" rowspan="1">37.51 × 37.51 × 37.51</td><td style="border:none;" align="center" colspan="1" rowspan="1">0.94</td><td style="border:none;" align="center" colspan="1" rowspan="1">1.10 ± 0.0006</td></tr><tr><td style="border:none;" align="left" colspan="1" rowspan="1">2</td><td style="border:none;" align="left" colspan="1" rowspan="1">2:1</td><td style="border:none;" align="left" colspan="1" rowspan="1">30</td><td style="border:none;" align="left" colspan="1" rowspan="1">200</td><td style="border:none;" align="left" colspan="1" rowspan="1">100</td><td style="border:none;" align="left" colspan="1" rowspan="1">37.10 × 37.10 × 37.10</td><td style="border:none;" align="center" colspan="1" rowspan="1">1.08</td><td style="border:none;" align="center" colspan="1" rowspan="1">1.19 ± 0.0024</td></tr><tr><td style="border:none;" align="left" colspan="1" rowspan="1">3</td><td style="border:none;" align="left" colspan="1" rowspan="1">1:1</td><td style="border:none;" align="left" colspan="1" rowspan="1">30</td><td style="border:none;" align="left" colspan="1" rowspan="1">100</td><td style="border:none;" align="left" colspan="1" rowspan="1">100</td><td style="border:none;" align="left" colspan="1" rowspan="1">36.64 × 36.64 × 36.64</td><td style="border:none;" align="center" colspan="1" rowspan="1">0.98</td><td style="border:none;" align="center" colspan="1" rowspan="1">1.25 ± 0.0012</td></tr><tr><td style="border:none;" align="left" colspan="1" rowspan="1">4</td><td style="border:none;" align="left" colspan="1" rowspan="1">1:2</td><td style="border:none;" align="left" colspan="1" rowspan="1">30</td><td style="border:none;" align="left" colspan="1" rowspan="1">100</td><td style="border:none;" align="left" colspan="1" rowspan="1">200</td><td style="border:none;" align="left" colspan="1" rowspan="1">36.52
+× 36.52 × 36.52</td><td style="border:none;" align="center" colspan="1" rowspan="1">1.01</td><td style="border:none;" align="center" colspan="1" rowspan="1">1.30 ±
+0.0023</td></tr><tr><td style="border:none;" align="left" colspan="1" rowspan="1">5</td><td style="border:none;" align="left" colspan="1" rowspan="1">0:1 (pure TMS)</td><td style="border:none;" align="left" colspan="1" rowspan="1">30</td><td style="border:none;" align="left" colspan="1" rowspan="1">0</td><td style="border:none;" align="left" colspan="1" rowspan="1">300</td><td style="border:none;" align="left" colspan="1" rowspan="1">35.88 ×
+35.88 × 35.88</td><td style="border:none;" align="center" colspan="1" rowspan="1">1.02</td><td style="border:none;" align="center" colspan="1" rowspan="1">1.22 ± 0.0001</td></tr></tbody></table></table-wrap><p>The simulation process
+began with energy minimization using the
+steepest descent algorithm, which was employed to eliminate any strained
+contacts in the system. Following this, the systems were heated to
+500 K for 2 ns to ensure sufficient thermal energy, and then cooled
+from 500 to 300 K over another 2 ns, preventing local configuration
+confinement and ensuring proper system relaxation. Subsequently, isothermal–isobaric
+(NPT) equilibration was performed for 2 ns at 300 K and atmospheric
+pressure, using a 0.001 ps time step, to adjust the system density
+to the desired level.<sup><xref rid="ref17" ref-type="bibr">17</xref></sup> This was followed
+by isothermal-isochoric (NVT) equilibration,<sup><xref rid="ref18" ref-type="bibr">18</xref></sup> conducted for 10 ns with the same time step, to further stabilize
+the temperature and volume of the system. Finally, simulations in
+the microcanonical ensemble (NVE),<sup><xref rid="ref19" ref-type="bibr">19</xref></sup> were
+performed for an additional 10 ns with a 0.001 ps time step to compute
+time-averaged static and dynamic properties of the electrolyte.</p></sec><sec id="sec3" disp-level="1"><title>Results
+and Discussion</title><sec id="sec3.1" disp-level="2"><title>Validation of Simulated Densities and Force
+Field Parameters</title><p>The selection of an appropriate force field
+is essential for obtaining
+accurate results in MD simulations. Various force fields have been
+developed, generally falling into two main categories: classical force
+fields, such as OPLS-AA,<sup><xref rid="ref14" ref-type="bibr">14</xref></sup> and reactive
+force fields, like ReaxFF.<sup><xref rid="ref20" ref-type="bibr">20</xref></sup> In this study,
+we employed the OPLS-AA force field, widely recognized for its suitability
+in simulating electrolytes in MD simulations. The OPLS-AA force field
+consists of six terms, as represented by the following equation:</p><disp-formula id="eq1"><label>1</label><graphic xmlns:xlink="http://www.w3.org/1999/xlink" content-type="image" xlink:href="ao4c08854_m001.jpg"><?cloudpmc-path blobs/8e29/11755145/f4cc1d12aef0/ao4c08854_m001.jpg?><?cloudpmc-bucket cdn?><?image-server-status NEVER_LOAD?><?original-height 197?><?original-width 261?><?scaled-height 197?><?scaled-width 261?></graphic></disp-formula><p>The simulated densities,
+along with their associated error bars derived from two independent
+simulation runs, are provided in <xref rid="tbl1" ref-type="table">Table <xref rid="tbl1" ref-type="table">1</xref></xref>. To validate the accuracy of the OPLS-AA force field,
+we compared the simulated densities of pure EMC and TMS to experimental
+values,<sup><xref rid="ref2" ref-type="bibr">2</xref>,<xref rid="ref5" ref-type="bibr">5</xref>,<xref rid="ref21" ref-type="bibr">21</xref></sup> as shown in <ext-link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://pubs.acs.org/doi/suppl/10.1021/acsomega.4c08854/suppl_file/ao4c08854_si_001.pdf" ext-link-type="uri">Table S1 and Figure S1</ext-link> in the Supporting Information.
+The results show excellent agreement, with deviations within 1–3%,
+confirming the reliability of the force field for pure solvents.</p><p>To further validate the performance of the OPLS-AA force field
+in electrolyte systems, we analyzed Li<sup>+</sup>–PF<sub>6</sub><sup>–</sup> interaction through radial distribution function
+(RDF) and coordination number plots for pure EMC and pure TMS (<ext-link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://pubs.acs.org/doi/suppl/10.1021/acsomega.4c08854/suppl_file/ao4c08854_si_001.pdf" ext-link-type="uri">Figures S2 and S3</ext-link>, respectively). The RDF results
+for pure EMC reveal strong Li<sup>+</sup>–PF<sub>6</sub><sup>–</sup> ion pairing, with prominent peaks in both Li<sup>+</sup>–P(PF<sub>6</sub><sup>–</sup>) and Li<sup>+</sup>–F(PF<sub>6</sub><sup>–</sup>) interactions. In pure TMS, the RDF peaks
+are less pronounced, indicating reduced ion pairing due to the stronger
+solvation of Li<sup>+</sup> by TMS molecules. These findings are consistent
+with previous studies,<sup><xref rid="ref22" ref-type="bibr">22</xref>,<xref rid="ref23" ref-type="bibr">23</xref></sup> providing confidence in the accuracy
+of the force field for mixed solvent systems.</p><p>While density
+validates force fields, it cannot fully capture solvation
+structures or dynamics. RDF and coordination number analyses provide
+additional reliability for ion-pairing results. Although direct experimental
+data are unavailable, future work could compare solvation free energies
+from quantum mechanical or QM/MM methods. Polarizable force fields
+could further enhance validation and improve MD simulation accuracy
+for electrolytes.</p></sec><sec id="sec3.2" disp-level="2"><title>Solvation Structure</title><p><xref rid="fig2" ref-type="fig">Figure <xref rid="fig2" ref-type="fig">2</xref></xref> shows the Li<sup>+</sup> solvation
+structure
+in pure EMC and pure TMS systems, highlighting their distinct solvation
+environments. In pure EMC (<xref rid="fig2" ref-type="fig">Figure <xref rid="fig2" ref-type="fig">2</xref></xref>a), Li<sup>+</sup> forms a loosely structured solvation
+shell coordinated by EMC molecules, while the PF<sub>6</sub><sup>–</sup> anion is positioned near Li<sup>+</sup> and contributes to the solvation
+structure. This configuration suggests partial interaction between
+Li<sup>+</sup> and PF<sub>6</sub><sup>–</sup> in the EMC system.
+In contrast, in pure TMS (<xref rid="fig2" ref-type="fig">Figure <xref rid="fig2" ref-type="fig">2</xref></xref>b), the solvation shell is more structured, with six
+TMS molecules tightly coordinating around Li<sup>+</sup>. The PF<sub>6</sub><sup>–</sup> anion is displaced to the outer shell,
+indicating a separation between Li<sup>+</sup> and PF<sub>6</sub><sup>–</sup>.</p><fig id="fig2" position="float"><?disp-level 3?><label>Figure 2</label><caption><p>Structural snapshots of Li<sup>+</sup> solvation environments
+in
+(a) pure EMC and (b) pure TMS. The black dashed lines indicate the
+coordination between Li<sup>+</sup> and surrounding solvent molecules.</p></caption><alternatives><graphic xmlns:xlink="http://www.w3.org/1999/xlink" content-type="image" id="gr2" xlink:href="ao4c08854_0002.jpg"><?cloudpmc-path blobs/8e29/11755145/3d2958e82d34/ao4c08854_0002.jpg?><?cloudpmc-bucket cdn?><?image-server-status LOAD_COMPLETED?><?original-height 422?><?original-width 883?><?scaled-height 281?><?scaled-width 588?></graphic><graphic xmlns:xlink="http://www.w3.org/1999/xlink" content-type="thumb" xlink:href="ao4c08854_0002.gif"><?cloudpmc-path blobs/8e29/11755145/24eb21975eea/ao4c08854_0002.gif?><?cloudpmc-bucket cdn?></graphic></alternatives></fig><p><xref rid="fig3" ref-type="fig">Figure <xref rid="fig3" ref-type="fig">3</xref></xref> shows the
+solvation structure of Li<sup>+</sup> in mixed EMC/TMS systems with
+different molar ratios. In the 2:1 EMC/TMS system (<xref rid="fig3" ref-type="fig">Figure <xref rid="fig3" ref-type="fig">3</xref></xref>a), Li<sup>+</sup> is coordinated
+by two EMC molecules and three TMS molecules, while PF<sub>6</sub><sup>–</sup> remains close to Li<sup>+</sup>, indicating partial
+ion pairing similar to that in pure EMC. In the 1:1 EMC/TMS system
+(<xref rid="fig3" ref-type="fig">Figure <xref rid="fig3" ref-type="fig">3</xref></xref>b), both EMC
+and TMS molecules participate in the solvation shell, and PF<sub>6</sub><sup>–</sup> is located near Li<sup>+</sup>. In the 1:2 EMC/TMS
+system (<xref rid="fig3" ref-type="fig">Figure <xref rid="fig3" ref-type="fig">3</xref></xref>c),
+TMS dominates the solvation shell, and PF<sub>6</sub><sup>–</sup> is fully excluded from the immediate vicinity of Li<sup>+</sup>,
+indicating a greater separation between Li<sup>+</sup> and PF<sub>6</sub><sup>–</sup>.</p><fig id="fig3" position="float"><?disp-level 3?><label>Figure 3</label><caption><p>Structural snapshots of Li<sup>+</sup> solvation
+environments in
+different EMC/TMS molar ratios: (a) Li(EMC)<sub>2</sub>(TMS)<sub>3</sub>PF<sub>6</sub> (EMC/TMS = 2:1), (b) Li(EMC)<sub>1</sub>(TMS)<sub>4</sub>PF<sub>6</sub> (EMC/TMS = 1:1), and (c) [Li(EMC)<sub>1</sub>(TMS)<sub>5</sub>]<sup>+</sup> (EMC/TMS = 1:2). The black dashed
+lines indicate the coordination between Li<sup>+</sup> and surrounding
+solvent molecules.</p></caption><alternatives><graphic xmlns:xlink="http://www.w3.org/1999/xlink" content-type="image" id="gr3" xlink:href="ao4c08854_0003.jpg"><?cloudpmc-path blobs/8e29/11755145/2e66030eea46/ao4c08854_0003.jpg?><?cloudpmc-bucket cdn?><?image-server-status LOAD_COMPLETED?><?original-height 411?><?original-width 1292?><?scaled-height 206?><?scaled-width 646?></graphic><graphic xmlns:xlink="http://www.w3.org/1999/xlink" content-type="thumb" xlink:href="ao4c08854_0003.gif"><?cloudpmc-path blobs/8e29/11755145/ed31e7a39382/ao4c08854_0003.gif?><?cloudpmc-bucket cdn?></graphic></alternatives></fig><p>These findings reveal
+that increasing TMS content enhances the
+separation between Li<sup>+</sup> and PF<sub>6</sub><sup>–</sup> by allowing TMS to dominate the solvation shell. This result aligns
+with previous studies showing that higher TMS concentrations lead
+to greater Li<sup>+</sup> and PF<sub>6</sub><sup>–</sup> separation.<sup><xref rid="ref9" ref-type="bibr">9</xref>,<xref rid="ref23" ref-type="bibr">23</xref>,<xref rid="ref24" ref-type="bibr">24</xref></sup> By reducing the likelihood of
+ion pair formation, this separation could improve ionic conductivity
+in the electrolyte.</p><p>To gain insights into the solvation structure
+and coordination
+environment of Li<sup>+</sup> ions in mixed EMC/TMS solvent systems,
+we performed RDF and coordination number analysis based on MD simulation
+trajectories. The RDF, denoted as <italic>g</italic>(<italic>r</italic>), represents the probability of finding a particle at a distance <italic>r</italic> from a reference particle, providing the local structure
+of ions and solvent molecules. This analysis helps quantify the spatial
+arrangement and interaction among the different components of the
+electrolyte mixture. The RDF for a pair of particles <italic>x</italic> and <italic>y</italic> is mathematically defined as<sup><xref rid="ref25" ref-type="bibr">25</xref></sup></p><disp-formula id="eq2"><label>2</label><graphic xmlns:xlink="http://www.w3.org/1999/xlink" content-type="image" xlink:href="ao4c08854_m002.jpg"><?cloudpmc-path blobs/8e29/11755145/fabdac5db8d2/ao4c08854_m002.jpg?><?cloudpmc-bucket cdn?><?image-server-status NEVER_LOAD?><?original-height 34?><?original-width 80?><?scaled-height 34?><?scaled-width 80?></graphic></disp-formula><p>where <italic>n</italic>(<italic>r</italic>) is the number of <italic>y</italic> atoms at
+a radial
+distance <italic>r</italic> from a reference particle <italic>x</italic>, 4π<italic>r</italic><sup>2</sup><italic>dr</italic> is the
+volume of a shell of thickness <italic>dr</italic> at <italic>r</italic>, and ρ is the bulk number density of <italic>y</italic> atoms.</p><p>The number of atoms within a sphere of radius <italic>r</italic> surrounding a reference ion is determined by integrating the RDF,
+which yields the coordination number, <italic>N</italic>(<italic>r</italic>), calculated as<sup><xref rid="ref26" ref-type="bibr">26</xref></sup></p><disp-formula id="eq3"><label>3</label><graphic xmlns:xlink="http://www.w3.org/1999/xlink" content-type="image" xlink:href="ao4c08854_m003.jpg"><?cloudpmc-path blobs/8e29/11755145/1848014dfecd/ao4c08854_m003.jpg?><?cloudpmc-bucket cdn?><?image-server-status NEVER_LOAD?><?original-height 28?><?original-width 124?><?scaled-height 28?><?scaled-width 124?></graphic></disp-formula><p><xref rid="fig4" ref-type="fig">Figure <xref rid="fig4" ref-type="fig">4</xref></xref> provides
+insights into the interaction of Li<sup>+</sup> and PF<sub>6</sub><sup>–</sup> with solvent molecules (EMC and TMS) across varying
+EMC/TMS compositions through the RDF and coordination number.</p><fig id="fig4" position="float"><?disp-level 3?><label>Figure 4</label><caption><p>Radial distribution
+function <italic>g</italic>(<italic>r</italic>) (solid lines) and
+coordination number <italic>N</italic>(<italic>r</italic>) (dashed
+lines) for interaction involving Li<sup>+</sup> and PF<sub>6</sub><sup>–</sup> with solvent molecules: (a)
+Li<sup>+</sup>–O<sub>c</sub>(EMC), (b) Li<sup>+</sup>–O<sub>s</sub>(TMS), (c) P(PF<sub>6</sub><sup>–</sup>)–O<sub>c</sub>(EMC), and (d) P(PF<sub>6</sub><sup>–</sup>)–O<sub>s</sub>(TMS). Data are shown for systems with varying EMC/TMS ratios:
+1:0 (pure EMC), 2:1, 1:1, 1:2, and 0:1 (pure TMS).</p></caption><alternatives><graphic xmlns:xlink="http://www.w3.org/1999/xlink" content-type="image" id="gr4" xlink:href="ao4c08854_0004.jpg"><?cloudpmc-path blobs/8e29/11755145/cfc9185f0e4f/ao4c08854_0004.jpg?><?cloudpmc-bucket cdn?><?image-server-status LOAD_COMPLETED?><?original-height 1149?><?original-width 1500?><?scaled-height 575?><?scaled-width 750?></graphic><graphic xmlns:xlink="http://www.w3.org/1999/xlink" content-type="thumb" xlink:href="ao4c08854_0004.gif"><?cloudpmc-path blobs/8e29/11755145/27d9a9ad9460/ao4c08854_0004.gif?><?cloudpmc-bucket cdn?></graphic></alternatives></fig><p>In <xref rid="fig4" ref-type="fig">Figure <xref rid="fig4" ref-type="fig">4</xref></xref>a, the
+RDF peak for Li<sup>+</sup>–O<sub>c</sub>(EMC) appears strongly
+at ∼2.3 Å in pure EMC, indicating close coordination between
+Li<sup>+</sup> and carbonyl oxygen atoms. As the TMS content increases,
+the intensity of this peak decreases, reflecting the displacement
+of EMC molecules from the first solvation shell of Li<sup>+</sup>.
+The peak heights drop from 14.5 (pure EMC) to 8.7 (2:1 EMC/TMS), 7.0
+(1:1 EMC/TMS), and 4.0 (1:2 EMC/TMS). Similarly, the coordination
+number for O<sub>c</sub>(EMC) declines from 5.1 (pure EMC) to 2.2
+(2:1 EMC/TMS), 1.4 (1:1 EMC/TMS), and 0.6 (1:2 EMC/TMS). These trends
+show that the number of EMC molecules around Li<sup>+</sup> decreases
+as TMS concentration increases.</p><p><xref rid="fig4" ref-type="fig">Figure <xref rid="fig4" ref-type="fig">4</xref></xref>b shows
+the RDF for Li<sup>+</sup>–O<sub>s</sub>(TMS), where the coordination
+number increases as TMS content rises, indicating the growing dominance
+of TMS in the Li<sup>+</sup> solvation shell. However, the RDF peak
+height decreases with higher TMS concentrations, reflecting reduced
+localization and dynamic competition among TMS molecules in the solvation
+shell. The coordination number for O<sub>s</sub>(TMS) decreases as
+TMS content is reduced, moving from 5.9 (pure TMS) to 5.2 (1:2 EMC/TMS),
+4.2 (1:1 EMC/TMS), and 3.2 (2:1 EMC/TMS), confirming that TMS displaces
+EMC in the solvation shell of Li<sup>+</sup> as its concentration
+increases. The plateaus in the coordination number integrals (dashed
+lines) across all panels reinforce these findings. TMS demonstrates
+stronger interaction with Li<sup>+</sup> compared to EMC, effectively
+displacing EMC molecules from the first solvation shell as its concentration
+increases. In addition, PF<sub>6</sub><sup>–</sup> becomes
+excluded from the immediate environment of Li<sup>+</sup>, supporting
+the conclusion that TMS-rich systems reduce ion pairing.</p><p><xref rid="fig4" ref-type="fig">Figure <xref rid="fig4" ref-type="fig">4</xref></xref>c,d examine
+the proximity of PF<sub>6</sub><sup>–</sup> to EMC and TMS
+oxygen atoms, respectively. In <xref rid="fig4" ref-type="fig">Figure <xref rid="fig4" ref-type="fig">4</xref></xref>c, the RDF peak between P(PF<sub>6</sub><sup>–</sup>) and O<sub>c</sub>(EMC) is weak across all solvent compositions,
+indicating limited interaction. As TMS concentration increases, the
+RDF peak intensity decreases further, indicating the diminished presence
+of EMC in the ionic environment and reduced PF<sub>6</sub><sup>–</sup>–EMC proximity in TMS-rich systems.</p><p><xref rid="fig4" ref-type="fig">Figure <xref rid="fig4" ref-type="fig">4</xref></xref>d shows
+the proximity of PF<sub>6</sub><sup>–</sup> to the sulfonyl
+oxygen atoms (O<sub>s</sub>) of TMS. Interestingly, the RDF peak in
+pure TMS systems (0:1) is lower than in mixed systems, suggesting
+reduced PF<sub>6</sub><sup>–</sup> proximity to TMS oxygen
+atoms in TMS-dominant environments. This behavior can be attributed
+to the strong coordination of TMS with Li<sup>+</sup>, which creates
+a tightly structured solvation shell. The tight Li<sup>+</sup>–TMS
+solvation shell reduces the availability of TMS oxygen atoms for PF<sub>6</sub><sup>–</sup> proximity and displaces PF<sub>6</sub><sup>–</sup> further from the immediate ionic environment,
+weakening PF<sub>6</sub><sup>–</sup> interaction with TMS.</p><p><xref rid="fig5" ref-type="fig">Figure <xref rid="fig5" ref-type="fig">5</xref></xref> provides
+the RDF and coordination number for the interaction between Li<sup>+</sup> and the phosphorus (P) and fluorine (F) atoms of PF<sub>6</sub><sup>–</sup> in systems with varying EMC/TMS ratios. These
+results offer insights into the extent of ion pairing between Li<sup>+</sup> and PF<sub>6</sub><sup>–</sup> under different solvent
+compositions.</p><fig id="fig5" position="float"><?disp-level 3?><label>Figure 5</label><caption><p>Radial distribution function <italic>g</italic>(<italic>r</italic>) (solid lines) and coordination number <italic>N</italic>(<italic>r</italic>) (dashed lines) for interaction between (a) Li<sup>+</sup>–P(PF<sub>6</sub><sup>–</sup>) and (b) Li<sup>+</sup>–F(PF<sub>6</sub><sup>–</sup>). Data are shown
+for
+systems with varying EMC/TMS ratios: 1:0 (pure EMC), 2:1, 1:1, 1:2,
+and 0:1 (pure TMS).</p></caption><alternatives><graphic xmlns:xlink="http://www.w3.org/1999/xlink" content-type="image" id="gr5" xlink:href="ao4c08854_0005.jpg"><?cloudpmc-path blobs/8e29/11755145/d6b4ce381c09/ao4c08854_0005.jpg?><?cloudpmc-bucket cdn?><?image-server-status LOAD_COMPLETED?><?original-height 599?><?original-width 1656?><?scaled-height 239?><?scaled-width 662?></graphic><graphic xmlns:xlink="http://www.w3.org/1999/xlink" content-type="thumb" xlink:href="ao4c08854_0005.gif"><?cloudpmc-path blobs/8e29/11755145/6c4fa49288b4/ao4c08854_0005.gif?><?cloudpmc-bucket cdn?></graphic></alternatives></fig><p>In <xref rid="fig5" ref-type="fig">Figure <xref rid="fig5" ref-type="fig">5</xref></xref>a, the
+RDF for Li<sup>+</sup>–P(PF<sub>6</sub><sup>–</sup>)
+shows a prominent peak at ∼3.8 Å, indicating a coordination
+interaction between Li<sup>+</sup> and the phosphorus atom of PF<sub>6</sub><sup>–</sup>. The peak heights decrease as the TMS
+content increases, from 8.4 in the pure EMC system (1:0 EMC/TMS) to
+6.9 (2:1 EMC/TMS), 5.6 (1:1 EMC/TMS), 4.4 (1:2 EMC/TMS), and 3.3 in
+the pure TMS system (0:1 EMC/TMS). This trend reflects a reduction
+in the interaction strength between Li<sup>+</sup> and PF<sub>6</sub><sup>–</sup> as TMS concentration increases. The sharper RDF
+peak in pure EMC indicates stronger and more stable ion pairing in
+EMC-rich systems. In contrast, the lower and broader peaks in TMS-rich
+systems suggest weaker interaction and greater separation between
+Li<sup>+</sup> and PF<sub>6</sub><sup>–</sup>. The coordination
+number for Li<sup>+</sup>–P(PF<sub>6</sub><sup>–</sup>), shown by the dashed lines, further confirms these observations.
+In pure EMC, the coordination number is approximately 0.6, meaning
+that, on average, each Li<sup>+</sup> ion is coordinated by 0.6 phosphorus
+atoms of PF<sub>6</sub><sup>–</sup>. As TMS content increases,
+the coordination number decreases, dropping to ∼0.2 in the
+pure TMS system. This indicates that TMS effectively displaces PF<sub>6</sub><sup>–</sup> anions from the immediate solvation shell
+of Li<sup>+</sup>, reducing ion pairing.</p><p><xref rid="fig5" ref-type="fig">Figure <xref rid="fig5" ref-type="fig">5</xref></xref>b shows
+the RDF for Li<sup>+</sup>–F(PF<sub>6</sub><sup>–</sup>), with a primary peak at ∼3.6 Å and a smaller secondary
+peak at ∼4.5 Å. The primary peak represents the direct
+coordination between Li<sup>+</sup> and the fluorine atoms of PF<sub>6</sub><sup>–</sup> that are closest to Li<sup>+</sup> in
+the solvation shell. The secondary peak corresponds to interaction
+with fluorine atoms positioned farther away within the tetrahedral
+structure of PF<sub>6</sub><sup>–</sup>. As TMS content increases,
+both peaks decrease in intensity, indicating weaker ion pairing. The
+coordination number for Li<sup>+</sup>–F(PF<sub>6</sub><sup>–</sup>) also decreases with higher TMS content, confirming
+that TMS displaces PF<sub>6</sub><sup>–</sup> from the Li<sup>+</sup> solvation shell, promoting ion dissociation and a more separated
+ion environment.</p><p>This further supports the conclusion that higher
+TMS content weakens
+the interaction between Li<sup>+</sup> and PF<sub>6</sub><sup>–</sup>. The reduced interaction between Li<sup>+</sup> and PF<sub>6</sub><sup>–</sup> in TMS-rich systems contributes to a more dissociated
+ion environment, as also reflected by the structural snapshots in <xref rid="fig3" ref-type="fig">Figure <xref rid="fig3" ref-type="fig">3</xref></xref>, which show greater
+separation between Li<sup>+</sup> and PF<sub>6</sub><sup>–</sup> as TMS concentration increases.</p><p>However, while the displacement
+of PF<sub>6</sub><sup>–</sup> from the Li<sup>+</sup> solvation
+shell reduces ion pairing and
+contributes to a more dissociated ion environment, the higher affinity
+of TMS for Li<sup>+</sup> simultaneously tightens the solvation shell
+around Li<sup>+</sup>. This increased rigidity hinders Li<sup>+</sup> mobility by increasing its effective mass. These dual effects result
+in a trade-off between the benefits of reduced ion pairing and the
+drawbacks of a more rigid solvation shell, particularly at intermediate
+TMS concentrations (e.g., EMC/TMS = 1:1). As a result, Li<sup>+</sup> mobility is lowest at intermediate TMS concentrations, where these
+opposing effects are most pronounced. Beyond this point, the solvation
+shell stabilizes, allowing for slight improvements in mobility at
+higher TMS concentrations.</p></sec><sec id="sec3.3" disp-level="2"><title>Dynamical Properties</title><p>Transport properties
+of electrolytes
+play a critical role in assessing battery performance. Faster movement
+of Li<sup>+</sup> ions within the solution leads to higher current
+density in LIBs. By examining ion trajectories under zero electric
+field conditions during MD simulations, we can determine the diffusion
+coefficient of ions and the ionic conductivity of the solution.<sup><xref rid="ref27" ref-type="bibr">27</xref></sup></p><p>In our study, ion transport in MD simulations
+was quantified using the diffusion coefficient (<italic>D</italic>), which was computed through least-squares fitting of the mean-squared
+displacement (MSD) data.<sup><xref rid="ref28" ref-type="bibr">28</xref></sup> This fitting
+process can be expressed using the following equation:</p><disp-formula id="eq4"><label>4</label><graphic xmlns:xlink="http://www.w3.org/1999/xlink" content-type="image" xlink:href="ao4c08854_m004.jpg"><?cloudpmc-path blobs/8e29/11755145/e9bfe74bcbfb/ao4c08854_m004.jpg?><?cloudpmc-bucket cdn?><?image-server-status NEVER_LOAD?><?original-height 31?><?original-width 126?><?scaled-height 31?><?scaled-width 126?></graphic></disp-formula><p>In the <xref rid="eq4" ref-type="disp-formula">eq <xref rid="eq4" ref-type="disp-formula">4</xref></xref>, MSD<sub><italic>i</italic></sub>(<italic>t</italic>) represents the mean-squared
+displacement of the center of mass of a component <italic>i</italic> after time <italic>t</italic>, &lt; &gt; denotes an ensemble average.
+The diffusion coefficient were calculated using the MSD curves within
+the linear region corresponding to the time interval of 1–9
+ns. This interval was selected to ensure reliable fitting by excluding
+the 0–1 ns region (to avoid distortions from the ballistic
+motion phase) and the 9–10 ns range (to minimize statistical
+fluctuations and finite-size effects). For Li<sup>+</sup> ions, the
+MSD quantifies the motion of individual atoms, whereas for PF<sub>6</sub><sup>–</sup> ions, the MSD captures the dynamics of
+the molecular center of mass. By separately accounting for atomic
+and molecular motions, this approach ensures precise estimates of
+the ionic diffusion coefficient.</p><p>To ensure the reliability of
+the calculated <italic>D</italic> values
+and address equilibration concern, the MSD data were further analyzed
+across overlapping trajectory subsets (1–5, 5–9, and
+1–9 ns). This addition analysis verifies that the <italic>D</italic> values has reached a steady state and is independent of the specific
+trajectory segment. As illustrated in <ext-link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://pubs.acs.org/doi/suppl/10.1021/acsomega.4c08854/suppl_file/ao4c08854_si_001.pdf" ext-link-type="uri">Figure S7</ext-link>, the MSD plots for all systems with varying EMC/TMS ratios (1:0,
+2:1, 1:1, 1:2, and 0:1) demonstrated a clear linear relationship with
+time over the investigated time intervals. The <italic>D</italic> values
+calculated from these subsets, presented in <ext-link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://pubs.acs.org/doi/suppl/10.1021/acsomega.4c08854/suppl_file/ao4c08854_si_001.pdf" ext-link-type="uri">Table S2</ext-link>, shows consistent values, confirming that the dynamic properties
+are representative of an equilibrated system. These findings align
+with established practices in MD simulations for assessing steady-state
+behavior.<sup><xref rid="ref29" ref-type="bibr">29</xref></sup></p><p>Building on this analysis,
+the transference number emerges as another
+critical parameter, offering insights into the relative mobility of
+active Li<sup>+</sup> ions compared to the migration of both cations
+and anions.<sup><xref rid="ref30" ref-type="bibr">30</xref></sup> In nonaqueous solutions,
+the Li<sup>+</sup> transference number typically falls within the
+range of 0.20 to 0.40, depending on the properties of the solvents
+and salts.<sup><xref rid="ref31" ref-type="bibr">31</xref></sup> For a 1:1 electrolyte, donated
+as MX, consisting of a cation M<sup>+</sup> and anion X<sup>–</sup>, the transference number can be estimated by considering the diffusion
+coefficient of both the cation and anion, as shown in the following
+equation:</p><disp-formula id="eq5"><label>5</label><graphic xmlns:xlink="http://www.w3.org/1999/xlink" content-type="image" xlink:href="ao4c08854_m005.jpg"><?cloudpmc-path blobs/8e29/11755145/4b5c61a6c54b/ao4c08854_m005.jpg?><?cloudpmc-bucket cdn?><?image-server-status NEVER_LOAD?><?original-height 33?><?original-width 149?><?scaled-height 33?><?scaled-width 149?></graphic></disp-formula><p>The ionic conductivity (σ) for
+the system can be calculated
+using the Nernst–Einstein equation,<sup><xref rid="ref28" ref-type="bibr">28</xref>,<xref rid="ref32" ref-type="bibr">32</xref></sup> which is expressed as follows:</p><disp-formula id="eq6"><label>6</label><graphic xmlns:xlink="http://www.w3.org/1999/xlink" content-type="image" xlink:href="ao4c08854_m006.jpg"><?cloudpmc-path blobs/8e29/11755145/3d72f662e80f/ao4c08854_m006.jpg?><?cloudpmc-bucket cdn?><?image-server-status NEVER_LOAD?><?original-height 38?><?original-width 134?><?scaled-height 38?><?scaled-width 134?></graphic></disp-formula><p>where <italic>N</italic><sub>pair</sub> is the number of ion pairs, <italic>e</italic> is electric
+charge, <italic>q</italic><sub>+</sub> and <italic>q</italic><sub>–</sub> are the total charges on cation and anion, respectively, <italic>D</italic><sub>+</sub> and <italic>D</italic><sub>–</sub> are
+the diffusion coefficient of cation and anion, respectively, <italic>V</italic> is the simulation box volume, <italic>T</italic> is the
+temperature, and <italic>k</italic><sub>B</sub> is the Boltzmann constant.
+The Nernst–Einstein equation, commonly applied to dilute solutions,
+was used in this study as a reference framework to estimate ionic
+conductivity trends in the mixed electrolyte systems. While this equation
+assumes uncorrelated ion motion and does not account for the strong
+ion–ion correlations and ion pairing present in concentrated
+solutions, it provides valuable qualitative insights into how solvent
+composition influences ionic transport properties. These trends are
+consistent with structural data obtained from RDF and coordination
+number analyses. Future work will incorporate advanced techniques,
+such as Onsager transport theory,<sup><xref rid="ref33" ref-type="bibr">33</xref></sup> to
+address ion correlation effects and improve the quantitative accuracy
+of conductivity predictions in concentrated electrolyte systems.</p><p><xref rid="fig6" ref-type="fig">Figure <xref rid="fig6" ref-type="fig">6</xref></xref>a illustrates
+the diffusion coefficient (<italic>D</italic>) of Li<sup>+</sup> and
+PF<sub>6</sub><sup>–</sup> ions. The <italic>D</italic> values
+of Li<sup>+</sup> ions decrease from 0.0157 × 10<sup>–5</sup> cm<sup>2</sup>/s in pure EMC (1:0) to 0.0072 × 10<sup>–5</sup> cm<sup>2</sup>/s in pure TMS (0:1). Similarly, <italic>D</italic> values for PF<sub>6</sub><sup>–</sup> ions decrease from
+0.0291 × 10<sup>–5</sup> cm<sup>2</sup>/s (1:0) to 0.0102
+× 10<sup>–5</sup> cm<sup>2</sup>/s (0:1). The lower mobility
+of Li<sup>+</sup> compared to PF<sub>6</sub><sup>–</sup> is
+due to its stable and extensive solvation shell, which increases its
+effective mass and restricts diffusion. Li<sup>+</sup> forms strong
+interaction with solvent molecules, particularly TMS, creating a tightly
+bound solvation environment. In contrast, PF<sub>6</sub><sup>–</sup>, being larger and less charge-dense, experiences weaker solvation
+effects and diffuses more freely. The addition of TMS also increases
+the viscosity of the medium, further reducing the diffusion coefficients
+of both ions. These trends reflect the interplay between solvation
+dynamics, ion size, and solvent composition in influencing ionic mobility.</p><fig id="fig6" position="float"><?disp-level 3?><label>Figure 6</label><caption><p>(a) Diffusion
+coefficient of Li<sup>+</sup>(<italic>D</italic><sub>+</sub>) ions
+and PF<sub>6</sub><sup>–</sup>anions (<italic>D</italic><sub>–</sub>) and (b) transference number of Li<sup>+</sup>(<italic>t</italic><sup>+</sup>) ions and PF<sub>6</sub><sup>–</sup>anions (<italic>t</italic><sup>–</sup>) on increasing
+the mole fraction of TMS.</p></caption><alternatives><graphic xmlns:xlink="http://www.w3.org/1999/xlink" content-type="image" id="gr6" xlink:href="ao4c08854_0006.jpg"><?cloudpmc-path blobs/8e29/11755145/eba0e9bb4575/ao4c08854_0006.jpg?><?cloudpmc-bucket cdn?><?image-server-status LOAD_COMPLETED?><?original-height 535?><?original-width 1350?><?scaled-height 268?><?scaled-width 675?></graphic><graphic xmlns:xlink="http://www.w3.org/1999/xlink" content-type="thumb" xlink:href="ao4c08854_0006.gif"><?cloudpmc-path blobs/8e29/11755145/081788db4c2e/ao4c08854_0006.gif?><?cloudpmc-bucket cdn?></graphic></alternatives></fig><p>The transference number (<italic>t</italic><sup>+</sup> for Li<sup>+</sup> and <italic>t</italic><sup>–</sup> for PF<sub>6</sub><sup>–</sup>) as a function of the mole fraction of TMS, shown
+in <xref rid="fig6" ref-type="fig">Figure <xref rid="fig6" ref-type="fig">6</xref></xref>b, also
+reflects these dynamics. Across all systems, the transference number
+of Li<sup>+</sup> is less than 0.5, indicating that PF<sub>6</sub><sup>–</sup> anions contribute more to the total ionic conductivity.
+This dominance of anions in charge transport is attributed to the
+tightly packed solvation shell around Li<sup>+</sup>, which increases
+its effective mass and reduces its mobility. As TMS is added to the
+mixture, the solvation shell around Li<sup>+</sup> becomes stronger
+due to the higher affinity of TMS for Li<sup>+</sup>, further limiting
+its movement.</p><p>Interestingly, the simulation results reveal a
+decreasing trend
+in Li<sup>+</sup> transference number as the mole fraction of TMS
+increases up to 0.50 (EMC/TMS = 1:1), where the lowest transference
+number value is observed. This trend is likely due to the strong interaction
+between Li<sup>+</sup> and TMS, which restricts Li<sup>+</sup> mobility.
+While the changes in Li<sup>+</sup> transference number are small,
+they are supported by the error bars for the underlying diffusion
+coefficient shown in <xref rid="fig6" ref-type="fig">Figure <xref rid="fig6" ref-type="fig">6</xref></xref>a, which indirectly validates the calculated transference
+number. Furthermore, structural data, including RDF and coordination
+number analyses, corroborate these trends by demonstrating changes
+in solvation dynamics and ion-pairing behavior with increasing TMS
+concentration. Together, these findings confirm the robustness of
+the observed trends despite the minimal differences.</p><p>At higher
+TMS concentrations (TMS mole fraction &gt; 0.50), the Li<sup>+</sup> transference number begins to increase slightly, suggesting
+that the solvation environment around Li<sup>+</sup> may stabilize,
+allowing for slightly improved Li<sup>+</sup> mobility compared to
+intermediate TMS concentrations. While PF<sub>6</sub><sup>–</sup> anions dominate the charge transport in all systems, the variation
+in Li<sup>+</sup> transference number with increasing TMS mole fraction
+highlights the complex relationship between solvent composition, solvation
+structure, and ion mobility. Optimizing the EMC/TMS ratio is crucial
+for enhancing the overall performance of the electrolyte, particularly
+by balancing the contributions of Li<sup>+</sup> and PF<sub>6</sub><sup>–</sup> to the ionic conductivity.</p><p>Regarding the
+overestimated Li<sup>+</sup> transference number
+reported in some literature, these differences may arise from the
+inherent assumptions made in experimental methodology, such as neglecting
+ion–ion correlations and solvent dynamics that influence ion
+transport properties. Our simulations explicitly incorporate these
+factors, capturing the detailed solvation dynamics, ion-pairing, and
+their impact on Li<sup>+</sup> mobility. The trends in Li<sup>+</sup> transference number observed across varying TMS mole fractions are
+consistent with the solvation structure and ion dynamics revealed
+by our Coulombic interaction analysis, supporting the robustness and
+reliability of our computational approach.</p><p>The ionic conductivity
+(σ) of the electrolyte solutions with
+varying molar ratios of EMC and TMS is shown in <xref rid="fig7" ref-type="fig">Figure <xref rid="fig7" ref-type="fig">7</xref></xref>. The highest ionic conductivity (1.58 mS/cm)
+was observed in the pure EMC system (EMC/TMS = 1:0), which aligns
+with an earlier MD study by Saitoh et al.<sup><xref rid="ref34" ref-type="bibr">34</xref></sup> However, experimental measurements of the conductivity of the solution
+for 1 M LiPF<sub>6</sub> in EMC at 298 K showed higher values (∼4
+mS/cm). The lowest ionic conductivity (0.7 mS/cm) was observed in
+the pure TMS system (EMC/TMS = 0:1), which is attributed to the high
+viscosity of TMS (10.34 cP at 298 K). As TMS molecules are added to
+the mixture, the ionic conductivity decreases, consistent with the
+results reported by Kumar et al.<sup><xref rid="ref9" ref-type="bibr">9</xref></sup> Interestingly,
+the ionic conductivity remains relatively stable as the mole fraction
+of TMS increases from 0.50 (EMC/TMS = 1:1) to 0.67 (EMC/TMS = 2:1),
+with values of 1.47 and 0.92 mS/cm, respectively, reflecting the balance
+between solvation dynamics and solvent composition.</p><fig id="fig7" position="float"><?disp-level 3?><label>Figure 7</label><caption><p>Ionic conductivity (σ)
+of the electrolyte solutions on increasing
+the mole fraction of TMS.</p></caption><alternatives><graphic xmlns:xlink="http://www.w3.org/1999/xlink" content-type="image" id="gr7" xlink:href="ao4c08854_0007.jpg"><?cloudpmc-path blobs/8e29/11755145/e4fc2105e43b/ao4c08854_0007.jpg?><?cloudpmc-bucket cdn?><?image-server-status NEVER_LOAD?><?original-height 494?><?original-width 597?><?scaled-height 494?><?scaled-width 597?></graphic><graphic xmlns:xlink="http://www.w3.org/1999/xlink" content-type="thumb" xlink:href="ao4c08854_0007.gif"><?cloudpmc-path blobs/8e29/11755145/f73b6eb953cc/ao4c08854_0007.gif?><?cloudpmc-bucket cdn?></graphic></alternatives></fig><p>To understand these trends, the short-range Coulombic (Coul-SR)
+interaction, shown in <ext-link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://pubs.acs.org/doi/suppl/10.1021/acsomega.4c08854/suppl_file/ao4c08854_si_001.pdf" ext-link-type="uri">Figure S8</ext-link>, provides
+insights into the solvation dynamics influencing ionic transport.
+The interaction energy between Li<sup>+</sup> and TMS is significantly
+stronger and more negative compared to Li<sup>+</sup>-EMC, indicating
+a more rigid solvation shell in TMS-rich systems. This rigidity restricts
+the mobility of Li<sup>+</sup>, reducing its contribution to ionic
+conductivity. Additionally, Li<sup>+</sup>–PF<sub>6</sub><sup>–</sup> interaction remains strong across the trajectory,
+signifying persistent ion-pairing that limits the availability of
+free ions for charge transport. The interplay between solvation shell
+rigidity and ion pairing contributes to the observed decrease in conductivity
+as the TMS content increases. These findings align with the diffusion
+coefficient and transference number trends shown in <xref rid="fig6" ref-type="fig">Figure <xref rid="fig6" ref-type="fig">6</xref></xref>a,b, highlighting the impact
+of solvation structure and solvent composition on ionic mobility.</p><p>Despite these qualitative consistency, a notable gap remains between
+simulated and experimental conductivity values. This discrepancy stems
+from limitations in the nonpolarizable OPLS-AA force field used in
+this study. By underestimating dielectric screening and overestimating
+ion-pairing tendency, the force field results in a more rigid solvation
+environment and reduced Li<sup>+</sup> mobility. Consequently, the
+simulated ionic conductivity values are lower than experimental observations,
+where polarization effects enhance Li<sup>+</sup> mobility and reduce
+ion-pairing. These findings underscore the importance of accurately
+capturing dielectric and polarization effects in future simulations
+to bridge this gap. Incorporating advanced simulation approaches,
+such as polarizable force fields or machine-learned potentials,<sup><xref rid="ref35" ref-type="bibr">35</xref></sup> could provide a more realistic representation
+of ion dynamics and conductivity. These improvements would help reduce
+discrepancy between simulated and experimental results, enabling more
+accurate predictions of electrolyte performance and guiding the design
+of advanced solvent systems.</p><p>Taken together, the trends in ionic
+conductivity and transference
+numbers highlight the relationship between solvent composition, solvation
+structure, and ion mobility. The Coul-SR analysis further supports
+these findings, demonstrating the role of Li<sup>+</sup>-TMS interaction
+in shaping solvation rigidity and ionic transport. These insights
+emphasize the importance of balancing EMC and TMS ratios to optimize
+electrolyte performance and achieve the desired transport properties.</p></sec></sec><sec id="sec4" disp-level="1"><title>Conclusions</title><p>This study examined the potential of mixed solvent
+systems, specifically
+ethyl methyl carbonate (EMC) and tetramethylene sulfone (TMS), to
+modify ion solvation and ionic conductivity in LIB electrolytes using
+molecular dynamics simulations. The findings revealed that increasing
+the TMS content significantly altered the solvation environment. TMS
+strongly coordinated with Li<sup>+</sup>, displacing PF<sub>6</sub><sup>–</sup> anions from the solvation shell and promoting
+greater separation between Li<sup>+</sup> and PF<sub>6</sub><sup>–</sup>, which reduced ion pairing and enhanced ionic conductivity. A 1:2
+EMC/TMS ratio was found to offer the optimal combination of properties,
+yielding an ionic conductivity of 0.91 mS/cm and a Li<sup>+</sup> transference
+number of 0.40. However, as the TMS content increased further, the
+solvation shell tightened around Li<sup>+</sup>, limiting its mobility
+and reducing the overall ionic conductivity. These results emphasize
+the importance of balancing EMC and TMS ratios to optimize electrolyte
+performance. This study underscores the molecular interaction that
+governs electrolyte behavior, offering valuable insights for the design
+of safer and more efficient electrolytes for LIBs. Nonetheless, the
+study also underscores the limitations of the nonpolarizable OPLS-AA
+force field, which underestimates dielectric screening and overestimates
+ion-pairing tendency. Addressing these limitations in future work
+by incorporating polarizable force fields or machine-learned potentials
+could improve the representation of dielectric effects and ion–solvent
+dynamics, enhancing the predictive power of MD simulations. In summary,
+this study elucidates the impact of EMC/TMS ratios on solvation dynamics
+and ionic conductivity, offering a solid foundation for future research
+aimed at developing advanced electrolytes for next-generation LIBs.</p></sec><sec id="ack1" sec-type="ack" disp-level="1"><title>Acknowledgments</title><p>This research was supported by
+the Ratchadapiseksompotch
+Fund, Chulalongkorn University, the Thailand Science Research and
+Innovation Fund, Chulalongkorn University, and the Program Management
+Unit for Human Resources &amp; Industrial Development, Research &amp;
+Innovation (B41G670026). The authors sincerely thank Pongpon Pipattanachaiyanan
+for his valuable contribution in performing supplementary calculations,
+which were crucial for addressing reviewer comments and strengthening
+this study.</p></sec><sec id="notes1" disp-level="1"><title>Supporting Information Available</title><p>The Supporting
+Information is
+available free of charge at <ext-link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://pubs.acs.org/doi/10.1021/acsomega.4c08854?goto=supporting-info" ext-link-type="uri">https://pubs.acs.org/doi/10.1021/acsomega.4c08854</ext-link>.</p><list list-type="simple" id="silist"><list-item><p>Supporting Information
+details density validation (Table
+S1, Figure S1), solvation and coordination structures of Li<sup>+</sup>-PF<sub>6</sub><sup>–</sup> pairs in EMC/TMS systems (Figures
+S2–S4, S6), energy and temperature stability in 1:1 EMC/TMS
+mixture (Figure S5), ion transport dynamics (Figure S7), diffusion
+coefficients (Table S2), and Coulombic interactions between Li<sup>+</sup> and its coordinating species (Figure S8) (<ext-link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://pubs.acs.org/doi/suppl/10.1021/acsomega.4c08854/suppl_file/ao4c08854_si_001.pdf" ext-link-type="uri">PDF</ext-link>)</p></list-item></list></sec><sec id="notes2" disp-level="1"><p>The authors
+declare no competing financial interest.</p></sec><sec id="sec8" disp-level="1"><title>Supplementary Material</title><supplementary-material id="sifile1" position="float"><media xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="ao4c08854_si_001.pdf" mimetype="application" mime-subtype="pdf"><?cloudpmc-path 8e29/11755145/8119b016f89b/ao4c08854_si_001.pdf?><?cloudpmc-bucket app?><?size 763860?><caption><p>ao4c08854_si_001.pdf</p></caption></media></supplementary-material></sec><sec id="ref-list1" sec-type="ref-list" disp-level="1"><title>References</title><sec id="ref-list1_sec2" disp-level="2"><ref-list><ref id="ref1"><mixed-citation id="cit1a"><label>a</label><named-content content-type="citation-string">Cheng H.; Ma Z.; Kumar P.; Liang H.; Cao Z.; Xie H.; Cavallo L.; Kim H.; Li Q.; Sun Y.-K.; et al. High Voltage Electrolyte Design Mediated by Advanced
+Solvation Chemistry Toward High Energy Density and Fast Charging Lithium-Ion
+Batteries. Adv. Energy Mater.
+2024, 14 (18), 2304321 10.1002/aenm.202304321.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1002/aenm.202304321"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Adv. Energy Mater.&amp;title=High Voltage Electrolyte Design Mediated by Advanced Solvation Chemistry Toward High Energy Density and Fast Charging Lithium-Ion Batteries&amp;author=H. Cheng&amp;author=Z. Ma&amp;author=P. Kumar&amp;author=H. Liang&amp;author=Z. Cao&amp;volume=14&amp;issue=18&amp;publication_year=2024&amp;pages=2304321&amp;doi=10.1002/aenm.202304321&amp;"/></mixed-citation><mixed-citation id="cit1b"><label> b</label><named-content content-type="citation-string">Franco A. A.; Rucci A.; Brandell D.; Frayret C.; Gaberscek M.; Jankowski P.; Johansson P.
+Boosting Rechargeable
+Batteries R&amp;D by Multiscale Modeling: Myth or Reality?. Chem. Rev.
+2019, 119 (7), 4569–4627. 10.1021/acs.chemrev.8b00239.
+</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/acs.chemrev.8b00239"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmcid" xlink:href="PMC6460402"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="30859816"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Chem. Rev.&amp;title=Boosting Rechargeable Batteries R&amp;D by Multiscale Modeling: Myth or Reality?&amp;author=A. A. Franco&amp;author=A. Rucci&amp;author=D. Brandell&amp;author=C. Frayret&amp;author=M. Gaberscek&amp;volume=119&amp;issue=7&amp;publication_year=2019&amp;pages=4569-4627&amp;pmid=30859816&amp;doi=10.1021/acs.chemrev.8b00239&amp;"/></mixed-citation><mixed-citation id="note1"><named-content content-type="citation-string">Review.</named-content></mixed-citation><mixed-citation id="cit1c"><label> c</label><named-content content-type="citation-string">Li M.; Wang C.; Chen Z.; Xu K.; Lu J.
+New Concepts in Electrolytes. Chem. Rev.
+2020, 120 (14), 6783–6819. 10.1021/acs.chemrev.9b00531.
+</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/acs.chemrev.9b00531"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="32022546"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Chem. Rev.&amp;title=New Concepts in Electrolytes&amp;author=M. Li&amp;author=C. Wang&amp;author=Z. Chen&amp;author=K. Xu&amp;author=J. Lu&amp;volume=120&amp;issue=14&amp;publication_year=2020&amp;pages=6783-6819&amp;pmid=32022546&amp;doi=10.1021/acs.chemrev.9b00531&amp;"/></mixed-citation><mixed-citation id="cit1d"><label> d</label><named-content content-type="citation-string">Petibon R.; Xia J.; Ma L.; Bauer M. K. G.; Nelson K. J.; Dahn J. R.
+Electrolyte
+System for High Voltage Li-Ion Cells. J. Electrochem.
+Soc.
+2016, 163 (13), A2571. 10.1149/2.0321613jes.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1149/2.0321613jes"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Electrochem. Soc.&amp;title=Electrolyte System for High Voltage Li-Ion Cells&amp;author=R. Petibon&amp;author=J. Xia&amp;author=L. Ma&amp;author=M. K. G. Bauer&amp;author=K. J. Nelson&amp;volume=163&amp;issue=13&amp;publication_year=2016&amp;pages=A2571&amp;doi=10.1149/2.0321613jes&amp;"/></mixed-citation></ref><ref id="ref2"><mixed-citation id="cit2a"><label>a</label><named-content content-type="citation-string">Wang A. A.; Hou T.; Karanjavala M.; Monroe C. W.
+Shifting-reference concentration
+cells to refine composition-dependent
+transport characterization of binary lithium-ion electrolytes. Electrochim. Acta
+2020, 358, 136688 10.1016/j.electacta.2020.136688.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1016/j.electacta.2020.136688"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Electrochim. Acta&amp;title=Shifting-reference concentration cells to refine composition-dependent transport characterization of binary lithium-ion electrolytes&amp;author=A. A. Wang&amp;author=T. Hou&amp;author=M. Karanjavala&amp;author=C. W. Monroe&amp;volume=358&amp;publication_year=2020&amp;pages=136688&amp;doi=10.1016/j.electacta.2020.136688&amp;"/></mixed-citation><mixed-citation id="cit2b"><label> b</label><named-content content-type="citation-string">Wang A. A.; Persa D.; Helin S.; Smith K. P.; Raymond J. L.; Monroe C. W.
+Compressibility of Lithium Hexafluorophosphate
+Solutions in Two Carbonate Solvents. Journal
+of Chemical &amp; Engineering Data
+2023, 68 (4), 805–812. 10.1021/acs.jced.2c00711.
+</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/acs.jced.2c00711"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmcid" xlink:href="PMC10108564"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="37084176"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Journal of Chemical &amp; Engineering Data&amp;title=Compressibility of Lithium Hexafluorophosphate Solutions in Two Carbonate Solvents&amp;author=A. A. Wang&amp;author=D. Persa&amp;author=S. Helin&amp;author=K. P. Smith&amp;author=J. L. Raymond&amp;volume=68&amp;issue=4&amp;publication_year=2023&amp;pages=805-812&amp;pmid=37084176&amp;doi=10.1021/acs.jced.2c00711&amp;"/></mixed-citation></ref><ref id="ref3"><mixed-citation id="cit3"><named-content content-type="citation-string">Eisele L.; Laszczynski N.; Görg M.; Schneider M.; Burger S.; Radkte V.; Lucht B.; Krossing I.
+Investigation
+of Mixtures of BF3 Carbonates and LiX (X = OCH2CF3, OC(H)(CF3)2, CO2CF3)
+as Novel Electrolyte Systems for Lithium Ion Batteries. J. Electrochem. Soc.
+2020, 167 (8), 080507 10.1149/1945-7111/ab8876.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1149/1945-7111/ab8876"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Electrochem. Soc.&amp;title=Investigation of Mixtures of BF3 Carbonates and LiX (X = OCH2CF3, OC(H)(CF3)2, CO2CF3) as Novel Electrolyte Systems for Lithium Ion Batteries&amp;author=L. Eisele&amp;author=N. Laszczynski&amp;author=M. Görg&amp;author=M. Schneider&amp;author=S. Burger&amp;volume=167&amp;issue=8&amp;publication_year=2020&amp;pages=080507&amp;doi=10.1149/1945-7111/ab8876&amp;"/></mixed-citation></ref><ref id="ref4"><mixed-citation id="cit4a"><label>a</label><named-content content-type="citation-string">Dokko K.; Watanabe D.; Ugata Y.; Thomas M. L.; Tsuzuki S.; Shinoda W.; Hashimoto K.; Ueno K.; Umebayashi Y.; Watanabe M.
+Direct Evidence for
+Li Ion Hopping Conduction in Highly Concentrated Sulfolane-Based Liquid
+Electrolytes. J. Phys. Chem. B
+2018, 122 (47), 10736–10745. 10.1021/acs.jpcb.8b09439.
+</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/acs.jpcb.8b09439"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="30403858"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Phys. Chem. B&amp;title=Direct Evidence for Li Ion Hopping Conduction in Highly Concentrated Sulfolane-Based Liquid Electrolytes&amp;author=K. Dokko&amp;author=D. Watanabe&amp;author=Y. Ugata&amp;author=M. L. Thomas&amp;author=S. Tsuzuki&amp;volume=122&amp;issue=47&amp;publication_year=2018&amp;pages=10736-10745&amp;pmid=30403858&amp;doi=10.1021/acs.jpcb.8b09439&amp;"/></mixed-citation><mixed-citation id="cit4b"><label> b</label><named-content content-type="citation-string">Jia H.; Xu Y.; Zou L.; Gao P.; Zhang X.; Taing B.; Matthews B. E.; Engelhard M. H.; Burton S. D.; Han K. S.; et al. Sulfone-based electrolytes
+for high energy density lithium-ion batteries. J. Power Sources
+2022, 527, 231171 10.1016/j.jpowsour.2022.231171.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1016/j.jpowsour.2022.231171"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Power Sources&amp;title=Sulfone-based electrolytes for high energy density lithium-ion batteries&amp;author=H. Jia&amp;author=Y. Xu&amp;author=L. Zou&amp;author=P. Gao&amp;author=X. Zhang&amp;volume=527&amp;publication_year=2022&amp;pages=231171&amp;doi=10.1016/j.jpowsour.2022.231171&amp;"/></mixed-citation><mixed-citation id="cit4c"><label> c</label><named-content content-type="citation-string">Okamoto Y.; Tsuzuki S.; Tatara R.; Ueno K.; Dokko K.; Watanabe M.
+High Transference Number of Na Ion
+in Liquid-State Sulfolane Solvates of Sodium Bis(fluorosulfonyl)amide. J. Phys. Chem. C
+2020, 124 (8), 4459–4469. 10.1021/acs.jpcc.9b11458.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/acs.jpcc.9b11458"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Phys. Chem. C&amp;title=High Transference Number of Na Ion in Liquid-State Sulfolane Solvates of Sodium Bis(fluorosulfonyl)amide&amp;author=Y. Okamoto&amp;author=S. Tsuzuki&amp;author=R. Tatara&amp;author=K. Ueno&amp;author=K. Dokko&amp;volume=124&amp;issue=8&amp;publication_year=2020&amp;pages=4459-4469&amp;doi=10.1021/acs.jpcc.9b11458&amp;"/></mixed-citation><mixed-citation id="cit4d"><label> d</label><named-content content-type="citation-string">Wu W.; Bai Y.; Wang X.; Wu C.
+Sulfone-based
+high-voltage electrolytes for high energy density rechargeable lithium
+batteries: Progress and perspective. Chin. Chem.
+Lett.
+2021, 32 (4), 1309–1315. 10.1016/j.cclet.2020.10.009.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1016/j.cclet.2020.10.009"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Chin. Chem. Lett.&amp;title=Sulfone-based high-voltage electrolytes for high energy density rechargeable lithium batteries: Progress and perspective&amp;author=W. Wu&amp;author=Y. Bai&amp;author=X. Wang&amp;author=C. Wu&amp;volume=32&amp;issue=4&amp;publication_year=2021&amp;pages=1309-1315&amp;doi=10.1016/j.cclet.2020.10.009&amp;"/></mixed-citation></ref><ref id="ref5"><mixed-citation id="cit5"><named-content content-type="citation-string">Tilstam U.
+Sulfolane:
+A Versatile Dipolar Aprotic Solvent. Org. Process
+Res. Dev.
+2012, 16 (7), 1273–1278. 10.1021/op300108w.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/op300108w"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Org. Process Res. Dev.&amp;title=Sulfolane: A Versatile Dipolar Aprotic Solvent&amp;author=U. Tilstam&amp;volume=16&amp;issue=7&amp;publication_year=2012&amp;pages=1273-1278&amp;doi=10.1021/op300108w&amp;"/></mixed-citation></ref><ref id="ref6"><mixed-citation id="cit6"><named-content content-type="citation-string">Li S.; Zhao Y.; Shi X.; Li B.; Xu X.; Zhao W.; Cui X.
+Effect of sulfolane on the performance
+of lithium bis(oxalato)borate-based electrolytes for advanced lithium
+ion batteries. Electrochim. Acta
+2012, 65, 221–227. 10.1016/j.electacta.2012.01.052.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1016/j.electacta.2012.01.052"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Electrochim. Acta&amp;title=Effect of sulfolane on the performance of lithium bis(oxalato)borate-based electrolytes for advanced lithium ion batteries&amp;author=S. Li&amp;author=Y. Zhao&amp;author=X. Shi&amp;author=B. Li&amp;author=X. Xu&amp;volume=65&amp;publication_year=2012&amp;pages=221-227&amp;doi=10.1016/j.electacta.2012.01.052&amp;"/></mixed-citation></ref><ref id="ref7"><mixed-citation id="cit7"><named-content content-type="citation-string">Watanabe Y.; Kinoshita S. i.; Wada S.; Hoshino K.; Morimoto H.; Tobishima S. I.
+Electrochemical
+properties and lithium ion solvation
+behavior of sulfone-ester mixed electrolytes for high-voltage rechargeable
+lithium cells. J. Power Sources
+2008, 179 (2), 770–779. 10.1016/j.jpowsour.2008.01.006.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1016/j.jpowsour.2008.01.006"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Power Sources&amp;title=Electrochemical properties and lithium ion solvation behavior of sulfone-ester mixed electrolytes for high-voltage rechargeable lithium cells&amp;author=Y. Watanabe&amp;author=S. i. Kinoshita&amp;author=S. Wada&amp;author=K. Hoshino&amp;author=H. Morimoto&amp;volume=179&amp;issue=2&amp;publication_year=2008&amp;pages=770-779&amp;doi=10.1016/j.jpowsour.2008.01.006&amp;"/></mixed-citation></ref><ref id="ref8"><mixed-citation id="cit8a"><label>a</label><named-content content-type="citation-string">Núñez-Rojas E.; González I.; Guzmán-González G.; Alejandre J.
+Molecular
+dynamics simulations for liquid electrolytes of propylene carbonate
+with LiTFSI, LiPF6, and LiBF4 salts. J. Mol.
+Liq.
+2023, 390, 122983 10.1016/j.molliq.2023.122983.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1016/j.molliq.2023.122983"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Mol. Liq.&amp;title=Molecular dynamics simulations for liquid electrolytes of propylene carbonate with LiTFSI, LiPF6, and LiBF4 salts&amp;author=E. Núñez-Rojas&amp;author=I. González&amp;author=G. Guzmán-González&amp;author=J. Alejandre&amp;volume=390&amp;publication_year=2023&amp;pages=122983&amp;doi=10.1016/j.molliq.2023.122983&amp;"/></mixed-citation><mixed-citation id="cit8b"><label> b</label><named-content content-type="citation-string">Parida R.; Pahari S.; Jana M.
+Introducing the potency
+of new boron-based heterocyclic anion receptor additives to regulate
+the solvation and transport properties of Li-ions in ethylene carbonate
+electrolyte of Li-Ion battery: An atomistic molecular dynamics study. J. Power Sources
+2022, 521, 230962 10.1016/j.jpowsour.2021.230962.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1016/j.jpowsour.2021.230962"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Power Sources&amp;title=Introducing the potency of new boron-based heterocyclic anion receptor additives to regulate the solvation and transport properties of Li-ions in ethylene carbonate electrolyte of Li-Ion battery: An atomistic molecular dynamics study&amp;author=R. Parida&amp;author=S. Pahari&amp;author=M. Jana&amp;volume=521&amp;publication_year=2022&amp;pages=230962&amp;doi=10.1016/j.jpowsour.2021.230962&amp;"/></mixed-citation><mixed-citation id="cit8c"><label> c</label><named-content content-type="citation-string">Ravikumar B.; Mynam M.; Rai B.
+Effect of Salt Concentration
+on Properties of Lithium Ion Battery Electrolytes: A Molecular Dynamics
+Study. J. Phys. Chem. C
+2018, 122 (15), 8173–8181. 10.1021/acs.jpcc.8b02072.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/acs.jpcc.8b02072"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Phys. Chem. C&amp;title=Effect of Salt Concentration on Properties of Lithium Ion Battery Electrolytes: A Molecular Dynamics Study&amp;author=B. Ravikumar&amp;author=M. Mynam&amp;author=B. Rai&amp;volume=122&amp;issue=15&amp;publication_year=2018&amp;pages=8173-8181&amp;doi=10.1021/acs.jpcc.8b02072&amp;"/></mixed-citation><mixed-citation id="cit8d"><label> d</label><named-content content-type="citation-string">Ravikumar B.; Mynam M.; Repaka S.; Rai B.
+Solvation
+shell dynamics explains charge transport characteristics of LIB electrolytes. J. Mol. Liq.
+2021, 338, 116613 10.1016/j.molliq.2021.116613.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1016/j.molliq.2021.116613"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Mol. Liq.&amp;title=Solvation shell dynamics explains charge transport characteristics of LIB electrolytes&amp;author=B. Ravikumar&amp;author=M. Mynam&amp;author=S. Repaka&amp;author=B. Rai&amp;volume=338&amp;publication_year=2021&amp;pages=116613&amp;doi=10.1016/j.molliq.2021.116613&amp;"/></mixed-citation><mixed-citation id="cit8e"><label> e</label><named-content content-type="citation-string">Seo J.; Choi S.; Singh R.; Choi J.-H.
+Spatial inhomogeneity
+and molecular aggregation behavior in aqueous binary liquid mixtures. J. Mol. Liq.
+2023, 369, 120949 10.1016/j.molliq.2022.120949.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1016/j.molliq.2022.120949"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Mol. Liq.&amp;title=Spatial inhomogeneity and molecular aggregation behavior in aqueous binary liquid mixtures&amp;author=J. Seo&amp;author=S. Choi&amp;author=R. Singh&amp;author=J.-H. Choi&amp;volume=369&amp;publication_year=2023&amp;pages=120949&amp;doi=10.1016/j.molliq.2022.120949&amp;"/></mixed-citation><mixed-citation id="note2"><named-content content-type="citation-string">10.1039/D2CP06020E.</named-content></mixed-citation><mixed-citation id="cit8f"><label> f</label><named-content content-type="citation-string">Zaboli A.; Raissi H.; Hashemzadeh H.; Farzad F.
+Toward efficient electrodes for a high-performance
+fast-charge Li-ion battery: molecular dynamics simulation and DFT
+calculations. Phys. Chem. Chem. Phys.
+2023, 25 (35), 23937–23953. 10.1039/D2CP06020E.
+</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1039/D2CP06020E"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="37642543"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Phys. Chem. Chem. Phys.&amp;title=Toward efficient electrodes for a high-performance fast-charge Li-ion battery: molecular dynamics simulation and DFT calculations&amp;author=A. Zaboli&amp;author=H. Raissi&amp;author=H. Hashemzadeh&amp;author=F. Farzad&amp;volume=25&amp;issue=35&amp;publication_year=2023&amp;pages=23937-23953&amp;pmid=37642543&amp;doi=10.1039/D2CP06020E&amp;"/></mixed-citation><mixed-citation id="cit8g"><label> g</label><named-content content-type="citation-string">Molashahi M.; Modarress H.; Nasernejad B.; Amjad-Iranagh S.; Ghalami Choobar B.
+Structural
+and Transport Properties of Novel High-Transference Number Electrolytes
+Based on Perfluoropolyether-block-Poly(ethylene oxide) for Application
+in Lithium-Ion Batteries: A Molecular Dynamics Simulation Study. Macromolecules
+2022, 55 (23), 10556–10575. 10.1021/acs.macromol.2c01419.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/acs.macromol.2c01419"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Macromolecules&amp;title=Structural and Transport Properties of Novel High-Transference Number Electrolytes Based on Perfluoropolyether-block-Poly(ethylene oxide) for Application in Lithium-Ion Batteries: A Molecular Dynamics Simulation Study&amp;author=M. Molashahi&amp;author=H. Modarress&amp;author=B. Nasernejad&amp;author=S. Amjad-Iranagh&amp;author=B. Ghalami Choobar&amp;volume=55&amp;issue=23&amp;publication_year=2022&amp;pages=10556-10575&amp;doi=10.1021/acs.macromol.2c01419&amp;"/></mixed-citation><mixed-citation id="cit8h"><label> h</label><named-content content-type="citation-string">Van der Ven A.; Deng Z.; Banerjee S.; Ong S. P.
+Rechargeable
+Alkali-Ion Battery Materials: Theory and Computation. Chem. Rev.
+2020, 120 (14), 6977–7019. 10.1021/acs.chemrev.9b00601.
+</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/acs.chemrev.9b00601"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="32022553"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Chem. Rev.&amp;title=Rechargeable Alkali-Ion Battery Materials: Theory and Computation&amp;author=A. Van der Ven&amp;author=Z. Deng&amp;author=S. Banerjee&amp;author=S. P. Ong&amp;volume=120&amp;issue=14&amp;publication_year=2020&amp;pages=6977-7019&amp;pmid=32022553&amp;doi=10.1021/acs.chemrev.9b00601&amp;"/></mixed-citation><mixed-citation id="cit8i"><label> i</label><named-content content-type="citation-string">Yao N.; Chen X.; Fu Z.-H.; Zhang Q.
+Applying Classical,
+Ab Initio, and Machine-Learning Molecular Dynamics Simulations to
+the Liquid Electrolyte for Rechargeable Batteries. Chem. Rev.
+2022, 122 (12), 10970–11021. 10.1021/acs.chemrev.1c00904.
+</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/acs.chemrev.1c00904"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="35576674"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Chem. Rev.&amp;title=Applying Classical, Ab Initio, and Machine-Learning Molecular Dynamics Simulations to the Liquid Electrolyte for Rechargeable Batteries&amp;author=N. Yao&amp;author=X. Chen&amp;author=Z.-H. Fu&amp;author=Q. Zhang&amp;volume=122&amp;issue=12&amp;publication_year=2022&amp;pages=10970-11021&amp;pmid=35576674&amp;doi=10.1021/acs.chemrev.1c00904&amp;"/></mixed-citation></ref><ref id="ref9"><mixed-citation id="cit9"><named-content content-type="citation-string">Kumar G.; Kartha T. R.; Mallik B. S.
+Novelty
+of Lithium Salt Solution
+in Sulfone and Dimethyl Carbonate-Based Electrolytes for Lithium-Ion
+Batteries: A Classical Molecular Dynamics Simulation Study of Optimal
+Ion Diffusion. J. Phys. Chem. C
+2018, 122 (46), 26315–26325. 10.1021/acs.jpcc.8b06581.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/acs.jpcc.8b06581"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Phys. Chem. C&amp;title=Novelty of Lithium Salt Solution in Sulfone and Dimethyl Carbonate-Based Electrolytes for Lithium-Ion Batteries: A Classical Molecular Dynamics Simulation Study of Optimal Ion Diffusion&amp;author=G. Kumar&amp;author=T. R. Kartha&amp;author=B. S. Mallik&amp;volume=122&amp;issue=46&amp;publication_year=2018&amp;pages=26315-26325&amp;doi=10.1021/acs.jpcc.8b06581&amp;"/></mixed-citation></ref><ref id="ref10"><mixed-citation id="cit10a"><label>a</label><named-content content-type="citation-string">Ong M. T.; Verners O.; Draeger E. W.; van Duin A. C. T.; Lordi V.; Pask J. E.
+Lithium Ion Solvation
+and Diffusion in Bulk Organic Electrolytes from First-Principles and
+Classical Reactive Molecular Dynamics. J. Phys.
+Chem. B
+2015, 119 (4), 1535–1545. 10.1021/jp508184f.
+</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/jp508184f"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="25523643"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Phys. Chem. B&amp;title=Lithium Ion Solvation and Diffusion in Bulk Organic Electrolytes from First-Principles and Classical Reactive Molecular Dynamics&amp;author=M. T. Ong&amp;author=O. Verners&amp;author=E. W. Draeger&amp;author=A. C. T. van Duin&amp;author=V. Lordi&amp;volume=119&amp;issue=4&amp;publication_year=2015&amp;pages=1535-1545&amp;pmid=25523643&amp;doi=10.1021/jp508184f&amp;"/></mixed-citation><mixed-citation id="cit10b"><label> b</label><named-content content-type="citation-string">Kumar N.; Seminario J. M.
+Lithium-Ion Model Behavior in an Ethylene Carbonate
+Electrolyte Using Molecular Dynamics. J. Phys.
+Chem. C
+2016, 120 (30), 16322–16332. 10.1021/acs.jpcc.6b03709.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/acs.jpcc.6b03709"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Phys. Chem. C&amp;title=Lithium-Ion Model Behavior in an Ethylene Carbonate Electrolyte Using Molecular Dynamics&amp;author=N. Kumar&amp;author=J. M. Seminario&amp;volume=120&amp;issue=30&amp;publication_year=2016&amp;pages=16322-16332&amp;doi=10.1021/acs.jpcc.6b03709&amp;"/></mixed-citation></ref><ref id="ref11"><mixed-citation id="cit11"><named-content content-type="citation-string">Shim Y.
+Computer simulation
+study of the solvation of lithium ions in ternary mixed carbonate
+electrolytes: free energetics, dynamics, and ion transport. Phys. Chem. Chem. Phys.
+2018, 20 (45), 28649–28657. 10.1039/C8CP05190A.
+</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1039/C8CP05190A"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="30406788"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Phys. Chem. Chem. Phys.&amp;title=Computer simulation study of the solvation of lithium ions in ternary mixed carbonate electrolytes: free energetics, dynamics, and ion transport&amp;author=Y. Shim&amp;volume=20&amp;issue=45&amp;publication_year=2018&amp;pages=28649-28657&amp;pmid=30406788&amp;doi=10.1039/C8CP05190A&amp;"/></mixed-citation><mixed-citation id="note3"><named-content content-type="citation-string">10.1039/C8CP05190A.</named-content></mixed-citation></ref><ref id="ref12"><mixed-citation id="cit12"><named-content content-type="citation-string">Chang T.-M.; Dang L. X.
+Li+ solvation and kinetics of Li+–BF4–/PF6–ion
+pairs in ethylene carbonate. A molecular dynamics study with classical
+rate theories. J. Chem. Phys.
+2017, 147 (16), 161709. 10.1063/1.4991565.
+</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1063/1.4991565"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="29096495"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Chem. Phys.&amp;title=Li+ solvation and kinetics of Li+–BF4–/PF6–ion pairs in ethylene carbonate. A molecular dynamics study with classical rate theories&amp;author=T.-M. Chang&amp;author=L. X. Dang&amp;volume=147&amp;issue=16&amp;publication_year=2017&amp;pages=161709&amp;pmid=29096495&amp;doi=10.1063/1.4991565&amp;"/></mixed-citation><mixed-citation id="note4"><named-content content-type="citation-string">(acccessed 11/21/2024).</named-content></mixed-citation></ref><ref id="ref13"><mixed-citation id="cit13"><named-content content-type="citation-string">Abraham M. J.; Murtola T.; Schulz R.; Páll S.; Smith J. C.; Hess B.; Lindahl E.
+GROMACS: High performance
+molecular simulations through multi-level parallelism from laptops
+to supercomputers. SoftwareX
+2015, 1–2, 19–25. 10.1016/j.softx.2015.06.001.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1016/j.softx.2015.06.001"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=SoftwareX&amp;title=GROMACS: High performance molecular simulations through multi-level parallelism from laptops to supercomputers&amp;author=M. J. Abraham&amp;author=T. Murtola&amp;author=R. Schulz&amp;author=S. Páll&amp;author=J. C. Smith&amp;volume=1–2&amp;publication_year=2015&amp;pages=19-25&amp;doi=10.1016/j.softx.2015.06.001&amp;"/></mixed-citation></ref><ref id="ref14"><mixed-citation id="cit14a"><label>a</label><named-content content-type="citation-string">Jorgensen W.
+L.; Maxwell D. S.; Tirado-Rives J.
+Development
+and Testing of the OPLS All-Atom Force Field on Conformational Energetics
+and Properties of Organic Liquids. J. Am. Chem.
+Soc.
+1996, 118 (45), 11225–11236. 10.1021/ja9621760.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/ja9621760"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Am. Chem. Soc.&amp;title=Development and Testing of the OPLS All-Atom Force Field on Conformational Energetics and Properties of Organic Liquids&amp;author=W. L. Jorgensen&amp;author=D. S. Maxwell&amp;author=J. Tirado-Rives&amp;volume=118&amp;issue=45&amp;publication_year=1996&amp;pages=11225-11236&amp;doi=10.1021/ja9621760&amp;"/></mixed-citation><mixed-citation id="cit14b"><label> b</label><named-content content-type="citation-string">Jorgensen W. L.; Tirado-Rives J.
+The OPLS [optimized potentials for liquid simulations]
+potential functions for proteins, energy minimizations for crystals
+of cyclic peptides and crambin. J. Am. Chem.
+Soc.
+1988, 110 (6), 1657–1666. 10.1021/ja00214a001.
+</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/ja00214a001"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="27557051"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Am. Chem. Soc.&amp;title=The OPLS [optimized potentials for liquid simulations] potential functions for proteins, energy minimizations for crystals of cyclic peptides and crambin&amp;author=W. L. Jorgensen&amp;author=J. Tirado-Rives&amp;volume=110&amp;issue=6&amp;publication_year=1988&amp;pages=1657-1666&amp;pmid=27557051&amp;doi=10.1021/ja00214a001&amp;"/></mixed-citation></ref><ref id="ref15"><mixed-citation id="cit15"><named-content content-type="citation-string">Lee S. H.; Rasaiah J. C.
+Molecular Dynamics Simulation of Ion Mobility. 2. Alkali
+Metal and Halide Ions Using the SPC/E Model for Water at 25 °C. J. Phys. Chem.
+1996, 100 (4), 1420–1425. 10.1021/jp953050c.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/jp953050c"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Phys. Chem.&amp;title=Molecular Dynamics Simulation of Ion Mobility. 2. Alkali Metal and Halide Ions Using the SPC/E Model for Water at 25 °C&amp;author=S. H. Lee&amp;author=J. C. Rasaiah&amp;volume=100&amp;issue=4&amp;publication_year=1996&amp;pages=1420-1425&amp;doi=10.1021/jp953050c&amp;"/></mixed-citation></ref><ref id="ref16"><mixed-citation id="cit16"><named-content content-type="citation-string">Bhargava B. L.; Balasubramanian S.
+Refined potential
+model for atomistic simulations of
+ionic liquid [bmim][PF6]. J. Chem. Phys.
+2007, 127 (11), 114510. 10.1063/1.2772268.
+</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1063/1.2772268"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="17887860"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Chem. Phys.&amp;title=Refined potential model for atomistic simulations of ionic liquid [bmim][PF6]&amp;author=B. L. Bhargava&amp;author=S. Balasubramanian&amp;volume=127&amp;issue=11&amp;publication_year=2007&amp;pages=114510&amp;pmid=17887860&amp;doi=10.1063/1.2772268&amp;"/></mixed-citation><mixed-citation id="note5"><named-content content-type="citation-string">(acccessed 9/27/2024).</named-content></mixed-citation></ref><ref id="ref17"><mixed-citation id="cit17"><named-content content-type="citation-string">Berendsen H. J. C.; Postma J. P. M.; van Gunsteren W. F.; DiNola A.; Haak J. R.
+Molecular
+dynamics with coupling to an external bath. J. Chem. Phys.
+1984, 81 (8), 3684–3690. 10.1063/1.448118.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1063/1.448118"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Chem. Phys.&amp;title=Molecular dynamics with coupling to an external bath&amp;author=H. J. C. Berendsen&amp;author=J. P. M. Postma&amp;author=W. F. van Gunsteren&amp;author=A. DiNola&amp;author=J. R. Haak&amp;volume=81&amp;issue=8&amp;publication_year=1984&amp;pages=3684-3690&amp;doi=10.1063/1.448118&amp;"/></mixed-citation><mixed-citation id="note6"><named-content content-type="citation-string">(acccessed 9/27/2024).</named-content></mixed-citation></ref><ref id="ref18"><mixed-citation id="cit18"><named-content content-type="citation-string">Bussi G.; Donadio D.; Parrinello M.
+Canonical sampling through velocity
+rescaling. J. Chem. Phys.
+2007, 126 (1), 014101 10.1063/1.2408420.
+</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1063/1.2408420"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="17212484"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Chem. Phys.&amp;title=Canonical sampling through velocity rescaling&amp;author=G. Bussi&amp;author=D. Donadio&amp;author=M. Parrinello&amp;volume=126&amp;issue=1&amp;publication_year=2007&amp;pages=014101&amp;pmid=17212484&amp;doi=10.1063/1.2408420&amp;"/></mixed-citation><mixed-citation id="note7"><named-content content-type="citation-string">(acccessed 9/27/2024).</named-content></mixed-citation></ref><ref id="ref19"><mixed-citation id="cit19"><named-content content-type="citation-string">Griffiths R. B.
+Microcanonical
+Ensemble in Quantum Statistical Mechanics. Journal
+of Mathematical Physics
+1965, 6 (10), 1447–1461. 10.1063/1.1704681.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1063/1.1704681"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Journal of Mathematical Physics&amp;title=Microcanonical Ensemble in Quantum Statistical Mechanics&amp;author=R. B. Griffiths&amp;volume=6&amp;issue=10&amp;publication_year=1965&amp;pages=1447-1461&amp;doi=10.1063/1.1704681&amp;"/></mixed-citation><mixed-citation id="note8"><named-content content-type="citation-string">(acccessed 9/27/2024).</named-content></mixed-citation></ref><ref id="ref20"><mixed-citation id="cit20"><named-content content-type="citation-string">Leven I.; Hao H.; Tan S.; Guan X.; Penrod K. A.; Akbarian D.; Evangelisti B.; Hossain M. J.; Islam M. M.; Koski J. P.; et al. Recent Advances for Improving the Accuracy, Transferability, and
+Efficiency of Reactive Force Fields. J. Chem.
+Theory Comput.
+2021, 17 (6), 3237–3251. 10.1021/acs.jctc.1c00118.
+</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/acs.jctc.1c00118"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="33970642"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Chem. Theory Comput.&amp;title=Recent Advances for Improving the Accuracy, Transferability, and Efficiency of Reactive Force Fields&amp;author=I. Leven&amp;author=H. Hao&amp;author=S. Tan&amp;author=X. Guan&amp;author=K. A. Penrod&amp;volume=17&amp;issue=6&amp;publication_year=2021&amp;pages=3237-3251&amp;pmid=33970642&amp;doi=10.1021/acs.jctc.1c00118&amp;"/></mixed-citation></ref><ref id="ref21"><mixed-citation id="cit21"><named-content content-type="citation-string">Ue M.; Mori S.
+Mobility and Ionic
+Association of Lithium Salts in a Propylene Carbonate-Ethyl
+Methyl Carbonate Mixed Solvent. J. Electrochem.
+Soc.
+1995, 142 (8), 2577. 10.1149/1.2050056.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1149/1.2050056"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Electrochem. Soc.&amp;title=Mobility and Ionic Association of Lithium Salts in a Propylene Carbonate-Ethyl Methyl Carbonate Mixed Solvent&amp;author=M. Ue&amp;author=S. Mori&amp;volume=142&amp;issue=8&amp;publication_year=1995&amp;pages=2577&amp;doi=10.1149/1.2050056&amp;"/></mixed-citation></ref><ref id="ref22"><mixed-citation id="cit22a"><label>a</label><named-content content-type="citation-string">Gao H.; Yan Q.; Holoubek J.; Yin Y.; Bao W.; Liu H.; Baskin A.; Li M.; Cai G.; Li W.; et al. Enhanced Electrolyte Transport and Kinetics
+Mitigate Graphite Exfoliation and Li Plating in Fast-Charging Li-Ion
+Batteries. Adv. Energy Mater.
+2023, 13 (5), 2202906 10.1002/aenm.202202906.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1002/aenm.202202906"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Adv. Energy Mater.&amp;title=Enhanced Electrolyte Transport and Kinetics Mitigate Graphite Exfoliation and Li Plating in Fast-Charging Li-Ion Batteries&amp;author=H. Gao&amp;author=Q. Yan&amp;author=J. Holoubek&amp;author=Y. Yin&amp;author=W. Bao&amp;volume=13&amp;issue=5&amp;publication_year=2023&amp;pages=2202906&amp;doi=10.1002/aenm.202202906&amp;"/></mixed-citation><mixed-citation id="cit22b"><label> b</label><named-content content-type="citation-string">Kang G.; Zhong G.; Ma J.; Yin R.; Cai K.; Jia T.; Ren X.; Yu K.; Qin P.; Chen Z.; et al. Weakly solvated EC-free linear alkyl carbonate electrolytes
+for Ni-rich cathode in rechargeable lithium battery. iScience
+2022, 25 (12), 105710 10.1016/j.isci.2022.105710.
+</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1016/j.isci.2022.105710"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmcid" xlink:href="PMC9791360"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="36578317"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=iScience&amp;title=Weakly solvated EC-free linear alkyl carbonate electrolytes for Ni-rich cathode in rechargeable lithium battery&amp;author=G. Kang&amp;author=G. Zhong&amp;author=J. Ma&amp;author=R. Yin&amp;author=K. Cai&amp;volume=25&amp;issue=12&amp;publication_year=2022&amp;pages=105710&amp;pmid=36578317&amp;doi=10.1016/j.isci.2022.105710&amp;"/></mixed-citation></ref><ref id="ref23"><mixed-citation id="cit23"><named-content content-type="citation-string">Alamdar S.; Zarif M.
+Exploring lithium salt solution in
+sulfone and ethyl acetate-based
+electrolytes for Li-ion battery applications: a molecular dynamics
+simulation study. Journal of Materials Chemistry
+A
+2024, 12 (28), 17471–17482. 10.1039/D4TA00855C.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1039/D4TA00855C"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Journal of Materials Chemistry A&amp;title=Exploring lithium salt solution in sulfone and ethyl acetate-based electrolytes for Li-ion battery applications: a molecular dynamics simulation study&amp;author=S. Alamdar&amp;author=M. Zarif&amp;volume=12&amp;issue=28&amp;publication_year=2024&amp;pages=17471-17482&amp;doi=10.1039/D4TA00855C&amp;"/></mixed-citation><mixed-citation id="note9"><named-content content-type="citation-string">10.1039/D4TA00855C.</named-content></mixed-citation></ref><ref id="ref24"><mixed-citation id="cit24"><named-content content-type="citation-string">Dhananjay; Mallik B. S.
+Cage Dynamics-Mediated
+High Ionic Transport in Li-O2 Batteries with a Hybrid Aprotic Electrolyte:
+LiTFSI, Sulfolane, and N,N-Dimethylacetamide. J. Phys. Chem. B
+2023, 127 (13), 2991–3000. 10.1021/acs.jpcb.2c07829.
+</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/acs.jpcb.2c07829"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="36960946"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Phys. Chem. B&amp;title=Cage Dynamics-Mediated High Ionic Transport in Li-O2 Batteries with a Hybrid Aprotic Electrolyte: LiTFSI, Sulfolane, and N,N-Dimethylacetamide&amp;author= Dhananjay&amp;author=B. S. Mallik&amp;volume=127&amp;issue=13&amp;publication_year=2023&amp;pages=2991-3000&amp;pmid=36960946&amp;doi=10.1021/acs.jpcb.2c07829&amp;"/></mixed-citation></ref><ref id="ref25"><mixed-citation id="cit25"><named-content content-type="citation-string">Kirkwood J. G.; Boggs E. M.
+The Radial Distribution
+Function in Liquids. J. Chem. Phys.
+1942, 10 (6), 394–402. 10.1063/1.1723737.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1063/1.1723737"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Chem. Phys.&amp;title=The Radial Distribution Function in Liquids&amp;author=J. G. Kirkwood&amp;author=E. M. Boggs&amp;volume=10&amp;issue=6&amp;publication_year=1942&amp;pages=394-402&amp;doi=10.1063/1.1723737&amp;"/></mixed-citation><mixed-citation id="note10"><named-content content-type="citation-string">(acccessed 9/27/2024).</named-content></mixed-citation></ref><ref id="ref26"><mixed-citation id="cit26"><named-content content-type="citation-string">Pinson D.; Zou R. P.; Yu A. B.; Zulli P.; McCarthy M. J.
+Coordination
+number of binary mixtures of spheres. J. Phys.
+D: Appl. Phys.
+1998, 31 (4), 457. 10.1088/0022-3727/31/4/016.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1088/0022-3727/31/4/016"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Phys. D: Appl. Phys.&amp;title=Coordination number of binary mixtures of spheres&amp;author=D. Pinson&amp;author=R. P. Zou&amp;author=A. B. Yu&amp;author=P. Zulli&amp;author=M. J. McCarthy&amp;volume=31&amp;issue=4&amp;publication_year=1998&amp;pages=457&amp;doi=10.1088/0022-3727/31/4/016&amp;"/></mixed-citation></ref><ref id="ref27"><mixed-citation id="cit27"><named-content content-type="citation-string">Hui S.; Roller J.; Yick S.; Zhang X.; Decès-Petit C.; Xie Y.; Maric R.; Ghosh D.
+A brief review of the ionic conductivity
+enhancement for selected oxide electrolytes. J. Power Sources
+2007, 172 (2), 493–502. 10.1016/j.jpowsour.2007.07.071.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1016/j.jpowsour.2007.07.071"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Power Sources&amp;title=A brief review of the ionic conductivity enhancement for selected oxide electrolytes&amp;author=S. Hui&amp;author=J. Roller&amp;author=S. Yick&amp;author=X. Zhang&amp;author=C. Decès-Petit&amp;volume=172&amp;issue=2&amp;publication_year=2007&amp;pages=493-502&amp;doi=10.1016/j.jpowsour.2007.07.071&amp;"/></mixed-citation></ref><ref id="ref28"><mixed-citation id="cit28"><named-content content-type="citation-string">Kowsari M. H.; Fakhraee M.
+Influence of Butyl
+Side Chain Elimination, Tail Amine
+Functional Addition, and C2Methylation on the Dynamics and Transport
+Properties of Imidazolium-Based [Tf2N−] Ionic Liquids from
+Molecular Dynamics Simulations. Journal of Chemical
+&amp; Engineering Data
+2015, 60 (3), 551–560. 10.1021/je500618w.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/je500618w"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Journal of Chemical &amp; Engineering Data&amp;title=Influence of Butyl Side Chain Elimination, Tail Amine Functional Addition, and C2Methylation on the Dynamics and Transport Properties of Imidazolium-Based [Tf2N−] Ionic Liquids from Molecular Dynamics Simulations&amp;author=M. H. Kowsari&amp;author=M. Fakhraee&amp;volume=60&amp;issue=3&amp;publication_year=2015&amp;pages=551-560&amp;doi=10.1021/je500618w&amp;"/></mixed-citation></ref><ref id="ref29"><mixed-citation id="cit29a"><label>a</label><named-content content-type="citation-string">Yeh I.-C.; Hummer G.
+System-Size Dependence
+of Diffusion Coefficients and Viscosities from Molecular Dynamics
+Simulations with Periodic Boundary Conditions. J. Phys. Chem. B
+2004, 108 (40), 15873–15879. 10.1021/jp0477147.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/jp0477147"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Phys. Chem. B&amp;title=System-Size Dependence of Diffusion Coefficients and Viscosities from Molecular Dynamics Simulations with Periodic Boundary Conditions&amp;author=I.-C. Yeh&amp;author=G. Hummer&amp;volume=108&amp;issue=40&amp;publication_year=2004&amp;pages=15873-15879&amp;doi=10.1021/jp0477147&amp;"/></mixed-citation><mixed-citation id="note11"><named-content content-type="citation-string">(acccessed 2024/12/08).</named-content></mixed-citation><mixed-citation id="cit29b"><label> b</label><named-content content-type="citation-string">Maginn E. J.; Messerly R. A.; Carlson D. J.; Roe D. R.; Elliot J. R.
+Best Practices
+for Computing Transport Properties 1. Self-Diffusivity and Viscosity
+from Equilibrium Molecular Dynamics [Article v1.0]. Living J. Comput. Mol. Sci.
+2018, 1 (1), 6324. 10.33011/livecoms.1.1.6324.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.33011/livecoms.1.1.6324"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Living J. Comput. Mol. Sci.&amp;title=Best Practices for Computing Transport Properties 1. Self-Diffusivity and Viscosity from Equilibrium Molecular Dynamics [Article v1.0]&amp;author=E. J. Maginn&amp;author=R. A. Messerly&amp;author=D. J. Carlson&amp;author=D. R. Roe&amp;author=J. R. Elliot&amp;volume=1&amp;issue=1&amp;publication_year=2018&amp;pages=6324&amp;doi=10.33011/livecoms.1.1.6324&amp;"/></mixed-citation></ref><ref id="ref30"><mixed-citation id="cit30a"><label>a</label><named-content content-type="citation-string">Diederichsen K. M.; Terrell R. C.; McCloskey B. D.
+Counterion
+Transport and Transference Number in Aqueous and Nonaqueous Short-Chain
+Polyelectrolyte Solutions. J. Phys. Chem. B
+2019, 123 (50), 10858–10867. 10.1021/acs.jpcb.9b09517.
+</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/acs.jpcb.9b09517"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="31747280"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Phys. Chem. B&amp;title=Counterion Transport and Transference Number in Aqueous and Nonaqueous Short-Chain Polyelectrolyte Solutions&amp;author=K. M. Diederichsen&amp;author=R. C. Terrell&amp;author=B. D. McCloskey&amp;volume=123&amp;issue=50&amp;publication_year=2019&amp;pages=10858-10867&amp;pmid=31747280&amp;doi=10.1021/acs.jpcb.9b09517&amp;"/></mixed-citation><mixed-citation id="cit30b"><label> b</label><named-content content-type="citation-string">Fong K. D.; Self J.; Diederichsen K. M.; Wood B. M.; McCloskey B. D.; Persson K. A.
+Ion Transport and the True Transference Number in Nonaqueous
+Polyelectrolyte Solutions for Lithium Ion Batteries. ACS Central Science
+2019, 5 (7), 1250–1260. 10.1021/acscentsci.9b00406.
+</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/acscentsci.9b00406"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmcid" xlink:href="PMC6661974"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="31403073"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=ACS Central Science&amp;title=Ion Transport and the True Transference Number in Nonaqueous Polyelectrolyte Solutions for Lithium Ion Batteries&amp;author=K. D. Fong&amp;author=J. Self&amp;author=K. M. Diederichsen&amp;author=B. M. Wood&amp;author=B. D. McCloskey&amp;volume=5&amp;issue=7&amp;publication_year=2019&amp;pages=1250-1260&amp;pmid=31403073&amp;doi=10.1021/acscentsci.9b00406&amp;"/></mixed-citation><mixed-citation id="cit30c"><label> c</label><named-content content-type="citation-string">Valo̷en L. O.; Reimers J. N.
+Transport Properties
+of LiPF6-Based Li-Ion Battery Electrolytes. J. Electrochem. Soc.
+2005, 152 (5), A882. 10.1149/1.1872737.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1149/1.1872737"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Electrochem. Soc.&amp;title=Transport Properties of LiPF6-Based Li-Ion Battery Electrolytes&amp;author=L. O. Valo̷en&amp;author=J. N. Reimers&amp;volume=152&amp;issue=5&amp;publication_year=2005&amp;pages=A882&amp;doi=10.1149/1.1872737&amp;"/></mixed-citation></ref><ref id="ref31"><mixed-citation id="cit31"><named-content content-type="citation-string">Duangdangchote S.; Phattharasupakun N.; Chomkhuntod P.; Chiochan P.; Sarawutanukul S.; Tomon C.; Joraleechanchai N.; Sawangphruk M.
+Effect of
+fluoroethylene carbonate on the transport property of electrolytes
+towards Ni-rich Li-ion batteries with high safety. Chem. Commun.
+2021, 57 (55), 6732–6735. 10.1039/D1CC02120F.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1039/D1CC02120F"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="34109336"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Chem. Commun.&amp;title=Effect of fluoroethylene carbonate on the transport property of electrolytes towards Ni-rich Li-ion batteries with high safety&amp;author=S. Duangdangchote&amp;author=N. Phattharasupakun&amp;author=P. Chomkhuntod&amp;author=P. Chiochan&amp;author=S. Sarawutanukul&amp;volume=57&amp;issue=55&amp;publication_year=2021&amp;pages=6732-6735&amp;pmid=34109336&amp;doi=10.1039/D1CC02120F&amp;"/></mixed-citation><mixed-citation id="note12"><named-content content-type="citation-string">10.1039/D1CC02120F.</named-content></mixed-citation></ref><ref id="ref32"><mixed-citation id="cit32"><named-content content-type="citation-string">Borodin O.; Suo L.; Gobet M.; Ren X.; Wang F.; Faraone A.; Peng J.; Olguin M.; Schroeder M.; Ding M. S.; et al. Liquid Structure with Nano-Heterogeneity Promotes Cationic
+Transport in Concentrated Electrolytes. ACS
+Nano
+2017, 11 (10), 10462–10471. 10.1021/acsnano.7b05664.
+</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/acsnano.7b05664"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="29016112"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=ACS Nano&amp;title=Liquid Structure with Nano-Heterogeneity Promotes Cationic Transport in Concentrated Electrolytes&amp;author=O. Borodin&amp;author=L. Suo&amp;author=M. Gobet&amp;author=X. Ren&amp;author=F. Wang&amp;volume=11&amp;issue=10&amp;publication_year=2017&amp;pages=10462-10471&amp;pmid=29016112&amp;doi=10.1021/acsnano.7b05664&amp;"/></mixed-citation></ref><ref id="ref33"><mixed-citation id="cit33"><named-content content-type="citation-string">Fong K. D.; Self J.; McCloskey B. D.; Persson K. A.
+Onsager Transport
+Coefficients and Transference Numbers in Polyelectrolyte Solutions
+and Polymerized Ionic Liquids. Macromolecules
+2020, 53 (21), 9503–9512. 10.1021/acs.macromol.0c02001.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/acs.macromol.0c02001"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Macromolecules&amp;title=Onsager Transport Coefficients and Transference Numbers in Polyelectrolyte Solutions and Polymerized Ionic Liquids&amp;author=K. D. Fong&amp;author=J. Self&amp;author=B. D. McCloskey&amp;author=K. A. Persson&amp;volume=53&amp;issue=21&amp;publication_year=2020&amp;pages=9503-9512&amp;doi=10.1021/acs.macromol.0c02001&amp;"/></mixed-citation></ref><ref id="ref34"><mixed-citation id="cit34"><named-content content-type="citation-string">Saitoh K. I.; Takai Y.; Sato T.; Takuma M.; Takahashi Y.
+Optimization
+of LIB Electrolyte and Exploration of Novel Compounds via the Molecular
+Dynamics Method. Batteries
+2022, 8 (3), 27. 10.3390/batteries8030027.</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.3390/batteries8030027"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Batteries&amp;title=Optimization of LIB Electrolyte and Exploration of Novel Compounds via the Molecular Dynamics Method&amp;author=K. I. Saitoh&amp;author=Y. Takai&amp;author=T. Sato&amp;author=M. Takuma&amp;author=Y. Takahashi&amp;volume=8&amp;issue=3&amp;publication_year=2022&amp;pages=27&amp;doi=10.3390/batteries8030027&amp;"/></mixed-citation></ref><ref id="ref35"><mixed-citation id="cit35a"><label>a</label><named-content content-type="citation-string">Borodin O.
+Polarizable Force Field Development
+and Molecular Dynamics Simulations of Ionic Liquids. J. Phys. Chem. B
+2009, 113 (33), 11463–11478. 10.1021/jp905220k.
+</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/jp905220k"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="19637900"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=J. Phys. Chem. B&amp;title=Polarizable Force Field Development and Molecular Dynamics Simulations of Ionic Liquids&amp;author=O. Borodin&amp;volume=113&amp;issue=33&amp;publication_year=2009&amp;pages=11463-11478&amp;pmid=19637900&amp;doi=10.1021/jp905220k&amp;"/></mixed-citation><mixed-citation id="cit35b"><label> b</label><named-content content-type="citation-string">Bedrov D.; Piquemal J.-P.; Borodin O.; MacKerell A. D. Jr.; Roux B.; Schröder C.
+Molecular
+Dynamics Simulations of Ionic Liquids and Electrolytes Using Polarizable
+Force Fields. Chem. Rev.
+2019, 119 (13), 7940–7995. 10.1021/acs.chemrev.8b00763.
+</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/acs.chemrev.8b00763"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmcid" xlink:href="PMC6620131"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="31141351"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Chem. Rev.&amp;title=Molecular Dynamics Simulations of Ionic Liquids and Electrolytes Using Polarizable Force Fields&amp;author=D. Bedrov&amp;author=J.-P. Piquemal&amp;author=O. Borodin&amp;author=A. D. MacKerell&amp;author=B. Roux&amp;volume=119&amp;issue=13&amp;publication_year=2019&amp;pages=7940-7995&amp;pmid=31141351&amp;doi=10.1021/acs.chemrev.8b00763&amp;"/></mixed-citation><mixed-citation id="cit35c"><label> c</label><named-content content-type="citation-string">Unke O. T.; Chmiela S.; Sauceda H. E.; Gastegger M.; Poltavsky I.; Schütt K. T.; Tkatchenko A.; Müller K.-R.
+Machine Learning Force Fields. Chem. Rev.
+2021, 121 (16), 10142–10186. 10.1021/acs.chemrev.0c01111.
+</named-content><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="doi" xlink:href="10.1021/acs.chemrev.0c01111"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmcid" xlink:href="PMC8391964"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="pmid" xlink:href="33705118"/><ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="google-scholar" xlink:href="journal=Chem. Rev.&amp;title=Machine Learning Force Fields&amp;author=O. T. Unke&amp;author=S. Chmiela&amp;author=H. E. Sauceda&amp;author=M. Gastegger&amp;author=I. Poltavsky&amp;volume=121&amp;issue=16&amp;publication_year=2021&amp;pages=10142-10186&amp;pmid=33705118&amp;doi=10.1021/acs.chemrev.0c01111&amp;"/></mixed-citation></ref></ref-list></sec></sec><sec id="_ad93_" xml:lang="en" sec-type="associated-data" disp-level="1"><title>Associated Data</title><sec id="_adsm93_" xml:lang="en" sec-type="supplementary-materials" disp-level="2"><title>Supplementary Materials</title><supplementary-material id="db_ds_supplementary-material1_reqid_" position="float"><media xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="ao4c08854_si_001.pdf" mimetype="application" mime-subtype="pdf"><?cloudpmc-path 8e29/11755145/8119b016f89b/ao4c08854_si_001.pdf?><?cloudpmc-bucket app?><?size 763860?><caption><p>ao4c08854_si_001.pdf</p></caption></media></supplementary-material></sec></sec></body></article>
