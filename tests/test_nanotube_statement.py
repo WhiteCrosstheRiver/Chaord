@@ -230,3 +230,21 @@ def test_lift_refuses_flat_graphene_sheet():
     frame = Frame(pos=pos, cell=cell, symbols=["C"] * len(pos))
     with pytest.raises(ChaordError):
         _infer(frame)
+
+
+def test_lift_survives_boundary_rounding():
+    """An atom a hair below the box origin wraps to exactly L in floating
+    point (np.mod(-1e-16, L) == L); the KD-tree boxsize contract requires
+    [0, box) strictly. This bit the CI ubuntu runner (2026-10-14, run
+    38564929887: ValueError 'Some input data are greater than the size of
+    the periodic box' on chirality1/chirality2) while windows passed -- the
+    inference must clamp, not raise."""
+    frame, built, _atoms, _ch = _build((10, 10), 39.36)
+    pos = frame.pos.copy()
+    pos[0, 2] = 0.0                         # the reference atom sits at 0
+    pos[len(pos) // 2, 2] = -1e-15          # wraps to exactly L (np.mod)
+    from chaord.io.frames import Frame
+    shifted = Frame(pos=pos, cell=frame.cell, symbols=frame.symbols)
+    got = _infer(shifted)
+    assert (got.n, got.m) == (10, 10)
+    assert abs(got.length - built) < 1e-6
