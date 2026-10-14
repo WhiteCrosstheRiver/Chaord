@@ -1,12 +1,15 @@
 # Gate A′ — the honest core
 
-Date: 2026-10-03 (Review-3 letter complete: glass N=2048×3, verifier
-observations 1-2 resolved, A8 adsorption half, tutor demo, PASS dossier) ·
+Date: 2026-10-03 (Review-3 letter complete) · updated 2026-10-09
+(Review 8 wave: open_items_v2 W1–W12 complete, Gate A′ declared below) ·
 Independent verification:
-[verification_2026-09-28.md](verification_2026-09-28.md) (Review-2 phase)
-and [verification_2026-09-30.md](verification_2026-09-30.md) (this phase)
-· Acceptance: `reports/acceptance.json` (latest run) · CI:
-`.github/workflows/ci.yml` (clean-machine dispatch artifacts)
+[verification_2026-09-28.md](verification_2026-09-28.md) (Review-2 phase),
+[verification_2026-09-30.md](verification_2026-09-30.md) (Review-3 phase)
+and [verification_2026-10-08.md](verification_2026-10-08.md) (Review-8
+phase: fresh agent, A1–A14 independently reproduced 14/14) · Acceptance:
+`reports/acceptance.json` is the CLEAN-RUNNER artifact (run
+[37868982335](https://github.com/WhiteCrosstheRiver/Chaord/actions/runs/37868982335),
+14/14 on ba6b594) · CI: `.github/workflows/ci.yml`
 
 ## Verdict
 
@@ -85,16 +88,16 @@ fixed; F12 A4 mixed-cell metric — fixed (multiset scoring).
 | D4 | Ratify all new dialect keys incl thermal_quench_* | **implemented** (markers removed from metal.yaml) |
 | D5 | One branch per stream, green CI, run URL in merge commit | **in effect** for this round's merges |
 | D6 | A3 gate = translation-aligned assignment check | **implemented** (reason recorded in PLAN.md A3 row) |
-| D7 | Glass base values 1500/3000/2850 provisional | **kept for frozen monatomic ref** (W7 re-derives) |
+| D7 | Glass base values 1500/3000/2850 provisional | **superseded by W7's re-derivation** (melt 2000 / quench 4000 / anneal 4000 at glass_protocol_ref_n 2000, calibrated on the Kob-Andersen reference by A5's own averaged protocol; sweep in reports/ka_glass_d7_sweep*.json) |
 | D8 | Rebuild budget max(150, 150*N/1000) | **implemented** (_a5_budget, already live) |
-| D9 | Kob-Andersen 80:20 glass at rho=1.2 | **W7 in progress** (S6 stream) |
-| D10 | q6_cutoff 1.3 REJECTED as the fix | **W1 in progress** (unit-free rule, then delete) |
+| D9 | Kob-Andersen 80:20 glass at rho=1.2 | **implemented** (bench/reference/ka_glass N=2000, 3 quenches, partial g(r) floors; A5 glass case, monatomic lj_glass retired with recorded provenance) |
+| D10 | q6_cutoff 1.3 REJECTED as the fix | **implemented** (interim key deleted; unit-free crystal-fit-first rule with q4/q6 local-order gates in core.yaml; fail-closed NotThisPhase ladder) |
 | D11 | metal printed_cutoff 3.25 A | **implemented** (approved as metadata) |
 | D12 | cu_solid_liquid sanity restatement REJECTED | **implemented** (original targets restored; known_limitation recorded; 4-ps note fixed) |
-| D13 | fcc/hcp hollow names | deferred until after the gate |
+| D13 | fcc/hcp hollow names | **implemented by W9** (lateral-coordination classification: Pt(100) hollow AND bridge 1600/1600 each over 20 draws x 20 translations, Pt(111) 3200/3200; n>=3 hollow / n<=2 Delaunay feature net, the split the A8 canary forces, measured in the test) |
 | D14 | co2_dense at 0.68 g/cm3 | approved (contact distances -> W8) |
 | D15 | max(mean, P90) | kept |
-| D16 | Gate A' declared when W1-W6 merged + D1-D15 + clean run + fresh verifier | **pending W1-W6** |
+| D16 | Gate A' declared when W1-W6 merged + D1-D15 + clean run + fresh verifier | **DECLARED 2026-10-14** (W1-W12 all merged; clean-runner run 37868982335 green: acceptance 14/14 + slow statistical suite, on ba6b594 with the push-run fast suite green on both OS, run 37868981153; fresh verifier report verification_2026-10-08.md committed) |
 
 ## Reviews 4-7 scorecard (docs/reviews/open_items.md, all with numbers)
 
@@ -138,7 +141,7 @@ written approval)
 
 | # | Item | Status | Evidence |
 | --- | --- | --- | --- |
-| 1 | CI green on both OS, two consecutive pushes, fresh env | **yes** | push runs green on both OS at 0a6c86a/fe0d326/238f2c8/13c2caf/ed85108; the workflow_dispatch clean-machine run on ed85108 (#39, 2026-09-30) is fully green: acceptance A1-A14 **14/14** on a fresh Ubuntu environment AND the slow statistical suite — the evidence artifact is uploaded by the nightly job |
+| 1 | CI green on both OS, two consecutive pushes, fresh env | **yes** | push runs green on both OS at 0a6c86a/fe0d326/238f2c8/13c2caf/ed85108 and at ba6b594 (run 37868981153, 2026-10-09); the workflow_dispatch clean-machine run on ba6b594 (37868982335, 2026-10-09) is fully green and the scheduled nightlies on ba6b594 repeated it (38129284799 on 10-11, 38235272198 on 10-12); the 2026-09-30 run on ed85108 (#39) was this wave's earlier instance: acceptance A1-A14 **14/14** on a fresh Ubuntu environment AND the slow statistical suite — the evidence artifact is uploaded by the nightly job |
 | 2 | README/reports state status accurately; no "v1.0" | **yes** | README honestly describes v0.1 prototype; self_assessment separate from gate report |
 | 3 | ≥6 disordered benchmark cases from independent MD, provenance, sanity | **yes** | `bench/reference/`: 7 cases × 5–15 frames (ASE + published potentials: LJ, TIP4P, SPC/E+JC, FBD-Cu EAM); check_sanity 6/7 PASS (cu_solid_liquid honestly recorded as known-limitation: coexistence density drift) |
 | 4 | Generator code does not import chaord | **yes** | `grep -r "import chaord\|from chaord" bench/reference/` → empty; enforced by `tests/test_reference_data.py` |
@@ -337,3 +340,36 @@ reports/verification_2026-09-30.md §5)
    design already approved, not yet implemented
 3. More reference cases (ionic solids, molecular crystals) and Wave-3 items
    from the Review-2 plan as directed
+
+## Review 8 wave (docs/reviews/open_items_v2.md, W1–W12) — Gate A′ declared
+
+All twelve work orders landed with red-first tests; the merge order followed
+the plan's stream table (S2 → S1 → S3/S4/S5 → S8), each merge on green
+targeted suites, with the two CI breaks found on the way fixed at source:
+
+| W | Order | Status | Evidence |
+| --- | --- | --- | --- |
+| W1 | unit-free amorphous classification | **done** | crystal-fit-first (coverage >= 0.90), local-order gates q6>0.32 / q4>0.45, frac < 0.30; interim q6_cutoff deleted; fail-closed NotThisPhase ladder (lift/amorphous.py, legacy.py, core.yaml) |
+| W2 | records current | **done** | decisions D1–D16 implemented and recorded in this file + dialect comments |
+| W3 | clean run + fresh verifier + gate | **done** | clean-runner run 37868982335 (14/14 + slow suite) on ba6b594; reports/verification_2026-10-08.md (fresh agent, independently reproduced 14/14 and all 6 snippets; its red finding — unregistered strict xfails — fixed in ba6b594 and registered) |
+| W4 | metal slab: refuse then lift | **done** | step 1 refusal landed pre-gate; step 2 carries Cu/Å/eV/K through the slab path: `conserve atoms Cu 832`, `backend eam`, `lattice fcc`, a 3.615 Å = 0.0% of FBD-1986 a0, 0 defect lines, builds; chi0_fcc_min 3.7 and slab_defect_print_floor 1 measured on thermal fcc/hcp at 0.9–1.0 Tm with the reference's own engine |
+| W5 | strained boxes build | **done** | 0 of 9 refuse at every matrix config; per-axis strained tiling with provenance; 122/216 identity configs byte-identical and hard-asserted, the other 94 registered strict-xfail (FOILED) pending the reviewer's sign-off on the lift-side snap — the one recorded open item |
+| W6 | physical solid-liquid frames | **done** | liquid half RSA >= 0.85 sigma + MD T*=0.7 with frozen solid; min pair 0.925–0.960 sigma, all >= 0.80 |
+| W7 | Kob-Andersen glass v3 | **done** | ka_glass reference (N=2000, rho*=1.2, 3 quenches), LJMixture with per-pair eps/sigma/rc shifted (kob_andersen table, Kob & Andersen PRE 51, 4626 (1995)), partial g(r) floors, D7 re-derivation, monatomic lj_glass retired with recorded provenance; A5 glass case green at gr x0.9 / cn x0.3 |
+| W8 | molecular contact floor + packer | **done** | 0.75x-Bondi floor (Bondi 1964) with H-bond exception (Steiner 2002) as one definition in build/molecules.py; grid+minimise fallback builds 60 CO2 at 1.00 g/cm3 on 20/20 seeds (was 0/3); the three named cases regenerated pack-then-relax in their own commits; five further violating cases pinned as tripwires (pins record, never excuse) |
+| W9 | adsorption sites beyond fcc(111) | **done** | lateral coordination window 0.15 a_NN (measured band 0.15–0.30): Pt(100) hollow 1600/1600, bridge 1600/1600, Pt(111) 3200/3200; A8 canary preserved |
+| W10 | determinism | **done** | every canonical sort on float coordinates keys on 1e-6 Å quantized values (7 sites); the reported si001_2x1 'site far' did not reproduce on either side (reviewer's and ours) — the subprocess/order guard test stands; hidden-state audit clean |
+| W11 | assumed values on every lift path | **done** | AssumedT provenance on the slab path; T from caller or flagged assumed |
+| W12 | leftovers | **done** | demo Act 0 shifted-Cu copy byte-identical; EC/PF6- templates in the registry (geometry = the frozen frames'); _a5_rebuild_meta raises the reasoned ChaordError |
+
+**Declaration.** Gate A′ is declared on the evidence above: W1–W6 merged,
+D1–D15 implemented, a clean-runner acceptance on the final code state
+(ba6b594) committed as `reports/acceptance.json` (run 37868982335), and a
+fresh verifier's report committed
+([verification_2026-10-08.md](verification_2026-10-08.md)). Handed to the
+reviewer with the gate, unchanged from the record: the W5 lift-side snap
+sign-off (94 registered configs), the verifier's minor observations
+(numpy RuntimeWarnings on some slab lifts, 9 of 35 A14 keys without
+spec examples, A11 evidence naming only the lift measurement), and the
+section-5 research target (carbonate solvents in CNT under electric
+field).
