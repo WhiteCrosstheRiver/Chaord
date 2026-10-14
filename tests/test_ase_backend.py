@@ -511,10 +511,16 @@ _NACL_FRAME = ROOT / "bench" / "reference" / "nacl_aq" / "frame_0.npz"
 def test_nacl_kernel_fits_acceptance_budget(mol_dialect):
     """A5 regression, reproduced (fast form): the nacl_aq rebuild timed out
     because one force evaluation of the 1640-atom solution cost ~0.25 s, and
-    the protocol runs fire + fast + relax = 820 of them (~205 s against the
-    150 s per-case acceptance budget). Instrumented bound: measured per-call
-    cost times the protocol's own step count must fit the budget."""
+    the protocol runs fire + fast + relax of them (~205 s against the
+    case's acceptance budget). Instrumented bound: measured per-call
+    cost times the protocol's own step count must fit the case's REAL
+    acceptance budget -- the size-aware _a5_budget(1640 atoms) = 246 s, not
+    a flat 150 s (the flat line was the pre-D8 budget; a slow shared CI
+    runner measured 133 ms/call x1170 steps = 155 s and failed a flat 150
+    gate on 2026-10-14 while the historical ~250 ms/call regression
+    (~292 s) still fails the real one)."""
     import time as _time
+    from tools.acceptance import _a5_budget
     from chaord.realize.ase_backend import ASEBackend
     f = read_frame(_NACL_FRAME)
     backend = ASEBackend(f.cell_diag, f.symbols, "classical", dialect=mol_dialect)
@@ -528,9 +534,11 @@ def test_nacl_kernel_fits_acceptance_budget(mol_dialect):
     steps = sum(int(backend.md[k]) for k in
                 ("fire_steps", "fast_steps", "relax_steps"))
     est = per_call * steps
-    assert est < 150.0, (
+    budget = _a5_budget(len(f))
+    assert est < budget, (
         f"force evaluation costs {per_call * 1000:.0f} ms; x{steps} protocol "
-        f"steps = {est:.0f} s, over the 150 s acceptance budget")
+        f"steps = {est:.0f} s, over the {budget:.0f} s acceptance budget "
+        f"for {len(f)} atoms")
 
 
 @pytest.mark.slow
