@@ -1,0 +1,75 @@
+# research dialect — the field observables of the first post-gate research
+# case (docs/reviews/open_items_v2.md, section 5 "After the gate: first
+# research use"): carbonate solvents confined in a carbon nanotube under an
+# external electric field. The reviewer's binding: "Add what the field
+# changes that can be measured: a dipole-orientation order parameter and the
+# radial density profile."
+#
+# This dialect holds ONLY the measurement keys the observables of
+# chaord/cv/field.py read. The language statements of the research case
+# (cylindrical region, nanotube description, external-field statement) live
+# in the language layer and the dialects that own that vocabulary; nothing
+# here defines statement keys.
+name: research
+version: "0.1.0"
+
+units: []   # no new units: lengths, densities and charges are in the
+            # system's own units (A and e under the molecular stack)
+
+keys: {}    # no new statement vocabulary
+
+thresholds:
+  # --- dipole-orientation order parameter (cv/field.py dipole_orientation).
+  # P1 = <cos theta>, theta the angle between each molecule's dipole moment
+  # and the field axis, averaged over the molecules of the named species.
+  field_dipole_species: [H2O]  # census formulas (canonical, as the bond-graph
+                               # census prints them) of the molecules P1
+                               # averages over -- the solvent. The research
+                               # case's C3H4O3 (EC) / PC / EMC join when
+                               # their site-charge models are pinned to the
+                               # owner's Moltemplate force field.
+  field_dipole_site_charges:   # per-ELEMENT site charges in e, keyed by
+                               # census formula, used when the frame itself
+                               # carries no charges (see field.py: a
+                               # per-atom `charges` array in frame.info --
+                               # what the LAMMPS reader of the research case
+                               # records -- always wins; the table is the
+                               # fallback). Every entry must be neutral: the
+                               # orientation of a charged species depends on
+                               # the arbitrary origin, so a non-neutral entry
+                               # is refused at read time (checked against
+                               # field_charge_tolerance).
+    H2O:
+      O: -0.8476               # SPC/E water, q_O = -0.8476 e and q_H =
+      H: 0.4238                # +0.4238 e -- H. J. C. Berendsen, J. R.
+                               # Grigera, T. P. Straatsma, J. Phys. Chem.
+                               # 91, 6269 (1987): the same published set the
+                               # molecular dialect's water_models table
+                               # records (one source, two readers).
+  field_charge_tolerance: 1.0e-3   # max |sum of one formula's site charges|, e:
+                                   # fail-closed bound on charge-model typos
+                                   # in field_dipole_site_charges
+  field_dipole_moment_floor: 1.0e-3   # a molecule whose |mu| (e x the system's
+                                   # length unit) falls at or below this has
+                                   # no orientation; the measurement refuses
+                                   # instead of averaging an arbitrary
+                                   # direction (a zero-dipole species named
+                                   # in field_dipole_species is a
+                                   # configuration error, not a P1 of 0)
+  # --- radial density profile (cv/field.py radial_density_profile).
+  # Cylindrical number density n(r) about the field axis through the cell
+  # centre, binned from r = 0 to r_max = half the shorter transverse cell
+  # edge (the largest inscribed cylinder; beyond it the periodic corners
+  # double-count and the shell normalisation breaks).
+  radial_profile_bins: 20      # cylindrical bins from the axis to r_max
+                               # (dimensionless count)
+  radial_profile_inner_fraction: 0.5   # inner/outer split at this fraction of
+                               # r_max for the summary scalar
+                               # radial_inner_outer_ratio: mean density of
+                               # the bins with r_centre <= fraction x r_max
+                               # over the mean of the rest -- 1 in a
+                               # homogeneous system, > 1 when confinement or
+                               # a solvation shell piles solvent near the
+                               # axis, < 1 when the axis is depleted. The
+                               # scalar is the distance()-friendly summary;
+                               # the raw profile array ships alongside it.
