@@ -23,8 +23,11 @@ def test_example_parses_and_round_trips(path):
 
 def test_all_seven_examples():
     # the original seven plus deposit (08), rutile surface (09), the SPC/E
-    # brine water-model example (10) and the nanotube-field example (11)
-    assert len(EXAMPLES) == 11
+    # brine water-model example (10), the nanotube-field example (11), the
+    # lifted slab with residual atoms + provenance (12), the Si(001)
+    # reconstruction (13), graphite stacking (14) and nanotube chirality
+    # (15) -- the last four close A14's example-less keys (X9)
+    assert len(EXAMPLES) == 15
 
 
 def test_sketch_check_still_passes():

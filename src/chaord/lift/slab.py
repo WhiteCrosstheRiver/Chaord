@@ -71,7 +71,14 @@ def lift_defects(E, O, L, zcr, Hc, dialect):
 
 
 def orientation(bvec, dialect):
-    """Compare |cos| of bond directions with an axis to ideal fcc <110> bond sets."""
+    """Compare |cos| of bond directions with an axis to ideal fcc <110> bond
+    sets.  Returns None when the bond set is empty -- an explicit branch
+    (X9, Review 10): an empty histogram must never reach the 0/0
+    normalisation below (numpy RuntimeWarning on a normal path).  The
+    program side refuses a None orientation (see
+    _refuse_unstated_orientation)."""
+    if len(bvec) == 0:
+        return None
     ideal = dialect.threshold("orientation_ideals")
     edges = [float(x) for x in dialect.threshold("bond_angle_bins")]
     h = np.histogram(np.abs(bvec), edges)[0]
@@ -255,6 +262,17 @@ def decompile(r, L, T, dialect, symbols=None):
     # the crystal fit runs on the crystal species' sublattice (all atoms when
     # the frame is single-species)
     ci = (np.abs(dzc) < Hc - max(margin, max(w_lo, w_up) + q6_rc)) & cmask
+    # X9 (Review 10): an empty interior zone must refuse HERE, before any
+    # ci-indexed statistic runs -- every one of them would operate on an
+    # empty slice (the chi0 mean, the _circ_offset means, the orientation
+    # histogram) and emit RuntimeWarnings on a normal refuse-and-fallback
+    # path (bench solutions/lipf6_ec lifted as a molecular slab attempt)
+    if not ci.any():
+        raise ChaordError(
+            f"crystal region has no interior atoms: the fitted crystal "
+            f"half-height {Hc:.2f} leaves no atom deeper than bulk margin "
+            f"{margin:.2f} (interfaces {w_lo:.2f}/{w_up:.2f} wide); the "
+            "frame is not a crystal-liquid slab")
     hmin = int(dialect.threshold("lattice_harmonics_min"))
     hmax = int(dialect.threshold("lattice_harmonics_max"))
     kx = max(range(hmin, hmax), key=lambda k: _circ_offset(r[ci, 0], Lx / k)[0])
@@ -403,8 +421,15 @@ def decompile(r, L, T, dialect, symbols=None):
             v /= np.linalg.norm(v, axis=1)[:, None]
             cc = (v @ v.T)[np.triu_indices(len(lst), 1)]
             ang.append(np.degrees(np.arccos(np.clip(cc, -1, 1))))
-        bad = np.histogram(np.concatenate(ang), np.arange(0, 181, ang_bin))[0].astype(float)
-        bad /= bad.sum()
+        angles = np.concatenate(ang) if ang else np.array([])  # dialect-exempt: numerical-guard: empty-input branch
+        if len(angles):
+            bad = np.histogram(angles, np.arange(0, 181, ang_bin))[0].astype(float)
+            bad /= bad.sum()
+        else:
+            # X9 (Review 10): no centre atom holds a neighbour at the
+            # cutoff -- an empty angle set must not run through the 0/0
+            # normalisation above; the zeroed histogram keeps the key
+            bad = _empty_angle_hist(dialect)
         sl = np.where(li & solid)[0]
         sub = np.isin(pi, sl) & np.isin(pj, sl)
         loc = {a: b for b, a in enumerate(sl)}
@@ -523,9 +548,26 @@ def _refuse_unsupported_metal_slab(d, dialect):
             "(open_items_v2 W4)")
 
 
+def _refuse_unstated_orientation(d):
+    """X9 (Review 10): a crystal-interior zone with no neighbour pair (e.g.
+    the Cu reference lifted under core+lj, whose sigma-scale q6 cutoff sees
+    no Cu-Cu bond) has no orientation to state.  decompile records None
+    (orientation's explicit empty branch) instead of running an empty
+    histogram through numpy's 0/0 normalisation; a program that would print
+    an orientation it cannot stand behind fails closed here.  The W4 units
+    gate above owns the same frame's more fundamental refusal, so this
+    fires only after it."""
+    if d.get("orient_z") is None or d.get("orient_x") is None:
+        raise ChaordError(
+            "no crystal-interior bonds: an orientation cannot be stated "
+            "(the crystal-interior zone holds no neighbour pair at the "
+            "dialect's q6 cutoff)")
+
+
 def program_from_result(d, dialect, symbol="X"):
     """Build the canonical Program IR from a decompile() result dictionary."""
     _refuse_unsupported_metal_slab(d, dialect)
+    _refuse_unstated_orientation(d)
     if d.get("crystal_species") is not None:
         return _program_multi(d, dialect)
     metal_species = _metal_single_species(

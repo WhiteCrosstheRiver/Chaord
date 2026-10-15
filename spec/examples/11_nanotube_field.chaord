@@ -1,5 +1,5 @@
 chaord 0.1
-dialect core + carbon + research
+dialect core + molecular + carbon + research
 
 system {
   cell 33.5627 33.5627 39.36 A
@@ -7,7 +7,7 @@ system {
   seed 3
   state field E 0.10 V/A along z
   assert dipole_p1 0.821 +- 0.277 along z
-  conserve atoms C 640
+  conserve atoms C 684 F 12 H 72 Li 2 O 39 P 2
 }
 
 physics {
@@ -17,6 +17,21 @@ physics {
 
 crystal tube : cylinder axis z center 16.7813 16.7813 19.68 radius 6.7813 A length 39.36 A {
   nanotube (10,10) length 39.36 A
+}
+
+liquid fluid : cylinder axis z center 16.7813 16.7813 19.68 radius 6.7813 A length 39.36 A {
+  molecules C3H4O3 8
+  molecules C4H8O3 5
+  molecules F6P 2
+  molecules Li+ 2
+  state density 1.601 g/cm3 accessible
+  state linear_density 0.432 A^-1
+  assert li_shell C3H4O3 2.5 +- 0.5 carbonyl_O 2.45 A
+  assert li_shell C4H8O3 1.0 +- 0.0 carbonyl_O 2.45 A
+  assert li_shell F6P 0.5 +- 0.5 F 2.45 A
+  assert ion_pairs SSIP 1 CIP 1 AGG 0
+  state n_r C3H4O3 0.0000 0.0000 0.0000 0.0000 0.0036 0.0030 0.0148 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 bin 0.5 A
+  assert gr_peak 3.35 A height 6.98
 }
 
 residual none

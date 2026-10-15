@@ -72,7 +72,7 @@ statement carries a kind: **build** (no keyword), **state**, **constrain**,
 | `molecules` | `molecules H2O 620` | molecular counts |
 | `dislocation` | `dislocation edge` | Volterra construction |
 | `grain_boundary` | `grain_boundary sigma 5` | [001] CSL bicrystal |
-| `state density` | `state density 0.854` (LJ) / `1.0 g/cm3` | target density |
+| `state density` | `state density 0.854` (LJ) / `1.0 g/cm3` | target density; in a confined fluid region the lift states it on the accessible volume `pi (R - r_wall)^2 L` with the `accessible` token and `r_wall` from the dialect (research dialect, Y5 item 4) |
 | `state T` / `state P` | `state T 300 K` | equilibrium state metadata |
 | `constrain strain` | `constrain strain zz +0.9 % +- 0.2` | held deformation |
 | `constrain sro` | `constrain sro alpha1 Cr-Cr +0.10 +- 0.02` | Warren-Cowley first shell |
@@ -85,11 +85,15 @@ statement carries a kind: **build** (no keyword), **state**, **constrain**,
 | `assert ring_mode` | `assert ring_mode 6` | dominant King ring size |
 | `assert coverage` | `assert coverage OH 0.25 ML +- 0.05` | adsorbate coverage |
 | `assert solid_clusters` | `assert solid_clusters 0` | fluid purity |
+| `assert li_shell` | `assert li_shell C3H4O3 2.5 +- 0.5 carbonyl_O 2.45 A` | Li+ first-solvation-shell count on the named species site, mean +- sd over the cations (research dialect, Y5/D36: cutoffs are the Li-O / Li-F g(r) first minima of the reference zero-field runs, recorded in the dialect with their provenance, never measured on the frames under test; the site words are the dialect's site rules: `carbonyl_O` the carbonate carbonyl oxygen, `F` every fluorine) |
+| `assert ion_pairs` | `assert ion_pairs SSIP 1 CIP 1 AGG 0` | ion-pair classes of the cations over the `li_shell_anion` contacts: SSIP solvent-separated, CIP one cation per contacted anion, AGG an anion shared by two or more cations; the classes partition the cations (research dialect) |
+| `state n_r` | `state n_r C3H4O3 0.0000 0.0000 0.0000 0.0000 0.0036 0.0030 0.0148 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 bin 0.5 A` | species radial number-density profile (molecules per volume unit) of the molecule centres in cylindrical shells from the tube axis to the tube radius, bin width from the dialect (research dialect) |
+| `state linear_density` | `state linear_density 0.432 A^-1` | molecules per A of tube axis, stated next to the accessible-volume density (research dialect) |
 | `chirality` | `chirality (14,3)` | nanotube handedness (carbon dialect) |
 | `forcefield` | `forcefield "trappe-ua"` | classical force-field tag |
 | `lift_version` | `lift_version "0.1.0"` | provenance: lifting tool version |
 | `nanotube` | `nanotube (10,10) length 39.36 A` | chirality (n,m) + target length; the built tube is commensurate (the nearest whole number of translation periods) |
-| `note` | `note "any text"` | free-form provenance note |
+| `note` | `note "T assumed (dialect default 0.65); not measured from the frame"` | free-form provenance note (example: a T the caller did not give) |
 | `source` | `source "dump.lammpstrj"` | provenance: origin file |
 | `stacking` | `stacking AB` | layer stacking order |
 | `dialects` | `dialects "core 0.1.0 + lj 0.1.0"` | provenance: dialect versions used |

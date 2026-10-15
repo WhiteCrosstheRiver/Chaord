@@ -1,0 +1,29 @@
+chaord 0.1
+dialect core + surface
+
+system {
+  cell 21.724 21.724 35.0 A
+  pbc xyz
+  seed 5
+  state T 300 K
+  conserve atoms Si 512
+}
+
+physics {
+  backend mlp
+  model "mace-mp-0"
+}
+
+crystal si001 : slab z 0 .. 21.7 A {
+  lattice diamond
+  a 5.431 A
+  orient x [100] y [010] z [001]
+  surface (001) top
+  termination Si
+  reconstruction p(2x1)
+}
+
+vacuum gap : slab z 21.7 .. 35.0 A {
+}
+
+residual none

@@ -55,7 +55,9 @@ Reproduce (from the repository root):
 
 Read with the repo LAMMPS reader (`chaord.io.lammps`): `prod.dump` frames
 (columns `id mol type q x y z`; charges land in `frame.info["charges"]`),
-type map from each system's `final.data` Masses section.
+type map from the BUILD data file each system's provenance names
+(`outputs.data_file`) -- the provenance-recorded input; the pipeline never
+reads `final.data`.
 
 | system | frames | atoms | census (every frame) | cell charge | chirality inferred | matches provenance |
 |---|---|---|---|---|---|---|
@@ -64,29 +66,29 @@ type map from each system's `final.data` Masses section.
 | cnt16_field0 | 21 | 2058 | EC 37, EMC 24, Li 6, PF6 6 | 0 | (16,16), 49.200 A, R 10.850 A | yes |
 | cnt16_field1 | 21 | 2058 | EC 37, EMC 24, Li 6, PF6 6 | 0 | (16,16), 49.200 A, R 10.850 A | yes |
 
-The tube's charge is 0 in every frame; the frozen-tube positions agree
-with `final.data` to <= 4.7e-5 A (the dump's text rounding) in every
-frame. Two input facts were handled and recorded, not hidden:
+The tube's charge is 0 in every frame. Every frame is verified against
+`provenance_*.json` before any lifting: atom count, electrolyte census,
+total charge, tube charge, and the inferred chirality must not move
+between the 21 frames of a system. Two input facts were handled and
+recorded, not hidden:
 
 - **Dump coordinates sit outside the box.** Rigid-body dumps carry atoms
   up to 8.2e-3 box lengths (0.28 A) beyond a boundary between
-  re-neighbouring rewraps; the repo reader correctly refuses them (Frame's
-  wrapped invariant). The pipeline wraps each snapshot's x/y/z into that
-  snapshot's bounds in a scratch copy — a periodic-image relabelling, no
-  physical change — and records the largest excursion per system (max
-  8.20e-3, cnt10_field0).
-- **RD2's chirality inference reads `final.data`, not the dump.** The dump
-  rounds to 6 significant digits and cannot pass the inference's exact
-  single-radius gate (1e-6 relative); `final.data` carries 1e-6-A
-  precision. The tube is frozen, so its sublattice IS every frame's tube
-  (asserted per frame, see above). For cnt16 the inference additionally
-  runs with the two perpendicular cell lengths tripled: the tube's
-  diameter (21.71 A) exceeds the cell's half-width (20.86 A), and
-  minimum-image anchoring is unique only below half the edge. No wrap
-  occurs in either system (each tube sits centred, entirely inside its
-  box), all consistency gates still run, and the cnt10 inference is
-  identical with and without the tripling. Open item for
-  `src/chaord/lift/nanotube.py` next round.
+  re-neighbouring rewraps; the reader itself wraps them (a
+  periodic-image relabelling, no physical change) and records the
+  largest excursion per frame (max 8.20e-3, cnt10_field0).
+- **The chirality is inferred by the lift, on the dump.** The composed
+  lift (one `lift_frame(mode="auto")` call per frame, D35/Y3) finds the
+  all-carbon three-coordinated component, infers (n, m) and the radius
+  on the frame's own dump-precision carbons -- the D33 inference
+  (bond-graph unwrap with minimum-image bond vectors, Kasa circle fit,
+  gates calibrated on noisy and thermal frames in `carbon.yaml` 0.2.0)
+  -- and states the tube region together with the confined fluid. No
+  `final.data` read and no tripled perpendicular cell: the first pilot
+  pipeline's workaround for dump precision and cnt16's tube-wider-than-
+  half-the-cell anchoring, retired with the numbers unchanged (every
+  inferred value in the table above is identical through the public
+  path).
 
 ## 2. What the programs say
 
@@ -250,10 +252,15 @@ this field — leave-one-out 84/84, cnt10 -> cnt16 42/42, cnt16 -> cnt10
    molecule-centre coordination at the dialect's 3.10 A cutoff counts no
    neighbours. Honest as measured; a confinement-aware cutoff is a
    dialect question, not tuned here.
-4. **RD2 inference limitations** (section 1): dump text precision below
-   the exact gate; minimum-image anchoring breaks when a tube's diameter
-   exceeds half the perpendicular cell edge (cnt16). Both worked around
-   in the pipeline and recorded; the lifter itself is untouched.
+4. **RD2's inference limitations are retired** (section 1): the first
+   pilot pipeline worked around the exact single-radius gate (dump text
+   precision) and the one-anchor minimum-image break (cnt16's tube
+   wider than half the perpendicular cell edge) by reading `final.data`
+   with the perpendicular cell lengths tripled. The D33/Y3 rewrite made
+   both moot -- the bond-graph unwrap has no one-anchor minimum image,
+   and the gates in `carbon.yaml` (0.2.0) are calibrated on noisy and
+   thermal frames -- and the workaround was dropped; every pilot number
+   reproduced exactly through the public `lift_frame` path (4da59c5).
 5. **The `field_dipole_p1` assert fires only when a field is supplied**
    (RD4's design; the task's binding). A field-off program therefore
    states no P1 — the classifier encodes the absence as the a-priori 0,
@@ -264,9 +271,9 @@ this field — leave-one-out 84/84, cnt10 -> cnt16 42/42, cnt16 -> cnt10
    molecule of this solvent) and measures P1 under the species view
    [C3H4O3, C4H8O3]. Both are recorded in RD4; neither changes any
    numeric threshold in a dialect file, and `bonded_single_phase` still
-   performs its real check. `mode="auto"` reaches the same fluid text
-   after a 100-300 s scan that finds no prototype and no interface
-   (verified on frame 0 of each field1 system: byte-identical text).
+   performs its real check. `mode="auto"` is the one call the pipeline
+   makes per frame (D35/Y3: it finds the tube and composes the tube and
+   confined-fluid regions; the routing views ride the same stack).
 
 ## 7. Provenance of every number
 

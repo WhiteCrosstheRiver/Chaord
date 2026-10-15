@@ -6,36 +6,40 @@ One row per statement key declared in `src/chaord/dialects/*.yaml`, with a passi
 | --- | --- | --- | --- | --- |
 | `a` | ionic:region_crystal, metal:region_crystal | `a 1.609` | 01_solid_liquid_lifted.chaord | yes (entry + cited example `a 3.572 A`) |
 | `at` | core:interface | `at z 12.3` | 01_solid_liquid_lifted.chaord | yes (entry + cited example `at z 12.3`) |
-| `atom` | core:residual | `(no example in spec/examples/ - add one)` | - | yes (entry; no example exists in spec/examples (reported)) |
+| `atom` | core:residual | `atom X 1.02 3.40 5.60` | 12_lifted_slab_residual.chaord | yes (entry + cited example `atom X 1.02 3.40 5.60`) |
 | `backend` | core:physics | `backend lj` | 01_solid_liquid_lifted.chaord | yes (entry + cited example `backend lj`) |
 | `c` | ionic:region_crystal, metal:region_crystal | `c 2.959 A` | 07_reactive_interface.chaord | yes (entry + cited example `c 2.959 A`) |
 | `cell` | core:system, lj:system | `cell 9.65 9.65 27.50` | 01_solid_liquid_lifted.chaord | yes (entry + cited example `cell 21.432 21.432 21.432 A`) |
-| `chirality` | carbon:region_crystal | `(no example in spec/examples/ - add one)` | - | yes (entry; no example exists in spec/examples (reported)) |
+| `chirality` | carbon:region_crystal | `chirality (14,3)` | 15_nanotube_chirality.chaord | yes (entry + cited example `chirality (14,3)`) |
 | `composition` | glass:region_amorphous, ionic:region_crystal, lj_mixtures:region_amorphous, metal:region_crystal | `composition Ni3Al` | 02_crystal_defects.chaord | yes (entry + cited example `composition Ni3Al`) |
 | `cutoff` | core:physics | `cutoff 2.5` | 01_solid_liquid_lifted.chaord | yes (entry + cited example `cutoff 2.5`) |
 | `defect` | metal:region_crystal_defect | `defect divacancy count 1 depth 5.2 form split  # 4 empty sites, 2 displaced atoms` | 01_solid_liquid_lifted.chaord | yes (entry + cited example `defect V_Ni count 1`) |
-| `dialects` | core:provenance | `(no example in spec/examples/ - add one)` | - | yes (entry; no example exists in spec/examples (reported)) |
+| `dialects` | core:provenance | `dialects "core 0.1.0 + lj 0.1.0"` | 12_lifted_slab_residual.chaord | yes (entry + cited example `dialects "core 0.1.0 + lj 0.1.0"`) |
 | `dipole_p1` | research:system | `assert dipole_p1 0.821 +- 0.277 along z` | 11_nanotube_field.chaord | yes (entry + cited example `assert dipole_p1 0.821 +- 0.277 along z`) |
 | `dissociate` | core:interface | `dissociate H2O -> OH @ Ti_5c + H @ O_br count 9` | 07_reactive_interface.chaord | yes (entry + cited example `dissociate H2O -> OH @ Ti_5c + H @ O_br count 9`) |
 | `epsilon` | core:physics | `epsilon 1` | 01_solid_liquid_lifted.chaord | yes (entry + cited example `epsilon 1`) |
 | `field` | carbon:system | `state field E 0.10 V/A along z` | 11_nanotube_field.chaord | yes (entry + cited example `state field E 0.10 V/A along z`) |
 | `forcefield` | core:physics | `forcefield "trappe-ua"` | 06_gas.chaord | yes (entry + cited example `forcefield "trappe-ua"`) |
 | `history` | glass:region_amorphous, lj_mixtures:region_amorphous | `history melt 3000 K for 20 ps -> quench to 300 K at 1 K/ps -> anneal 300 K for 50 ps` | 04_amorphous_si.chaord | yes (entry + cited example `history melt 3000 K for 20 ps -> quench to 300 K at 1 K/ps -> anneal 300 K for 50 ps`) |
+| `ion_pairs` | research:region_liquid | `assert ion_pairs SSIP 1 CIP 1 AGG 0` | 11_nanotube_field.chaord | yes (entry + cited example `assert ion_pairs SSIP 1 CIP 1 AGG 0`) |
 | `lattice` | metal:region_crystal | `lattice fcc` | 01_solid_liquid_lifted.chaord | yes (entry + cited example `lattice fcc`) |
-| `lift_version` | core:provenance | `(no example in spec/examples/ - add one)` | - | yes (entry; no example exists in spec/examples (reported)) |
+| `li_shell` | research:region_liquid | `assert li_shell C3H4O3 2.5 +- 0.5 carbonyl_O 2.45 A` | 11_nanotube_field.chaord | yes (entry + cited example `assert li_shell C3H4O3 2.5 +- 0.5 carbonyl_O 2.45 A`) |
+| `lift_version` | core:provenance | `lift_version "0.1.0"` | 12_lifted_slab_residual.chaord | yes (entry + cited example `lift_version "0.1.0"`) |
+| `linear_density` | research:region_liquid | `state linear_density 0.432 A^-1` | 11_nanotube_field.chaord | yes (entry + cited example `state linear_density 0.432 A^-1`) |
 | `model` | core:physics, lj_mixtures:physics, molecular:physics | `model "mace-mp-0"` | 03_solid_solution_sro.chaord | yes (entry + cited example `model "mace-mp-0"`) |
 | `molecules` | molecular:region_gas, molecular:region_liquid | `molecules EC 600 Li+ 45 PF6- 45  # about 1 M` | 05_electrolyte.chaord | yes (entry + cited example `molecules H2O 620`) |
+| `n_r` | research:region_liquid | `state n_r C3H4O3 0.0000 0.0000 0.0000 0.0000 0.0036 0.0030 0.0148 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 bin 0.5 A` | 11_nanotube_field.chaord | yes (entry + cited example `state n_r C3H4O3 0.0000 0.0000 0.0000 0.0000 0.0036 0.0030 0.0148 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 bin 0.5 A`) |
 | `nanotube` | carbon:region_crystal | `nanotube (10,10) length 39.36 A` | 11_nanotube_field.chaord | yes (entry + cited example `nanotube (10,10) length 39.36 A`) |
-| `note` | core:provenance | `(no example in spec/examples/ - add one)` | - | yes (entry; no example exists in spec/examples (reported)) |
+| `note` | core:provenance | `note "T assumed (dialect default 0.65); not measured from the frame"` | 12_lifted_slab_residual.chaord | yes (entry + cited example `note "T assumed (dialect default 0.65); not measured from the frame"`) |
 | `orient` | ionic:region_crystal, metal:region_crystal | `orient x <100> z <001>` | 01_solid_liquid_lifted.chaord | yes (entry + cited example `orient x [100] y [010] z [001]`) |
 | `pbc` | core:system, lj:system | `pbc xyz` | 01_solid_liquid_lifted.chaord | yes (entry + cited example `pbc xyz`) |
 | `potential` | core:physics | `potential "NiAl.eam.alloy"` | 02_crystal_defects.chaord | yes (entry + cited example `potential "NiAl.eam.alloy"`) |
 | `prototype` | ionic:region_crystal, metal:region_crystal | `prototype L1_2` | 02_crystal_defects.chaord | yes (entry + cited example `prototype L1_2`) |
-| `reconstruction` | surface:region_crystal | `(no example in spec/examples/ - add one)` | - | yes (entry; no example exists in spec/examples (reported)) |
+| `reconstruction` | surface:region_crystal | `reconstruction p(2x1)` | 13_si001_reconstruction.chaord | yes (entry + cited example `reconstruction p(2x1)`) |
 | `seed` | core:system, lj:system | `seed 7` | 02_crystal_defects.chaord | yes (entry + cited example `seed 7`) |
 | `sigma` | core:physics | `sigma 1` | 01_solid_liquid_lifted.chaord | yes (entry + cited example `sigma 1`) |
-| `source` | core:provenance | `(no example in spec/examples/ - add one)` | - | yes (entry; no example exists in spec/examples (reported)) |
-| `stacking` | carbon:region_crystal | `(no example in spec/examples/ - add one)` | - | yes (entry; no example exists in spec/examples (reported)) |
+| `source` | core:provenance | `source "dump.lammpstrj"` | 12_lifted_slab_residual.chaord | yes (entry + cited example `source "dump.lammpstrj"`) |
+| `stacking` | carbon:region_crystal | `stacking AB` | 14_graphite_stacking.chaord | yes (entry + cited example `stacking AB`) |
 | `state` | glass:region_amorphous, lj_mixtures:region_amorphous, molecular:region_liquid | `state T 0.65` | 01_solid_liquid_lifted.chaord | yes (entry + cited example `state density 0.854`) |
 | `surface` | surface:region_crystal | `surface (110) top` | 07_reactive_interface.chaord | yes (entry + cited example `surface (110) top`) |
 | `termination` | surface:region_crystal | `termination bridging_O` | 07_reactive_interface.chaord | yes (entry + cited example `termination bridging_O`) |

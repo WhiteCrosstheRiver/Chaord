@@ -1,0 +1,23 @@
+chaord 0.1
+dialect core + carbon
+
+system {
+  cell 24.60 42.60 13.42 A
+  pbc xyz
+  seed 8
+  state T 300 K
+  conserve atoms C 1600
+}
+
+physics {
+  backend mlp
+  model "mace-mp-0"
+}
+
+crystal graphite : all {
+  stacking AB
+  a 2.46 A
+  c 6.71 A
+}
+
+residual none

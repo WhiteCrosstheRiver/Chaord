@@ -1,0 +1,21 @@
+chaord 0.1
+dialect core + carbon
+
+system {
+  cell 32.30 32.30 66.94 A
+  pbc xyz
+  seed 6
+  conserve atoms C 494
+}
+
+physics {
+  backend mlp
+  model "mace-mp-0"
+}
+
+crystal tube : cylinder axis z center 16.15 16.15 33.47 radius 6.15 A length 66.94 A {
+  nanotube (14,3) length 66.94 A
+  chirality (14,3)
+}
+
+residual none
