@@ -77,15 +77,19 @@ def _p1_lines(text):
 def test_all_84_production_frames_carry_blind_dipole_p1():
     """D29: lifting the committed pilot frames with NO field= still asserts
     the orientation statement -- the lift measures it from the frame, it
-    does not wait for the caller to confess a field."""
+    does not wait for the caller to confess a field.
+
+    Y3 (D35) ported this to the composed lift: lift_frame(mode="auto") on
+    the FULL dump frame -- no split_tube, no final.data reference -- composes
+    the tube and the confined liquid and asserts the blind statement along
+    the tube's own axis."""
     dl = A.composition_dialect()
     n_frames = 0
     for system in A.SYSTEMS:
         frames, _, _ = A.read_prod_frames(system)
         for fr in frames:
-            _, electrolyte = A.split_tube(fr, dl)
-            text = format_program(lift_frame(electrolyte, dl, T=A.T_K,
-                                             mode="fluid"))
+            text = format_program(lift_frame(fr, dl, T=A.T_K,
+                                             mode="auto"))
             lines = _p1_lines(text)
             assert len(lines) == 1, (system, lines)
             assert _P1_LINE.match("  " + lines[0]), (system, lines[0])

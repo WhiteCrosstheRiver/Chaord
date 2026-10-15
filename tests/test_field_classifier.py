@@ -98,7 +98,11 @@ def test_first_result_pins_the_headline_numbers():
         assert d["verification"]["census_frame_stable"], system
         assert d["chirality"] == list(PIN_CHIRALITY[system[:5]]), system
         assert d["chirality_matches_provenance"], system
-        assert d["max_tube_drift_A"] < 1e-3, system
+        # Y3: the chirality is inferred from the frames' OWN dump-precision
+        # carbons (no final.data reference); the frozen tube's inferred
+        # radius must be stable frame to frame (the drift pin this
+        # replaces read the tube against final.data)
+        assert d["tube_radius_spread_A"] <= 0.01, system
 
     # -- P1 distributions (mean +- std, RESULTS.md section 3)
     for system, (mean, std) in PIN_P1.items():

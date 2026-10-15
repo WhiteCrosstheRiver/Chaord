@@ -12,21 +12,21 @@ frame 0 at t = 0); all are lifted.
 Stages (each stage is a function so tests/test_field_classifier.py can run
 and pin them):
 
-  load_system      read prod.dump through the repo LAMMPS reader (type map
-                   from final.data), verify atom counts, the molecular
-                   census, the charge sum and the tube charge against
-                   provenance_*.json
-  lift_one_frame   compose the research program (RD4, docs/reviews/
-                   research_decisions.md): the frozen carbon sublattice ->
-                   RD2 chirality inference -> crystal `tube` region in its
-                   RD1 cylinder; the electrolyte -> lift_frame(mode="fluid",
-                   field=...) under the composition dialect (the research
-                   stack plus two recorded views: the solvent species view
-                   for P1, and fluid_max_bonded_component = 15, the largest
-                   registry molecule of this solvent set -- molecular.yaml
-                   names such species "routing exceptions"), with density
-                   and g(r) referred to the region volume
-                   (pipeline._fit_fluid_region's rule)
+  read_prod_frames  read prod.dump through the repo LAMMPS reader (Y4,
+                   D34): out-of-box coordinates are wrapped by the reader
+                   itself and the excursion recorded in frame.info; the
+                   type map comes from the BUILD data file's Masses (the
+                   provenance-recorded input), never from final.data
+  verify            atom counts, the molecular census, the charge sum and
+                   the tube charge against provenance_*.json (the tube
+                   indices come from the public nanotube_components)
+  lift_one_frame    ONE call of the public API (D35, Y3): lift_frame(frame,
+                   dialect, mode="auto", field=...) composes the crystal
+                   tube region (chirality inference on the frame's own
+                   dump-precision carbons) with the confined fluid region;
+                   the composition dialect carries the solvent species view
+                   (P1) and the fluid routing view (15, the largest registry
+                   molecule of this solvent set)
   p1_measurements  P1 of the solvent (species view [C3H4O3, C4H8O3]) on
                    every frame, plus per-species values for the report
   noise floors     within-system pairwise |dP1| over all frame pairs,
@@ -53,10 +53,8 @@ from __future__ import annotations
 
 import argparse
 import json
-import math
 import re
 import sys
-import tempfile
 from pathlib import Path
 
 import numpy as np
@@ -66,13 +64,12 @@ for _p in (str(ROOT / "src"),):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
-from chaord.build.molecules import bond_graph, molecule_census  # noqa: E402
-from chaord.dialects import Dialect, load_dialect               # noqa: E402
-from chaord.io.frames import Frame                              # noqa: E402
-from chaord.io.lammps import (                                   # noqa: E402
+from chaord.build.molecules import molecule_census          # noqa: E402
+from chaord.dialects import Dialect, load_dialect           # noqa: E402
+from chaord.io.lammps import (                               # noqa: E402
     LammpsTypeMap, read_lammps_data, read_lammps_dump)
-from chaord.lang.fmt import format_program                       # noqa: E402
-from chaord.lift import infer_nanotube_chirality, lift_frame    # noqa: E402
+from chaord.lang.fmt import format_program                   # noqa: E402
+from chaord.lift import lift_frame, nanotube_components     # noqa: E402
 
 HERE = Path(__file__).resolve().parent
 RUNS = HERE / "runs"
@@ -91,7 +88,12 @@ T_K = 300.0
 
 # ---------------------------------------------------------------- dialect --
 
-BASE_DIALECT_NAMES = ("core", "molecular", "research")
+# Y3 (open_items_v4.md, D35): the stack now carries CARBON -- the tube
+# inference's tolerances (cn_cutoff 1.85 A, the D33 gates) live there, and
+# lift_frame(mode="auto") needs them to compose tube plus liquid. Without
+# carbon the molecular dialect's cn_cutoff (3.10 A, an O-O first shell)
+# would shadow the C-C one.
+BASE_DIALECT_NAMES = ("core", "molecular", "carbon", "research")
 
 
 def research_dialect(species: list[str] | None = None) -> Dialect:
@@ -108,61 +110,39 @@ def research_dialect(species: list[str] | None = None) -> Dialect:
 
 # ------------------------------------------------------------------- input --
 
-def read_prod_frames(system: str) -> tuple[list[Frame], dict, dict]:
+def read_prod_frames(system: str) -> tuple[list, dict, LammpsTypeMap]:
     """(frames, provenance, type_map) of one system's 21 production frames.
 
-    LAMMPS rigid-body dumps carry atoms a few times 1e-3 box lengths
-    outside the box between re-neighbouring rewraps (measured max 8.2e-3
-    over the four dumps); the repo reader correctly refuses out-of-box
-    coordinates (Frame's wrapped invariant). Wrapping is a periodic-image
-    relabelling -- no physical change, the CVs minimum-image anyway -- so
-    each snapshot's x/y/z are wrapped into that snapshot's bounds in a
-    scratch copy that the reader then reads.  The largest excursion per
-    system is returned in the provenance dict handed back to the caller
-    (recorded in RESULTS.md)."""
+    The Y4 reader (D34) wraps the small out-of-box excursions itself and
+    records the largest one in frame.info["max_fractional_excursion"]; this
+    function only reports it per system (recorded in RESULTS.md). The type
+    map comes from the BUILD data file the provenance names
+    (outputs.data_file) -- dumps carry integer type ids only, and the lift
+    must not lean on final.data."""
     base = RUNS / system
     provenance = json.loads((base / f"provenance_{system}.json").read_text())
-    _, data_meta = read_lammps_data(base / "final.data")
+    build_data = HERE / provenance["outputs"]["data_file"]
+    _, data_meta = read_lammps_data(build_data)
     tmap: LammpsTypeMap = data_meta["type_map"]
 
-    src = (base / "prod.dump").read_text().splitlines()
-    out: list[str] = []
-    worst = 0.0
-    i = 0
-    while i < len(src):
-        if not src[i].startswith("ITEM: TIMESTEP"):
-            i += 1
-            continue
-        natoms = int(src[i + 3])
-        lo, hi = [], []
-        for k in range(3):
-            p = src[i + 5 + k].split()
-            lo.append(float(p[0]))
-            hi.append(float(p[1]))
-        columns = src[i + 8].split()[2:]
-        ix, iy, iz = (columns.index(c) for c in ("x", "y", "z"))
-        out.extend(src[i:i + 9])
-        for k in range(natoms):
-            tok = src[i + 9 + k].split()
-            for j, c in ((0, ix), (1, iy), (2, iz)):
-                L = hi[j] - lo[j]
-                v = float(tok[c])
-                worst = max(worst, (lo[j] - v) / L, (v - hi[j]) / L)
-                tok[c] = repr(lo[j] + (v - lo[j]) % L)   # periodic-image relabel
-            out.append(" ".join(tok))
-        i += 9 + natoms
-    scratch = Path(tempfile.mkdtemp()) / "wrapped.dump"
-    scratch.write_text("\n".join(out) + "\n")
-    frames = read_lammps_dump(scratch)
-    scratch.unlink()
-    scratch.parent.rmdir()
+    frames = read_lammps_dump(base / "prod.dump", type_map=tmap)
     unknown = tmap.apply(frames, strict=True)
     assert not unknown, f"{system}: unmapped type ids {unknown}"
-    provenance["_max_fractional_excursion"] = worst
+    provenance["_max_fractional_excursion"] = max(
+        fr.info["max_fractional_excursion"] for fr in frames)
     return frames, provenance, tmap
 
 
-def verify_against_provenance(system: str, frames: list[Frame],
+def tube_indices(frame, dl: Dialect) -> np.ndarray:
+    """Indices of the frame's nanotube (the public nanotube_components of
+    D35; the composed lift identifies the tube itself, and this reports
+    the same identification for verification)."""
+    tubes = nanotube_components(frame, dl)
+    assert len(tubes) == 1, f"expected one tube, found {len(tubes)}"
+    return tubes[0].indices
+
+
+def verify_against_provenance(system: str, frames: list,
                               provenance: dict, dl: Dialect) -> dict:
     """Fail-closed verification of every frame against the provenance record
     (atom count, molecular census of the electrolyte, charge sum, tube
@@ -177,9 +157,14 @@ def verify_against_provenance(system: str, frames: list[Frame],
         q = np.asarray(fr.info["charges"], float)
         assert abs(q.sum()) < 1e-6, \
             f"{system}: cell charge {q.sum():.3e} e is not neutral"
-        tube, electrolyte = split_tube(fr, dl)
-        assert abs(q[tube_indices(fr, dl)].sum()) < 1e-6, \
-            f"{system}: the frozen tube carries charge"
+        idx = tube_indices(fr, dl)
+        assert abs(q[idx].sum()) < 1e-6, \
+            f"{system}: the tube carries charge"
+        keep = np.setdiff1d(np.arange(len(fr)), idx)
+        from chaord.io.frames import Frame
+        electrolyte = Frame(pos=fr.pos[keep], cell=fr.cell,
+                            symbols=[fr.symbols[i] for i in keep],
+                            pbc=fr.pbc, info={"charges": q[keep]})
         census = molecule_census(electrolyte, dl)
         got = {"EC": census.get("C3H4O3", 0), "EMC": census.get("C4H8O3", 0),
                "Li": census.get("Li", 0), "PF6": census.get("F6P", 0)}
@@ -192,281 +177,45 @@ def verify_against_provenance(system: str, frames: list[Frame],
                                         for c in per_frame}) == 1}
 
 
-_TUBE_CACHE: dict[int, tuple[Frame, np.ndarray]] = {}
-
-
-def tube_indices(frame: Frame, dl: Dialect) -> np.ndarray:
-    """Indices of the frozen tube: the frame's largest bond-graph component
-    (all-carbon, the majority of atoms -- the pseudo-molecule the census
-    would refuse is exactly the region boundary here).  The cache holds the
-    frame itself beside the indices, so a freed frame's id() cannot be
-    reused by a different frame while its answer is cached."""
-    cached = _TUBE_CACHE.get(id(frame))
-    if cached is not None and cached[0] is frame:
-        return cached[1]
-    from scipy.sparse import coo_matrix
-    from scipy.sparse.csgraph import connected_components
-    edges = bond_graph(frame, dl)
-    n = len(frame)
-    rows = [e[0] for e in edges] + [e[1] for e in edges]
-    cols = [e[1] for e in edges] + [e[0] for e in edges]
-    _, labels = connected_components(
-        coo_matrix((np.ones(len(rows)), (rows, cols)), shape=(n, n)),
-        directed=False)
-    counts = np.bincount(labels)
-    tube_label = int(np.argmax(counts))
-    idx = np.where(labels == tube_label)[0]
-    assert counts[tube_label] * 2 >= n, "the largest component is not the tube"
-    assert {frame.symbols[i] for i in idx} == {"C"}, \
-        "the tube component is not pure carbon"
-    if len(_TUBE_CACHE) > 64:
-        _TUBE_CACHE.clear()
-    _TUBE_CACHE[id(frame)] = (frame, idx)
-    return idx
-
-
-def split_tube(frame: Frame, dl: Dialect) -> tuple[Frame, Frame]:
-    """(tube frame, electrolyte frame): the frozen carbon sublattice and the
-    confined mobile fluid, both with the full cell (pbc) and the charges."""
-    idx = tube_indices(frame, dl)
-    keep = np.setdiff1d(np.arange(len(frame)), idx)
-    q = np.asarray(frame.info["charges"], float)
-    tube = Frame(pos=frame.pos[idx], cell=frame.cell,
-                 symbols=[frame.symbols[i] for i in idx], pbc=frame.pbc,
-                 info={"charges": q[idx]})
-    electrolyte = Frame(pos=frame.pos[keep], cell=frame.cell,
-                        symbols=[frame.symbols[i] for i in keep],
-                        pbc=frame.pbc, info={"charges": q[keep]})
-    return tube, electrolyte
-
-
 # -------------------------------------------------------------------- lift --
 
-def read_tube_reference(system: str) -> Frame:
-    """The frozen tube sublattice from the system's `final.data` (full
-    1e-6-A text precision; the production dump rounds to 6 significant
-    digits, which cannot pass RD2's exact single-radius gate).
-
-    The tube atoms are frozen (`fix setforce 0`), so this sublattice IS
-    every frame's tube; the per-frame pipeline asserts the dump's tube
-    matches it within the dump's rounding before using it."""
-    frame, meta = read_lammps_data(RUNS / system / "final.data")
-    idx = np.array([i for i, mid in enumerate(meta["molecule_ids"])
-                    if mid == 1])
-    assert len(idx) > 0 and {frame.symbols[i] for i in idx} == {"C"}, \
-        f"{system}: molecule 1 of final.data is not the all-carbon tube"
-    q = np.asarray(meta["charges"], float) if meta["charges"] else None
-    return Frame(pos=frame.pos[idx], cell=frame.cell,
-                 symbols=[frame.symbols[i] for i in idx], pbc=frame.pbc,
-                 info={"charges": q})
+# The composed program's own statements are the record: the tube's
+# chirality, radius and length are parsed back out of the lifted text (the
+# research script reads only the public API's product).
+_TUBE_LINE = re.compile(
+    r"crystal tube : cylinder axis ([xyz]) .*\{\n"
+    r"\s+nanotube \((\d+),(\d+)\) length (\d+\.\d+) A")
+_TUBE_RADIUS = re.compile(
+    r"crystal tube : cylinder axis [xyz] center [-\d.]+ [-\d.]+ [-\d.]+ "
+    r"radius (\d+\.\d+) A")
 
 
-def tube_geometry(tube: Frame) -> dict:
-    """The tube's region geometry from its own positions: RD2's chirality
-    inference on the frozen (ideal, never thermalised -- the tube atoms are
-    frozen at build time) carbon sublattice, plus the axis centre (the
-    perpendicular centroid, min-image anchored: exact for the symmetric
-    frozen tube) and radius (mean radial distance).
-
-    RD2 limitation, recorded in RESULTS.md: `infer_nanotube_chirality`
-    re-anchors perpendicular coordinates by minimum image, which is unique
-    only below half the perpendicular cell edge; the cnt16 tube's diameter
-    (21.71 A) exceeds its cell's half-width (20.86 A), so the inference
-    runs with the two perpendicular cell lengths TRIPLED.  No wrap actually
-    occurs in either system (each tube sits centred, entirely inside the
-    box: max tube extent 21.71 A against 41.72 A of cell), the axial
-    period and every consistency gate are unchanged, and the cnt10 result
-    is bit-identical with and without the tripling (asserted by the test
-    suite).  Fixing the anchoring inside lift/nanotube.py is next round's
-    item, not this round's."""
-    L = np.asarray(tube.cell_diag, float)
-    inference_cell = L * np.array([3.0, 3.0, 1.0])
-    chir = infer_nanotube_chirality(tube.pos, inference_cell)
-    perp = tube.pos[:, :2] - tube.pos[0, :2]
-    perp -= 5.0 * L[:2] * np.round(perp / (5.0 * L[:2]))   # wide-window anchor
-    centre = tube.pos[0, :2] + perp.mean(axis=0)
-    d = tube.pos[:, :2] - centre
-    d -= 5.0 * L[:2] * np.round(d / (5.0 * L[:2]))
-    radius = float(np.linalg.norm(d, axis=1).mean())
-    spread = float(np.linalg.norm(d, axis=1).max()
-                   - np.linalg.norm(d, axis=1).min())
-    assert spread < 1e-4, f"tube radius spread {spread:.2e} A"
-    return {"n": chir.n, "m": chir.m, "length": chir.length,
-            "axis": "z", "centre": (float(centre[0]), float(centre[1]),
-                                    float(L[2] / 2)),
-            "radius": radius, "radius_spread_A": spread}
+def tube_from_text(text: str) -> dict:
+    """The tube the composed program states: chirality, length, radius."""
+    m = _TUBE_LINE.search(text)
+    r = _TUBE_RADIUS.search(text)
+    assert m and r, text[:400]
+    return {"axis": m.group(1), "n": int(m.group(2)), "m": int(m.group(3)),
+            "length": float(m.group(4)), "radius": float(r.group(1))}
 
 
-def _cylinder(geometry: dict, dl: Dialect):
-    from chaord.lang.ir import GeoChain, Quantity, ShCylinder
-    return GeoChain(parts=[ShCylinder(
-        axis=geometry["axis"],
-        cx=Quantity(num=f"{geometry['centre'][0]:.3f}"),
-        cy=Quantity(num=f"{geometry['centre'][1]:.3f}"),
-        cz=Quantity(num=f"{geometry['centre'][2]:.3f}"),
-        radius=Quantity(num=f"{geometry['radius']:.3f}", unit="A"),
-        length=Quantity(num=f"{geometry['length']:.3f}", unit="A"))], ops=[])
-
-
-def _region_volume(geometry: dict) -> float:
-    """pi r^2 L of the fluid region (the tube's interior cylinder): the
-    volume the region's density and g(r) refer to."""
-    return math.pi * geometry["radius"] ** 2 * geometry["length"]
-
-
-def _fluid_region_statements(electrolyte: Frame, geometry: dict,
-                             dl: Dialect) -> list:
-    """The confined fluid's statements, following pipeline._fit_fluid_region
-    (lift/build v2 design 2.2) exactly: the legacy fluid lifter's statement
-    set with densities referred to the REGION volume -- a sub-region is not
-    the box, and the box here is mostly vacuum."""
-    from chaord.lift.fluid import _centers, _cn_stats_centers
-    from chaord.lift.pipeline import _rdf_region
-    from chaord.lift.reactive import display_name
-    from chaord.lang.ir import Name, Quantity, Statement, Tol
-
-    census = molecule_census(electrolyte, dl)
-    statements = []
-    for formula in sorted(census):
-        statements.append(Statement(
-            kind="build", key="molecules",
-            values=[Name(text=display_name(formula, dl)),
-                    Quantity(num=str(census[formula]))]))
-    volume = _region_volume(geometry)
-    total_mass = sum(_atomic_mass(s) for s in electrolyte.symbols)
-    rho_g = total_mass / volume / 0.6022140857   # u/A^3 -> g/cm3 (fluid.py constant)
-    statements.append(Statement(
-        kind="state", key="density",
-        values=[Quantity(num=f"{rho_g:.3f}", unit="g/cm3")]))
-    centers = _centers(electrolyte, dl)
-    cn, cn_sd, cn_cut = _cn_stats_centers(electrolyte, centers, dl)
-    statements.append(Statement(
-        kind="assert", key="cn",
-        values=[Quantity(num=f"{cn:.1f}"), Tol(value=Quantity(num=f"{cn_sd:.1f}")),
-                Name(text="cutoff"), Quantity(num=f"{cn_cut:.2f}", unit="A")]))
-    rm, g = _rdf_region(centers, electrolyte.cell_diag,
-                        len(centers) / volume, dl)
-    if len(rm):
-        ipk = int(np.argmax(g))
-        statements.append(Statement(
-            kind="assert", key="gr_peak",
-            values=[Quantity(num=f"{rm[ipk]:.2f}", unit="A"),
-                    Name(text="height"), Quantity(num=f"{g[ipk]:.2f}")]))
-    return statements
-
-
-def _atomic_mass(symbol: str) -> float:
-    from ase.data import atomic_masses, chemical_symbols
-    return float(atomic_masses[chemical_symbols.index(symbol)])
-
-
-def lift_one_frame(frame: Frame, field: dict | None, geometry: dict,
-                   tube_reference: Frame, dl: Dialect | None = None
+def lift_one_frame(frame, field: dict | None, dl: Dialect | None = None
                    ) -> tuple[str, dict]:
-    """The composed research program of one frame (RD4) + its diagnostics.
+    """The composed research program of one frame (D35) + its diagnostics.
 
-    `field` is the provenance field spec for field-on systems
-    ({"value": 0.2, "unit": "V/A", "axis": "z"}), None for field-off.
-    `geometry` is the frozen tube's region geometry (from final.data, see
-    tube_geometry) and `tube_reference` its sublattice, which the frame's
-    own tube must match within the dump's text rounding before the
-    composition uses it (the tube is frozen: any larger deviation would be
-    a data error).  The composition: tube region (RD2 chirality inside its
-    RD1 cylinder) + electrolyte region lifted through
-    lift_frame(mode="fluid", field=...) under `dl` (the composition
-    dialect: the research stack with the species and fluid-routing views of
-    RD4).  The electrolyte subset's field statements (`state field`, the
-    RD4/D29 `assert dipole_p1`, their notes) are carried into the
-    composed program's system block and provenance verbatim."""
+    ONE call of the public API: lift_frame(frame, dl, mode="auto",
+    field=field) identifies the tube from the frame's own dump-precision
+    carbons (Y3's inference -- no final.data reference, no cell tripling),
+    lifts it as the crystal tube region in its cylinder, the atoms inside
+    the cylinder as the confined fluid, and asserts the blind dipole_p1
+    along the tube's axis (D29)."""
     dl = dl if dl is not None else composition_dialect()
-    tube, electrolyte = split_tube(frame, dl)
-    assert len(tube) == len(tube_reference), \
-        (f"frame's tube holds {len(tube)} atoms, final.data's holds "
-         f"{len(tube_reference)}")
-    drift = float(np.abs(np.mod(tube.pos - tube_reference.pos
-                                + frame.cell_diag / 2, frame.cell_diag)
-                         - frame.cell_diag / 2).max())
-    assert drift < 1e-3, \
-        f"the 'frozen' tube moved {drift:.2e} A between final.data and this frame"
-    subset_program = lift_frame(electrolyte, dl, T=T_K, mode="fluid",
-                                field=field)
-    from chaord.lang.ir import (
-        Chirality, Name, PhysicsBlock, Program, ProvenanceBlock, Quantity,
-        RegionBlock, ResidualBlock, Statement, StrVal, SystemBlock)
-
-    sub_system = next(b for b in subset_program.blocks if b.t == "system")
-    sub_physics = next(b for b in subset_program.blocks if b.t == "physics")
-    sub_prov = next(b for b in subset_program.blocks if b.t == "provenance")
-
-    counts: dict[str, int] = {}
-    for s in frame.symbols:
-        counts[s] = counts.get(s, 0) + 1
-    conserve = []
-    for s in sorted(counts):
-        conserve += [Name(text=s), Quantity(num=str(counts[s]))]
-
-    L = frame.cell_diag
-    system_statements = [
-        Statement(kind="build", key="cell", values=[
-            Quantity(num=f"{L[i]:.3f}") for i in range(3)]),
-        Statement(kind="build", key="pbc", values=[Name(text="xyz")]),
-        Statement(kind="state", key="T", values=[Quantity(num=f"{T_K:.2f}")]),
-    ]
-    field_statements = [s for s in sub_system.statements
-                        if s.key in ("field", "dipole_p1")]
-    system_statements.extend(field_statements)
-    system_statements.append(
-        Statement(kind="conserve", key="atoms", values=conserve))
-
-    tube_region = RegionBlock(
-        phase="crystal", name="tube", geometry=_cylinder(geometry, dl),
-        statements=[Statement(
-            kind="build", key="nanotube",
-            values=[Chirality(n=geometry["n"], m=geometry["m"]),
-                    Name(text="length"),
-                    Quantity(num=f"{geometry['length']:.3f}", unit="A")])])
-    fluid_region = RegionBlock(
-        phase="liquid", name="fluid", geometry=_cylinder(geometry, dl),
-        statements=_fluid_region_statements(electrolyte, geometry, dl))
-
-    # the composed program's dialect line names the composed stack (the
-    # subset lift ran without carbon; the composition adds it for the
-    # nanotube region's vocabulary)
-    composed_stack = load_dialect(("core", "molecular", "carbon", "research"))
-    prov = [Statement(kind="build", key="dialects",
-                      values=[StrVal(text=composed_stack.version_string)])] + [
-        s for s in sub_prov.statements
-        if not (s.kind == "build" and s.key == "dialects")]
-    if field is not None:
-        axis_note = (f"field axis {field['axis']} from the run input "
-                     f"(in.*: fix efield mobile efield 0. 0. {field['value']})")
-        prov.append(Statement(kind="build", key="note",
-                              values=[StrVal(text=axis_note)]))
-    prov.append(Statement(kind="build", key="note", values=[StrVal(
-        text="composed first-result program (RD4, docs/reviews/"
-             "research_decisions.md): crystal tube region from RD2 chirality "
-             "inference on the frozen carbon sublattice; electrolyte through "
-             "lift_frame mode=fluid under fluid_max_bonded_component = 15 "
-             "(the registry's largest molecule of this solvent set; "
-             "molecular.yaml names such species routing exceptions)")]))
-    prov.append(Statement(kind="build", key="note", values=[StrVal(
-        text="fluid density and g(r) referred to the tube-interior region "
-             "volume (pipeline._fit_fluid_region's rule: a sub-region is not "
-             "the box)")]))
-
-    program = Program(
-        version="0.1",
-        dialects=["core", "molecular", "carbon", "research"],
-        blocks=[SystemBlock(statements=system_statements),
-                PhysicsBlock(statements=list(sub_physics.statements)),
-                tube_region, fluid_region,
-                ResidualBlock(none=True),
-                ProvenanceBlock(statements=prov)])
+    program = lift_frame(frame, dl, T=T_K, mode="auto", field=field)
     from chaord.check.statics import run_checks
     failed = [f"{c.name}: {c.detail}" for c in
               run_checks(program, frame, dl) if not c.passed]
-    return format_program(program), {"geometry": geometry,
-                                     "failed_checks": failed}
+    text = format_program(program)
+    return text, {"tube": tube_from_text(text), "failed_checks": failed}
 
 
 # The fluid-routing view of the research stack (RD4): molecular.yaml's
@@ -480,9 +229,9 @@ FLUID_MAX_BONDED_COMPONENT_VIEW = 15
 
 
 def composition_dialect() -> Dialect:
-    """The dialect the composed lift runs under: the research stack with the
-    solvent species view (P1) and the fluid routing view (molecules above
-    the water-class bound)."""
+    """The dialect the composed lift runs under: the research stack (with
+    carbon, Y3) plus the solvent species view (P1) and the fluid routing
+    view (molecules above the water-class bound)."""
     dl = research_dialect(SOLVENT_SPECIES)
     thresholds = dict(dl._data["thresholds"])
     thresholds["fluid_max_bonded_component"] = FLUID_MAX_BONDED_COMPONENT_VIEW
@@ -492,7 +241,7 @@ def composition_dialect() -> Dialect:
 
 # ------------------------------------------------------- P1 and the floors --
 
-def p1_of(frame: Frame, species: list[str]) -> dict:
+def p1_of(frame, species: list[str]) -> dict:
     """P1 over `species` (a measurement view), from the frame's charges."""
     from chaord.cv.field import dipole_orientation
     return dipole_orientation(frame, research_dialect(species))
@@ -644,40 +393,36 @@ def run_pipeline(frames_per_system: int | None = None) -> dict:
             frames = frames[:frames_per_system]
         check = verify_against_provenance(system, frames, provenance, dl)
         field = field_spec(provenance)
-        tube_reference = read_tube_reference(system)
-        geometry = tube_geometry(tube_reference)
         texts, p1s, n_mols = [], [], []
         ec_p1, emc_p1 = [], []
         failed_checks = []
-        tube_drift = 0.0
+        radii, chirs = [], []
         for fr in frames:
-            text, info = lift_one_frame(fr, field, geometry, tube_reference,
-                                        dl=dl)
+            text, info = lift_one_frame(fr, field, dl=dl)
             texts.append(text)
             failed_checks.extend(f"{system}: {c}" for c in info["failed_checks"])
-            tube, electrolyte = split_tube(fr, dl)
-            drift = float(np.abs(np.mod(
-                tube.pos - tube_reference.pos + fr.cell_diag / 2,
-                fr.cell_diag) - fr.cell_diag / 2).max())
-            tube_drift = max(tube_drift, drift)
-            dip = p1_of(electrolyte, SOLVENT_SPECIES)
+            tube = info["tube"]
+            radii.append(tube["radius"])
+            chirs.append([tube["n"], tube["m"]])
+            dip = p1_of(fr, SOLVENT_SPECIES)
             p1s.append(dip["P1"])
             n_mols.append(dip["n_molecules"])
-            ec_p1.append(p1_of(electrolyte, ["C3H4O3"])["P1"])
-            emc_p1.append(p1_of(electrolyte, ["C4H8O3"])["P1"])
+            ec_p1.append(p1_of(fr, ["C3H4O3"])["P1"])
+            emc_p1.append(p1_of(fr, ["C4H8O3"])["P1"])
         p1s = np.asarray(p1s)
+        assert len({tuple(c) for c in chirs}) == 1, \
+            f"{system}: the inferred chirality moves between frames: {chirs}"
         per_system[system] = {
             "field": bool(field), "n_frames": len(frames),
             "verification": check,
             "max_dump_excursion": provenance["_max_fractional_excursion"],
-            "chirality": [geometry["n"], geometry["m"]],
+            "chirality": chirs[0],
             "chirality_matches_provenance":
-                [geometry["n"], geometry["m"]]
-                == [int(c) for c in
-                    provenance["system_definition"]["cnt_chirality"]],
-            "tube_radius_A": geometry["radius"],
-            "tube_length_A": geometry["length"],
-            "max_tube_drift_A": tube_drift,
+                chirs[0] == [int(c) for c in
+                             provenance["system_definition"]["cnt_chirality"]],
+            "tube_radius_A": float(np.mean(radii)),
+            "tube_radius_spread_A": float(np.ptp(radii)),
+            "tube_length_A": tube["length"],
             "p1_mean": float(p1s.mean()), "p1_std": float(p1s.std(ddof=1)),
             "p1_min": float(p1s.min()), "p1_max": float(p1s.max()),
             "p1_floor": floor_of(p1s),

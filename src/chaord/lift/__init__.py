@@ -13,17 +13,30 @@ again and sets its exit code from them.
 """
 from chaord.lift.crystal import lift_crystal  # noqa: F401
 from chaord.lift.nanotube import (  # noqa: F401
-    NanotubeChirality, infer_nanotube_chirality,
+    NanotubeChirality, TubeComponent, infer_nanotube_chirality,
+    nanotube_components,
 )
 from chaord.lift.passes import otsu, pairs_within, qbar  # noqa: F401
 from chaord.lift.slab import decompile, program_from_result  # noqa: F401
 from chaord.lift.defect_program import lift_crystal_defects  # noqa: F401
 from chaord.lift.fluid import AssumedT, lift_fluid  # noqa: F401
 
+import numpy as np
+
 
 def lift_frame(frame, dialect, T=None, mode="auto", field=None):
     """Lift a Frame into a Program; mode is auto | pipeline | crystal |
     defects | amorphous | surface | fluid | slab.
+
+    mode="auto" composes a tube-plus-liquid frame first (D35,
+    docs/reviews/open_items_v4.md Y3): every all-carbon three-coordinated
+    component that passes the nanotube inference becomes a crystal tube
+    region in its cylinder, the atoms inside the cylinder lift as the
+    confined fluid region with the molecular stack, and any atom outside
+    the cylinders becomes its own region. When no component passes the
+    inference (the verdict of `nanotube_components`, including dialects
+    without the carbon vocabulary) the legacy cascade answers exactly as
+    before. Every other mode is the legacy cascade alone.
 
     mode="pipeline" runs the segment-first pipeline (lift/build v2 stage 1);
     every other mode is the legacy try-cascade (lift/legacy.py). mode="auto"
@@ -58,12 +71,22 @@ def lift_frame(frame, dialect, T=None, mode="auto", field=None):
             T = AssumedT(float(dialect.threshold("md_reference_T")))
         except Exception:
             T = None  # dialects without an MD default state no temperature
+    program = unexplained = None
     if mode == "pipeline":
         from chaord.lift.pipeline import pipeline_lift_detailed
         program, unexplained = pipeline_lift_detailed(frame, dialect, T)
     else:
-        from chaord.lift.legacy import legacy_lift
-        program, unexplained = legacy_lift(frame, dialect, T, mode)
+        if mode == "auto":
+            from ..lang.errors import ChaordError
+            try:
+                program, unexplained = _nanotube_composition(frame, dialect, T), 0
+            except ChaordError as e:
+                if "defines no threshold" in str(e):
+                    raise  # a configuration bug, not a not-a-tube verdict
+                program = None    # not a tube frame: the legacy cascade
+        if program is None:
+            from chaord.lift.legacy import legacy_lift
+            program, unexplained = legacy_lift(frame, dialect, T, mode)
     field_axis = None
     if field_parts is not None:
         stmt, note = field_parts
@@ -71,6 +94,242 @@ def lift_frame(frame, dialect, T=None, mode="auto", field=None):
         field_axis = stmt.values[-1].text
     _attach_dipole_p1(program, frame, dialect, field_axis=field_axis)
     return _record_lift_diag(program, frame, dialect, unexplained)
+
+
+def _nanotube_composition(frame, dialect, T):
+    """D35 (docs/reviews/open_items_v4.md, Y3): the tube-plus-liquid
+    composition of mode="auto". Returns the composed Program, or raises
+    ChaordError when no all-carbon three-coordinated component passes the
+    nanotube inference (`nanotube_components`): that refusal is the arm's
+    not-my-phase verdict, and the caller falls through to the legacy
+    cascade. Once a tube IS identified, every error below propagates --
+    the frame is this arm's to describe or to refuse loudly, never to hand
+    a half-identified tube to the slab lifter.
+
+    The composition: one crystal tube region per identified tube (the RD2
+    chirality inference inside its RD1 cylinder); the atoms INSIDE each
+    cylinder lift as the confined liquid region with the molecular stack
+    (census, density, cn, g(r) peak referred to the REGION volume --
+    pipeline._fit_fluid_region's rule: a sub-region is not the box); the
+    atoms outside every cylinder become their own `all minus cylinder`
+    region. Every atom is explained; the residual block is none."""
+    from ..lang.errors import ChaordError
+    from ..lang.ir import (
+        Chirality, GeoChain, Name, PhysicsBlock, Program, ProvenanceBlock,
+        Quantity, RegionBlock, ResidualBlock, ShAll, ShCylinder, Statement,
+        StrVal, SystemBlock)
+    from .nanotube import nanotube_components
+
+    tubes = nanotube_components(frame, dialect)
+    if not tubes:
+        raise ChaordError(
+            "no all-carbon three-coordinated component passes the nanotube "
+            "inference: not a tube frame")
+    L = np.asarray(frame.cell_diag, float)
+
+    counts: dict[str, int] = {}
+    for s in frame.symbols:
+        counts[s] = counts.get(s, 0) + 1
+    conserve = []
+    for s in sorted(counts):
+        conserve += [Name(text=s), Quantity(num=str(counts[s]))]
+    system_statements = [
+        Statement(kind="build", key="cell", values=[
+            Quantity(num=f"{L[i]:.3f}") for i in range(3)]),
+        Statement(kind="build", key="pbc", values=[Name(text="xyz")]),
+    ]
+    if T is not None:
+        system_statements.append(
+            Statement(kind="state", key="T",
+                      values=[Quantity(num=f"{T:.2f}")]))
+    system_statements.append(
+        Statement(kind="conserve", key="atoms", values=conserve))
+
+    physics_statements = [Statement(
+        kind="build", key="backend",
+        values=[Name(text="lj" if "lj" in dialect.names else "classical")])]
+
+    tube_atoms = np.concatenate([t.indices for t in tubes])
+    assigned = np.zeros(len(frame), bool)
+    assigned[tube_atoms] = True
+    regions = []
+    for k, tube in enumerate(tubes):
+        chir = tube.chirality
+        axis = "xyz".index(chir.axis)
+        perp = [j for j in range(3) if j != axis]
+        cylinder = ShCylinder(
+            axis=chir.axis,
+            cx=Quantity(num=f"{chir.centre[perp[0]]:.3f}"),
+            cy=Quantity(num=f"{chir.centre[perp[1]]:.3f}"),
+            cz=Quantity(num=f"{chir.centre[axis]:.3f}"),
+            radius=Quantity(num=f"{chir.radius:.3f}", unit="A"),
+            length=Quantity(num=f"{chir.length:.3f}", unit="A"))
+        suffix = "" if k == 0 else str(k + 1)
+        regions.append(RegionBlock(
+            phase="crystal", name=f"tube{suffix}",
+            geometry=GeoChain(parts=[cylinder], ops=[]),
+            statements=[Statement(
+                kind="build", key="nanotube",
+                values=[Chirality(n=chir.n, m=chir.m), Name(text="length"),
+                        Quantity(num=f"{chir.length:.3f}", unit="A")])]))
+        # the confined fluid: non-tube atoms inside this cylinder
+        d = frame.pos[:, perp] - np.array(chir.centre)[perp]
+        d -= L[perp] * np.round(d / L[perp])
+        inside = (~assigned) & (np.hypot(d[:, 0], d[:, 1]) < chir.radius)
+        if not inside.any():
+            continue
+        assigned |= inside
+        sub = _subset(frame, np.where(inside)[0])
+        volume = np.pi * chir.radius ** 2 * chir.length
+        regions.append(RegionBlock(
+            phase="liquid", name=f"fluid{suffix}",
+            geometry=GeoChain(parts=[_copy_cylinder(cylinder)], ops=[]),
+            statements=_confined_statements(sub, volume, dialect)))
+
+    outside = np.where(~assigned)[0]
+    if len(outside):
+        volume = float(np.prod(L)) - sum(
+            np.pi * t.chirality.radius ** 2 * t.chirality.length
+            for t in tubes)
+        if volume <= 0:
+            raise ChaordError(
+                "the identified cylinders' volumes exceed the cell (do the "
+                "tubes overlap?): the outside region has no volume to state")
+        geometry = GeoChain(
+            parts=[ShAll()] + [_copy_cylinder(_tube_cyl(t.chirality))
+                               for t in tubes],
+            ops=["minus"] * len(tubes))
+        regions.append(RegionBlock(
+            phase="liquid", name="outside", geometry=geometry,
+            statements=_confined_statements(_subset(frame, outside),
+                                            volume, dialect)))
+
+    provenance = [
+        Statement(kind="build", key="dialects",
+                  values=[StrVal(text=dialect.version_string)]),
+        Statement(kind="build", key="lift_version",
+                  values=[StrVal(text="0.1.0")]),
+        Statement(kind="build", key="note", values=[StrVal(text=(
+            "composed tube-plus-liquid program (D35, docs/reviews/"
+            "open_items_v4.md Y3): all-carbon three-coordinated components "
+            "lifted through the chirality inference as crystal tube regions; "
+            "atoms inside each cylinder as the confined fluid region; atoms "
+            "outside as their own region"))]),
+        Statement(kind="build", key="note", values=[StrVal(text=(
+            "fluid density and g(r) referred to the tube-interior region "
+            "volume (pipeline._fit_fluid_region's rule: a sub-region is not "
+            "the box)"))]),
+    ]
+    if isinstance(T, AssumedT):
+        provenance.append(Statement(
+            kind="build", key="note",
+            values=[StrVal(text=(f"T assumed (dialect default {float(T):g}); "
+                                 "not measured from the frame"))]))
+    return Program(
+        version="0.1",  # dialect-exempt: numerical-guard: language version constant
+        dialects=list(dialect.names),
+        blocks=[SystemBlock(statements=system_statements),
+                PhysicsBlock(statements=physics_statements),
+                *regions, ResidualBlock(none=True),
+                ProvenanceBlock(statements=provenance)])
+
+
+def _tube_cyl(chir):
+    """The tube's cylinder shape (the region's own geometry)."""
+    from ..lang.ir import Quantity, ShCylinder
+    axis = "xyz".index(chir.axis)
+    perp = [j for j in range(3) if j != axis]
+    return ShCylinder(
+        axis=chir.axis,
+        cx=Quantity(num=f"{chir.centre[perp[0]]:.3f}"),
+        cy=Quantity(num=f"{chir.centre[perp[1]]:.3f}"),
+        cz=Quantity(num=f"{chir.centre[axis]:.3f}"),
+        radius=Quantity(num=f"{chir.radius:.3f}", unit="A"),
+        length=Quantity(num=f"{chir.length:.3f}", unit="A"))
+
+
+def _copy_cylinder(cyl):
+    """A fresh ShCylinder equal to `cyl` (pydantic models are shared by
+    reference; two regions must not share one mutable geometry node)."""
+    from ..lang.ir import ShCylinder
+    return ShCylinder(axis=cyl.axis, cx=cyl.cx, cy=cyl.cy, cz=cyl.cz,
+                      radius=cyl.radius, length=cyl.length)
+
+
+def _subset(frame, idx):
+    """The frame restricted to `idx`, carrying the charges (the LAMMPS
+    reader's convention) so the dipole observables of the composed program
+    measure from the file's own charges."""
+    import numpy as np
+    from ..io.frames import Frame
+    info = {}
+    if frame.info.get("charges") is not None:
+        q = np.asarray(frame.info["charges"], float)
+        info["charges"] = q[idx]
+    return Frame(pos=frame.pos[idx], cell=frame.cell,
+                 symbols=[frame.symbols[i] for i in idx],
+                 pbc=frame.pbc, info=info)
+
+
+def _confined_statements(sub, volume, dialect) -> list:
+    """The legacy fluid lifter's statement set on a sub-region: census,
+    density, cn and g(r) referred to the REGION volume (the rule the old
+    research pipeline used, one definition -- pipeline._fit_fluid_region)."""
+    import numpy as np
+    from ..build.molecules import molecule_census
+    from ..lang.ir import Name, Quantity, Statement, Tol
+    from .fluid import _all_elements, _centers, _cn_stats, _cn_stats_centers
+    from .pipeline import _rdf_region
+    from .reactive import display_name
+
+    statements = []
+    census = molecule_census(sub, dialect) if _all_elements(sub) else {}
+    molecular = any(len(n) > 2 or not _is_element_name(n) for n in census)
+    if molecular:
+        for formula in sorted(census):
+            statements.append(Statement(
+                kind="build", key="molecules",
+                values=[Name(text=display_name(formula, dialect)),
+                        Quantity(num=str(census[formula]))]))
+        from ase.data import atomic_masses, chemical_symbols
+        total_mass = sum(atomic_masses[chemical_symbols.index(s)]
+                         for s in sub.symbols)
+        rho_g = total_mass / volume / 0.6022140857  # u/A^3 -> g/cm3  # dialect-exempt: exact-geometry
+        statements.append(Statement(
+            kind="state", key="density",
+            values=[Quantity(num=f"{rho_g:.3f}", unit="g/cm3")]))
+        centers = _centers(sub, dialect)
+        cn, cn_sd, cn_cut = _cn_stats_centers(sub, centers, dialect)
+    else:
+        rho_n = len(sub) / volume if volume > 0 else 0.0  # dialect-exempt: numerical-guard: empty-region density
+        statements.append(Statement(
+            kind="state", key="density", values=[Quantity(num=f"{rho_n:.3f}")]))
+        centers = None
+        cn, cn_sd, cn_cut = _cn_stats(sub, dialect)
+    statements.append(Statement(
+        kind="assert", key="cn",
+        values=[Quantity(num=f"{cn:.1f}"), Tol(value=Quantity(num=f"{cn_sd:.1f}")),
+                Name(text="cutoff"), Quantity(num=f"{cn_cut:.2f}", unit="A")]))
+    if centers is not None:
+        rm, g = _rdf_region(centers, sub.cell_diag, len(centers) / volume,
+                            dialect)
+    else:
+        rm, g = _rdf_region(sub.pos, sub.cell_diag, len(sub) / volume, dialect)
+    if len(rm):
+        ipk = int(np.argmax(g))
+        statements.append(Statement(
+            kind="assert", key="gr_peak",
+            values=[Quantity(num=f"{rm[ipk]:.2f}", unit="A"),
+                    Name(text="height"), Quantity(num=f"{g[ipk]:.2f}")]))
+    if not molecular:
+        statements.append(Statement(
+            kind="assert", key="solid_clusters", values=[Quantity(num="0")]))
+    return statements
+
+
+def _is_element_name(name: str) -> bool:
+    from ase.data import chemical_symbols
+    return name in chemical_symbols and name != "X"
 
 
 def _field_parts(field):

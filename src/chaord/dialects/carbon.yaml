@@ -1,6 +1,6 @@
 # carbon dialect — graphene, nanotubes, fullerenes (post-v1.0).
 name: carbon
-version: "0.1.0"
+version: "0.2.0"
 
 units: [V/A]          # external electric-field gradient (RD3)
 
@@ -11,3 +11,60 @@ keys:
 thresholds:
   cn_cutoff: 1.85                 # C-C first shell, A
   nanotube_vacuum_margin: 10.0    # A of vacuum around an auto-celled tube (RD2)
+
+  # --- nanotube chirality inference on REAL frames (D33, open_items_v4.md
+  # Y3; lift/nanotube.py). Every value below is measured, on two committed
+  # frame families (tests/test_nanotube_inference.py regenerates both at
+  # fixed seed; run that file to reproduce every number in this comment):
+  #
+  # (a) the D33 noise bar, 20 draws each: iid Gaussian per-coordinate noise
+  #     on the ideal tube. sigma = 0.05 A -> circle-fit RMS residual
+  #     0.051 A, best-chirality mismatch <= 0.016 A; sigma = 0.1 A (the
+  #     bar's bound) -> RMS residual 0.102 A, mismatch <= 0.058 A, axial
+  #     fit residual <= 0.115 A ((6,5), the long-|T| chiral), best-to-
+  #     second candidate gap >= 2.34 A, radius recovered within 0.006 A;
+  #     6-significant-digit text -> all quantities at the 1e-5 A level.
+  #     Measured over (10,10), (16,16), (12,0), (8,4), (12,8), (6,5),
+  #     3-20 periods, diameters to 0.8 of the perpendicular cell.
+  # (b) thermal frames at 300 K and 600 K: Langevin dynamics on the ideal
+  #     tube with OPLS aromatic constants (Jorgensen, Maxwell &
+  #     Tirado-Rives, JACS 118, 11225 (1996): bond K = 469 kcal/mol/A^2,
+  #     angle K = 63 kcal/mol/rad^2 -- the model family of the pilot's
+  #     solvent), tests/test_nanotube_inference.py::_thermal_frames.
+  #     300 K: per-coordinate RMS displacement (Kabsch-aligned) 0.64-0.76 A,
+  #     circle-fit RMS residual <= 0.46 A, mismatch <= 0.30 A, gap >= 1.89 A,
+  #     axial fit residual <= 0.14 A, mean coordination 3.000.
+  #     600 K: displacement 1.0-1.47 A, RMS residual <= 0.67 A,
+  #     mismatch <= 0.61 A, gap >= 1.29 A, axial fit residual <= 0.29 A,
+  #     coordination 3.000. The model has no torsion term (OPLS aromatic
+  #     torsions are not part of the two-constant evidence set), so its
+  #     long-wavelength ripples are an UPPER bound on a real tube's thermal
+  #     amplitude at these temperatures; Stage B's flexible-tube runs
+  #     (Y7) will re-measure and may tighten these gates.
+  #
+  # Gates sized from both families: every gate below accepts (b) at 600 K
+  # with >= 1.2x headroom and the D33 bar (a) with >= 7x headroom, while
+  # refusing non-tubular frames by 4x or more (a flat nanoribbon's
+  # circle-fit residual is ~width/4, several A).
+  nanotube_radius_rms_max: 0.8    # A: circle-fit RMS residual gate. Measured
+                                  # maxima: 0.102 A at the D33 bound, 0.67 A
+                                  # at 600 K; a flat ribbon sits at ~3 A.
+  nanotube_chirality_mismatch_max: 0.75   # A: the best integer pair must sit
+                                  # this close to the measured chiral vector
+                                  # (|Ch| and angle jointly). Measured maxima:
+                                  # 0.058 A at the D33 bound, 0.61 A at 600 K.
+  nanotube_chirality_margin: 0.4  # A: the second-best pair must sit at least
+                                  # this much further (ambiguity refusal).
+                                  # Measured minimum gaps: 2.34 A at the D33
+                                  # bound, 1.29 A at 600 K; mismatch_max +
+                                  # margin = 1.15 A stays inside both, so a
+                                  # frame that passes the mismatch gate can
+                                  # never be within the margin by construction.
+  nanotube_axial_fit_tolerance: 0.5   # A: |axial extent - n_T x |T||. Measured
+                                  # maxima: 0.115 A at the D33 bound, 0.29 A
+                                  # at 600 K.
+  nanotube_min_mean_coordination: 2.5 # the finder's tube-candidate gate (D35):
+                                  # mean C-C coordination of the component.
+                                  # Measured: 2.9975-3.0000 on every noisy and
+                                  # thermal tube frame; solvent fragments and
+                                  # benzene rings sit at 2.0 or below.

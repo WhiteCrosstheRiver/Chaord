@@ -15,6 +15,7 @@ One row per statement key declared in `src/chaord/dialects/*.yaml`, with a passi
 | `cutoff` | core:physics | `cutoff 2.5` | 01_solid_liquid_lifted.chaord | yes (entry + cited example `cutoff 2.5`) |
 | `defect` | metal:region_crystal_defect | `defect divacancy count 1 depth 5.2 form split  # 4 empty sites, 2 displaced atoms` | 01_solid_liquid_lifted.chaord | yes (entry + cited example `defect V_Ni count 1`) |
 | `dialects` | core:provenance | `(no example in spec/examples/ - add one)` | - | yes (entry; no example exists in spec/examples (reported)) |
+| `dipole_p1` | research:system | `assert dipole_p1 0.821 +- 0.277 along z` | 11_nanotube_field.chaord | yes (entry + cited example `assert dipole_p1 0.821 +- 0.277 along z`) |
 | `dissociate` | core:interface | `dissociate H2O -> OH @ Ti_5c + H @ O_br count 9` | 07_reactive_interface.chaord | yes (entry + cited example `dissociate H2O -> OH @ Ti_5c + H @ O_br count 9`) |
 | `epsilon` | core:physics | `epsilon 1` | 01_solid_liquid_lifted.chaord | yes (entry + cited example `epsilon 1`) |
 | `field` | carbon:system | `state field E 0.10 V/A along z` | 11_nanotube_field.chaord | yes (entry + cited example `state field E 0.10 V/A along z`) |
