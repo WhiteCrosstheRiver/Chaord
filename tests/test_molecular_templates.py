@@ -26,6 +26,30 @@ Numbers and their sources (cited in the registration comments too):
                 1.09); the exact geometry bench/generate.py generated the
                 frozen lipf6_ec frames with, promoted verbatim so the
                 species template, the bench frames and the census agree.
+
+Y9 (Review 10, docs/reviews/open_items_v4.md): the registry's EC now
+carries a CITED ring geometry; the simplified pentagon the frozen lipf6_ec
+frames were packed with is preserved as EC/bench-v1, and bench/generate.py
+resolves its recorded molecule name "EC" to that template so a regeneration
+reproduces the frozen frames byte for byte. The Y9 tests pin:
+  * EC's new geometry (Nutakki 2023 Table III, below);
+  * EC/bench-v1 = the exact old construction (5 x 1.43 A ring edges,
+    C=O 1.20 A, planar, 70-deg in-plane H-C-H spread);
+  * the bench generator's lipf6_ec resolution lands on EC/bench-v1.
+
+Y9 EC numbers and their source (cited in the registration comment too):
+                J. S. C. Nutakki, "Molecular Modelling of Lithium Salts
+                in the Binary Mixtures of Ethylene and Ethyl Methyl
+                Carbonates", M.S. thesis, University of Illinois at
+                Chicago, 2023, Table III (the OPLS-type EC/EMC potential
+                model; local copy research/cnt_electrolyte/_lit/
+                nutakki2023.pdf; the SAME table the research dialect's EC
+                site charges and params.py come from):
+  ring C-C (CT-CT) 1.529 A, ring C-O(=C) (CO-OS) 1.327 A,
+  ring O-CH2 (OS-CT) 1.410 A, carbonyl C=O (CO-OC) 1.229 A,
+  C-H (CT-HC) 1.090 A (Allen et al. 1987 agree: sp3 C-H 1.09,
+  sp3 C-C 1.51); O-C(=O)-O ring angle (OS-CO-OS) 118.18 deg;
+  H-C-H (HC-CT-HC) 107.8 deg, the CH2 pair straddling the ring plane.
 """
 import sys
 from pathlib import Path
@@ -96,12 +120,15 @@ def test_pf6_octahedral_geometry():
         "octahedral F-P-F angles must be 90 or 180 deg"
 
 
-def test_ec_published_internal_geometry():
-    """EC stoichiometry C3H4O3 and the promoted bench geometry: 4 x C-H
-    1.09 A, 1 x carbonyl C=O 1.20 A, 5 x ring edges 1.43 A, plus the two
-    geminal H-H pairs at 2 x 1.09 x sin(35 deg) = 1.2504 A of the
-    generator's 70-deg H-C-H spread (the simplified ring geometry the frozen
-    lipf6_ec frames carry; documented in their ground truth)."""
+def test_ec_cited_internal_geometry():
+    """Y9: EC stoichiometry C3H4O3 and the cited ring geometry (Nutakki 2023
+    Table III): ring C-C 1.529 A, ring O-C(=O) 1.327 A x 2, ring O-CH2
+    1.410 A x 2, carbonyl C=O 1.229 A, 4 x C-H 1.09 A.  The CH2 hydrogens
+    LEAVE the ring plane (heavy atoms planar, each geminal H pair on
+    opposite sides) at H-C-H 107.8 deg -- the geminal H-H distance
+    2 x 1.09 x sin(53.9 deg) = 1.761 A, above the 1.7 A the Y9 reproducer
+    demands (the old planar template's 1.25 A H-H contacts were the
+    defect)."""
     t = TEMPLATES["EC"]
     assert len(t["symbols"]) == 10
     from collections import Counter
@@ -110,14 +137,103 @@ def test_ec_published_internal_geometry():
     assert np.allclose(rel.mean(axis=0), 0.0, atol=1e-12)
     d = np.linalg.norm(rel[:, None, :] - rel[None, :, :], axis=-1)
     iu = np.triu_indices(10, 1)
+    C = [0, 2, 3]                                   # C1 carbonyl, C3/C4 CH2
+    H = [6, 7, 8, 9]
+    # the Y9 reproducer's three lines, as pins
+    ring_cc = min(d[i, j] for i in C for j in C if i < j)
+    hh = min(d[i, j] for i in H for j in H if i < j)
+    assert ring_cc == pytest.approx(1.529, abs=1e-6), ring_cc
+    assert hh == pytest.approx(1.761, abs=1e-3), hh
+    assert not np.allclose(rel[:, 2], 0.0), \
+        "the CH2 hydrogens must leave the ring plane"
+    # the ring itself (6 heavy atoms) stays planar; each geminal H pair
+    # straddles it symmetrically
+    assert np.allclose(rel[:6, 2], 0.0, atol=1e-9)
+    for c, h1, h2 in ((2, 6, 7), (3, 8, 9)):
+        assert rel[h1, 2] * rel[h2, 2] < 0.0, \
+            "the two CH2 hydrogens must sit on opposite sides of the ring"
+        assert rel[h1, 2] == pytest.approx(-rel[h2, 2], abs=1e-9)
+        assert abs(rel[h1, 2]) > 0.5
+    # the documented bonds, nothing else under 1.55 A
+    bonds = sorted(round(x, 2) for x in d[iu] if x < 1.55)
+    assert bonds == sorted([1.09] * 4 + [1.23] + [1.33] * 2
+                           + [1.41] * 2 + [1.53]), bonds
+    assert (d[iu] >= 1.09 - 1e-6).all(), \
+        "no EC atom pair may sit inside the shortest published bond"
+    assert sum(x < 1.55 for x in d[iu]) == 10
+    # the cited lengths, atom-pinned (template order C1 O2 C3 C4 O5 O6 H x4)
+    assert d[0, 1] == pytest.approx(1.327, abs=1e-6)   # C1-O2 (CO-OS)
+    assert d[0, 4] == pytest.approx(1.327, abs=1e-6)   # C1-O5 (CO-OS)
+    assert d[1, 2] == pytest.approx(1.410, abs=1e-6)   # O2-C3 (OS-CT)
+    assert d[3, 4] == pytest.approx(1.410, abs=1e-6)   # C4-O5 (OS-CT)
+    assert d[2, 3] == pytest.approx(1.529, abs=1e-6)   # C3-C4 (CT-CT)
+    assert d[0, 5] == pytest.approx(1.229, abs=1e-6)   # C1=O6 (CO-OC)
+    # the cited angles: ring angle at the carbonate carbon, H-C-H 107.8 deg
+    def _angle(a, b, c):
+        u, v = rel[a] - rel[b], rel[c] - rel[b]
+        return np.degrees(np.arccos(
+            np.dot(u, v) / (np.linalg.norm(u) * np.linalg.norm(v))))
+    assert _angle(1, 0, 4) == pytest.approx(118.18, abs=1e-3)  # OS-CO-OS
+    assert _angle(6, 2, 7) == pytest.approx(107.8, abs=1e-3)   # HC-CT-HC
+    assert _angle(8, 3, 9) == pytest.approx(107.8, abs=1e-3)
+
+
+def test_ec_bench_v1_preserves_the_frozen_bench_geometry():
+    """Y9: EC/bench-v1 is the exact simplified pentagon the frozen lipf6_ec
+    frames were generated with (its 5 x 1.43 A ring edges, C=O 1.20 A,
+    C-H 1.09 A with the 35-deg in-plane H-C-H spread = 1.2504 A geminal
+    H-H; documented in their ground truth).  The registry must keep it so
+    bench/generate.py and any regeneration of the frozen frames have one
+    source of truth for that geometry."""
+    assert "EC/bench-v1" in TEMPLATES, (
+        "no 'EC/bench-v1' species template in the core registry; known: "
+        f"{sorted(TEMPLATES)}")
+    t = TEMPLATES["EC/bench-v1"]
+    assert t["symbols"] == ["C", "O", "C", "C", "O", "O", "H", "H", "H", "H"]
+    assert int(t["charge"]) == 0
+    rel = np.asarray(t["rel"], float)
+    assert np.allclose(rel.mean(axis=0), 0.0, atol=1e-12)
+    d = np.linalg.norm(rel[:, None, :] - rel[None, :, :], axis=-1)
+    iu = np.triu_indices(10, 1)
+    assert np.allclose(rel[:, 2], 0.0, atol=1e-12), \
+        "the frozen bench geometry is planar"
     bonds = sorted(round(x, 2) for x in d[iu] if x < 1.45)
     assert bonds == sorted([1.09] * 4 + [1.20] + [1.25] * 2 + [1.43] * 5), \
         bonds
-    assert (d[iu] >= 1.09 - 1e-6).all(), \
-        "no EC atom pair may sit inside the shortest published bond"
-    # and nothing else hides under 1.45 A (every short pair is one of the
-    # documented bonds/contacts above)
     assert sum(x < 1.45 for x in d[iu]) == 12
+    # same stoichiometry as the new EC: the census formula C3H4O3 the frozen
+    # ground truth records is unchanged by the Y9 geometry split
+    from collections import Counter
+    assert Counter(t["symbols"]) == Counter(TEMPLATES["EC"]["symbols"])
+
+
+def test_bench_generator_resolves_lipf6_ec_to_bench_v1():
+    """Y9: whatever bench/generate.py resolves for the lipf6_ec molecule
+    name "EC" must be the frozen EC/bench-v1 geometry, bit for bit -- the
+    alias hands the generator the registry's preserved template without
+    re-running any centring arithmetic, so a regeneration reproduces the
+    frozen frames and ground_truth.json byte for byte (the checksum
+    manifest bench/data/checksums.json stays the authority)."""
+    import importlib
+    bench_dir = str(ROOT / "bench")
+    assert (ROOT / "bench" / "generate.py").is_file()
+    saved = TEMPLATES["EC"]
+    sys.path.insert(0, bench_dir)
+    try:
+        gen = importlib.import_module("generate")
+        for name in gen.LIPF6_CASE["molecules"]:
+            assert name in gen.TEMPLATES, (
+                f"the lipf6_ec packing name {name!r} resolves to no template")
+        assert gen.TEMPLATES["EC"]["rel"].tobytes() \
+            == TEMPLATES["EC/bench-v1"]["rel"].tobytes(), (
+                "the bench generator's EC is not the frozen EC/bench-v1 "
+                "geometry; regenerating lipf6_ec would move the frozen "
+                "frames")
+    finally:
+        sys.path.remove(bench_dir)
+        # the generator's frozen-name alias must not leak into the rest of
+        # this test process: the registry's EC is the Y9 geometry
+        TEMPLATES["EC"] = saved
 
 
 def test_species_mass_of_the_new_templates():
@@ -149,12 +265,15 @@ def _one_molecule_frame(name):
                  pbc=(True,) * 3)
 
 
-@pytest.mark.parametrize("name,formula", [("EC", "C3H4O3"), ("PF6-", "F6P")])
+@pytest.mark.parametrize("name,formula",
+                         [("EC", "C3H4O3"), ("EC/bench-v1", "C3H4O3"),
+                          ("PF6-", "F6P")])
 def test_census_sees_one_intact_molecule(name, formula, mol_dialect):
     """The shipped geometry must survive the dialect's own bond window: the
     placed EC/PF6- is censused as exactly one molecule among inert filler
     (contact-consistent internal geometry: every intramolecular bond present,
-    no intermolecular bond to the filler)."""
+    no intermolecular bond to the filler). bench-v1 stays in the list (Y9):
+    the frozen lipf6_ec census C3H4O3 rides on that geometry's bond window."""
     frame = _one_molecule_frame(name)
     n_ar = frame.symbols.count("Ar")
     assert n_ar == 45 - 3, "5x3x3 grid minus the 3 centre-line points"

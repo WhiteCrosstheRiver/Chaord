@@ -67,20 +67,97 @@ _register_mol("H", ["H"], [[0.0, 0.0, 0.0]])
 # electrolyte species (W12): general SPECIES templates, not tied to one case
 # -- the vocabulary of solutions/lipf6_ec and the later PC/EMC/EC/PF6/Li
 # research case. Promoted VERBATIM from bench/generate.py (where they were
-# case-local registrations): the frozen lipf6_ec reference frames carry this
-# exact geometry, so template, frames and census stay one geometry.
+# case-local registrations) in W12; Y9 (docs/reviews/open_items_v4.md) split
+# the EC entry in two: "EC" carries the cited ring geometry below, and the
+# old simplified pentagon the frozen lipf6_ec frames were generated with
+# lives on as "EC/bench-v1" (registered right after EC -- the census-to-name
+# resolution of bench/generate.py maps a composition to the FIRST template
+# that carries it, which must stay the display name "EC"). bench/generate.py
+# aliases its recorded molecule name "EC" to EC/bench-v1, so the frozen
+# frames' geometry has one source of truth here.
 
 
 def _ec_rel():
-    """Ethylene carbonate (1,3-dioxolan-2-one, C3H4O3), planar: a regular
-    five-membered ring of 1.43 A edges (ester C-O single-bond length; the
-    C-C ring edge is drawn at the same length as the generator's simplified
-    ring), carbonyl C=O 1.20 A, C-H 1.09 A with a 35-deg H-C-H spread.
-    Bond lengths from standard organic geometry (F. H. Allen, O. Kennard,
-    D. G. Watson, L. Brammer, A. G. Orpen, R. Taylor, J. Chem. Soc. Perkin
-    Trans. 2 (1987) S1-S19: ester C-O 1.43 A, ketone C=O 1.21 A, sp3 C-H
-    1.09 A); the construction is bench/generate.py's, the geometry the
-    frozen lipf6_ec frames were generated with."""
+    """Ethylene carbonate (1,3-dioxolan-2-one, C3H4O3) with the cited ring
+    geometry (Y9, docs/reviews/open_items_v4.md): the planar five-membered
+    ring O=C1(-O2)-C3H2-C4H2-O5 built mirror-symmetrically about the C1
+    bisector from the equilibrium parameters of the OPLS-type EC/EMC model
+    of J. S. C. Nutakki, "Molecular Modelling of Lithium Salts in the
+    Binary Mixtures of Ethylene and Ethyl Methyl Carbonates", M.S. thesis,
+    University of Illinois at Chicago, 2023, Table III (local copy
+    research/cnt_electrolyte/_lit/nutakki2023.pdf -- the SAME table the
+    research dialect's EC site charges and research/cnt_electrolyte/
+    params.py take their EC model from, so geometry and charges name one
+    model):
+
+      ring C-C (CT-CT) 1.529 A, ring O-C(=O) (CO-OS) 1.327 A,
+      ring O-CH2 (OS-CT) 1.410 A, carbonyl C=O (CO-OC) 1.229 A,
+      C-H (CT-HC) 1.090 A, ring angle O-C(=O)-O (OS-CO-OS) 118.18 deg,
+      H-C-H (HC-CT-HC) 107.8 deg.
+
+    The Allen/Kennard/Watson/Galloy/Baalham/Brammer compilation the rest of
+    the registry cites (J. Chem. Soc. Perkin Trans. 2 (1987) S1-S19) agrees
+    where its classes apply (sp3 C-H 1.09 A, sp3 C-C 1.51 A, ester C-O
+    1.43 A). The ring closes exactly at the cited lengths (the OS-CT bond
+    direction follows from the C3-C4 closure, its O2-C3-C4 angle 105.39 deg
+    and the C1-O2-C3 angle 105.49 deg -- the squeeze a five-membered ring
+    pays for exact cited lengths, the same compromise the PC template
+    records at 103.64 deg); the carbonyl O6 1.229 A out along the ring
+    bisector (OC-CO-OS = (360 - 118.18)/2 = 120.91 deg each side; the
+    table's own 123.4 deg is not simultaneously satisfiable with the ring
+    angle and mirror symmetry). The CH2 hydrogens STRADDLE the ring plane
+    symmetrically about the outward bisector of the two ring bonds, H-C-H
+    exactly 107.8 deg (geminal H-H 2 x 1.09 x sin(53.9 deg) = 1.761 A, each
+    H-C-ring-bond angle 110.9 deg against the table's 109.5/110.7) --
+    replacing the old planar template whose 1.25 A H-H contacts no EC
+    structure carries (the Y9 defect)."""
+    a = np.deg2rad(118.18 / 2.0)                # half the OS-CO-OS ring angle
+    C1 = np.zeros(3)
+    O2 = 1.327 * np.array([np.sin(a), -np.cos(a), 0.0])
+    O5 = 1.327 * np.array([-np.sin(a), -np.cos(a), 0.0])
+    O6 = np.array([0.0, 1.229, 0.0])            # carbonyl on the ring bisector
+    gamma = np.degrees(np.arccos((0.5 * 1.529 - 1.327 * np.sin(a)) / 1.410))
+    C3 = O2 + 1.410 * np.array([np.cos(np.deg2rad(gamma)),
+                                -np.sin(np.deg2rad(gamma)), 0.0])
+    C4 = np.array([-C3[0], C3[1], 0.0])         # mirror: |C3-C4| = 1.529 exact
+
+    def ring_hydrogens(c, toward1, toward2):
+        """The CH2 pair of a ring carbon: C-H 1.09 A, H-C-H 107.8 deg, the
+        two hydrogens straddling the ring plane symmetrically about the
+        OUTWARD bisector of the two ring bonds (each H 110.9 deg from both
+        ring bonds)."""
+        u1 = np.asarray(toward1, float) / np.linalg.norm(toward1)
+        u2 = np.asarray(toward2, float) / np.linalg.norm(toward2)
+        out = -(u1 + u2)                        # away from the ring interior
+        out /= np.linalg.norm(out)
+        n = np.cross(u1, u2)                    # the ring plane normal
+        n /= np.linalg.norm(n)
+        beta = np.deg2rad(107.8 / 2.0)          # half the HC-CT-HC angle
+        return [c + 1.09 * (np.cos(beta) * out + s * np.sin(beta) * n)
+                for s in (1.0, -1.0)]
+
+    h3 = ring_hydrogens(C3, O2 - C3, C4 - C3)
+    h4 = [np.array([-h[0], h[1], h[2]]) for h in h3]   # mirror of the C3 pair
+    return [C1, O2, C3, C4, O5, O6, h3[0], h3[1], h4[0], h4[1]]
+
+
+_register_mol("EC", ["C", "O", "C", "C", "O", "O", "H", "H", "H", "H"],
+              _ec_rel(), charge=0)
+
+
+def _ec_bench_v1_rel():
+    """The PRE-Y9 EC template, preserved verbatim: the simplified geometry
+    the frozen bench/data/solutions/lipf6_ec frames were generated with
+    (planar: a regular five-membered ring of 1.43 A edges, carbonyl C=O
+    1.20 A, C-H 1.09 A with a 35-deg in-plane H-C-H spread). bench/
+    generate.py resolves its recorded molecule name "EC" to THIS template,
+    so regenerating the frozen frames reproduces them byte for byte; new
+    builds get the cited _ec_rel() geometry above. Bond lengths as
+    originally cited (F. H. Allen, O. Kennard, D. G. Watson, L. Brammer,
+    A. G. Orpen, R. Taylor, J. Chem. Soc. Perkin Trans. 2 (1987) S1-S19:
+    ester C-O 1.43 A, ketone C=O 1.21 -> 1.20, sp3 C-H 1.09 A); the
+    construction is bench/generate.py's, the geometry the frozen lipf6_ec
+    frames were generated with."""
     R = 1.43 / (2.0 * np.sin(np.deg2rad(36.0)))   # pentagon circumradius
     ring = {}
     for name, deg in (("C1", 90), ("O2", 162), ("C3", 234), ("C4", 306),
@@ -105,8 +182,8 @@ def _ec_rel():
             ring["O6"], h3[0], h3[1], h4[0], h4[1]]
 
 
-_register_mol("EC", ["C", "O", "C", "C", "O", "O", "H", "H", "H", "H"],
-              _ec_rel(), charge=0)
+_register_mol("EC/bench-v1", ["C", "O", "C", "C", "O", "O", "H", "H", "H", "H"],
+              _ec_bench_v1_rel(), charge=0)
 _register_mol("PF6-", ["P"] + ["F"] * 6,                # octahedral P-F
               [[0.0, 0.0, 0.0], [1.58, 0.0, 0.0], [-1.58, 0.0, 0.0],
                [0.0, 1.58, 0.0], [0.0, -1.58, 0.0], [0.0, 0.0, 1.58],
@@ -123,18 +200,20 @@ _register_mol("PF6-", ["P"] + ["F"] * 6,                # octahedral P-F
 # open_items_v2.md section 5): the carbonate solvents of the CNT research
 # case, registered with the same pattern as the EC/PF6- pair above -- these
 # TEMPLATES are the single source of truth the research-frame generator
-# matches. Bond lengths from the crystallographic compilation the EC
-# template cites (F. H. Allen, O. Kennard, D. G. Watson, L. Brammer,
-# A. G. Orpen, R. Taylor, J. Chem. Soc. Perkin Trans. 2 (1987) S1-S19:
-# ester C-O 1.43 A, sp3 C-C 1.51 A, sp3 C-H 1.09 A; the ester C(=O)-O
-# class of the same tables gives the carbonate O-C(=O) 1.35 A; ketone C=O
-# 1.21 A -- the registry's EC value 1.20 A kept for the whole carbonate
-# family). Angles: the ideal tetrahedral arccos(-1/3) = 109.47 deg at every
-# sp3 centre, and the EC template's carbonyl-centre convention (O=C-O
-# 126 deg, O-C-O = 360 - 2 x 126 = 108 deg) at the carbonate carbon. PC and
-# EMC are the solvent species of the carbonate-electrolyte MD literature
-# (OPLS-AA carbonate solvent models); every length above is the standard
-# value quoted there.
+# matches. Bond lengths from the crystallographic compilation the registry
+# cites (F. H. Allen, O. Kennard, D. G. Watson, L. Brammer, A. G. Orpen,
+# R. Taylor, J. Chem. Soc. Perkin Trans. 2 (1987) S1-S19: ester C-O
+# 1.43 A, sp3 C-C 1.51 A, sp3 C-H 1.09 A; the ester C(=O)-O class of the
+# same tables gives the carbonate O-C(=O) 1.35 A; ketone C=O 1.21 A --
+# the registry's EC value 1.20 A kept for PC and EMC). Angles: the ideal
+# tetrahedral arccos(-1/3) = 109.47 deg at every sp3 centre, and the
+# pre-Y9 EC template's carbonyl-centre convention (O=C-O 126 deg,
+# O-C-O = 360 - 2 x 126 = 108 deg) at the carbonate carbon -- the family
+# convention PC and EMC KEEP, while Y9 gave EC itself the Nutakki Table III
+# ring geometry (see _ec_rel) since only EC's frozen bench frames needed the
+# old split. PC and EMC are the solvent species of the carbonate-electrolyte
+# MD literature (OPLS-AA carbonate solvent models); every length above is
+# the standard value quoted there.
 
 _TET_DEG = np.degrees(np.arccos(-1.0 / 3.0))   # ideal tetrahedral 109.4712
 

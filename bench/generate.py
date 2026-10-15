@@ -21,7 +21,8 @@ Case families beyond the original 18 (same schema, same rules):
   * solutions/lipf6_ec   EC + Li+ + PF6- electrolyte at liquid density —
                          packed by atom-level RSA (pack_molecules' molecular
                          spheres jam far above liquid density for 10-atom
-                         solvents); EC and PF6- templates are registered here;
+                         solvents); the EC geometry is the registry's frozen
+                         EC/bench-v1 (Y9; PF6- registered here);
   * solutions/cuau_random fcc Cu/Au 1/2-1/2 random solution (the fcc_crconi
                          construction with two species);
   * gases/co2_dense      60 CO2 at 0.68 g/cm3 (a liquid-like supercritical
@@ -248,34 +249,17 @@ NACL_CASE = {"id": "nacl_aq", "molecules": {"H2O": 120, "Na+": 8, "Cl-": 8},
 # electrolyte case. Simplified geometry (dialect-exempt per AGENTS.md): a
 # regular pentagon ring with 1.43 A bonds, carbonyl C=O 1.20 A, C-H 1.09 A
 # (35-degree H-C-H spread), octahedral P-F at 1.58 A.
-def _ec_template() -> tuple[list, list]:
-    R = 1.43 / (2.0 * np.sin(np.deg2rad(36.0)))   # pentagon circumradius
-    ring = {}
-    for name, deg in (("C1", 90), ("O2", 162), ("C3", 234), ("C4", 306),
-                      ("O5", 18)):
-        ring[name] = R * np.array([np.cos(np.deg2rad(deg)),
-                                   np.sin(np.deg2rad(deg)), 0.0])
-    ring["O6"] = ring["C1"] + np.array([0.0, 1.20, 0.0])
-
-    def hydrogens(c):
-        r = np.asarray(c[:2], float)
-        r = r / np.linalg.norm(r)
-        perp = np.array([-r[1], r[0]])
-        out = []
-        for side in (1.0, -1.0):
-            d = (np.cos(np.deg2rad(35.0)) * r
-                 + side * np.sin(np.deg2rad(35.0)) * perp)
-            out.append(np.array([c[0] + 1.09 * d[0], c[1] + 1.09 * d[1], 0.0]))
-        return out
-
-    h3, h4 = hydrogens(ring["C3"]), hydrogens(ring["C4"])
-    symbols = ["C", "O", "C", "C", "O", "O", "H", "H", "H", "H"]
-    rel = [ring["C1"], ring["O2"], ring["C3"], ring["C4"], ring["O5"],
-           ring["O6"], h3[0], h3[1], h4[0], h4[1]]
-    return symbols, rel
-
-
-_register_mol("EC", *_ec_template(), charge=0)
+#
+# Y9 (Review 10, docs/reviews/open_items_v4.md): the registry's EC now
+# carries the cited Nutakki-Table-III geometry; the frozen lipf6_ec frames
+# were packed with the simplified pentagon above, which the registry
+# preserves as EC/bench-v1 (src/chaord/build/molecules.py
+# _ec_bench_v1_rel -- bit-identical to this generator's historical local
+# construction). Alias the ground truth's recorded molecule name "EC" to
+# that template -- the SAME dict, no re-registration arithmetic -- so a
+# regeneration reproduces the frozen frames and ground_truth.json byte for
+# byte (the census formula C3H4O3 is the stoichiometry both variants share).
+TEMPLATES["EC"] = dict(TEMPLATES["EC/bench-v1"])
 _register_mol("PF6-", ["P"] + ["F"] * 6,
               [[0.0, 0.0, 0.0], [1.58, 0.0, 0.0], [-1.58, 0.0, 0.0],
                [0.0, 1.58, 0.0], [0.0, -1.58, 0.0], [0.0, 0.0, 1.58],
