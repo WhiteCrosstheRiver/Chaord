@@ -33,17 +33,22 @@ physics {{
 
 amorphous glass : all {{
   state density {rho}
-  history melt 2 for 630 -> quench to 0.1 at 0.001508 -> anneal 0.1 for 1260
+  history melt 2 for 630 -> quench to 0.1 at 0.301587 -> anneal 0.1 for 1260
 }}
 """
 # the fixture history follows the dialect's canonical protocol family at the
 # N=500 scale -- glass_* base counts (D7-re-derived from the Kob-Andersen
 # reference, W7: melt 2000 / quench 4000 / anneal 4000 at ref_n 2000,
-# quench end and anneal at T*=0.1) times (500/2000)^(2/3) = 0.3150 ->
-# 630/1260/1260, rate (2.0-0.1)/1260 = 0.0015079.  The frame must be a
-# sample of the macrostate the lifted program rebuilds (the old 3000-quench-
-# to-0.01 fixture belonged to the retired monatomic family and left the
-# rebuild in a different quench-end state).
+# quench end and anneal at T*=0.1) scaled by (500/2000)^(2/3) = 0.397 ->
+# the lifter states 794/1587/1587 today; the fixture keeps the historical
+# 630/1260/1260 counts of that family, rate (2.0-0.1)/(1260 steps x
+# relax_dt 0.005 tau) = 0.3015873 T*/tau (X5/D19a: rates are per time
+# unit; this is the one-time conversion of the per-step 0.0015079 the
+# fixture stated before).  The frame must be a sample of the macrostate the
+# lifted program rebuilds (the old 3000-quench-to-0.01 fixture belonged to
+# the retired monatomic family and left the rebuild in a different
+# quench-end state); the round trip passes with the fixture built at
+# 630/1260/1260 and the rebuild at the lifted 794/1587/1587.
 
 
 @pytest.fixture(scope="module")
@@ -166,7 +171,7 @@ def test_amorphous_without_history_assumes_dialect_protocol(dialect, tmp_path):
     protocol was assumed."""
     from chaord.build import build_program
     text = AMORPH_PROGRAM.format(n=30, rho=0.8).replace(
-        "  history melt 2 for 630 -> quench to 0.1 at 0.001508 -> anneal 0.1 for 1260\n",
+        "  history melt 2 for 630 -> quench to 0.1 at 0.301587 -> anneal 0.1 for 1260\n",
         "")
     assert "history" not in text
     path = tmp_path / "no_history.chaord"
@@ -188,7 +193,7 @@ def test_amorphous_without_history_unknown_dialect_raises(tmp_path):
     from chaord.build import build_program
     from chaord.lang.errors import ChaordError
     text = AMORPH_PROGRAM.format(n=30, rho=0.8).replace(
-        "  history melt 2 for 630 -> quench to 0.1 at 0.001508 -> anneal 0.1 for 1260\n",
+        "  history melt 2 for 630 -> quench to 0.1 at 0.301587 -> anneal 0.1 for 1260\n",
         "")
     path = tmp_path / "no_history_lj.chaord"
     path.write_text(text.replace("dialect core + glass", "dialect core + lj"))

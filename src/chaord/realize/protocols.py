@@ -20,7 +20,11 @@ def parse_history(stmt, dialect=None):
 
     The statement's key is the first command; arrows chain the rest. Returns
     steps: ('melt', T, steps), ('quench', T_target, from_T_unused, rate),
-    ('anneal', T, steps), ('deposit', species, count, steps)."""
+    ('anneal', T, steps), ('deposit', species, count, steps).
+
+    X5 / D19(a): the quench rate is temperature per TIME UNIT (T*/tau in LJ
+    reduced units, K/ps in metal and molecular units) -- never per MD step,
+    so a program keeps its meaning whatever relax_dt the dialect states."""
     from ..lang.ir import Arrow
     if dialect is None:
         from ..dialects import load_dialect
@@ -87,15 +91,55 @@ def _deposit_atom(r, v, L, gap, T, rng, lj, max_attempts):
         f"{max_attempts} attempts; lower deposit_min_gap or the density")
 
 
-def run_protocol(frame: Frame, steps, dialect, rng, backend="lj") -> Frame:
+def _kinetic_T(v) -> float:
+    """Kinetic temperature of reduced-unit velocities (m = kB = 1):
+    T_kin = <|v|^2>."""
+    return float(np.mean(v * v))  # dialect-exempt: exact-geometry: the reduced-unit definition of kinetic temperature
+
+
+def _ramp_gamma(dialect, md, n_steps, dt, rate=None) -> float:
+    """The Langevin damping a stage needs so the system FOLLOWS it (D19(c)).
+
+    Two floors, both from the dialect: the quasi-static floor
+    `ramp_gamma_tau_multiple / (stage duration in tau)` (the thermostat is
+    that many times faster than the stage; an e^-10 fraction of any initial
+    offset survives melt/quench), and -- on a temperature ramp -- the
+    tracking floor `ramp_gamma_rate_multiple x |dT/dt|`: the steady tracking
+    lag of a Langevin thermostat is |dT/dt| / (2 gamma), so gamma >= 500 x
+    the rate bounds the lag at 1/1000 = 1% of the T*=0.1 bath (measured, X5:
+    the old flat relax_gamma 0.5 left T_kin 0.615 at the end of the default
+    N=500 quench against a stated 0.1, and the anneal inherited 0.134)."""
+    gamma = max(float(md["relax_gamma"]),
+                float(dialect.threshold("ramp_gamma_tau_multiple"))
+                / (int(n_steps) * dt))
+    if rate is not None:
+        gamma = max(gamma, float(dialect.threshold("ramp_gamma_rate_multiple"))
+                    * abs(rate))
+    return gamma
+
+
+def run_protocol(frame: Frame, steps, dialect, rng, backend="lj",
+                 engine=None) -> Frame:
     """Execute protocol steps with the LJ backend (reduced units).
+
+    ONE runner serves every engine (D19(d)): `engine` is any object with the
+    `forces(r)` contract -- the plain monatomic LJ (built here when omitted)
+    or realize.lj.LJMixture for a named mixture model; the protocol
+    semantics (temperature tracking, ramp thermostat, fail-closed step cap,
+    per-time-unit rates) are the same for both.
 
     The protocol tracks the temperature it is at: `quench to T` (parsed as
     T_hi == T_lo) quenches from wherever the protocol currently is down to T,
     because the parser cannot know the running temperature. MD here runs
     uncapped (except `deposit`): a force cap lets hot pairs tunnel through the
     repulsive core, and the overlaps it leaves behind freeze a stressed,
-    wrong-peaked glass (A5)."""
+    wrong-peaked glass (A5).
+
+    X5 / D19: quench rates are per TIME UNIT (steps = |dT| / (rate x dt)),
+    a quench needing more than `quench_max_steps` RAISES (never truncates),
+    melt and quench run at `_ramp_gamma` so the thermostat follows the ramp,
+    and the returned frame's `info["history_stages"]` records the kinetic
+    temperature at the end of every stage (the provenance D19(c) demands)."""
     if backend != "lj":
         raise NotImplementedError("history protocols run on the LJ backend in core; "
                                   "MACE/LAMMPS are optional extras")
@@ -103,34 +147,71 @@ def run_protocol(frame: Frame, steps, dialect, rng, backend="lj") -> Frame:
     dt = float(md["relax_dt"])
     gamma = float(md["relax_gamma"])
     skin = float(md["skin"])
+    cap = int(md["quench_max_steps"])
+    nblocks_cap = int(md["quench_blocks"])
     L = frame.cell_diag
     r = np.mod(frame.pos, L)
     T_cur = float(dialect.threshold("protocol_init_T"))
     v = rng.normal(size=r.shape) * np.sqrt(T_cur)
-    lj = LJ(L, rc=float(md["relax_rc"]), skin=skin)
+    if engine is None:
+        engine = LJ(L, rc=float(md["relax_rc"]), skin=skin)
     fcap = float(md["fcap"])
     symbols = list(frame.symbols)
+    stages: list[dict] = []
+
+    def record(stage: str, T_stated, gamma_used) -> None:
+        stages.append({"stage": stage, "T": float(T_stated),
+                       "T_kin": _kinetic_T(v), "gamma": float(gamma_used)})
+
     for step in steps:
         kind = step[0]
         if kind == "melt":
             _, T, n = step
-            r, v = run_md(r, v, L, int(n), dt, T, gamma, rng, lj=lj)
+            g = _ramp_gamma(dialect, md, int(n), dt)
+            r, v = run_md(r, v, L, int(n), dt, T, g, rng, lj=engine)
             T_cur = float(T)
+            record("melt", T, g)
         elif kind == "quench":
             _, T_hi, T_lo, rate = step
             if T_hi == T_lo:  # `quench to T`: start from the current temperature
                 T_hi = T_cur
-            n = int(max(abs(T_hi - T_lo) / max(rate, 1e-6), 1))  # dialect-exempt: numerical-guard: divide-by-zero guard on the rate
-            n = min(n, int(md["quench_max_steps"]))
-            Ts = np.linspace(T_hi, T_lo, n)
-            for T in Ts[::max(n // 200, 1)]:
-                r, v = run_md(r, v, L, max(n // 200, 1), dt, float(T), gamma, rng,
-                              lj=lj)
+            if rate <= 0:
+                raise ChaordError(
+                    f"quench to {T_lo:g} states rate {rate:g}: a cooling rate "
+                    "is temperature per time unit (D19a) and must be positive")
+            dT = abs(T_hi - T_lo)
+            # exact-integer step requests must not gain a step to float
+            # rounding (rate x dt x n == dT lands a hair above dT)
+            n = max(int(np.ceil(dT / (rate * dt) - 1e-9)), 1)  # dialect-exempt: numerical-guard: rounding at exact-integer step requests; a zero-range quench still relaxes one block
+            if n > cap:
+                raise ChaordError(
+                    f"quench to {T_lo:g} at {rate:g} T/tau spans {dT:g} over "
+                    f"{n} MD steps at relax_dt {dt:g}; the dialect allows "
+                    f"quench_max_steps {cap}. A history must mean what it "
+                    "says (D19b): the quench is never truncated to the cap -- "
+                    "state a faster rate or a shorter range, or raise "
+                    "quench_max_steps (a dialect change)")
+            g = _ramp_gamma(dialect, md, n, dt, rate=dT / (n * dt))
+            # linear staircase over exactly n steps, ending exactly at T_lo
+            nblocks = min(n, nblocks_cap)
+            per, rem = divmod(n, nblocks)
+            targets = np.linspace(T_hi, T_lo, nblocks + 1)[1:]
+            for i in range(nblocks):
+                q = per + (1 if i < rem else 0)
+                r, v = run_md(r, v, L, q, dt, float(targets[i]), g, rng,
+                              lj=engine)
             T_cur = float(T_lo)
+            record("quench", T_lo, g)
         elif kind == "anneal":
             _, T, n = step
-            r, v = run_md(r, v, L, int(n), dt, T, gamma, rng, lj=lj)
+            # a constant-T stage must HOLD its stated temperature against the
+            # relaxing glass's heat release, so it keeps the same quasi-static
+            # 10/tau floor (no tracking term: there is no ramp)
+            g = max(gamma, float(dialect.threshold("ramp_gamma_tau_multiple"))
+                    / (int(n) * dt))
+            r, v = run_md(r, v, L, int(n), dt, T, g, rng, lj=engine)
             T_cur = float(T)
+            record("anneal", T, g)
         elif kind == "deposit":
             _, species, count, nsteps = step
             gap = float(dialect.threshold("deposit_min_gap"))
@@ -138,12 +219,13 @@ def run_protocol(frame: Frame, steps, dialect, rng, backend="lj") -> Frame:
             T_dep = float(dialect.threshold("deposit_T"))
             interval = max(int(nsteps) // int(count), 1)
             for _ in range(int(count)):
-                r, v = _deposit_atom(r, v, L, gap, T_dep, rng, lj, attempts)
+                r, v = _deposit_atom(r, v, L, gap, T_dep, rng, engine, attempts)
                 symbols.append(species)
-                r, v = run_md(r, v, L, interval, dt, T_dep, gamma, rng, lj=lj,
+                r, v = run_md(r, v, L, interval, dt, T_dep, gamma, rng, lj=engine,
                               fcap=fcap)
+            record("deposit", T_dep, gamma)
     return Frame(pos=np.mod(r, L), cell=frame.cell, symbols=symbols,
-                 pbc=frame.pbc)
+                 pbc=frame.pbc, info={"history_stages": stages})
 
 
 def _restrain_cn(frame: Frame, target, tolerance, dialect, rng, steps=None) -> Frame:

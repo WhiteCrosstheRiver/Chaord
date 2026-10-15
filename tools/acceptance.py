@@ -1709,14 +1709,21 @@ _HISTORY_LINE = re.compile(
     rf"\s+at\s+({_FLOAT})(?:\s+->\s+anneal\s+{_FLOAT}\s+for\s+(\d+))?")
 
 
-def _a5_budget(n_atoms: int, program_text: str = "") -> int:
+def _a5_budget(n_atoms: int, program_text: str = "", dialect=None) -> int:
     """Per-case rebuild budget: base seconds, linear in N above 1,000 atoms,
-    plus the MD time the program's own history line implies."""
+    plus the MD time the program's own history line implies (X5/D19a: the
+    stated quench rate is per TIME UNIT, so the quench steps are
+    |dT| / (rate x relax_dt) read from the dialect's md table)."""
     budget = max(A5_BUILD_TIMEOUT, A5_BUILD_TIMEOUT * n_atoms / 1000.0)
     m = _HISTORY_LINE.search(program_text or "")
     if m:
+        if dialect is None:
+            from chaord.dialects import load_dialect
+            dialect = load_dialect(("core", "glass"))
+        dt = float(dialect.threshold("md")["relax_dt"])
         melt_t, melt_steps, q_t, q_rate, anneal_steps = m.groups()
-        quench_steps = (round((float(melt_t) - float(q_t)) / float(q_rate))
+        quench_steps = (round((float(melt_t) - float(q_t))
+                              / (float(q_rate) * dt))
                         if float(q_rate) > 0 else 0)
         steps = int(melt_steps) + max(quench_steps, 0) + int(anneal_steps or 0)
         budget = max(budget, A5_MD_RATE * n_atoms * steps)
@@ -1810,9 +1817,12 @@ _RE_A5_ANNEAL = re.compile(r"\banneal\s+[-+0-9.eE]+\s+for\s+(\d+)")
 def _a5_history_md_steps(line: str, dialect) -> int:
     """MD steps of one printed `history melt ... -> quench ... -> anneal`
     protocol, verifier arithmetic mirroring realize.protocols.run_protocol:
-    melt for N + quench n = |T_hi - T_lo| / rate (capped) + anneal for N."""
+    melt for N + quench n = |T_hi - T_lo| / (rate x relax_dt) -- X5/D19a,
+    the stated rate is per TIME UNIT -- + anneal for N."""
     steps = 0
     t_cur = None
+    md = dialect.threshold("md")
+    dt = float(md["relax_dt"])
     if m := _RE_A5_MELT.search(line):
         t_cur = float(m.group(1))
         if m.group(2):
@@ -1822,8 +1832,9 @@ def _a5_history_md_steps(line: str, dialect) -> int:
         rate = (float(q.group(2)) if q.group(2) else
                 float(dialect.threshold("quench_default_rate")))
         t_hi = t_cur if t_cur is not None else t_lo
-        n = int(max(abs(t_hi - t_lo) / max(rate, 1e-6), 1))
-        steps += min(n, int(dialect.threshold("md")["quench_max_steps"]))
+        if rate > 0:
+            n = int(max(abs(t_hi - t_lo) / (rate * dt), 1))  # dialect-exempt: numerical-guard: a zero-range quench still runs one step
+            steps += min(n, int(md["quench_max_steps"]))
     if a := _RE_A5_ANNEAL.search(line):
         steps += int(a.group(1))
     return steps
@@ -2102,7 +2113,7 @@ def check_a5(mutation: str | None = None, floors=None,
             secs = 0.0
             note = ""
             physics_used = physics_on
-            budget = _a5_budget(len(frame), program_text)
+            budget = _a5_budget(len(frame), program_text, dialect=dl)
             for seed in seeds:
                 rebuilt, s, n_, physics_used = _rebuild_in_subprocess(
                     program_text, dl.names, td,

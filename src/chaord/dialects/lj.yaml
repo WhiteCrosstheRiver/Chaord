@@ -69,7 +69,11 @@ thresholds:
     relax_steps_exp: 0.6666667   # t_mix ~ L^2 ~ N^(2/3): diffusive mixing of the packed start
     relax_dt: 0.005
     relax_gamma: 0.5
-    quench_max_steps: 20000      # cap on quench integration steps (mirrors glass)
+    quench_max_steps: 20000      # refusal bound, NOT a truncation (X5/D19b):
+                                 # a quench needing more steps raises a
+                                 # ChaordError naming requested and allowed
+    quench_blocks: 200           # staircase segments of a linear ramp (mirrors
+                                 # glass; the ramp ends exactly at the stated T)
   printed_cutoff: "2.5"          # cutoff the lifter states in physics (metadata)
   printed_strain_tolerance: 0.2  # tolerance printed on the strain constrain line
   default_cutoff: 2.5            # build-side default when physics.cutoff is absent
@@ -80,9 +84,16 @@ thresholds:
   fluid_rsa_dmin: 0.90
   fluid_solid_fraction_max: 0.20    # above this solid fraction it is not one phase
   restrain_max_iter: 20            # density-restraint box-relaxation iterations
-  quench_max_steps: 20000          # cap on quench integration steps
+  quench_max_steps: 20000          # refusal bound, NOT a truncation (X5/D19b)
   protocol_init_T: 0.1             # temperature of the initial protocol velocities
-  quench_default_rate: 0.001       # cooling rate when the program omits `at <rate>`
+  quench_default_rate: 0.2         # cooling rate when the program omits `at <rate>`
+                                   # (T*/tau; X5/D19a one-time conversion of the
+                                   # per-step 0.001 at relax_dt 0.005; mirrors glass)
+  # X5 / D19(c) ramp thermostat, mirrors glass (measurement comments there):
+  # during melt and quench, gamma = max(relax_gamma,
+  # ramp_gamma_tau_multiple / tau_stage, ramp_gamma_rate_multiple x |dT/dt|)
+  ramp_gamma_tau_multiple: 10
+  ramp_gamma_rate_multiple: 500
   noise_gr_rmin: 0.8               # g(r) RMS lower edge, sigma
   lj_tmelting: 0.69                # fcc LJ melting temperature, reduced units (A4 anchor)
   lattice_scan_steps: 57           # thermal LJ frames bias d_NN (nearest of 12 neighbours) low by

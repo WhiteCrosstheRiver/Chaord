@@ -6,9 +6,10 @@ v1 path: RSA start + realize.protocols.run_protocol on the plain LJ engine.
 Multi-species regions (W7 / D9: `conserve atoms A 1600 B 400`, physics
 `model kob_andersen`) require a named LJ mixture model from the dialect's
 lj_mixtures table; the history then runs on the pair-resolved engine
-(realize.lj.LJMixture) with the same protocol semantics (melt / linear
-quench / anneal, uncapped forces), and the placement is a species-blind
-feasibility-capped RSA start that the melt erases.
+(realize.lj.LJMixture) through the SAME protocol runner (X5/D19d:
+run_protocol's `engine` parameter -- melt / linear quench / anneal, uncapped
+forces, fail-closed step cap, ramp thermostat), and the placement is a
+species-blind feasibility-capped RSA start that the melt erases.
 """
 from __future__ import annotations
 
@@ -76,55 +77,6 @@ def _mixture_table(program: Program, dialect, counts: dict[str, int]) -> tuple:
             f"{sorted(entry['species'])}, the program conserves "
             f"{sorted(counts)}")
     return entry
-
-
-def _run_mixture_history(frame: Frame, steps, dialect, rng, entry: dict) -> Frame:
-    """Execute melt/quench/anneal on the pair-resolved LJ engine.
-
-    Mirrors realize.protocols.run_protocol exactly (same temperature
-    tracking, same linear-quench segmentation, same uncapped forces: a force
-    cap lets hot pairs tunnel through the repulsive core and freeze a
-    stressed, wrong-peaked glass); run_protocol itself constructs the plain
-    monatomic LJ engine, so the mixture runs here."""
-    from ..realize.lj import LJMixture, run_md
-    md = dialect.threshold("md")
-    dt = float(md["relax_dt"])
-    gamma = float(md["relax_gamma"])
-    skin = float(md["skin"])
-    L = frame.cell_diag
-    r = np.mod(frame.pos, L)
-    symbols = list(frame.symbols)
-    T_cur = float(dialect.threshold("protocol_init_T"))
-    v = rng.normal(size=r.shape) * np.sqrt(T_cur)
-    mix = LJMixture(L, symbols, entry["epsilon"], entry["sigma"],
-                    float(entry["rc_factor"]), skin=skin)
-    for step in steps:
-        kind = step[0]
-        if kind == "melt":
-            _, T, n = step
-            r, v = run_md(r, v, L, int(n), dt, T, gamma, rng, lj=mix)
-            T_cur = float(T)
-        elif kind == "quench":
-            _, T_hi, T_lo, rate = step
-            if T_hi == T_lo:  # `quench to T`: start from the current temperature
-                T_hi = T_cur
-            n = int(max(abs(T_hi - T_lo) / max(rate, 1e-6), 1))  # dialect-exempt: numerical-guard: divide-by-zero guard on the rate
-            n = min(n, int(md["quench_max_steps"]))
-            Ts = np.linspace(T_hi, T_lo, n)
-            for T in Ts[::max(n // 200, 1)]:
-                r, v = run_md(r, v, L, max(n // 200, 1), dt, float(T), gamma,
-                              rng, lj=mix)
-            T_cur = float(T_lo)
-        elif kind == "anneal":
-            _, T, n = step
-            r, v = run_md(r, v, L, int(n), dt, T, gamma, rng, lj=mix)
-            T_cur = float(T)
-        else:
-            raise ChaordError(
-                f"the mixture amorphous history supports melt/quench/anneal, "
-                f"not {kind!r}")
-    return Frame(pos=np.mod(r, L), cell=frame.cell, symbols=symbols,
-                 pbc=frame.pbc)
 
 
 def _lattice_start(counts: dict[str, int], L: float, rng) -> np.ndarray:
@@ -251,7 +203,13 @@ def build_amorphous(program: Program, dialect, rng, physics=True,
                   pbc=(True, True, True))
     if not physics:
         return frame
-    out = _run_mixture_history(frame, _steps(), dialect, rng, entry)
+    # X5 / D19(d): the mixture history runs through the ONE protocol runner
+    # on the pair-resolved engine (same semantics as the monatomic path).
+    from ..realize.lj import LJMixture
+    mix = LJMixture(frame.cell_diag, symbols, entry["epsilon"], entry["sigma"],
+                    float(entry["rc_factor"]),
+                    skin=float(dialect.threshold("md")["skin"]))
+    out = run_protocol(frame, _steps(), dialect, rng, engine=mix)
     if assumed:
         out.info["assumed_history"] = "assumed default protocol from dialect"
         print("chaord: amorphous program states no history: assumed default "
@@ -262,14 +220,16 @@ def build_amorphous(program: Program, dialect, rng, physics=True,
 def _default_protocol(dialect) -> list:
     """The dialect's default melt -> quench -> anneal, as the amorphous lifter
     states it (glass_melt/quench/anneal thresholds, LJ reduced units; the
-    quench rate is linear over glass_quench_steps)."""
+    quench rate is linear over glass_quench_steps, stated per TIME UNIT --
+    X5/D19a -- so it keeps its meaning through any relax_dt)."""
     t_melt = float(dialect.threshold("glass_melt_T"))
     n_melt = int(dialect.threshold("glass_melt_steps"))
     t_q = float(dialect.threshold("glass_quench_T"))
     n_q = int(dialect.threshold("glass_quench_steps"))
     t_a = float(dialect.threshold("glass_anneal_T"))
     n_a = int(dialect.threshold("glass_anneal_steps"))
-    rate = round((t_melt - t_q) / n_q, 6)  # dialect-exempt: numerical-guard: printable cooling rate, T per step
+    dt = float(dialect.threshold("md")["relax_dt"])
+    rate = round((t_melt - t_q) / (n_q * dt), 6)  # dialect-exempt: numerical-guard: printable cooling rate, T per time unit
     # `quench to T at rate` parses to (T, T, rate): run_protocol quenches from
     # wherever the protocol currently is (after the melt)
     return [("melt", t_melt, n_melt), ("quench", t_q, t_q, rate),

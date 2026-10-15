@@ -55,7 +55,7 @@ physics {{
 amorphous glass : all {{
   composition A 86 B 22
   state density 1.2
-  history melt 2 for 400 -> quench to 0.1 at 0.00475 -> anneal 0.1 for 300
+  history melt 2 for 400 -> quench to 0.1 at 0.95 -> anneal 0.1 for 300
 }}
 
 residual none

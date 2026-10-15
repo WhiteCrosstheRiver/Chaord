@@ -130,7 +130,8 @@ def test_a5_rebuild_meta_still_reads_working_dialects():
                         "physics {\n  backend lj\n}\n\n"
                         "liquid x : all {\n"
                         "  history melt 0.90 for 300 -> quench to 0.10 "
-                        "at 0.01\n}")
+                        "at 2\n}")
     steps = acc._a5_rebuild_meta(hist, LJ, physics_on=True)["md_steps"]
     assert steps == 300 + 80, \
-        "melt for 300 + quench |0.9-0.1|/0.01 = 80 (rate stated, no default)"
+        "melt for 300 + quench |0.9-0.1|/(2 T*/tau x relax_dt 0.005 tau) " \
+        "= 80 (rate stated per time unit, no default)"

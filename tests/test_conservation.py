@@ -100,7 +100,7 @@ def glass(tmp_path_factory):
             "system {\n  pbc xyz\n  conserve atoms X 108\n}\n\n"
             "physics {\n  backend lj\n}\n\n"
             "amorphous glass : all {\n  state density 0.9\n"
-            "  history melt 1.2 for 150 -> quench to 0.01 at 0.01 -> "
+            "  history melt 1.2 for 150 -> quench to 0.01 at 2 -> "
             "anneal 0.01 for 100\n}\n")
     path = tmp_path_factory.mktemp("conservation") / "glass.chaord"
     path.write_text(text)

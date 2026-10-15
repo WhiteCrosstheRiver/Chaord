@@ -248,7 +248,11 @@ def lift_amorphous(frame: Frame, dialect, backend="lj") -> Program:
         n_melt = int(round(int(dialect.threshold("glass_melt_steps")) * scale))
         n_q = int(round(int(dialect.threshold("glass_quench_steps")) * scale))
         n_a = int(round(int(dialect.threshold("glass_anneal_steps")) * scale))
-        rate = round((t_melt - t_q) / n_q, 6)  # dialect-exempt: numerical-guard: printable cooling rate, T per step
+        # X5 / D19(a): the rate is per TIME UNIT (T*/tau), the one-time
+        # conversion of the old per-step print -- the program keeps its
+        # meaning through any relax_dt the dialect states
+        dt = float(dialect.threshold("md")["relax_dt"])
+        rate = round((t_melt - t_q) / (n_q * dt), 6)  # dialect-exempt: numerical-guard: printable cooling rate, T per time unit
         region_stmts.append(Statement(
             kind="history", key="melt",
             values=[Quantity(num=f"{t_melt:g}"), Name(text="for"),
