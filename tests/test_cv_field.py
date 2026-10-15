@@ -493,7 +493,7 @@ def test_field_cvs_registered_and_measurable(research):
     the CV registry and measure() dispatches to the field module."""
     from chaord.cv.field import dipole_orientation, inner_outer_ratio, \
         radial_density_profile
-    for name in ("field_dipole_p1", "radial_inner_outer_ratio"):
+    for name in ("dipole_p1", "radial_inner_outer_ratio"):
         assert name in CVS, f"{name} missing from the CV registry"
     mu0 = _template_dipole(research)
     L = np.array([24.0, 24.0, 24.0])
@@ -503,14 +503,14 @@ def test_field_cvs_registered_and_measurable(research):
     centres = [(6.0, 6.0, 12.0), (18.0, 6.0, 12.0), (6.0, 18.0, 12.0),
                (18.0, 18.0, 12.0)]
     f = _water_frame(rots, centres, L)
-    assert measure("field_dipole_p1", f, research) == pytest.approx(
+    assert measure("dipole_p1", f, research) == pytest.approx(
         dipole_orientation(f, research)["P1"], abs=1e-15)
     rad = radial_density_profile(f, research, axis="z")
     assert measure("radial_inner_outer_ratio", f, research) == pytest.approx(
         inner_outer_ratio(rad, research), abs=1e-15)
     # thresholds are declared on the CV definitions (fail-closed contract)
-    assert CVS["field_dipole_p1"].dialect == "research"
-    assert "field_dipole_species" in CVS["field_dipole_p1"].thresholds
+    assert CVS["dipole_p1"].dialect == "research"
+    assert "field_dipole_species" in CVS["dipole_p1"].thresholds
 
 
 def test_molecular_research_stack_works(mol_research):

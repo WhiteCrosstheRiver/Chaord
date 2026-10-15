@@ -376,7 +376,7 @@ def lift_one_frame(frame: Frame, field: dict | None, geometry: dict,
     lift_frame(mode="fluid", field=...) under `dl` (the composition
     dialect: the research stack with the species and fluid-routing views of
     RD4).  The electrolyte subset's field statements (`state field`, the
-    RD4 `assert field_dipole_p1`, their notes) are carried into the
+    RD4/D29 `assert dipole_p1`, their notes) are carried into the
     composed program's system block and provenance verbatim."""
     dl = dl if dl is not None else composition_dialect()
     tube, electrolyte = split_tube(frame, dl)
@@ -413,7 +413,7 @@ def lift_one_frame(frame: Frame, field: dict | None, geometry: dict,
         Statement(kind="state", key="T", values=[Quantity(num=f"{T_K:.2f}")]),
     ]
     field_statements = [s for s in sub_system.statements
-                        if s.key in ("field", "field_dipole_p1")]
+                        if s.key in ("field", "dipole_p1")]
     system_statements.extend(field_statements)
     system_statements.append(
         Statement(kind="conserve", key="atoms", values=conserve))
@@ -523,7 +523,7 @@ def statement_features(text: str) -> dict:
 
     Excluded BY CONSTRUCTION (the task's anti-circularity rule): the
     `state field` statement itself and every provenance note -- the regexes
-    below never touch them.  The `assert field_dipole_p1` VALUE is a
+    below never touch them.  The `assert dipole_p1` VALUE is a
     feature (it is the RD4 evidence, a measurement, not the metadata); the
     other numeric asserts (cn, gr_peak) and the state density are features
     too.  Returns floats or None when the statement is absent."""
@@ -531,7 +531,7 @@ def statement_features(text: str) -> dict:
                    "gr_peak_h": None, "density": None}
     for line in text.splitlines():
         s = line.strip()
-        m = re.fullmatch(rf"assert field_dipole_p1 {_NUM} \+- {_NUM} along "
+        m = re.fullmatch(rf"assert dipole_p1 {_NUM} \+- {_NUM} along "
                          r"([xyz])", s)
         if m:
             feats["p1"] = float(m.group(1))
@@ -564,14 +564,13 @@ def classify_threshold(values: np.ndarray, threshold: float) -> np.ndarray:
 def encode_features(frames_feats: list[dict]) -> tuple[np.ndarray, np.ndarray]:
     """The classifier's design matrix: P1 assert value, absent encoded as 0.
 
-    The encoding is physics, not leakage laundering: RD4 ties the P1 assert
-    to a stated field, so a field-off program has no assert -- and an
-    unaligned liquid has P1 statistically 0 (cosines of uniformly sampled
-    orientations).  The measured field-off P1 distributions (RESULTS.md)
-    sit at 0.02-0.14, so 0 is the honest a-priori value of the absent
-    measurement.  The co-occurrence of assert-presence with the field
-    statement is stated openly in the report; the value-only content of the
-    assert is the number, and the control model below drops it entirely."""
+    D29 (open_items_v4.md) made the assert blind -- every program now
+    carries a measured value, field or no field -- so the absent branch is
+    dead on this pipeline's frames and stays only for hand-made texts; an
+    unaligned liquid's P1 is statistically 0 (cosines of uniformly sampled
+    orientations), which is what the branch encodes.  The value-only
+    content of the assert is the number; the control model below drops it
+    entirely."""
     values, labels = [], []
     for f in frames_feats:
         values.append(f["feats"]["p1"] if f["feats"]["p1"] is not None else 0.0)
@@ -738,7 +737,7 @@ def run_pipeline(frames_per_system: int | None = None) -> dict:
         "systems": per_system,
         "separation": separation,
         "classifier": {
-            "model": "single-feature threshold on the field_dipole_p1 assert "
+            "model": "single-feature threshold on the dipole_p1 assert "
                      "value (absent -> 0, the a-priori P1 of an unaligned "
                      "liquid); threshold = midpoint of class means",
             "loo_accuracy": loo_acc, "loo_errors": loo_err,

@@ -1,11 +1,12 @@
 chaord 0.1
-dialect core + carbon
+dialect core + carbon + research
 
 system {
   cell 33.5627 33.5627 39.36 A
   pbc xyz
   seed 3
   state field E 0.10 V/A along z
+  assert dipole_p1 0.821 +- 0.277 along z
   conserve atoms C 640
 }
 

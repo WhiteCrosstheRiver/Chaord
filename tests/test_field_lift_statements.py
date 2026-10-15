@@ -1,13 +1,15 @@
-"""RD4 (docs/reviews/research_decisions.md): the field's measurable
-consequence, asserted.
+"""RD4 (docs/reviews/research_decisions.md) as amended by D29
+(docs/reviews/open_items_v4.md, work order Y2): the measured orientation
+statement.
 
-Red-first suite: written against the decision record before the code. When
-the caller supplies `field=`, the lifted program must carry the statement-level
-evidence -- `assert field_dipole_p1 <v> +- <tol> along <axis>` in the system
-block next to `state field`, measured with cv.field.dipole_orientation from
-the frame's own charges -- or, when the dialect cannot measure it, a
-provenance note naming the reason (RD3's binding `state field` statement
-stands either way). With `field=` absent: nothing field-related at all.
+The program carries `assert dipole_p1 <v> +- <tol> along <axis>` in the
+system block, measured with cv.field.dipole_orientation from the frame's own
+charges, for EVERY frame whose dialect names dipolar species -- with or
+without `field=`. When the caller supplies a field the assert sits next to
+the `state field` line and the field adds nothing else (its assumed-value
+note). When the dialect cannot measure the observable, a provenance note
+names the reason; with a field given, RD3's binding `state field` statement
+stands either way.
 
 The expected P1 values are computed test-side from the placed geometry
 (Rodrigues rotations of registry templates at known angles), the same
@@ -126,7 +128,7 @@ def _provenance_notes(program):
 
 def _p1_statement(program):
     return next((s for s in _system_statements(program)
-                 if s.kind == "assert" and s.key == "field_dipole_p1"), None)
+                 if s.kind == "assert" and s.key == "dipole_p1"), None)
 
 
 # ------------------------------------------------------------- the assert --
@@ -150,7 +152,7 @@ def test_lift_with_field_asserts_measured_p1(name, mode):
     program = lift_frame(frame, dl, T=300.0, mode=mode, field=FIELD)
     stmt = _p1_statement(program)
     assert stmt is not None, (f"a {name} program lifted with field= carries no "
-                              "field_dipole_p1 assert (RD4)")
+                              "dipole_p1 assert (RD4/D29)")
     value, tol = stmt.values[0], stmt.values[1]
     assert value.t == "q" and value.num == f"{expected:.3f}"
     assert tol.t == "tol" and tol.value.num == f"{1.0 / np.sqrt(3):.3f}"
@@ -167,9 +169,9 @@ def test_p1_assert_sits_next_to_state_field_in_the_system_block():
     program = lift_frame(frame, dl, T=300.0, mode="fluid", field=FIELD)
     stmts = _system_statements(program)
     keys = [(s.kind, s.key) for s in stmts]
-    assert ("state", "field") in keys and ("assert", "field_dipole_p1") in keys
+    assert ("state", "field") in keys and ("assert", "dipole_p1") in keys
     assert keys.index(("state", "field")) + 1 == keys.index(
-        ("assert", "field_dipole_p1"))
+        ("assert", "dipole_p1"))
 
 
 def test_p1_assert_value_is_measured_not_the_field_value():
@@ -197,7 +199,7 @@ def test_p1_assert_provenance_records_the_measurement_and_the_bound():
     dl = load_dialect(("core", "molecular", "research"))
     program = lift_frame(frame, dl, T=300.0, mode="fluid", field=FIELD)
     notes = _provenance_notes(program)
-    assert any("field P1 measured" in n and "frame's own" in n for n in notes), notes
+    assert any("dipole P1 measured" in n and "frame's own" in n for n in notes), notes
     assert any("a-priori standard-error bound" in n and "not an empirical floor"
                in n for n in notes), notes
 
@@ -211,7 +213,7 @@ def test_p1_assert_parses_and_round_trips():
     dl = load_dialect(("core", "molecular", "research"))
     program = lift_frame(frame, dl, T=300.0, mode="fluid", field=FIELD)
     text = format_program(program)
-    assert "assert field_dipole_p1 1.000 +- 0.577 along z" in text
+    assert "assert dipole_p1 1.000 +- 0.577 along z" in text
     units = sorted(dl.units | {"V/A", "K"})
     again = parse_text(text, units=units)
     assert ir_equal(again, program)
@@ -219,12 +221,16 @@ def test_p1_assert_parses_and_round_trips():
 
 def test_field_assert_key_declared_in_research_dialect():
     assert load_dialect(("core", "research")).key_allowed("system",
-                                                          "field_dipole_p1")
+                                                          "dipole_p1")
 
 
 # --------------------------------------------------------------- absence --
 
-def test_no_field_means_no_field_asserts():
+def test_no_field_means_no_field_statement_but_the_p1_stays():
+    """D29 reversed the old absence rule: without `field=` there is no
+    `state field` line and nothing field-related anywhere in the text, but
+    the measured orientation assert stays (tests/test_blind_lift.py pins
+    the same rule end to end on the committed frames)."""
     u = _template_unit_dipole("H2O")
     frame = _template_frame("H2O",
                             [_rotation_from_to(u, [0.0, 0.0, 1.0])] * 3,
@@ -233,7 +239,9 @@ def test_no_field_means_no_field_asserts():
     dl = load_dialect(("core", "molecular", "research"))
     program = lift_frame(frame, dl, T=300.0, mode="fluid")
     text = format_program(program)
-    assert "field" not in text and "field_dipole_p1" not in text
+    assert "field" not in text
+    assert _p1_statement(program) is not None
+    assert "assert dipole_p1 1.000 +- 0.577 along z" in text
 
 
 # ------------------------------------------------- degrade, never silence --
@@ -252,7 +260,7 @@ def test_dialect_without_the_observable_degrades_with_a_note():
     program = lift_frame(_neon_frame(), dl, mode="fluid", field=FIELD)
     text = format_program(program)
     assert "state field E 0.2 V/A along z" in text
-    assert "field_dipole_p1" not in text
+    assert "dipole_p1" not in text
     notes = _provenance_notes(program)
     assert any("field observables not asserted" in n for n in notes), notes
 

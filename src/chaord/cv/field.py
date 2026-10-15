@@ -347,11 +347,14 @@ def _measure_ratio(frame: Frame, dialect, **kwargs) -> float:
         radial_density_profile(frame, dialect, **kwargs), dialect)
 
 
-register("field_dipole_p1", None,
+register("dipole_p1", None,
          "dipole-orientation order parameter <cos theta> of the named "
-         "solvent species against the field axis (research case)",
+         "solvent species against the analysis axis -- the field's axis "
+         "when one is given, else the tube's, else the dialect default "
+         "(research case; blind per D29, open_items_v4.md)",
          thresholds=("field_dipole_species", "field_dipole_site_charges",
-                     "field_charge_tolerance", "field_dipole_moment_floor"),
+                     "field_charge_tolerance", "field_dipole_moment_floor",
+                     "dipole_axis_default"),
          dialect="research", measure=_measure_p1)
 register("radial_inner_outer_ratio", None,
          "mean inner-shell over outer-shell cylindrical number density "

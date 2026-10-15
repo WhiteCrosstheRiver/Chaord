@@ -59,7 +59,7 @@ def test_statement_features_cannot_see_the_field_line_or_notes():
     statement and the provenance notes; only assert/state numeric
     statements of the region and system blocks are read."""
     a = ("system {\n  state T 300.00\n  state field E 0.2 V/A along z\n"
-         "  assert field_dipole_p1 0.800 +- 0.277 along z\n}\n"
+         "  assert dipole_p1 0.800 +- 0.277 along z\n}\n"
          'provenance {\n  note "field assumed (caller-supplied E = 0.2 V/A'
          ' along z); not measured"\n}\n')
     b = a.replace("0.2 V/A", "9.9 V/A")
@@ -152,13 +152,15 @@ def test_first_result_pins_the_headline_numbers():
         text = r["text"]
         if r["field"]:
             assert "state field E 0.2 V/A along z" in text
-            assert "assert field_dipole_p1" in text
         else:
             assert "field" not in text, text[:200]
+        # D29 (blind lift): every program carries the measured assert,
+        # field or no field -- the classifier feature is always present
+        assert "assert dipole_p1" in text
         # every composed program parses back and is its own canonical form
         # (rule 3: one structure, one text)
         program = parse_text(text, units=units)
         assert format_program(program) == text, r["system"]
         # the classifier feature agrees with the text it came from
         feats = A.statement_features(text)
-        assert (feats["p1"] is not None) == r["field"]
+        assert feats["p1"] is not None

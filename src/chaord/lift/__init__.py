@@ -41,18 +41,17 @@ def lift_frame(frame, dialect, T=None, mode="auto", field=None):
     (component defaults to E, unit to V/A; value and axis are required).
     Given one, every lift path prints the `state field` statement in the
     system block next to `state T`, with a provenance note recording that
-    the value was assumed, not measured -- the W11 assumed-value rule exactly as
-    fluid.AssumedT applies it. Given none, nothing is printed (there is no
-    honest default field).
+    the value was assumed, not measured -- the W11 assumed-value rule exactly
+    as fluid.AssumedT applies it. Given none, nothing field-related is
+    printed (there is no honest default field).
 
-    RD4 (same record) adds the statement-level evidence: given a field, the
-    program also ASSERTS the field's measurable consequence --
-    `assert field_dipole_p1 <v> +- <tol> along <axis>` right after the
-    state field statement, measured by cv.field.dipole_orientation from the
-    frame's own charges -- or, when the dialect cannot measure it (no
-    field_dipole_species, no such species, no charge model), records the
-    reason in provenance and keeps RD3's statement. Given none, no
-    field-related statement exists at all."""
+    D29 (docs/reviews/open_items_v4.md) made the orientation statement
+    BLIND: `assert dipole_p1 <v> +- <tol> along <axis>` is measured for
+    every frame whose dialect names dipolar species (`field_dipole_species`),
+    with or without `field=`; the field spec adds ONLY the `state field`
+    line and its assumed-value note. The analysis axis is the field's axis
+    when one is given, else the nanotube region's axis when the program
+    holds one, else the dialect's `dipole_axis_default` (research.yaml)."""
     field_parts = _field_parts(field) if field is not None else None
     if T is None:
         try:
@@ -65,11 +64,12 @@ def lift_frame(frame, dialect, T=None, mode="auto", field=None):
     else:
         from chaord.lift.legacy import legacy_lift
         program, unexplained = legacy_lift(frame, dialect, T, mode)
+    field_axis = None
     if field_parts is not None:
         stmt, note = field_parts
         _attach_field(program, stmt, note)
-        _attach_field_observables(program, frame, dialect,
-                                  axis=stmt.values[-1].text)
+        field_axis = stmt.values[-1].text
+    _attach_dipole_p1(program, frame, dialect, field_axis=field_axis)
     return _record_lift_diag(program, frame, dialect, unexplained)
 
 
@@ -126,14 +126,69 @@ def _append_provenance_note(program, text):
                                      values=[StrVal(text=text)]))
 
 
-def _attach_field_observables(program, frame, dialect, axis):
-    """RD4 (docs/reviews/research_decisions.md): assert the field's
-    measurable consequence next to the `state field` statement.
+def _names_dipolar_species(dialect) -> bool:
+    """Does this dialect name dipolar species (`field_dipole_species`)?
+
+    The D29 gate: the orientation statement exists only for dialects that
+    name the species P1 averages over -- a dialect without the key (core +
+    lj, the crystal stacks) declares the observable out of scope, and a
+    blind lift of such a frame simply has nothing to assert. The key's
+    absence is Dialect.threshold's own "defines no threshold" error; it is
+    matched by message, the same carve-out the legacy ladder makes for the
+    one ChaordError that is not a phase verdict."""
+    from ..lang.errors import ChaordError
+    try:
+        return bool(dialect.threshold("field_dipole_species"))
+    except ChaordError as e:
+        if "defines no threshold" in str(e):
+            return False
+        raise
+
+
+def _resolve_dipole_axis(program, dialect, field_axis):
+    """The `assert dipole_p1 ... along <axis>` analysis axis (Y2 step 2).
+
+    Order: the caller-supplied field's axis; else the nanotube region's
+    axis when the program holds one (a confined fluid's natural analysis
+    axis is its tube's -- the composition of Y3 emits exactly that region);
+    else the dialect's `dipole_axis_default`. Fail closed when nothing
+    names an axis: a measured statement must not invent its own geometry.
+    Returns (axis, source); the source names the winning rule (kept for
+    tests and debugging -- the provenance note stays identical with and
+    without a field, so it does not carry it)."""
+    if field_axis is not None:
+        return str(field_axis), "the field's axis"
+    axes = []
+    for block in program.blocks:
+        if getattr(block, "t", None) != "region":
+            continue
+        if not any(s.kind == "build" and s.key == "nanotube"
+                   for s in block.statements):
+            continue
+        for part in getattr(block.geometry, "parts", ()):
+            axis = getattr(part, "axis", None)
+            if axis is not None:
+                axes.append(str(axis))
+    if len(set(axes)) > 1:
+        from ..lang.errors import ChaordError
+        raise ChaordError(
+            "the program's nanotube regions name different axes "
+            f"({sorted(set(axes))}); cannot pick the dipole_p1 analysis axis")
+    if axes:
+        return axes[0], "the nanotube region's axis"
+    return str(dialect.threshold("dipole_axis_default")), \
+        "the dialect default (dipole_axis_default)"
+
+
+def _attach_dipole_p1(program, frame, dialect, field_axis=None):
+    """D29 (docs/reviews/open_items_v4.md): assert the dipole-orientation
+    order parameter for every frame whose dialect names dipolar species,
+    whether or not a field was supplied.
 
     The value is measured, never assumed: cv.field.dipole_orientation on
     the frame this lift was given (rule 7 -- the same CV the registry names
-    `field_dipole_p1`), with the frame's own per-atom charges when the
-    reader carried them, else the dialect's site-charge table. The printed
+    `dipole_p1`), with the frame's own per-atom charges when the reader
+    carried them, else the dialect's site-charge table. The printed
     tolerance is 1/sqrt(n_molecules): every cos(theta) lies in [-1, 1], so
     Popoviciu's variance bound (T. Popoviciu, Mathematica (Cluj) 9, 129
     (1935): a variable in [a, b] has variance at most (b-a)^2/4 = 1 here)
@@ -144,37 +199,69 @@ def _attach_field_observables(program, frame, dialect, axis):
     empirical spread is not available without a second definition of the
     quantity (cv/ is frozen this round); the bound needs neither.
 
-    Degrade with a note, never silence: when the dialect cannot measure the
-    observable (no field_dipole_species threshold -- e.g. core + lj -- no
-    named species in the frame, no charge model), RD3's binding statement
-    stands and provenance records the reason. With `field=` absent this
-    function is never called: no field statement, no field assert."""
+    Degrade with a note, never silence: when the dialect names species but
+    the measurement cannot run (no such species in the frame, no charge
+    model, a zero-dipole species), provenance records the reason and the
+    lift stands. A dialect that names no species promises nothing: the
+    blind lift stays silent (no assert, no note); with `field=` given the
+    RD3 statement stands and its missing consequence is recorded. Every
+    other error propagates -- only ChaordError, the documented refusal
+    channel, degrades, and never the "defines no threshold" configuration
+    bug (the legacy ladder's carve-out, see _names_dipolar_species)."""
     import math
+    from ..lang.errors import ChaordError
     from ..lang.ir import Name, Quantity, Statement, Tol
+
+    has_field_line = any(
+        s.kind == "state" and s.key == "field"
+        for b in program.blocks if b.t == "system" for s in b.statements)
+    if not _names_dipolar_species(dialect):
+        if has_field_line:
+            _append_provenance_note(
+                program,
+                "field observables not asserted (the dialect names no "
+                "field_dipole_species: this stack's fluids have no dipole "
+                "to orient)")
+        return
+    axis, _axis_source = _resolve_dipole_axis(program, dialect, field_axis)
     try:
         from ..cv.field import dipole_orientation
         dip = dipole_orientation(frame, dialect, axis=axis)
-    except Exception as e:  # the observable is not this dialect's to measure
+    except ChaordError as e:
+        if "defines no threshold" in str(e):
+            raise   # a configuration bug, not a not-measurable verdict
+        prefix = ("field observables" if has_field_line
+                  else "dipole observables")
         _append_provenance_note(
-            program, f"field observables not asserted ({type(e).__name__}: {e})")
+            program, f"{prefix} not asserted ({type(e).__name__}: {e})")
         return
     n = int(dip["n_molecules"])
     tol = 1 / math.sqrt(n)
     assert_stmt = Statement(
-        kind="assert", key="field_dipole_p1",
+        kind="assert", key="dipole_p1",
         values=[Quantity(num=f"{float(dip['P1']):.3f}"),
                 Tol(value=Quantity(num=f"{tol:.3f}")),
                 Name(text="along"), Name(text=axis)])
     system = next(b for b in program.blocks if b.t == "system")
-    field_at = next(k for k, s in enumerate(system.statements)
-                    if s.kind == "state" and s.key == "field")
-    system.statements.insert(field_at + 1, assert_stmt)
+    at = next((k for k, s in enumerate(system.statements)
+               if s.kind == "state" and s.key == "field"), None)
+    if at is None:
+        at = next((k for k, s in enumerate(system.statements)
+                   if s.kind == "state" and s.key == "T"), None)
+    if at is None:
+        at = next((k for k, s in enumerate(system.statements)
+                   if s.kind == "conserve"), len(system.statements))
+    system.statements.insert(at + 1, assert_stmt)
     source = ("the frame's own per-atom charges"
               if frame.info.get("charges") is not None
               else "the dialect's site-charge model")
+    # The note is byte-identical with and without field= (the Y2 done-when:
+    # the two texts differ ONLY in the `state field` line and its note), so
+    # it records the measurement, never which rule resolved the axis.
     _append_provenance_note(
         program,
-        f"field P1 measured from {source} (n = {n} molecules); "
+        f"dipole P1 measured from {source} (n = {n} molecules, axis "
+        f"{axis}); "
         f"tol = 1/sqrt(n) = {tol:.3f} is the a-priori standard-error bound "
         "of a mean of n cosines (Popoviciu, Mathematica (Cluj) 9, 129 "
         "(1935): variance <= 1 for a variable on [-1,1]), not an empirical "
