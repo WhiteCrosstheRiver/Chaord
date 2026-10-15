@@ -7,10 +7,11 @@ subdirectory conftest's hook only sees its own subtree, which is why
 this moved out of tests/adversarial/conftest.py on 2026-10-09.
 Registration classes: red-team findings (a criterion currently fooled,
 reports/redteam_findings.md) and recorded open items from a review work
-order awaiting the reviewer's sign-off (currently the W5 strained-box
-identity gap; tests/test_strained_boxes.py _GAP is the readable mirror,
-kept in sync by test_gap_set_matches_registry).  Strictness is the
-enforcement: the moment a registered test passes, the XPASS fails the
+order awaiting the reviewer's sign-off (the last one was the W5
+strained-box identity gap, closed by X2 on 2026-10-14; tests/
+test_strained_boxes.py _GAP is the readable mirror machinery, kept in
+sync with this registry by test_gap_set_matches_registry).  Strictness is
+the enforcement: the moment a registered test passes, the XPASS fails the
 suite and the id must come out -- a fix cannot silently bypass its own
 registered failure.
 """
@@ -25,202 +26,19 @@ for p in (str(ROOT), str(ROOT / "src")):
         sys.path.insert(0, p)
 
 
-# Strained-box identity gap (registered 2026-10-09): the 94 matrix configs
-# of tests/test_strained_boxes.py whose first lift (defect arm, scan-fitted
-# constant) and re-lift (spglib arm, idealised constant) disagree on the
-# a/c line -- the W5 open item awaiting the reviewer's sign-off on the
-# lift-side snap.  Registered here per O12a: strict xfail only for
-# registered open findings; the moment the snap lands these XPASS, the
-# strict marker turns CI red, and the ids come out of this registry.
-FOILED = {
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/bcc_fe-+0.005|iso]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/bcc_fe-+0.015|x]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/bcc_fe-+0.015|y]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/bcc_fe--0.002|iso]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/bcc_fe--0.015|x]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/bcc_fe--0.015|y]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/bcc_fe--0.015|z]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/diamond_si-+0.005|x]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/diamond_si-+0.005|y]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/diamond_si-+0.005|z]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/diamond_si-+0.015|iso]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/diamond_si-+0.015|x]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/diamond_si-+0.015|y]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/diamond_si-+0.015|z]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/diamond_si--0.005|x]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/diamond_si--0.005|y]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/diamond_si--0.005|z]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/diamond_si--0.015|iso]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/diamond_si--0.015|x]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/diamond_si--0.015|y]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/diamond_si--0.015|z]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/fcc_crconi-+0.005|x]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/fcc_crconi-+0.005|y]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/fcc_crconi-+0.005|z]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/fcc_crconi-+0.015|x]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/fcc_crconi-+0.015|y]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/fcc_crconi-+0.015|z]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/fcc_crconi--0.005|x]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/fcc_crconi--0.005|y]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/fcc_crconi--0.005|z]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/fcc_crconi--0.015|x]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/fcc_crconi--0.015|y]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/fcc_crconi--0.015|z]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/fcc_cu-+0.005|x]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/fcc_cu-+0.005|y]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/fcc_cu-+0.005|z]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/fcc_cu-+0.015|x]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/fcc_cu-+0.015|y]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/fcc_cu-+0.015|z]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/fcc_cu--0.005|x]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/fcc_cu--0.005|y]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/fcc_cu--0.005|z]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/fcc_cu--0.015|x]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/fcc_cu--0.015|y]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/fcc_cu--0.015|z]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/hcp_mg-+0.002|iso]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/hcp_mg-+0.002|z]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/hcp_mg--0.002|iso]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/hcp_mg--0.002|z]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/l12_ni3al-+0.005|z]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/l12_ni3al-+0.015|x]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/l12_ni3al-+0.015|y]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/l12_ni3al-+0.015|z]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/l12_ni3al--0.015|x]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/l12_ni3al--0.015|y]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/l12_ni3al--0.015|z]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/perovskite_srtio3-+0.005|x]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/perovskite_srtio3-+0.005|y]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/perovskite_srtio3-+0.005|z]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/perovskite_srtio3-+0.015|iso]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/perovskite_srtio3-+0.015|y]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/perovskite_srtio3-+0.015|z]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/perovskite_srtio3--0.005|x]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/perovskite_srtio3--0.005|y]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/perovskite_srtio3--0.005|z]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/perovskite_srtio3--0.015|iso]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/perovskite_srtio3--0.015|x]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/perovskite_srtio3--0.015|z]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/rocksalt_nacl-+0.002|iso]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/rocksalt_nacl-+0.005|x]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/rocksalt_nacl-+0.005|y]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/rocksalt_nacl-+0.005|z]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/rocksalt_nacl-+0.015|iso]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/rocksalt_nacl-+0.015|x]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/rocksalt_nacl-+0.015|y]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/rocksalt_nacl-+0.015|z]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/rocksalt_nacl--0.002|iso]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/rocksalt_nacl--0.005|x]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/rocksalt_nacl--0.005|y]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/rocksalt_nacl--0.005|z]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/rocksalt_nacl--0.015|x]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/rocksalt_nacl--0.015|y]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[crystals/rocksalt_nacl--0.015|z]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[solutions/cuau_random-+0.005|x]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[solutions/cuau_random-+0.005|y]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[solutions/cuau_random-+0.005|z]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[solutions/cuau_random-+0.015|x]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[solutions/cuau_random-+0.015|y]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[solutions/cuau_random-+0.015|z]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[solutions/cuau_random--0.005|y]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[solutions/cuau_random--0.005|z]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[solutions/cuau_random--0.015|x]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[solutions/cuau_random--0.015|y]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",
-    "tests/test_strained_boxes.py::test_strain_matrix_lift_build_lift_text_identical[solutions/cuau_random--0.015|z]":
-        "W5 recorded open item (docs/reviews/open_items_v2.md + module docstring): defect-arm scan-fit vs spglib idealisation differ on the a/c line under strain (0.001-0.012 A); lift-side snap awaits reviewer sign-off -- remove this id when it lands",}
+# Strained-box identity gap (registered 2026-10-09, CLOSED by X2 on
+# 2026-10-14): the 94 matrix configs of tests/test_strained_boxes.py
+# whose first lift (defect arm, scan-fitted constant) and re-lift
+# (spglib arm, idealised constant) disagreed on the a/c line were
+# registered here per O12a; with the D17 lift-side snap
+# (box_lattice_constant: every arm snaps its fitted constant to the
+# constants the STATED cell implies, and the builder accepts strained
+# cells by the same function) all 94 XPASSed, the strict markers turned
+# them red, and the ids came out -- the designed forcing function. The
+# registry stays empty until a new registered finding needs it; the
+# O12a machinery (strict xfail only here, applied at collection)
+# remains in force.
+FOILED = {}
 
 
 def pytest_collection_modifyitems(items):

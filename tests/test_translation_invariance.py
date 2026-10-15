@@ -18,8 +18,9 @@ kept unless re-anchoring improves the mean matched distance by 30 %
 "equally good" under the generous site tolerance, so the improvement gate
 rejects the correct re-anchored fit; (b) the re-anchor is seeded from only 4
 lexsorted atoms; (c) the lattice-constant scan accepts constants that cannot
-tile the periodic box (snap_a_to_cell then cannot rescue the fit because the
-gates are re-measured with the wrong anchor).
+tile the periodic box (the box snap -- box_lattice_constant since X2 --
+then cannot rescue the fit because the gates are re-measured with the
+wrong anchor).
 
 The fix under test: the fit enumerates the box's own integer-tiling lattice
 constants (the same `lattice_match_tolerance` cell contract the builder

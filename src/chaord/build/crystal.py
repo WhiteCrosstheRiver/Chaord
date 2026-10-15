@@ -18,7 +18,7 @@ import numpy as np
 from ..io.frames import Frame
 from ..lang.errors import ChaordError
 from ..lang.ir import Program, RegionBlock, Statement
-from .prototypes import PROTOTYPES, basis, cell_matrix
+from .prototypes import PROTOTYPES, basis, box_lattice_constant, cell_matrix
 
 # per-prototype atom counts per species slot, in slot order
 SLOT_COUNTS = {
@@ -218,20 +218,36 @@ def build_crystal_region(region: RegionBlock, system: dict, dialect, rng=None) -
             stated = np.array(cell_vals, float)
             tiled = reps * lengths
             if not np.allclose(tiled, stated, atol=tol):
-                # W5 (docs/reviews/open_items_v2.md): NPT boxes fluctuate off
-                # an exact tiling. `lattice_match_tolerance` is ABSOLUTE (A,
-                # over a whole box axis), so a homogeneous deformation of a
-                # few tenths of a percent exceeds it on any real box while
-                # every axis still reads the same integer repetition count.
-                # Within `strain_cell_tolerance` (relative, per axis) the
-                # builder tiles with the nearest integer counts and
+                # W5 (docs/reviews/open_items_v2.md; X2/D17): NPT boxes
+                # fluctuate off an exact tiling. `lattice_match_tolerance`
+                # is ABSOLUTE (A, over a whole box axis), so a homogeneous
+                # deformation of a few tenths of a percent exceeds it on any
+                # real box while every axis still reads the same integer
+                # repetition count. A stated cell is accepted strained only
+                # when BOTH hold:
+                #   (i) box_lattice_constant(stated, reps, ...) is not None
+                #       -- the SAME single function every lift arm snaps its
+                #       fitted constant to (one definition on both sides,
+                #       rule 7): the cell implies lattice constants that
+                #       agree across axes within `strain_cell_tolerance`,
+                #       i.e. it is a strained tiling of ONE lattice, the
+                #       honest subject of the per-axis strain provenance;
+                #   (ii) each axis is within `strain_cell_tolerance`
+                #       (relative) of the tiling the PROGRAM's own stated
+                #       constant implies -- the A12 contract: a program
+                #       whose `cell` and `a` contradict each other by more
+                #       than the tolerance is refused, not silently
+                #       reinterpreted onto the box-implied constant.
+                # The builder then tiles with the nearest integer counts and
                 # strain-scales each axis onto the stated cell (provenance
-                # note below); beyond it the A12 refusal stands. A tilted
-                # oriented cell cannot be scaled per box axis, so it keeps
-                # the refusal.
+                # note below, relative to the program's own stated
+                # constant). A tilted oriented cell cannot be scaled per box
+                # axis, so it keeps the refusal.
                 strain_tol = float(dialect.threshold("strain_cell_tolerance"))
                 diag_ok = np.allclose(conv_oriented, np.diag(np.diag(conv_oriented)))
                 if (np.any(reps < 1) or not diag_ok
+                        or box_lattice_constant(stated, reps, name, dialect)
+                        is None
                         or float(np.max(np.abs((stated - tiled) / tiled))) > strain_tol):
                     raise ChaordError(
                         f"system cell {cell_vals} is not an integer multiple of the "

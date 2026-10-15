@@ -29,19 +29,35 @@ integer counts and scale each axis to the stated cell, recording
 fraction the builder still refuses (A12).
 
 Known open item (measured with the fix, 2026-10-02, this matrix): full
-lift -> build -> lift byte identity holds for 122 of the 216 matrix configs
+lift -> build -> lift byte identity held for 122 of the 216 matrix configs
 (all of +-0.2 % x, and fcc_cu / bcc_fe / rocksalt_nacl everywhere). The
-other 94 differ on the single `a` (hcp: `c`) line by 0.001-0.012 A: the first
-lift of a jittered strained frame runs the defect arm, whose SCAN-fitted
+other 94 differed on the single `a` (hcp: `c`) line by 0.001-0.012 A: the
+first lift of a jittered strained frame runs the defect arm, whose SCAN-fitted
 lattice constant drifts below the per-axis box mean as strain grows, while
 the re-lift of the exact rebuild runs the spglib arm, whose idealised (mean)
 constant is a function of the stated box alone. The built frame is fully
 determined by the program text (box, reps, species), so no builder change
-can close that gap; the lift-side remedy (snap the defect arm's fitted a to
-the stated box within the strain tolerance, mirroring snap_a_to_cell) needs
-the reviewer's sign-off because W5 says "the lift is unchanged". Until it
-lands, the full-matrix identity test below is marked slow: it runs in the
-nightly and documents the gap instead of silently passing.
+can close that gap; the lift-side remedy needed the reviewer's sign-off
+because W5 says "the lift is unchanged".
+
+CLOSED (X2, 2026-10-14; D17 in docs/reviews/open_items_v3.md approved the
+lift-side snap): one function, `box_lattice_constant(cell, reps, prototype)`
+in build/prototypes.py, returns the constant(s) the STATED cell implies
+(cubic: the mean of L_i/n_i; hcp: a from x and y, c from z -- the ortho-
+hexagonal axis order every chaord hcp program states) whenever every axis
+is within `strain_cell_tolerance` of that integer tiling, None otherwise.
+Every lift arm snaps its fitted constant to it (spglib arm: lift/crystal.py;
+defect scan: lift/defects.py, sites regenerated at the snapped constant;
+hcp: lift/legacy.py), and the builder's strained-cell acceptance
+(build/crystal.py) is the same function -- one definition on both sides,
+rule 7. Two details make the round trip byte-stable: the snap reads the
+STATED (canonical-rounded) cell, not the raw frame box -- the re-lift
+reads the stated cell back, and the hcp gap configs differed on the `c`
+line by exactly one rounding boundary of the raw vs stated box -- and the
+superseded absolute-gate `snap_a_to_cell` is gone. With X2 all 216 matrix
+configs are text-identical and the 9-case x 20-draw random anisotropic
+sweep below (each axis uniform in +-1.5 %) holds as well; the _GAP set and
+the FOILED registry are empty of strained-box ids.
 """
 import sys
 from pathlib import Path
@@ -163,6 +179,99 @@ def test_strained_crystal_builds_and_round_trips_at_reproducer_strain(cid):
     _assert_text_identical(cid, "+0.2% x", t1, t2)
 
 
+# ---- X2: the snap function's own contract (D17) ===============================
+
+def test_box_lattice_constant_cubic_is_the_per_axis_mean():
+    """D17, cubic: the constant a stated cell implies is the mean of
+    L_i / n_i; a cell whose implied per-axis constants disagree with that
+    mean by more than strain_cell_tolerance implies no constant (None).
+    (The gate is relative TO THE MEAN: a single axis at +2.5 % is only
+    ~1.65 % off the three-axis mean, so it still snaps -- the mean is what
+    every arm prints; one axis must pass ~3.1 % for the mean itself to
+    leave the gate. The builder keeps its own per-axis check against the
+    PROGRAM's constant, which is what refuses the A12 3 % case.)"""
+    from chaord.build.prototypes import box_lattice_constant
+    dialect = load_dialect(("core", "metal"))
+    # 2x2x2 tiling of a 3.615 A fcc cell, +0.8 % along x: implied constants
+    # 3.6440 / 3.6150 / 3.6150, mean 3.6247 (all within the 2 % gate)
+    cell = np.array([2 * 3.615 * (1 + 0.008), 2 * 3.615, 2 * 3.615])
+    got = box_lattice_constant(cell, (2, 2, 2), "fcc", dialect)
+    assert got is not None and list(got) == ["a"]
+    assert abs(got["a"] - cell.mean() / 2) < 1e-12
+    # unequal reps are honoured per axis: 2 x 3 x 1 of a bcc cell
+    a = 2.866
+    cell2 = np.array([2 * a, 3 * a, a])
+    got2 = box_lattice_constant(cell2, (2, 3, 1), "bcc", dialect)
+    assert got2 is not None and abs(got2["a"] - a) < 1e-12
+    # one axis far enough off that even the mean leaves the gate: no
+    # constant, the caller keeps its fit and the builder's refusal stands
+    assert box_lattice_constant(
+        np.array([2 * a * 1.035, 2 * a, 2 * a]), (2, 2, 2),
+        "bcc", dialect) is None
+    # a rep below 1 is not a tiling of the cell
+    assert box_lattice_constant(np.array([a, 2 * a, 2 * a]), (0, 2, 2),
+                                "bcc", dialect) is None
+
+
+def test_box_lattice_constant_hcp_takes_a_from_x_and_y_c_from_z():
+    """D17, hcp: in the orthohexagonal setting (x [100] y [1 2 0] z [001])
+    the a-pair is x/n_x and y/(sqrt(3) n_y) -- their mean is a -- and
+    z/n_z is c; the gate is per axis against those (c is its own base)."""
+    from chaord.build.prototypes import box_lattice_constant
+    dialect = load_dialect(("core", "metal"))
+    a, c = 3.210, 5.210
+    # the bench hcp_mg box: n_a = 2, n_q = 2 (sqrt(3)-axis), n_c = 2
+    sqrt3 = float(np.sqrt(3.0))
+    cell = np.array([2 * a, 2 * sqrt3 * a, 2 * c])
+    got = box_lattice_constant(cell, (2, 2, 2), "hcp", dialect)
+    assert got is not None and set(got) == {"a", "c"}
+    assert abs(got["a"] - a) < 1e-12 and abs(got["c"] - c) < 1e-12
+    # x and y strains average into a (0.6 % and -0.4 % -> +0.1 %): still one a
+    strained = cell * np.array([1.006, 1.0 - 0.004, 1.0])
+    got2 = box_lattice_constant(strained, (2, 2, 2), "hcp", dialect)
+    assert got2 is not None
+    assert abs(got2["a"] - a * 1.001) < 1e-9 and abs(got2["c"] - c) < 1e-12
+    # an x/y disagreement that leaves the a-mean gate implies no single a
+    bad = cell * np.array([1.045, 1.0, 1.0])
+    assert box_lattice_constant(bad, (2, 2, 2), "hcp", dialect) is None
+    # a z strain cannot leave the snap's own gate: c IS L_z/n_z (the tautology
+    # of a free second parameter -- any z is an exact tiling of the c it
+    # implies). The z bound is the builder's program-relative check, which
+    # refuses a stated c contradicted by the cell beyond the strain
+    # tolerance (test_cell_beyond_strain_tolerance_is_refused); the snap
+    # just reports the implied (strained) c.
+    strained_c = cell * np.array([1.0, 1.0, 1.025])
+    got_c = box_lattice_constant(strained_c, (2, 2, 2), "hcp", dialect)
+    assert got_c is not None and abs(got_c["c"] - c * 1.025) < 1e-9
+    assert abs(got_c["a"] - a) < 1e-12
+
+
+def test_stated_cell_rounding_makes_constants_a_round_trip_fixed_point():
+    """The X2 subtlety the hcp gap configs exposed: constants derived from
+    the RAW box are not a fixed point of lift -> build -> lift when the raw
+    and canonical-rounded boxes sit on opposite sides of a rounding
+    boundary (bench hcp_mg at +0.2 % iso: c = 5.22042 raw vs 5.2205 stated,
+    printing 5.220 vs 5.221). stated_cell_lengths returns the lengths as
+    stated, and the snap reads those."""
+    from chaord.build.prototypes import box_lattice_constant
+    from chaord.lift.crystal import stated_cell_lengths
+    dialect = load_dialect(("core", "metal"))
+    sqrt3 = float(np.sqrt(3.0))
+    raw = np.array([2 * 3.210 * 1.002, 2 * sqrt3 * 3.210 * 1.002,
+                    2 * 5.210 * 1.002])
+    stated = stated_cell_lengths(raw, dialect)
+    assert not np.allclose(raw, stated), "raw box must differ from stated here"
+    # the second lift sees the stated cell verbatim: snapping the stated
+    # cell is idempotent (snapping its own output returns the same lengths)
+    assert np.allclose(stated_cell_lengths(stated, dialect), stated)
+    got = box_lattice_constant(stated, (2, 2, 2), "hcp", dialect)
+    assert got is not None
+    # and the raw-box constant differs from the stated-box one: the print
+    # boundary the gap configs failed on
+    got_raw = box_lattice_constant(raw, (2, 2, 2), "hcp", dialect)
+    assert f"{got_raw['c']:.3f}" != f"{got['c']:.3f}"
+
+
 # ---- the full W5 done-when matrix ============================================
 
 def _matrix_configs():
@@ -233,130 +342,70 @@ def _matrix_params():
 
 # The known-gap set, re-measured 2026-10-08 on HEAD (f657997-era tree) after
 # the W10 quantized-key wiring moved some configs across the boundary
-# relative to the 2026-10-02 measurement in the module docstring: these 94
-# (cid, matrix-id) combos are the ones whose first lift (defect arm,
-# scan-fitted constant of the jittered strained frame) and re-lift (spglib
-# arm, idealised constant of the exact rebuild) disagree on the single a/c
-# line by 0.001-0.012 A.  Strict xfail via the FOILED registry in
-# tests/adversarial/conftest.py (O12a's sanctioned home for strict xfails;
-# applied at collection): each still counts as enforced -- xpass fails the
-# suite and forces the id out of the registry when the lift-side snap
-# lands -- while the nightly slow suite stays green for the
-# 122 configs that do hold and every new regression still shows red.
-# _GAP below is the readable mirror of the registry;
-# test_gap_set_matches_registry keeps the two in sync.
-_GAP = {
-    ("crystals/bcc_fe", "+0.005|iso"),
-    ("crystals/bcc_fe", "+0.015|x"),
-    ("crystals/bcc_fe", "+0.015|y"),
-    ("crystals/bcc_fe", "-0.002|iso"),
-    ("crystals/bcc_fe", "-0.015|x"),
-    ("crystals/bcc_fe", "-0.015|y"),
-    ("crystals/bcc_fe", "-0.015|z"),
-    ("crystals/diamond_si", "+0.005|x"),
-    ("crystals/diamond_si", "+0.005|y"),
-    ("crystals/diamond_si", "+0.005|z"),
-    ("crystals/diamond_si", "+0.015|iso"),
-    ("crystals/diamond_si", "+0.015|x"),
-    ("crystals/diamond_si", "+0.015|y"),
-    ("crystals/diamond_si", "+0.015|z"),
-    ("crystals/diamond_si", "-0.005|x"),
-    ("crystals/diamond_si", "-0.005|y"),
-    ("crystals/diamond_si", "-0.005|z"),
-    ("crystals/diamond_si", "-0.015|iso"),
-    ("crystals/diamond_si", "-0.015|x"),
-    ("crystals/diamond_si", "-0.015|y"),
-    ("crystals/diamond_si", "-0.015|z"),
-    ("crystals/fcc_crconi", "+0.005|x"),
-    ("crystals/fcc_crconi", "+0.005|y"),
-    ("crystals/fcc_crconi", "+0.005|z"),
-    ("crystals/fcc_crconi", "+0.015|x"),
-    ("crystals/fcc_crconi", "+0.015|y"),
-    ("crystals/fcc_crconi", "+0.015|z"),
-    ("crystals/fcc_crconi", "-0.005|x"),
-    ("crystals/fcc_crconi", "-0.005|y"),
-    ("crystals/fcc_crconi", "-0.005|z"),
-    ("crystals/fcc_crconi", "-0.015|x"),
-    ("crystals/fcc_crconi", "-0.015|y"),
-    ("crystals/fcc_crconi", "-0.015|z"),
-    ("crystals/fcc_cu", "+0.005|x"),
-    ("crystals/fcc_cu", "+0.005|y"),
-    ("crystals/fcc_cu", "+0.005|z"),
-    ("crystals/fcc_cu", "+0.015|x"),
-    ("crystals/fcc_cu", "+0.015|y"),
-    ("crystals/fcc_cu", "+0.015|z"),
-    ("crystals/fcc_cu", "-0.005|x"),
-    ("crystals/fcc_cu", "-0.005|y"),
-    ("crystals/fcc_cu", "-0.005|z"),
-    ("crystals/fcc_cu", "-0.015|x"),
-    ("crystals/fcc_cu", "-0.015|y"),
-    ("crystals/fcc_cu", "-0.015|z"),
-    ("crystals/hcp_mg", "+0.002|iso"),
-    ("crystals/hcp_mg", "+0.002|z"),
-    ("crystals/hcp_mg", "-0.002|iso"),
-    ("crystals/hcp_mg", "-0.002|z"),
-    ("crystals/l12_ni3al", "+0.005|z"),
-    ("crystals/l12_ni3al", "+0.015|x"),
-    ("crystals/l12_ni3al", "+0.015|y"),
-    ("crystals/l12_ni3al", "+0.015|z"),
-    ("crystals/l12_ni3al", "-0.015|x"),
-    ("crystals/l12_ni3al", "-0.015|y"),
-    ("crystals/l12_ni3al", "-0.015|z"),
-    ("crystals/perovskite_srtio3", "+0.005|x"),
-    ("crystals/perovskite_srtio3", "+0.005|y"),
-    ("crystals/perovskite_srtio3", "+0.005|z"),
-    ("crystals/perovskite_srtio3", "+0.015|iso"),
-    ("crystals/perovskite_srtio3", "+0.015|y"),
-    ("crystals/perovskite_srtio3", "+0.015|z"),
-    ("crystals/perovskite_srtio3", "-0.005|x"),
-    ("crystals/perovskite_srtio3", "-0.005|y"),
-    ("crystals/perovskite_srtio3", "-0.005|z"),
-    ("crystals/perovskite_srtio3", "-0.015|iso"),
-    ("crystals/perovskite_srtio3", "-0.015|x"),
-    ("crystals/perovskite_srtio3", "-0.015|z"),
-    ("crystals/rocksalt_nacl", "+0.002|iso"),
-    ("crystals/rocksalt_nacl", "+0.005|x"),
-    ("crystals/rocksalt_nacl", "+0.005|y"),
-    ("crystals/rocksalt_nacl", "+0.005|z"),
-    ("crystals/rocksalt_nacl", "+0.015|iso"),
-    ("crystals/rocksalt_nacl", "+0.015|x"),
-    ("crystals/rocksalt_nacl", "+0.015|y"),
-    ("crystals/rocksalt_nacl", "+0.015|z"),
-    ("crystals/rocksalt_nacl", "-0.002|iso"),
-    ("crystals/rocksalt_nacl", "-0.005|x"),
-    ("crystals/rocksalt_nacl", "-0.005|y"),
-    ("crystals/rocksalt_nacl", "-0.005|z"),
-    ("crystals/rocksalt_nacl", "-0.015|x"),
-    ("crystals/rocksalt_nacl", "-0.015|y"),
-    ("crystals/rocksalt_nacl", "-0.015|z"),
-    ("solutions/cuau_random", "+0.005|x"),
-    ("solutions/cuau_random", "+0.005|y"),
-    ("solutions/cuau_random", "+0.005|z"),
-    ("solutions/cuau_random", "+0.015|x"),
-    ("solutions/cuau_random", "+0.015|y"),
-    ("solutions/cuau_random", "+0.015|z"),
-    ("solutions/cuau_random", "-0.005|y"),
-    ("solutions/cuau_random", "-0.005|z"),
-    ("solutions/cuau_random", "-0.015|x"),
-    ("solutions/cuau_random", "-0.015|y"),
-    ("solutions/cuau_random", "-0.015|z"),
-}
+# relative to the 2026-10-02 measurement in the module docstring: 94
+# (cid, matrix-id) combos whose first lift (defect arm, scan-fitted constant
+# of the jittered strained frame) and re-lift (spglib arm, idealised constant
+# of the exact rebuild) disagreed on the single a/c line by 0.001-0.012 A,
+# registered as strict xfails in the FOILED registry (O12a's sanctioned
+# home, applied at collection). CLOSED by X2 (2026-10-14, D17): with the
+# lift-side snap all 94 XPASSed and their ids left the registry (the strict
+# markers turned the XPASSes red, the designed forcing function). _GAP
+# stays as the readable mirror machinery -- EMPTY now, and
+# test_gap_set_matches_registry keeps it in sync with the registry should a
+# strained-box id ever be registered again.
+_GAP: set = set()
 
 
 @pytest.mark.slow
 @pytest.mark.parametrize("cid,fraction,axname,axes", _matrix_params())
 def test_strain_matrix_lift_build_lift_text_identical(cid, fraction, axname, axes):
     """W5 done-when, text half: lift -> build -> lift gives identical text
-    for every strained config. Currently open for 94 of 216 configs, all on
-    the single a/c line -- see the module docstring (the defect arm's
-    scan-fitted constant vs the spglib arm's box-derived constant under
-    strain; a lift-side snap is the remedy and needs review sign-off). This
-    test keeps the done-when enforceable: it must go green when that lands.
-    """
+    for every strained config. Open for 94 of 216 configs until X2 (all on
+    the single a/c line -- see the module docstring); closed by the D17
+    lift-side snap: every arm snaps its fitted constant to
+    box_lattice_constant of the STATED cell, the same function the builder's
+    strained path accepts by. This test is the done-when itself: 216/216."""
     case = acc.case_by_id(cid)
     t1, t2, _built = _round_trip(_strained_frame(case, fraction, axes),
                                  _dialect(case))
     _assert_text_identical(cid, f"{fraction:+.1%} {axname}", t1, t2)
+
+
+# ---- X2 done-when, random half: 20 anisotropic draws per case =================
+
+# rule 2 (>= 20 draws): independent per-axis strains, uniform in +-1.5 %
+# (the matrix's largest magnitude), seeded per (case, draw) so a failure
+# names its draw and reproduces
+_RANDOM_DRAWS = 20
+_RANDOM_STRAIN = 0.015
+_SWEEP_SEED = 71000
+
+
+def _random_strain_factors(cid: str, draw: int) -> np.ndarray:
+    rng = np.random.default_rng(_SWEEP_SEED + 997 * draw + CRYSTAL_CASES.index(cid))
+    return 1.0 + rng.uniform(-_RANDOM_STRAIN, _RANDOM_STRAIN, 3)
+
+
+@pytest.mark.slow
+@pytest.mark.parametrize("cid", CRYSTAL_CASES)
+def test_random_anisotropic_strain_lift_build_lift_identical(cid):
+    """X2 done-when, random half: 20 draws per case, each axis strained
+    independently and uniformly in +-1.5 %, give identical lift -> build ->
+    lift text. The matrix samples single-axis and isotropic strains; this
+    samples the interior of the strain cube (axis combinations the matrix
+    never hits, e.g. x +1.2 % with y -0.9 % and z +0.3 %), where the
+    per-axis constants disagree the most and the snap's mean is the only
+    text both lifts can agree on."""
+    case = acc.case_by_id(cid)
+    f = acc._a2a3_frame(case)
+    for d in range(_RANDOM_DRAWS):
+        s = _random_strain_factors(cid, d)
+        fr = Frame(pos=np.mod(f.pos * s, f.cell_diag * s),
+                   cell=np.diag(f.cell_diag * s),
+                   symbols=f.symbols, pbc=f.pbc)
+        t1, t2, _built = _round_trip(fr, _dialect(case))
+        _assert_text_identical(
+            cid, f"draw {d} (strains {(s - 1.0).tolist()})", t1, t2)
 
 
 # ---- the refusal gate ========================================================
@@ -411,10 +460,10 @@ def test_unstrained_crystal_build_records_no_strain(cid):
 
 
 def test_gap_set_matches_registry():
-    """_GAP above and the FOILED registry must name exactly the same 94
-    configs: the registry applies the marks, this set is the readable
-    record -- if they drift, one of them silently stops describing the
-    gap."""
+    """_GAP above and the FOILED registry must name exactly the same configs
+    (empty since X2 closed the W5 gap): the registry applies the marks, this
+    set is the readable record -- if they drift, one of them silently stops
+    describing the gap."""
     import ast as _ast
     conf = (ROOT / "tests" / "conftest.py").read_text(encoding="utf-8")
     tree = _ast.parse(conf)

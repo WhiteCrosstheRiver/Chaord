@@ -75,6 +75,68 @@ def basis(name: str, params: dict) -> tuple[np.ndarray, tuple]:
     return np.mod(pos, 1.0), slots  # dialect-exempt: numerical-guard: fractional wrap to [0,1)
 
 
+def box_lattice_constant(cell, reps, prototype: str, dialect) -> dict | None:
+    """The lattice constant(s) a STATED cell implies (D17, X2: the W5 snap).
+
+    `cell` is the box exactly as the program states it (three axis lengths,
+    canonical-rounded by the caller if the caller is a lift arm about to
+    print them), `reps` the integer repetition counts of the conventional
+    lattice along those axes, `prototype` the registry name. Returns
+
+      * cubic family (one `a`): {"a": mean(L_i / n_i)}
+      * hcp / wurtzite (orthohexagonal setting x [100] y [1 2 0] z [001],
+        the axis order every chaord hcp program with a diagonal box states):
+        {"a": mean(L_x/n_x, L_y/(sqrt(3) n_y)), "c": L_z/n_z}
+      * diagonal two-parameter family (rutile): {"a": mean(L_x/n_x, L_y/n_y),
+        "c": L_z/n_z}
+
+    or None when any axis is further than the dialect's
+    `strain_cell_tolerance` (RELATIVE, per axis) from the tiling the implied
+    constant states, or a rep is below 1: the caller then keeps its fitted
+    value and the builder's honest A12 refusal stands.
+
+    One definition on both sides (rule 7): every lift arm snaps its fitted
+    constant to this function whenever it returns a value, and the builder's
+    strained-cell acceptance (build/crystal.py, W5) is the same test, so a
+    lifted `cell`/`a` pair can never contradict itself and the defect arm's
+    scan-fitted constant and the spglib arm's idealised one print the same
+    number for the same stated box. Deriving the constants from the STATED
+    (rounded) cell -- not the raw frame box -- makes them a fixed point of
+    lift -> build -> lift: the re-lift reads the stated cell back verbatim
+    (the builder strain-scales onto it), while the raw and rounded boxes can
+    sit on opposite sides of a canonical-rounding boundary (the W5 matrix's
+    hcp gap configs differed on the c line by exactly that).
+    """
+    from ..lang.errors import ChaordError
+    if prototype not in PROTOTYPES:
+        raise ChaordError(f"unknown prototype {prototype!r}")
+    L = np.asarray(cell, float)
+    n = np.asarray(reps, int)
+    if L.shape != (3,) or n.shape != (3,):
+        raise ChaordError("box_lattice_constant needs three cell lengths "
+                          "and three repetition counts")
+    if np.any(n < 1):
+        return None
+    implied = L / n                              # per-axis constant of THIS box
+    if prototype in ("hcp", "wurtzite"):
+        # orthohexagonal convention: axis 1 tiles the sqrt(3)-a lattice vector
+        implied = implied / np.array([1.0, _SQRT3, 1.0])  # dialect-exempt: exact-geometry: orthohexagonal axis factors
+    if PROTOTYPES[prototype].params == ("a", "c"):
+        a = 0.5 * (implied[0] + implied[1])      # dialect-exempt: numerical-guard: mean of the a-pair
+        c = float(implied[2])
+        params = {"a": float(a), "c": c}
+        base = np.array([a, a, c])
+    else:
+        a = float(implied.mean())
+        params = {"a": a}
+        base = np.array([a, a, a])
+    tol = float(dialect.threshold("strain_cell_tolerance"))
+    off = float(np.max(np.abs(implied / base - 1.0)))  # dialect-exempt: numerical-guard: relative deviation identity
+    if off > tol:
+        return None
+    return params
+
+
 # dialect-exempt-begin: exact-geometry
 def _basis_raw(name: str, params: dict) -> tuple[np.ndarray, tuple]:
     """(fractional positions, species slots) of one conventional cell."""

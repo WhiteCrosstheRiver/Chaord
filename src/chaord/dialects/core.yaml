@@ -65,7 +65,7 @@ thresholds:
                                   # small against the ~4% coarse scan step in both unit
                                   # systems (1.4% of a 3.6 A metal cell, 3% of a 1.6 sigma
                                   # LJ cell), and superseded by the box-tiling snap
-                                  # (snap_a_to_cell) whenever the cell tiles.
+                                  # (box_lattice_constant) whenever the cell tiles.
   lattice_refine_passes: 3        # successive grid refinements for the constant
   lattice_anchor_improvement: 0.7 # a translation re-anchor must improve the mean matched
                                   # distance by at least this factor (rule 3)

@@ -18,7 +18,7 @@ import spglib
 from ase.data import chemical_symbols
 
 from ..build.crystal import SLOT_COUNTS
-from ..build.prototypes import PROTOTYPES, basis
+from ..build.prototypes import PROTOTYPES, basis, box_lattice_constant
 from ..io.frames import Frame
 from ..lang.ir import (
     GeoChain, Name, PhysicsBlock, Program, ProvenanceBlock, Quantity,
@@ -267,37 +267,24 @@ def quantize_coords(a) -> np.ndarray:
     return np.round(np.asarray(a, float) * _COORD_KEY_SCALE) / _COORD_KEY_SCALE
 
 
-def snap_a_to_cell(a_fit: float, box_lengths, dialect) -> float | None:
-    """Lattice constant that makes the stated cell an integer tiling of it.
+def stated_cell_lengths(L, dialect) -> np.ndarray:
+    """The box lengths exactly as the program will state them, as the doubles
+    the parser reads back.
 
-    A crystal program's `cell` statement IS its build box: the builder tiles
-    the conventional cell `reps` times and refuses any stated box that is not
-    that integer multiple within the dialect's `lattice_match_tolerance` (the
-    A12 static check, one definition on both sides, rule 7). The fitted
-    constant of a thermally jittered frame -- spglib idealisation or the
-    defect-path scan -- is only stable to a few percent under rigid
-    transforms, while the box lengths are exact rigid invariants; F1
-    (reports/redteam_findings.md) measured lifts whose copied `cell` and
-    fitted `a` disagreed by 0.012-0.028 A, programs the lift's own builder
-    refused, and a fitted `a` drifting -4.3 % under rotation.
-
-    So when every box axis is (within the builder's own tolerance) an integer
-    multiple of ONE lattice constant, that constant is the program's `a`:
-    derived from the box alone, it is exactly invariant under rotation,
-    translation and re-imaging, and the emitted `cell`/`a` pair can never
-    contradict each other. Returns None when the box is not such a tiling
-    (a clipped region slab, a strained frame): the caller keeps its fitted
-    value and the builder's honest refusal stands -- the acceptance checker
-    is never special-cased."""
-    box = np.asarray(box_lengths, float)
-    reps = np.rint(box / a_fit).astype(int)
-    if np.any(reps < 1):
-        return None
-    per_axis = box / reps
-    tol = float(dialect.threshold("lattice_match_tolerance"))
-    if float(np.max(np.abs(per_axis - per_axis.mean()))) > tol:
-        return None
-    return float(per_axis.mean())
+    The lift-side snap (box_lattice_constant, D17/X2 -- the W5 closure)
+    derives its constants from THIS vector, never the raw frame box: the
+    round trip re-lifts a frame whose box is the stated cell verbatim (the
+    builder tiles onto it -- exactly when unstrained, strain-scaled when
+    strained), so constants derived from the stated cell are a fixed point
+    of lift -> build -> lift while constants derived from the raw box are
+    not (X2: the W5 matrix's hcp gap configs differed on the c line by
+    exactly one rounding boundary). The box lengths are exact rigid
+    invariants either way, so the stated cell carries F1's original
+    invariance argument (reports/redteam_findings.md) unchanged: the
+    emitted `cell`/`a` pair cannot contradict itself and cannot follow a
+    rotation, translation or re-imaging of the input."""
+    return np.array([float(round_canonical(v, "canonical_cell_decimals", dialect))
+                     for v in np.asarray(L, float)], float)
 
 
 def lift_crystal(frame: Frame, dialect, backend="eam"):
@@ -311,14 +298,21 @@ def lift_crystal(frame: Frame, dialect, backend="eam"):
 
     L = np.linalg.norm(frame.cell, axis=1)
     if proto.params == ("a",):
-        # F1 cell contract: the stated box is the build box, so the printed
-        # `a` must be an integer tiling of it (see snap_a_to_cell). No-op on
-        # the perfect frames this engine reduces exactly; two-parameter
-        # prototypes (hcp/wurtzite/rutile) are left to their setting-specific
-        # geometry -- their thermal frames do not reach this engine today.
-        a_snapped = snap_a_to_cell(params["a"], L, dialect)
-        if a_snapped is not None:
-            params = dict(params, a=a_snapped)
+        # F1 cell contract + X2 (D17, the W5 lift-side snap): the stated box
+        # is the build box, so the printed `a` is the constant the STATED
+        # (canonical-rounded) cell implies whenever that cell is within
+        # strain_cell_tolerance of an integer tiling -- the same
+        # box_lattice_constant the builder's strained path accepts by, so the
+        # defect arm's scan constant and this arm's idealised one print the
+        # same number for the same stated box. Two-parameter prototypes in a
+        # non-diagonal setting (hexagonal hcp/wurtzite) are left to their
+        # setting-specific geometry -- the orthohexagonal hcp arm below in
+        # the cascade owns the diagonal-box frames of that family.
+        R = stated_cell_lengths(L, dialect)
+        reps = np.rint(R / params["a"]).astype(int)
+        snapped = box_lattice_constant(R, reps, name, dialect)
+        if snapped is not None:
+            params = dict(params, a=snapped["a"])
     n_atoms: dict[str, int] = {}
     for s in frame.symbols:
         n_atoms[s] = n_atoms.get(s, 0) + 1

@@ -107,13 +107,13 @@ def _lift_hcp_ortho(frame, dialect, backend="eam"):
     vectors tile the orthorhombic box (the identity orientation of the
     hexagonal cell does not, which is why the spglib arm cannot serve this
     frame class)."""
-    from ..build.prototypes import fit_orthohexagonal_hcp
+    from ..build.prototypes import box_lattice_constant, fit_orthohexagonal_hcp
     from ..lang.errors import ChaordError
     from ..lang.ir import (
         GeoChain, Name, PhysicsBlock, Program, ProvenanceBlock, Quantity,
         RegionBlock, ResidualBlock, ShAll, Statement, StrVal, SystemBlock,
     )
-    from .crystal import round_canonical
+    from .crystal import round_canonical, stated_cell_lengths
     from .defect_program import _axis_canonical
 
     # rule 3 (identical text under rigid rotation): the fit measures the box
@@ -127,6 +127,20 @@ def _lift_hcp_ortho(frame, dialect, backend="eam"):
         raise ChaordError(
             "no orthohexagonal hcp fit: the orthogonal cell does not tile "
             "as n x a, n x sqrt(3) a, n x c with matching site coverage")
+    # X2 (D17, the W5 lift-side snap): the fit already derives a and c from
+    # the box, but from the RAW box -- under strain the raw and stated
+    # (canonical-rounded) boxes can sit on opposite sides of a rounding
+    # boundary and the re-lift reads the STATED cell back (the builder
+    # strain-scales onto it), so the raw-box constants are not a fixed point
+    # of lift -> build -> lift. Snap to the constants the stated cell
+    # implies -- the same box_lattice_constant the cubic arms and the
+    # builder's strained path use (one definition, rule 7); a stated cell
+    # beyond strain_cell_tolerance of the tiling keeps the fitted values and
+    # the builder's honest refusal stands.
+    R = stated_cell_lengths(fit.cell, dialect)
+    snapped = box_lattice_constant(R, fit.reps, "hcp", dialect)
+    a_print = fit.a if snapped is None else snapped["a"]
+    c_print = fit.c if snapped is None else snapped["c"]
 
     n_atoms: dict[str, int] = {}
     for s in frame.symbols:
@@ -139,10 +153,10 @@ def _lift_hcp_ortho(frame, dialect, backend="eam"):
     region_stmts = [
         Statement(kind="build", key="lattice", values=[Name(text="hcp")]),
         Statement(kind="build", key="a", values=[
-            Quantity(num=round_canonical(fit.a, "canonical_a_decimals", dialect),
+            Quantity(num=round_canonical(a_print, "canonical_a_decimals", dialect),
                      unit=unit if unit != "none" else None)]),
         Statement(kind="build", key="c", values=[
-            Quantity(num=round_canonical(fit.c, "canonical_c_decimals", dialect),
+            Quantity(num=round_canonical(c_print, "canonical_c_decimals", dialect),
                      unit=unit if unit != "none" else None)]),
         Statement(kind="build", key="orient", values=[
             Name(text="x"), Name(text="[100]"),

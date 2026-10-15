@@ -18,12 +18,12 @@ import numpy as np
 from scipy.spatial import cKDTree
 
 from ..build.defects import nearest_neighbor_distance, typical_neighbor_distance
-from ..build.prototypes import PROTOTYPES, basis
+from ..build.prototypes import PROTOTYPES, basis, box_lattice_constant
 from ..io.frames import Frame
 from ..lang.errors import ChaordError
 from ..realize.lj import mic
 from .crystal import quantize_coords
-from .crystal import snap_a_to_cell
+from .crystal import stated_cell_lengths
 
 # factor taking d_NN to the cubic lattice constant for each cubic prototype
 # dialect-exempt-begin: exact-geometry
@@ -277,12 +277,13 @@ def _tiling_constants(a_lo: float, a_hi: float, frame: Frame, dialect):
     tolerance (`lattice_match_tolerance`, one definition on both sides,
     rule 7).
 
-    `snap_a_to_cell` snaps one scanned constant to the box; this enumerates
-    EVERY plausible tiling inside the band so a drifted scan optimum cannot
-    hide the true one (O1 root cause c: the scan accepted constants that
-    cannot tile the box, and Chaord's own builder refused the program). The
-    box lengths are exact rigid invariants, so the shortlist is itself
-    invariant under translation, rotation and re-imaging by construction."""
+    The lift-side snap (`box_lattice_constant`, D17/X2) snaps one scanned
+    constant to the stated cell; this enumerates EVERY plausible exact
+    tiling inside the band so a drifted scan optimum cannot hide the true
+    one (O1 root cause c: the scan accepted constants that cannot tile the
+    box, and Chaord's own builder refused the program). The box lengths are
+    exact rigid invariants, so the shortlist is itself invariant under
+    translation, rotation and re-imaging by construction."""
     from itertools import product
     L = np.asarray(frame.cell_diag, float)
     tol_tile = float(dialect.threshold("lattice_match_tolerance"))
@@ -295,7 +296,10 @@ def _tiling_constants(a_lo: float, a_hi: float, frame: Frame, dialect):
     for reps in product(*ranges):
         per_axis = L / np.array(reps, float)
         a = float(per_axis.mean())
-        # same single-constant test snap_a_to_cell applies (cubic tiling)
+        # the stricter ABSOLUTE single-constant test (exact cubic tiling,
+        # lattice_match_tolerance): this shortlist is the O1 fast path for
+        # unstrained boxes; the strain-tolerant snap the scan ends with is
+        # box_lattice_constant below
         if a_lo <= a <= a_hi and float(np.max(np.abs(per_axis - a))) <= tol_tile:
             out.append(a)
     return sorted(set(out))
@@ -517,49 +521,65 @@ def fit_crystal(frame: Frame, dialect):
                     continue        # corrected form first, raw seed as backup
                 key = (g_t, -mean_t)
                 if best_tiling is None or key > best_tiling[0]:
-                    best_tiling = (key, aa, g_t, mean_t, sites_t, s_sp_t)
+                    best_tiling = (key, aa, g_t, mean_t, sites_t, s_sp_t, sh)
                 break
         if best_tiling is not None:
-            _key, aa, gate_t, mean_t, sites_t, s_sp_t = best_tiling
-            return (aa, gate_t, sites_t, s_sp_t, mean_t)
-
-        # translation re-anchoring (rule 3): the origin-anchored chain is the
-        # historical fit and stays in force unless the frame was re-imaged --
-        # detected by a re-anchored chain improving the mean matched distance
-        # by at least the dialect factor (a marginal improvement is thermal
-        # noise, not a translation, and must not move the fitted sites)
-        origin = chain(np.zeros(3))
-        reanchored = None
-        seed = _anchor_seed(frame, name, eff_slots, species_aware, tree,
-                            tol, a0)
-        if seed is not None and not np.array_equal(seed, np.zeros(3)):
-            reanchored = chain(seed)
-        improvement = float(dialect.threshold("lattice_anchor_improvement"))
-        if origin is None:
-            chosen, chosen_shift = reanchored, seed
-        elif (reanchored is not None
-              and reanchored[1] <= improvement * origin[1]):
-            chosen, chosen_shift = reanchored, seed
+            # the tiling constant is a mean of the RAW box lengths; the X2
+            # snap below re-derives it from the STATED cell so the printed
+            # value is the same one the re-lift of the rebuild will print
+            # (the two means can straddle a canonical-rounding boundary --
+            # the W5 matrix's iso-strained gap configs differed by exactly
+            # that), so the tiling path no longer returns early: it falls
+            # through to the shared snap with its already-canonical shift
+            _key, aa, gate_t, mean_t, sites_t, s_sp_t, sh_t = best_tiling
+            chosen, chosen_shift = (gate_t, mean_t, aa, sites_t, s_sp_t), sh_t
+            from_tiling = True
         else:
-            chosen, chosen_shift = origin, np.zeros(3)
-        if chosen is None:
-            return None
+            # translation re-anchoring (rule 3): the origin-anchored chain is the
+            # historical fit and stays in force unless the frame was re-imaged --
+            # detected by a re-anchored chain improving the mean matched distance
+            # by at least the dialect factor (a marginal improvement is thermal
+            # noise, not a translation, and must not move the fitted sites)
+            origin = chain(np.zeros(3))
+            reanchored = None
+            seed = _anchor_seed(frame, name, eff_slots, species_aware, tree,
+                                tol, a0)
+            if seed is not None and not np.array_equal(seed, np.zeros(3)):
+                reanchored = chain(seed)
+            improvement = float(dialect.threshold("lattice_anchor_improvement"))
+            if origin is None:
+                chosen, chosen_shift = reanchored, seed
+            elif (reanchored is not None
+                  and reanchored[1] <= improvement * origin[1]):
+                chosen, chosen_shift = reanchored, seed
+            else:
+                chosen, chosen_shift = origin, np.zeros(3)
+            from_tiling = False
+            if chosen is None:
+                return None
         gate, mean_d, aa, sites, s_sp = chosen
-        # F1 cell contract (reports/redteam_findings.md): the program states
-        # its build box, so when the box is an integer tiling of one lattice
-        # constant that constant IS the printed `a` -- a function of the box
+        # F1 cell contract + X2 (D17, the W5 lift-side snap): the program
+        # states its build box, so when the STATED (canonical-rounded) cell
+        # is within strain_cell_tolerance of an integer tiling, the constant
+        # that cell implies IS the printed `a` -- a function of the box
         # alone, exactly invariant under rigid transforms (the scan optimum
         # is not: it drifted up to -4.3 % under rotation) and never in
-        # contradiction with the `cell` line the same program states. Sites
-        # are regenerated at the snapped constant so the Wigner-Seitz diff
-        # sees the lattice the program declares; frames whose box is not an
-        # integer tiling (clipped region slabs) keep the scanned value.
-        a_snapped = snap_a_to_cell(aa, frame.cell_diag, dialect)
-        if a_snapped is not None and a_snapped != aa:
-            gate2, mean_d2, sites2, s_sp2 = quality(a_snapped, chosen_shift)
+        # contradiction with the `cell` line the same program states. The
+        # same box_lattice_constant the spglib arm and the builder's
+        # strained path use (one definition, rule 7), so every arm prints
+        # the same constant for the same stated box. Sites are regenerated
+        # at the snapped constant so the Wigner-Seitz diff sees the lattice
+        # the program declares; frames whose stated cell is not such a
+        # tiling (clipped region slabs, strain beyond the gate) keep the
+        # scanned value.
+        R = stated_cell_lengths(frame.cell_diag, dialect)
+        reps_snapped = np.rint(R / aa).astype(int)
+        got = box_lattice_constant(R, reps_snapped, name, dialect)
+        if got is not None and got["a"] != aa:
+            gate2, mean_d2, sites2, s_sp2 = quality(got["a"], chosen_shift)
             if sites2 is not None and mean_d2 < np.inf:
-                gate, mean_d, aa, sites, s_sp = gate2, mean_d2, a_snapped, sites2, s_sp2
-        if not np.array_equal(chosen_shift, np.zeros(3)):
+                gate, mean_d, aa, sites, s_sp = gate2, mean_d2, got["a"], sites2, s_sp2
+        if not from_tiling and not np.array_equal(chosen_shift, np.zeros(3)):
             # a re-anchored (re-imaged) frame seeds the site offset from ONE
             # atom's jittered position: that atom's own displacement offsets
             # the whole site lattice and marginal atoms flip on/off their
@@ -567,6 +587,8 @@ def fit_crystal(frame: Frame, dialect):
             # rotation (F1, rule 3). Refine the offset by the minimum-image
             # mean displacement of every matched atom-site pair -- the same
             # information the quench springs use, averaged over the frame.
+            # (The tiling path skips this: its shift is already the corrected
+            # canonical form of _canonical_shifts.)
             d_ref, i_ref = tree.query(sites)
             near_ref = d_ref < tol
             if species_aware:
@@ -712,7 +734,17 @@ def group_defects(vacancies, antisites, interstitials, sites, site_species,
         n = len([i for i in inter_by_species[sp] if i not in used_int])
         if n:
             statements.append(("defect", f"{sp}_i", n))
-    for sp in sorted(frenkel):
-        statements.append(("defect", "frenkel_pair", frenkel[sp]))
+    # frenkel pairs: ONE statement with the TOTAL count. The frenkel_pair
+    # token carries no species, so one line per species states one event set
+    # twice with no way to tell them apart downstream: the verifier's text
+    # parser keys defect statements by token (last line wins), and the round
+    # trip cannot reproduce a split anyway -- the builder replants the count
+    # species-blind (a random host atom), so a lift that printed 2 + 1 came
+    # back as two lines whose split followed the replant's dice, not the
+    # frame (found by the X2 random anisotropic sweep on l12_ni3al: a
+    # strained thermal frame lifted 'frenkel_pair count 3' and re-lifted
+    # 'count 2' + 'count 1'). Species-blind token, species-blind count.
+    if frenkel:
+        statements.append(("defect", "frenkel_pair", sum(frenkel.values())))
     # deterministic order: vacancies, antisites, interstitials, frenkel
     return statements
