@@ -424,9 +424,15 @@ def test_dump_charges_and_image_flags(tmp_path):
     assert np.allclose(frames[0].pos, [[3.0, 4.0, 5.0]])
 
 
-def test_dump_unwrapped_columns_refuse(tmp_path):
-    with pytest.raises(ChaordError, match="unwrapped"):
-        read_lammps_dump(_write(tmp_path, "xu.dump", DUMP_XU))
+def test_dump_unwrapped_columns_accepted(tmp_path):
+    """D34 (open_items_v4.md Y4) reversed the old refusal: xu/yu/zu (and
+    xsu/ysu/zsu) wrap into the cell and keep the unwrapped copy in
+    frame.info for transport analysis.  See tests/test_reader_real_dumps.py
+    for the beyond-the-box round trips."""
+    frames = read_lammps_dump(_write(tmp_path, "xu.dump", DUMP_XU))
+    assert np.allclose(frames[0].pos, [[3.0, 4.0, 5.0]])
+    assert np.allclose(frames[0].info["unwrapped_pos"], [[3.0, 4.0, 5.0]])
+    assert frames[0].info["max_fractional_excursion"] == 0.0
 
 
 def test_dump_frame_indices(tmp_path):

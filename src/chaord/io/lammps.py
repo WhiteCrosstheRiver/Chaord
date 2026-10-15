@@ -64,13 +64,23 @@ Parse decisions (data files)
    stored sorted by id.  Molecule ids, image flags, velocities, bonds
    and angles (raw 1-based ids, as written) are carried in metadata.
 6. Positions are shifted by -(xlo, ylo, zlo) (Frame has no origin) and
-   must already lie inside the box (within 1e-6 fractional slack);
-   a data file with an atom outside the box is refused by name -- it
-   would be refused by LAMMPS itself.
+   wrapped into the box on periodic axes (fractional coordinates modulo
+   1 -- a periodic-image relabelling, no physical change); the largest
+   excursion in box lengths is recorded in
+   ``frame.info["max_fractional_excursion"]``.  An excursion beyond half
+   a box length signals corrupt data, not a rewrap race between LAMMPS
+   neighbour rebuilds, and is refused (D34, open_items_v4.md Y4).
+   Data files state no boundary conditions, so every axis is treated as
+   periodic here (``metadata["boundary"]`` records the assumption).
 7. Type -> element: nearest ``ase.data.atomic_masses`` entry within
    0.05 amu (an exact table match is distance 0 and always wins).
-   Types with no element inside the tolerance map to symbol "X" and are
-   listed in ``metadata["unmapped_types"]`` -- reported, never a crash.
+   AMBIGUOUS masses raise and ask for an explicit ``type_map`` (D34):
+   two elements inside the tolerance window, or a united-atom CHn mass
+   at least as close as the best element (CH2 14.027 vs N 14.007, CH4
+   16.043 vs O 15.999).  An explicit ``type_map={type_id: symbol}``
+   accepted by BOTH readers overrides the masses entirely.  Types with
+   no candidate at all map to symbol "X" and are listed in
+   ``metadata["unmapped_types"]`` -- reported, never a crash.
 8. Boundary conditions are not stored in data files; frames are built
    with pbc = (True, True, True) and ``metadata["boundary"]`` records
    that this is an assumption.
@@ -87,15 +97,15 @@ Parse decisions (dump files)
    its own cell, which is what makes NPT dumps (bounds changing per
    snapshot) work.
 3. ``ITEM: ATOMS`` column names are read from the header.  Required:
-   ``id`` and ``type``.  Coordinates: either ``x y z`` (cartesian,
-   shifted by -(lo) and validated inside the box as above) or
-   ``xs ys zs`` (scaled; wrapped into [0, 1) by a fractional modulo,
-   then ``pos = frac @ cell`` which applies the tilt for triclinic
-   boxes).  Unwrapped-only columns (``xu yu zu`` / ``xsu ysu zsu``)
-   raise a ChaordError: Frame keeps positions wrapped into the cell,
-   and unwrapped coordinates would silently violate that invariant.
-   Optional: ``q`` (charges into ``frame.info``) and ``ix iy iz``
-   (image flags recorded, NOT applied).
+   ``id`` and ``type``.  Coordinates: ``x y z`` (cartesian, shifted by
+   -(lo)), ``xs ys zs`` (scaled), ``xu yu zu`` / ``xsu ysu zsu``
+   (unwrapped cartesian/scaled -- D34: accepted, wrapped into the cell,
+   with the unwrapped copy kept in ``frame.info["unwrapped_pos"]`` for
+   transport analysis; the excursion of unwrapped coordinates is
+   physical and recorded, never refused).  Whichever wrapped set exists
+   wins over the unwrapped ones; the unwrapped copy is recorded whenever
+   its columns are present.  Optional: ``q`` (charges into
+   ``frame.info``) and ``ix iy iz`` (image flags recorded, NOT applied).
 4. ``q`` is one column per atom; charges live in ``frame.info["charges"]``
    because Frame carries symbols only.
 5. pbc per axis is True only for a ``pp`` label; fixed/shrink-wrapped
@@ -131,6 +141,22 @@ _MASS_TOLERANCE_AMU = 0.05
 # genuinely outside-the-box coordinates through.
 _BOX_SLACK = 1e-6
 
+# D34 (open_items_v4.md, Y4): the corrupt-data bound.  Positions on
+# periodic axes are wrapped (a periodic-image relabelling -- LAMMPS
+# rigid-body dumps legitimately carry atoms a few 1e-3 box lengths outside
+# the box between re-neighbouring rewraps, measured max 8.2e-3 over the
+# pilot dumps), but an atom further than half a box length outside cannot
+# come from a rewrap race; it signals corrupt data and the reader refuses.
+_MAX_WRAP_EXCURSION = 0.5
+
+# United-atom CHn masses (D34, Y4): C 12.011 + n * H 1.008 amu, the same
+# IUPAC standard atomic weights the ase.data table carries.  CH2 (14.027)
+# and CH4 (16.043) fall inside the mass tolerance of N (14.007) and
+# O (15.999) and must not silently become those elements; CH (13.019) and
+# CH3 (15.035) collide with no element and simply stay unmapped "X".
+_UNITED_ATOM_MASSES = {"CH": 13.019, "CH2": 14.027,
+                       "CH3": 15.035, "CH4": 16.043}
+
 
 # --------------------------------------------------------------- elements
 
@@ -138,19 +164,42 @@ def element_from_mass(mass: float,
                       tolerance: float = _MASS_TOLERANCE_AMU) -> str | None:
     """Nearest element symbol by atomic mass, or None outside tolerance.
 
-    Distance is |mass - ase.data.atomic_masses[Z]| for Z = 1..118; the
-    minimum over Z is returned when it lies within ``tolerance`` amu
-    (an exact table match has distance 0 and therefore always wins).
+    Distance is |mass - ase.data.atomic_masses[Z]| for Z = 1..118; every
+    entry within ``tolerance`` amu is a candidate.  An EXACT table match
+    (distance 0) always wins -- a data file that writes the element's own
+    table value (N 14.007, Po 208.98243, ...) is never ambiguous, even
+    when a neighbour element (Bi, 0.002 amu away) also lies inside the
+    window.  Otherwise D34 (open_items_v4.md, Y4) makes two situations
+    REFUSE with a ChaordError asking for an explicit type_map instead of
+    guessing: two elements inside the window, or a united-atom CHn mass
+    (see ``_UNITED_ATOM_MASSES``) at least as close as the best element
+    (CH2 14.027 silently became N; CH4 16.043 became O).
     """
     mass = float(mass)
-    best_symbol, best_d = None, None
+    candidates = []
     for z in range(1, len(chemical_symbols)):
         d = abs(float(atomic_masses[z]) - mass)
-        if best_d is None or d < best_d:
-            best_symbol, best_d = chemical_symbols[z], d
-    if best_d is not None and best_d <= tolerance:
-        return best_symbol
-    return None
+        if d <= tolerance:
+            candidates.append((d, chemical_symbols[z]))
+    if not candidates:
+        return None
+    candidates.sort()
+    if candidates[0][0] == 0.0:
+        return candidates[0][1]        # exact table match always wins
+    remedy = ("pass an explicit type_map={type_id: symbol} to choose")
+    if len(candidates) > 1:
+        names = " and ".join(f"{s} ({d:.4f} amu away)"
+                             for d, s in candidates[:2])
+        raise ChaordError(
+            f"mass {mass:g} amu is ambiguous: {names} both lie inside the "
+            f"{tolerance} amu window; {remedy}")
+    ua = sorted((abs(m - mass), n) for n, m in _UNITED_ATOM_MASSES.items())
+    if ua[0][0] <= candidates[0][0]:
+        raise ChaordError(
+            f"mass {mass:g} amu is ambiguous: {candidates[0][1]} "
+            f"({candidates[0][0]:.4f} amu away) and the united-atom "
+            f"{ua[0][1]} group ({ua[0][0]:.4f} amu away); {remedy}")
+    return candidates[0][1]
 
 
 class LammpsTypeMap:
@@ -159,6 +208,9 @@ class LammpsTypeMap:
     Built directly from ``{type_id: mass}`` or obtained from
     ``read_lammps_data`` via ``metadata["type_map"]``; share it with
     dump-read frames through ``apply`` (dumps carry only type ids).
+    An EXPLICIT map (``LammpsTypeMap.explicit({type_id: symbol})``, or
+    ``type_map=`` on either reader) bypasses the masses entirely -- the
+    D34 remedy for an ambiguous mass.
     """
 
     def __init__(self, masses: dict, tolerance: float = _MASS_TOLERANCE_AMU):
@@ -166,10 +218,37 @@ class LammpsTypeMap:
         self.tolerance = float(tolerance)
         self._symbols = {}
         for t, m in self.masses.items():
-            s = element_from_mass(m, self.tolerance)
+            try:
+                s = element_from_mass(m, self.tolerance)
+            except ChaordError as e:
+                raise ChaordError(f"type {t}: {e}") from None
             self._symbols[t] = s if s is not None else "X"
         # types with no element inside the tolerance: reported, kept as "X"
         self.unmapped = sorted(t for t, s in self._symbols.items() if s == "X")
+
+    @classmethod
+    def explicit(cls, symbols: dict) -> "LammpsTypeMap":
+        """A type map from explicit ``{type_id: element symbol}`` (D34).
+
+        No masses, no nearest-element lookup, no ambiguity: the caller
+        names the chemistry.  Symbols are validated against the element
+        table ("X" allowed); a typo refuses instead of propagating into
+        programs.  ``masses`` stays empty -- this map is for symbol
+        resolution, not mass queries.
+        """
+        tm = cls.__new__(cls)          # skip the mass-based constructor
+        tm.masses = {}
+        tm.tolerance = _MASS_TOLERANCE_AMU
+        tm._symbols = {}
+        for t, s in symbols.items():
+            t, s = int(t), str(s)
+            if s != "X" and s not in chemical_symbols:
+                raise ChaordError(
+                    f"type_map symbol {s!r} for type {t} is not an element "
+                    "symbol (ase.data.chemical_symbols)")
+            tm._symbols[t] = s
+        tm.unmapped = sorted(t for t, s in tm._symbols.items() if s == "X")
+        return tm
 
     def symbol(self, type_id: int) -> str:
         """Element for a type id declared in the Masses table; "X" if the
@@ -222,17 +301,48 @@ def _cell_from_bounds(lo, hi, tilt=None) -> np.ndarray:
                      [xz, yz, lz]])
 
 
-def _validate_inside_box(pos, cell, where: str) -> None:
-    """Refuse cartesian positions outside the cell (fail closed): LAMMPS
-    itself rejects such files, so a Chaord here names our own bug or a
-    hand-edited file instead of wrapping silently."""
-    frac = np.asarray(pos, float) @ np.linalg.inv(np.asarray(cell, float))
-    bad = (frac < -_BOX_SLACK) | (frac > 1.0 + _BOX_SLACK)
-    if bad.any():
-        n = int(bad.any(axis=1).sum())
+def _wrap_positions(pos, cell, pbc, where: str,
+                    enforce_bound: bool = True) -> tuple[np.ndarray, float]:
+    """Wrap cartesian positions into the cell on periodic axes (D34).
+
+    Fractional coordinates modulo 1 on every periodic axis -- a
+    periodic-image relabelling, no physical change.  The largest
+    excursion in box lengths is returned (and belongs in
+    ``frame.info["max_fractional_excursion"]``); with ``enforce_bound``
+    an excursion beyond ``_MAX_WRAP_EXCURSION`` (half a box length)
+    refuses: that much displacement cannot come from a rewrap race
+    between neighbour rebuilds, it signals corrupt data.  Unwrapped
+    input columns (xu/xsu) set ``enforce_bound=False``: their excursion
+    is physical diffusion, recorded, never refused.  Non-periodic axes
+    are validated inside the box (within ``_BOX_SLACK``) -- there is no
+    periodic image to relabel onto them.
+    """
+    cell = np.asarray(cell, float)
+    frac = np.asarray(pos, float) @ np.linalg.inv(cell)
+    excursion = 0.0
+    for k, periodic in enumerate(pbc):
+        col = frac[:, k]
+        if periodic:
+            excursion = max(excursion,
+                            float(-col.min()) if col.size else 0.0,
+                            float((col - 1.0).max()) if col.size else 0.0)
+            frac[:, k] = np.mod(col, 1.0)
+            frac[:, k] = np.where(frac[:, k] >= 1.0,  # float fuzz: 1.0 -> 0.0
+                                  frac[:, k] - 1.0, frac[:, k])
+        else:
+            bad = (col < -_BOX_SLACK) | (col > 1.0 + _BOX_SLACK)
+            if bad.any():
+                n = int(bad.sum())
+                raise ChaordError(
+                    f"{where}: {n} atom position(s) outside the box on the "
+                    "non-periodic boundary; a non-periodic axis cannot be "
+                    "wrapped")
+    if enforce_bound and excursion > _MAX_WRAP_EXCURSION:
         raise ChaordError(
-            f"{where}: {n} atom position(s) outside the simulation box; "
-            "LAMMPS data/dump coordinates must already be wrapped")
+            f"{where}: {excursion:.3f} box lengths outside the simulation "
+            "box -- beyond half a box length, which signals corrupt data "
+            "rather than a rewrap race; refusing (D34)")
+    return frac @ cell, excursion
 
 
 # ------------------------------------------------------------- data files
@@ -337,15 +447,17 @@ def _parse_atoms_row(tokens, style, lineno, path):
             "img": image, "mol": mol}
 
 
-def read_lammps_data(path) -> tuple[Frame, dict]:
+def read_lammps_data(path, type_map=None) -> tuple[Frame, dict]:
     """Read a LAMMPS data file -> (Frame, metadata).
 
     See the module docstring for the full list of parse decisions.  The
     frame's symbols come from the Masses table (nearest element within
-    0.05 amu; "X" when unmapped, with ``metadata["unmapped_types"]``
-    reporting each such type).  Charges, molecule ids, image flags,
-    velocities, bonds, angles and the raw lower box corner live in
-    ``metadata`` (None when the file carries none).
+    0.05 amu, AMBIGUOUS masses refuse per D34; "X" when unmapped, with
+    ``metadata["unmapped_types"]`` reporting each such type) unless the
+    caller passes an explicit ``type_map={type_id: symbol}``, which
+    overrides the masses entirely (the D34 remedy).  Charges, molecule
+    ids, image flags, velocities, bonds, angles and the raw lower box
+    corner live in ``metadata`` (None when the file carries none).
     """
     path = Path(path)
     lines = path.read_text().splitlines()
@@ -468,10 +580,19 @@ def read_lammps_data(path) -> tuple[Frame, dict]:
     hi = np.array([box["x"][1], box["y"][1], box["z"][1]])
     cell = _cell_from_bounds(lo, hi, tilt)
     pos = np.array([a["pos"] for a in atoms], float) - lo
-    _validate_inside_box(pos, cell, f"{path.name} Atoms section")
+    # D34: data files state no boundary, so every axis is periodic here;
+    # wrap + record the excursion, refuse beyond half a box length.
+    pos, excursion = _wrap_positions(pos, cell, (True, True, True),
+                                     f"{path.name} Atoms section")
 
-    tmap = LammpsTypeMap(masses)
+    if type_map is None:
+        tmap = LammpsTypeMap(masses)
+    else:
+        tmap = (type_map if isinstance(type_map, LammpsTypeMap)
+                else LammpsTypeMap.explicit(type_map))
     symbols = [tmap.symbol(a["type"]) for a in atoms]
+    unmapped_types = sorted({a["type"] for a in atoms
+                             if tmap.symbol(a["type"]) == "X"})
     charges = ([a["q"] for a in atoms]
                if all(a["q"] is not None for a in atoms) else None)
     molecule_ids = ([a["mol"] for a in atoms]
@@ -521,7 +642,8 @@ def read_lammps_data(path) -> tuple[Frame, dict]:
     angles = _topology("Angles", 5, "Angles")
 
     frame = Frame(pos=pos, cell=cell, symbols=symbols,
-                  pbc=(True, True, True))
+                  pbc=(True, True, True),
+                  info={"max_fractional_excursion": excursion})
     style_name = style_hint
     if style_name is None:
         # name the interpretation actually used (see docstring decision 4)
@@ -529,7 +651,7 @@ def read_lammps_data(path) -> tuple[Frame, dict]:
                       else "charge" if charges is not None else "atomic")
     metadata = {
         "type_map": tmap,
-        "unmapped_types": list(tmap.unmapped),
+        "unmapped_types": unmapped_types,
         "charges": charges,
         "molecule_ids": molecule_ids,
         "image_flags": image_flags,
@@ -549,13 +671,16 @@ def read_lammps_data(path) -> tuple[Frame, dict]:
 
 # ------------------------------------------------------------ dump files
 
-def read_lammps_dump(path, frame_indices=None) -> list:
+def read_lammps_dump(path, frame_indices=None, type_map=None) -> list:
     """Read a LAMMPS text dump -> list of Frames (one per snapshot).
 
     NPT dumps work because each snapshot carries its own BOX BOUNDS and
     therefore its own cell; triclinic dumps populate the tilt factors
     (Frame stores a full 3x3 cell).  ``frame_indices`` selects snapshots
-    (None = all; int; list/tuple of ints; slice).  See the module
+    (None = all; int; list/tuple of ints; slice).  ``type_map`` (an
+    explicit ``{type_id: symbol}`` dict or a ``LammpsTypeMap``, D34)
+    writes element symbols onto the frames at read time; without one the
+    symbols stay "X" (dumps carry only integer type ids).  See the module
     docstring for every parse decision.
     """
     path = Path(path)
@@ -652,6 +777,11 @@ def read_lammps_dump(path, frame_indices=None) -> list:
         frames.append(_dump_snapshot(path, timestep, natoms, columns, rows,
                                      lo, cell, tilt, axis_labels))
 
+    if type_map is not None:
+        tmap = (type_map if isinstance(type_map, LammpsTypeMap)
+                else LammpsTypeMap.explicit(type_map))
+        tmap.apply(frames)
+
     total = len(frames)
     if frame_indices is None:
         selected = frames
@@ -697,25 +827,6 @@ def _dump_snapshot(path, timestep, natoms, columns, rows, lo, cell,
             raise ChaordError(
                 f"{path.name} (timestep {timestep}): ATOMS header lacks the "
                 f"'{need}' column: {' '.join(columns)}")
-    cart = all(c in columns for c in ("x", "y", "z"))
-    scaled = all(c in columns for c in ("xs", "ys", "zs"))
-    unwrapped = (all(c in columns for c in ("xu", "yu", "zu"))
-                 or all(c in columns for c in ("xsu", "ysu", "zsu")))
-    if cart:
-        mode = "cart"
-    elif scaled:
-        mode = "scaled"
-    elif unwrapped:
-        raise ChaordError(
-            f"{path.name} (timestep {timestep}): only unwrapped coordinate "
-            "columns (xu/yu/zu or xsu/ysu/zsu) are present; Frame keeps "
-            "positions wrapped into the cell, so re-dump with x y z (or "
-            "xs ys zs) instead of silently storing unwrapped coordinates")
-    else:
-        raise ChaordError(
-            f"{path.name} (timestep {timestep}): no usable coordinate "
-            f"columns in ATOMS header: {' '.join(columns)}")
-
     ids = np.array([int(r[col("id")]) for r in rows])
     tids = np.array([int(r[col("type")]) for r in rows])
     if len(set(ids.tolist())) != len(ids):
@@ -724,17 +835,45 @@ def _dump_snapshot(path, timestep, natoms, columns, rows, lo, cell,
             "ATOMS block")
     order = np.argsort(ids)
 
-    if mode == "cart":
-        pos = np.array([[float(r[col(c)]) for c in ("x", "y", "z")]
-                        for r in rows], float)[order] - lo
-        _validate_inside_box(
-            pos, cell, f"{path.name} (timestep {timestep})")
-    else:
-        frac = np.array([[float(r[col(c)]) for c in ("xs", "ys", "zs")]
-                         for r in rows], float)[order]
-        # wrap scaled coordinates into [0, 1) (module docstring decision 3)
-        frac = np.mod(frac, 1.0)
-        pos = frac @ cell
+    cart = all(c in columns for c in ("x", "y", "z"))
+    scaled = all(c in columns for c in ("xs", "ys", "zs"))
+    ucart = all(c in columns for c in ("xu", "yu", "zu"))
+    uscaled = all(c in columns for c in ("xsu", "ysu", "zsu"))
+    if not (cart or scaled or ucart or uscaled):
+        raise ChaordError(
+            f"{path.name} (timestep {timestep}): no usable coordinate "
+            f"columns in ATOMS header: {' '.join(columns)}")
+    # priority: the wrapped sets win; the unwrapped columns ride along in
+    # frame.info["unwrapped_pos"] whenever present (module docstring 3)
+    pbc = tuple(
+        len(lab) == 2 and lab[0] == "p" and lab[1] == "p"
+        for lab in axis_labels)
+    where = f"{path.name} (timestep {timestep})"
+    unwrapped_pos = None
+
+    if cart or scaled:
+        names = ("x", "y", "z") if cart else ("xs", "ys", "zs")
+        raw = np.array([[float(r[col(c)]) for c in names]
+                        for r in rows], float)[order]
+        if cart:
+            pos, excursion = _wrap_positions(raw - lo, cell, pbc, where)
+        else:
+            pos, excursion = _wrap_positions(raw @ cell, cell, pbc, where)
+    else:   # unwrapped-only dump (xu/xsu): wrap, keep the copy, no bound
+        names = ("xu", "yu", "zu") if ucart else ("xsu", "ysu", "zsu")
+        raw = np.array([[float(r[col(c)]) for c in names]
+                        for r in rows], float)[order]
+        unwrapped_pos = (raw - lo) if ucart else (raw @ cell)
+        pos, excursion = _wrap_positions(unwrapped_pos, cell, pbc, where,
+                                         enforce_bound=False)
+    if ucart:
+        raw_u = np.array([[float(r[col(c)]) for c in ("xu", "yu", "zu")]
+                           for r in rows], float)[order]
+        unwrapped_pos = raw_u - lo
+    elif uscaled:
+        raw_u = np.array([[float(r[col(c)]) for c in ("xsu", "ysu", "zsu")]
+                           for r in rows], float)[order]
+        unwrapped_pos = raw_u @ cell
 
     charges = None
     if "q" in columns:
@@ -744,9 +883,6 @@ def _dump_snapshot(path, timestep, natoms, columns, rows, lo, cell,
         image_flags = np.array([[int(r[col(c)]) for c in ("ix", "iy", "iz")]
                                 for r in rows], int)[order]
 
-    pbc = tuple(
-        len(lab) == 2 and lab[0] == "p" and lab[1] == "p"
-        for lab in axis_labels)
     frame = Frame(pos=pos, cell=cell, symbols=["X"] * natoms, pbc=pbc,
                   info={
                       "timestep": timestep,
@@ -756,5 +892,7 @@ def _dump_snapshot(path, timestep, natoms, columns, rows, lo, cell,
                       "triclinic": tilt is not None,
                       "box_lo": tuple(float(v) for v in lo),
                       "box_boundary_labels": list(axis_labels),
+                      "max_fractional_excursion": excursion,
+                      "unwrapped_pos": unwrapped_pos,
                   })
     return frame
