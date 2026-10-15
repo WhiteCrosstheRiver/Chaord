@@ -1,6 +1,8 @@
 # AGENTS.md — rules for every agent working on Chaord
 
-Read this file, `PLAN.md` and `spec/` before writing code. These rules are binding.
+**Rule 0 (first, before anything else): read `docs/reviews/open_items_v4.md`
+before any work; it supersedes older briefs where they conflict.** Then read
+this file, `PLAN.md` and `spec/` before writing code. These rules are binding.
 
 ## What we are building
 Chaord is a language for atomic systems with a compiler (`chaord build`: program → coordinates)
