@@ -18,12 +18,14 @@ There is no cluster job script yet. All simulation runs execute locally on
 the owner's Windows box with the anaconda LAMMPS build (`lmp.exe`, version
 `22 Jul 2025 - Update 4`, serial, 1 MPI rank). The pilot proved the needed
 packages are compiled in: `fix rigid/nvt/small` (RIGID+MOLECULE) and PPPM
-(KSPACE). Measured serial throughput on the pilot systems: 550 ps of
-971-2058 atoms took 12-52 minutes, so a 2 ns run costs roughly 0.8-2 hours
-and Stage A's ~13 runs fit in 1-2 days of local serial compute; Stage B's
-~50 runs of 10 ns do NOT fit locally at that rate and will need either the
-owner's cluster (submit the inputs S3 writes) or a scaled-down local
-variant (recorded honestly as such if used).
+(KSPACE). COST, corrected 2026-10-15 after Stage A's inputs were priced
+(stageA_plan.md, throughput 22,000 atom*ps/min measured): the 34-job Stage A
+protocol costs ~241 h (~10 days) of serial compute, and the two FILLING runs
+alone are ~159 h (~2.8 + ~3.8 days of 16k/22k-atom NPT) — the earlier "1-2
+days" estimate here priced only the tube runs. Stage B's ~50 runs of 10 ns
+are far beyond local serial. The natural split: tube runs locally if the
+owner accepts the wall time; fills and Stage B on the owner's cluster (the
+inputs are self-contained and `--lmp`-portable).
 
 ## Model note (D37)
 
