@@ -147,20 +147,19 @@
       "energy": "KA LJ, each pair cut at 2.5 sigma_ab and energy-shifted at its own cutoff",
       "pressure_star": {
         "min": -0.5,
-        "w7_target_min": 0.0,
         "measured_range": [
           -0.23,
-          -0.14
+          -0.01
         ],
-        "note": "mild tension at the published state point; the > 0 W7 expectation and the measured deviation are on record in the generator source and the W7 report (PENDING OWNER APPROVAL)"
+        "note": "APPROVED (D18, Review 9, docs/reviews/open_items_v3.md): the enforced bound is P* > -0.5 -- mild tension at T* = 0.1 is harmless while no point is more than 1 sigma from an atom. The measured range is the FULL range over all 15 stored frames (-0.229..-0.009, re-measured 2026-10-14 with the W7 sanity recipe; the superseded partial record read -0.23..-0.14). W7's original > 0 expectation is superseded by D18."
       },
       "empty_radius_max_sigma": 1.0,
       "empty_radius_unit": "sigma_AA",
       "empty_fraction_max": 0.02,
       "crystal_like_max": 0.01,
       "crystal_like_definition": "W1 secondary local-order rule (Review 8): neighbours within 1.3 x the frame median d_NN, atoms with >= 4 neighbours only, crystal-like = averaged q6 > 0.32 or averaged q4 > 0.45",
-      "energy_flatness_per_quench": 0.015,
-      "energy_flatness_note": "max minus min cut-and-shifted energy per atom across the sampled frames of one quench; W7 asked 0.005, measured 0.0076-0.0123 is dominated by the single-frame thermal fluctuation sigma = T* sqrt(c_v/N) ~ 0.004 at T*=0.1, N=2000 (aging slope -0.0007..-0.0022 per 800-step frame); enforced bound 0.015 ~ 3 sigma of the physics-derived fluctuation, W7 0.005 target recorded, PENDING OWNER APPROVAL (W7 report)"
+    "energy_flatness_per_quench": 0.015,
+    "energy_flatness_note": "max minus min cut-and-shifted energy per atom across the sampled frames of one quench; measured 0.0076-0.0123, dominated by the single-frame thermal fluctuation sigma = T* sqrt(c_v/N) ~ 0.004 at T*=0.1, N=2000 (aging slope -0.0007..-0.0022 per 800-step frame); bound 0.015 = 3 sigma of the physics-derived fluctuation, APPROVED (D18, Review 9, docs/reviews/open_items_v3.md); W7's 0.005 target is superseded"
     }
   },
   "case": "ka_glass",

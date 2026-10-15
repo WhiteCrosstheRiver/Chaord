@@ -965,11 +965,14 @@ def case_ka_glass(out: Path, seed: int):
                          "which is the KA frustration that suppresses "
                          "crystallisation)"},
             ],
-            # W7 step 4 sanity, Review 8: an amorphous reference must be
-            # compressed (P > 0 at this NVT state point), void-free
-            # (largest empty sphere < 1.0 sigma_AA), uncrystallised
-            # (crystal-like fraction < 1%) and stationary (sampled-frame
-            # energy drift < 0.005 per atom).  Enforced by
+            # W7 step 4 sanity, Review 8; bounds approved by D18 (Review 9,
+            # docs/reviews/open_items_v3.md): an amorphous reference must be
+            # free of tearing-scale tension (P* > -0.5; mild tension at
+            # T* = 0.1 is harmless while no point is more than 1 sigma from
+            # an atom), void-free (largest empty sphere < 1.0 sigma_AA),
+            # uncrystallised (crystal-like fraction < 1%) and stationary
+            # (per-quench sampled-frame energy flatness <= 0.015 per atom =
+            # 3 sigma of the thermal fluctuation at N = 2000).  Enforced by
             # tests/test_reference_data.py::test_ka_glass_amorphous_sanity.
             "amorphous": {
                 "temperature_star": t_end,
@@ -977,28 +980,26 @@ def case_ka_glass(out: Path, seed: int):
                 "energy": ("KA LJ, each pair cut at 2.5 sigma_ab and "
                            "energy-shifted at its own cutoff"),
                 "pressure_star": {
-                    # W7 as written asks pressure > 0 ("compressed NVT glass
-                    # at rho*=1.2").  MEASURED DEVIATION (2026-10-04,
-                    # reported in the W7 report before this bound was
-                    # changed, per AGENTS): the published KA state point at
+                    # APPROVED (D18, Review 9, 2026-10-14): the bound is
+                    # P* > -0.5 -- mild tension at T* = 0.1 is harmless
+                    # while no point is more than 1 sigma from an atom.
+                    # W7 as written asked pressure > 0 ("compressed NVT
+                    # glass at rho*=1.2"); the published KA state point at
                     # rho*=1.2, T*=0.1 with the per-pair 2.5 sigma_ab
-                    # truncation sits at P* = -0.23..-0.14 (virial
+                    # truncation sits in mild tension instead (virial
                     # cross-checked against dE/dV to 1e-4; the small
                     # sigma_AB packs the mixture looser than monatomic LJ
-                    # at the same rho).  That is mild, tear-free tension:
-                    # the torn monatomic reference measured -1.57..-1.22
-                    # with 2.75-3.25 sigma voids, while these frames hold
+                    # at the same rho).  That tension is tear-free: the
+                    # torn monatomic reference measured -1.57..-1.22 with
+                    # 2.75-3.25 sigma voids, while these frames hold
                     # empty-sphere <= 0.90 sigma and crystal-like <= 1%.
-                    # The ENFORCED bound is therefore "no tearing-scale
-                    # tension" (P* > -0.5); the > 0 target stays recorded
-                    # here pending the owner's decision (PENDING OWNER
-                    # APPROVAL, W7 report).
                     "min": -0.5,
-                    "w7_target_min": 0.0,
-                    "measured_range": [-0.23, -0.14],
+                    "measured_range": [-0.23, -0.01],
                     "note": ("mild tension at the published state point; "
-                             "the > 0 W7 expectation and the measured "
-                             "deviation are on record above")},
+                             "the full measured range over all 15 stored "
+                             "frames is -0.229..-0.009 (re-measured "
+                             "2026-10-14 with the W7 sanity recipe; the "
+                             "superseded partial record read -0.23..-0.14)")},
                 "empty_radius_max_sigma": 1.0,
                 "empty_radius_unit": "sigma_AA",
                 "empty_fraction_max": 0.02,
@@ -1011,19 +1012,18 @@ def case_ka_glass(out: Path, seed: int):
                 "energy_flatness_per_quench": 0.015,
                 "energy_flatness_note": (
                     "max minus min cut-and-shifted potential energy per atom "
-                    "across the sampled frames of one quench.  W7 as written "
-                    "asked 0.005; MEASURED DEVIATION (2026-10-04, W7 report): "
+                    "across the sampled frames of one quench: measured "
                     "0.0076-0.0123, dominated by the single-frame THERMAL "
                     "fluctuation, not aging -- sigma_E/atom = T* sqrt(c_v/N) "
                     "= 0.1 x sqrt(3/2000) ~ 0.004 at this state point, so a "
                     "5-frame range of ~2.3 sigma (~0.015 for the extreme "
                     "draw) is the noise floor of the statistic; the fitted "
                     "aging slope is -0.0007..-0.0022 per 800-step frame "
-                    "(0.003-0.009 over the window).  The enforced bound "
-                    "0.015 = ~3 sigma of the physics-derived fluctuation "
-                    "(PENDING OWNER APPROVAL, W7 report); the W7 0.005 "
-                    "target stays recorded, reachable only by averaging "
-                    "frames or deepening the anneal"),
+                    "(0.003-0.009 over the window).  APPROVED (D18, Review "
+                    "9, docs/reviews/open_items_v3.md): the bound is 0.015 = "
+                    "~3 sigma of the physics-derived fluctuation; W7's 0.005 "
+                    "target is superseded (reachable only by averaging "
+                    "frames or deepening the anneal)"),
             },
         },
     }
