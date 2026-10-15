@@ -11,6 +11,14 @@ thresholds:
   cn_cutoff: 2.85                 # Si-Si first shell, A
   ring_search_max: 12             # largest ring size searched
   bond_tolerance: 1.25              # bond length in units of covalent radii sums
+  # X6 / D27 (Review 10): ring_mode and angle_mean are NETWORK-glass
+  # statistics (they are true of any dense packing: the KA glass used to
+  # print ring_mode 3 and angle_mean 96.8 at coordination ~13.7).  They
+  # print only when the mean first-shell coordination is at most this;
+  # measured on bench/reference/ka_glass at the per-pair first minima:
+  # 13.36 around A, 15.2 around B -- dense, gate closed.  A 4-coordinated
+  # network (jittered diamond Si) prints ring_mode 6 and angle ~109.5 deg.
+  network_glass_max_coordination: 6
   # W1 (Review 8, decision D10): glass.yaml states NO absolute phase cutoff
   # any more; q6_cutoff is DELETED.  Its history: 3.0 (oxide-network A)
   # averaged q6 over ~3 shells in sigma frames and let a perfect fcc crystal

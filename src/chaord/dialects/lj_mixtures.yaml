@@ -30,6 +30,47 @@ thresholds:
                                      # energy-shifted at its own cutoff
       citation: "W. Kob, H. C. Andersen, Phys. Rev. E 51, 4626 (1995), doi:10.1103/PhysRevE.51.4626, Table I"
       reference_point: "rho* = 1.2 (N=2000, 1600 A + 400 B): bench/reference/ka_glass"
+      # X6 / D27 (Review 10): dense-glass statistics, measured 2026-10-14 on
+      # ALL 15 bench/reference/ka_glass frames (3 quenches x 5), sigma_AA
+      # units (the model's own reduced frame units; sigma_AA = 1 in the
+      # sigma table above).
+      #
+      # coordination_cutoffs: each partial g(r)'s FIRST MINIMUM, the D27
+      # rule.  Method: chaord.cv.rich.partial_gr at dr = 0.01 (rmax 3.0,
+      # 300 bins), moving-average width 5, minimum = the lowest smoothed
+      # bin between the first peak and peak + 0.9 sigma.  Measured per-frame
+      # minima: AA 1.365-1.465 (mean 1.406) -> 1.40; AB 1.125-1.205 (mean
+      # 1.168) -> 1.17; BB 1.875-2.045 (mean 1.944) -> 1.94 -- the B-B
+      # first shell is the split 1.38/1.71 doublet (KA frustration: B
+      # prefers A neighbours), so its first DEEP minimum follows the
+      # doublet; the naive 'first' local minimum at ~1.08 (after the weak
+      # 0.96 contact shoulder) would cut the shell in half.  Resulting
+      # partial coordinations over the 15 frames (spread): AA 11.32-11.41
+      # (0.09), AB 1.99-2.01 (0.02), BB 7.09-7.29 (0.21) -- each inside the
+      # printed 0.30 tolerance.  Pinned by
+      # tests/test_dense_glass_statistics.py (the cutoffs are re-measured
+      # against the frames there).
+      coordination_cutoffs: {AA: 1.40, AB: 1.17, BB: 1.94}
+      # gr_peak_windows: the FIRST peak of each partial g(r) is searched
+      # here (never the global maximum: the B-B global max lands on the
+      # second sub-peak ~1.71 sigma on 5 of the 15 frames, which made the
+      # unwindowed assert jump 1.35..1.73).  Windows from the same measured
+      # structure (frame-averaged first peaks AA 1.075, AB 0.885, BB 1.435;
+      # the same windows bench/reference provenance gr_peaks states).
+      # On the lift's own 60-bin grid (gr_rmax_fluid 2.5 / gr_bins_fluid
+      # 60) the windowed first peak measures AA 1.062 and AB 0.896 (same
+      # bin in all 15 frames), BB 1.312-1.438.
+      gr_peak_windows: {AA: [1.02, 1.16], AB: [0.80, 0.94], BB: [1.28, 1.46]}
+      # gr_peak_tolerances (position, height) printed on the assert, derived
+      # from the 15-frame peak-to-peak spreads of the windowed values
+      # rounded up to the next 0.05, with a one-bin floor (dr 0.0417) on
+      # the position (bin quantisation can move two equal peaks one bin):
+      # position spreads AA 0.000, AB 0.000, BB 0.125; height spreads
+      # AA 0.16 (mean 5.39), AB 0.68 (mean 7.78), BB 0.40 (mean 1.69).
+      gr_peak_tolerances:
+        AA: [0.05, 0.20]
+        AB: [0.05, 0.70]
+        BB: [0.15, 0.45]
   # inference tolerances (W7 step 5: the model is inferred from the
   # composition and the sigma_AB/sigma_AA ratio read off the first partial
   # g(r) peaks, and always printed as assumed)

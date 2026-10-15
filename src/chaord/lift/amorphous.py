@@ -262,67 +262,155 @@ def lift_amorphous(frame: Frame, dialect, backend="lj") -> Program:
                     Name(text="anneal"), Quantity(num=f"{t_a:g}"), Name(text="for"),
                     Quantity(num=str(n_a))]))
         assumed_history = True
-    # held-out network statistics as asserts; placeholder species (X) use a
-    # geometric cutoff (fraction of d_NN), real elements the dialect rule
+    # X6 / D27 (Review 10): dense-glass statistics that mean what they say.
+    #
+    # Coordination cutoffs sit at each partial g(r)'s FIRST MINIMUM, stated
+    # PER PAIR.  For a frame whose mixture model matches the lj_mixtures
+    # table those minima are measured on the model's reference frames and
+    # live in the table (coordination_cutoffs, provenance and method in
+    # lj_mixtures.yaml -- e.g. kob_andersen AA 1.40 / AB 1.17 / BB 1.94
+    # sigma, which no longer cuts through the A-A first peak at 1.06).
+    # Without a measured table the previous single-radius prior stands
+    # (amorphous_bond_factor x d_NN for placeholder species, the elements'
+    # cn_cutoff).
+    #
+    # ring_mode and angle_mean print ONLY for network glasses (mean
+    # first-shell coordination <= network_glass_max_coordination): both are
+    # true of any dense packing -- the KA glass used to print ring_mode 3
+    # and angle_mean 96.8 at coordination ~13.7 -- and carry no information
+    # there.  The gate quantity is the mean coordination the asserts use:
+    # the ordered-pair weighted sum of the partial coordinations for a
+    # mixture, cn_mean for a single species.
     from ..cv.local import angle_mean, cn_mean
     from ase.data import chemical_symbols
     from ..build.defects import typical_neighbor_distance
+
+    real = all(s in chemical_symbols and s != "X" for s in frame.symbols)
     try:
-        if all(s in chemical_symbols and s != "X" for s in frame.symbols):
+        if real:
             cut = float(dialect.threshold("cn_cutoff"))
-            q_cut = Quantity(num=f"{cut:.2f}", unit="A")
         else:
-            cut = float(dialect.threshold("amorphous_bond_factor")) * typical_neighbor_distance(frame)
-            q_cut = Quantity(num=f"{cut:.2f}")
-        cn = cn_mean(frame, dialect, cutoff=cut)
-        ang = angle_mean(frame, dialect, cutoff=cut)
-        region_stmts.append(Statement(
-            kind="assert", key="cn",
-            values=[Quantity(num=f"{cn:.2f}"), Tol(value=Quantity(num="0.30")),  # dialect-exempt: numerical-guard: canonical printed tolerance
-                    Name(text="cutoff"), q_cut]))
-        region_stmts.append(Statement(
-            kind="assert", key="angle_mean",
-            values=[Quantity(num=f"{ang:.1f}"), Tol(value=Quantity(num="3.0")),  # dialect-exempt: numerical-guard: canonical printed tolerance
-                    Name(text="deg")]))
+            cut = float(dialect.threshold("amorphous_bond_factor")) * \
+                typical_neighbor_distance(frame)
     except Exception:
-        pass
-    # W7 step 5 (D9): a multi-species amorphous region states its held-out
-    # PARTIAL structure -- one g(r) first-peak and one partial coordination
-    # assert per unordered species pair, measured at the same cutoffs
-    if len(counts) > 1:
+        cut = None
+
+    # the inferred mixture model (W7 step 5 / D9) also supplies the model's
+    # MEASURED per-pair statistics; a model without them keeps the prior
+    model = infer_mixture_model(frame, dialect)
+    entry = dialect.threshold("lj_mixtures")[model[0]] \
+        if model is not None else None
+
+    def _pair_cutoff(a: str, b: str) -> float | None:
+        """First-minimum cutoff of one unordered species pair."""
+        if entry is not None:
+            table = entry.get("coordination_cutoffs") or {}
+            if _pairkey(a, b) in table:
+                return float(table[_pairkey(a, b)])
+        return cut
+
+    n_atoms = float(len(frame.symbols))
+    mean_cn: float | None = None
+    if len(counts) == 1:
+        # single species: one cutoff defines the total coordination, so the
+        # classic locally re-measurable assert stands
+        if cut is not None:
+            try:
+                cn = cn_mean(frame, dialect, cutoff=cut)
+                mean_cn = cn
+                q_cut = Quantity(num=f"{cut:.2f}",
+                                 unit="A" if real else None)
+                region_stmts.append(Statement(
+                    kind="assert", key="cn",
+                    values=[Quantity(num=f"{cn:.2f}"), Tol(value=Quantity(num="0.30")),  # dialect-exempt: numerical-guard: canonical printed tolerance
+                            Name(text="cutoff"), q_cut]))
+            except Exception:
+                pass
+    else:
+        # W7 step 5 (D9) + X6 (D27): a multi-species amorphous region states
+        # its held-out PARTIAL structure -- one g(r) first-peak and one
+        # partial coordination assert per unordered species pair, each at
+        # that pair's first-minimum cutoff.  The old bare total cn assert is
+        # gone: one radius cannot stand for per-pair first minima.
         from itertools import combinations_with_replacement
         from ..cv.rich import partial_gr
-        from ..build.defects import typical_neighbor_distance as _tnd
-        from ase.data import chemical_symbols as _chem
-        real = all(s in _chem and s != "X" for s in frame.symbols)
         for a, b in combinations_with_replacement(sorted(counts), 2):
             try:
-                cut_p = (float(dialect.threshold("cn_cutoff")) if real
-                         else float(dialect.threshold("amorphous_bond_factor"))
-                         * _tnd(frame))
+                cut_p = _pair_cutoff(a, b)
+                if cut_p is None:
+                    continue
                 cn_ab = _partial_coordination(frame, a, b, cut_p)
+                # ordered-pair weighting: mean neighbours per atom adds
+                # counts[a]*cn_ab from the a side and counts[b]*cn_ba
+                # (= counts[a]*cn_ab) from the b side of a mixed pair
+                weight = 2.0 if a != b else 1.0  # dialect-exempt: exact-geometry: ordered-pair coordination factor
+                mean_cn = (mean_cn if mean_cn is not None else 0) + \
+                    weight * counts[a] * cn_ab / n_atoms
                 g, r = partial_gr(frame, dialect, a, b)
+                # gr_peak: the FIRST peak, searched in the model's measured
+                # per-pair window -- the global maximum of a double-peaked
+                # partial (B-B) lands on the second sub-peak and jumps
+                # between frames (measured 1.35..1.73 sigma before X6)
+                ipk = int(np.argmax(g))
+                if entry is not None:
+                    key = _pairkey(a, b)
+                    window = (entry.get("gr_peak_windows") or {}).get(key)
+                    if window is not None:
+                        lo, hi = float(window[0]), float(window[1])
+                        m = (r >= lo) & (r <= hi)
+                        if not m.any():
+                            from ..lang.errors import ChaordError
+                            raise ChaordError(
+                                f"gr_peak window [{lo}, {hi}] of pair {a}-{b} "
+                                f"holds no g(r) bin (grid rmax "
+                                f"{r[-1] + (r[1] - r[0]) / 2:.2f})")
+                        ipk = int(np.flatnonzero(m)[np.argmax(g[m])])
+                    tol_pair = (entry.get("gr_peak_tolerances")
+                                or {}).get(key)
+                else:
+                    tol_pair = None
+                gr_values = [Quantity(num=f"{r[ipk]:.2f}")]
+                if tol_pair is not None:
+                    gr_values.append(Tol(value=Quantity(
+                        num=f"{float(tol_pair[0]):.2f}")))
+                gr_values += [Name(text="height"),
+                              Quantity(num=f"{g[ipk]:.2f}")]
+                if tol_pair is not None:
+                    gr_values.append(Tol(value=Quantity(
+                        num=f"{float(tol_pair[1]):.2f}")))
+                gr_values += [Name(text="pair"), Name(text=f"{a}-{b}")]
+                region_stmts.append(Statement(kind="assert", key="gr_peak",
+                                              values=gr_values))
+                region_stmts.append(Statement(
+                    kind="assert", key="cn",
+                    values=[Quantity(num=f"{cn_ab:.2f}"),
+                            Tol(value=Quantity(num="0.30")),  # dialect-exempt: numerical-guard: canonical printed tolerance
+                            Name(text="cutoff"),
+                            Quantity(num=f"{cut_p:.2f}"), Name(text="pair"),
+                            Name(text=f"{a}-{b}")]))
             except Exception:
                 continue
-            ipk = int(np.argmax(g))
+    # the network-glass gate (D27): ring and angle asserts only below the
+    # dialect's coordination bound, on the same first-shell coordination
+    # the asserts measured above
+    if mean_cn is not None and \
+            mean_cn <= float(dialect.threshold("network_glass_max_coordination")):
+        if cut is not None:
+            try:
+                ang = angle_mean(frame, dialect, cutoff=cut)
+                region_stmts.append(Statement(
+                    kind="assert", key="angle_mean",
+                    values=[Quantity(num=f"{ang:.1f}"), Tol(value=Quantity(num="3.0")),  # dialect-exempt: numerical-guard: canonical printed tolerance
+                            Name(text="deg")]))
+            except Exception:
+                pass
+        rings = ring_distribution(frame, dialect,
+                                  edges=network_edges(frame, dialect))
+        if rings:
+            dom = max(rings, key=lambda k: rings[k])
             region_stmts.append(Statement(
-                kind="assert", key="gr_peak",
-                values=[Quantity(num=f"{r[ipk]:.2f}"), Name(text="height"),
-                        Quantity(num=f"{g[ipk]:.2f}"), Name(text="pair"),
-                        Name(text=f"{a}-{b}")]))
-            region_stmts.append(Statement(
-                kind="assert", key="cn",
-                values=[Quantity(num=f"{cn_ab:.2f}"),
-                        Tol(value=Quantity(num="0.30")),  # dialect-exempt: numerical-guard: canonical printed tolerance
-                        Name(text="cutoff"),
-                        Quantity(num=f"{cut_p:.2f}"), Name(text="pair"),
-                        Name(text=f"{a}-{b}")]))
-    rings = ring_distribution(frame, dialect, edges=network_edges(frame, dialect))
-    if rings:
-        dom = max(rings, key=lambda k: rings[k])
-        region_stmts.append(Statement(
-            kind="assert", key="ring_mode",
-            values=[Quantity(num=str(dom))]))
+                kind="assert", key="ring_mode",
+                values=[Quantity(num=str(dom))]))
 
     system = SystemBlock(statements=[
         Statement(kind="build", key="cell", values=[
@@ -332,8 +420,8 @@ def lift_amorphous(frame: Frame, dialect, backend="lj") -> Program:
     ])
     # W7 step 5: the physics block names the mixture model, INFERRED from the
     # composition and the partial g(r) peak ratio and printed as assumed (a
-    # potential is not measurable from one frame)
-    model = infer_mixture_model(frame, dialect)
+    # potential is not measurable from one frame) -- the same inference the
+    # per-pair statistics above read their measured cutoffs from
     physics_stmts = [Statement(kind="build", key="backend",
                                values=[Name(text=backend)])]
     model_notes = []

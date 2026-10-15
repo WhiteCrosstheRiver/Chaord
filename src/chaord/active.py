@@ -202,7 +202,16 @@ def uncertainty_report(program: Program, frame: Frame, dialect) -> UncertaintyRe
             report.asserts_unverified += 1
             continue
         target, tol, cutoff = _assert_values(stmt)
-        if stmt.key not in _LOCALLY_CHECKABLE or target is None or tol is None:
+        # X6 (Review 10): a pair-scoped assert (the per-pair partial
+        # coordination, `... pair A-B`) has no all-species local measure --
+        # cn_mean counts neighbours of EVERY species at the stated cutoff,
+        # so re-measuring a partial assert with it records a false failure
+        # (the KA program's three partial asserts all "failed" this way).
+        # It counts as unverified until a pair-resolved local measure exists.
+        pair_scoped = any(v.t == "n" and v.text == "pair"
+                          for v in stmt.values)
+        if pair_scoped or stmt.key not in _LOCALLY_CHECKABLE \
+                or target is None or tol is None:
             report.unverified.append(stmt.key)
             report.asserts_unverified += 1
             continue

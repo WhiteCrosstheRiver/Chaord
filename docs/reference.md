@@ -78,11 +78,11 @@ statement carries a kind: **build** (no keyword), **state**, **constrain**,
 | `constrain sro` | `constrain sro alpha1 Cr-Cr +0.10 +- 0.02` | Warren-Cowley first shell |
 | `history` | `history melt 3000 K for 20 ps -> quench to 300 K at 1 K/ps -> anneal 300 K for 50 ps` | protocol = shortest description |
 | | `history melt 1.2 for 300 -> deposit X 20 for 400 -> anneal 0.01 for 200` | growth: insert atoms during the run |
-| `assert cn` | `assert cn 4.0 +- 0.1 cutoff 2.85 A` | measured, never enforced |
-| `assert gr_peak` | `assert gr_peak 1.06 height 3.07` | first rdf peak |
+| `assert cn` | `assert cn 4.0 +- 0.1 cutoff 2.85 A` / `assert cn 11.39 +- 0.3 cutoff 1.40 pair A-A` | measured, never enforced; in a multi-species amorphous region the partial asserts are per unordered pair at that pair's FIRST-MINIMUM cutoff (D27; a model's measured cutoffs live in its lj_mixtures entry), and no bare all-pair total is printed (one radius cannot stand for per-pair minima) |
+| `assert gr_peak` | `assert gr_peak 1.06 height 3.07` / `assert gr_peak 1.06 +- 0.05 height 5.42 +- 0.20 pair A-A` | first rdf peak; the amorphous partial form searches the FIRST peak in the model's per-pair window (the B-B partial is double-peaked; its global max is the second sub-peak) and prints tolerances for position and height (D27) |
 | `assert sites_matched` | `assert sites_matched 99.2 %` | site-lattice coverage |
-| `assert angle_mean` | `assert angle_mean 109.0 +- 1.5 deg` | bond-angle mean |
-| `assert ring_mode` | `assert ring_mode 6` | dominant King ring size |
+| `assert angle_mean` | `assert angle_mean 109.0 +- 1.5 deg` | bond-angle mean; printed only for network glasses (mean first-shell coordination <= 6, D27) |
+| `assert ring_mode` | `assert ring_mode 6` | dominant King ring size; printed only for network glasses (mean first-shell coordination <= 6, D27 -- true of any dense packing otherwise) |
 | `assert coverage` | `assert coverage OH 0.25 ML +- 0.05` | adsorbate coverage |
 | `assert solid_clusters` | `assert solid_clusters 0` | fluid purity |
 | `assert li_shell` | `assert li_shell C3H4O3 2.5 +- 0.5 carbonyl_O 2.45 A` | Li+ first-solvation-shell count on the named species site, mean +- sd over the cations (research dialect, Y5/D36: cutoffs are the Li-O / Li-F g(r) first minima of the reference zero-field runs, recorded in the dialect with their provenance, never measured on the frames under test; the site words are the dialect's site rules: `carbonyl_O` the carbonate carbonyl oxygen, `F` every fluorine) |
