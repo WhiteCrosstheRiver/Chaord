@@ -294,7 +294,10 @@ def statement_features(text: str) -> dict:
             feats["gr_peak_r"], feats["gr_peak_h"] = (float(m.group(1)),
                                                       float(m.group(2)))
             continue
-        m = re.fullmatch(rf"state density {_NUM} g/cm3", s)
+        # Y5 item 4: the confined-fluid density is stated on the accessible
+        # volume (`state density <v> g/cm3 accessible`); the bare form is
+        # the legacy region-volume statement
+        m = re.fullmatch(rf"state density {_NUM} g/cm3( accessible)?", s)
         if m:
             feats["density"] = float(m.group(1))
     return feats
@@ -349,9 +352,11 @@ def centroid_accuracy(feats: list[dict], keys: list[str],
     def matrix(sel):
         rows = []
         for i in sel:
-            row = [float(feats[i]["feats"][k]) for k in keys]
-            if any(v is None for v in row):
-                row = [0.0 if v is None else v for v in row]
+            # None (a statement this program does not carry -- Y5 dropped
+            # the molecule-centre cn) encodes as 0, as in encode_features;
+            # float() would refuse it before the old None branch ran
+            row = [0.0 if feats[i]["feats"][k] is None
+                   else float(feats[i]["feats"][k]) for k in keys]
             rows.append(row)
         m = np.asarray(rows, float)
         m = (m - m.mean(axis=0)) / (m.std(axis=0) + 1e-12)

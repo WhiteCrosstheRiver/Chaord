@@ -64,7 +64,15 @@ def lift_frame(frame, dialect, T=None, mode="auto", field=None):
     with or without `field=`; the field spec adds ONLY the `state field`
     line and its assumed-value note. The analysis axis is the field's axis
     when one is given, else the nanotube region's axis when the program
-    holds one, else the dialect's `dipole_axis_default` (research.yaml)."""
+    holds one, else the dialect's `dipole_axis_default` (research.yaml).
+
+    Rotation invariance (Y5's 20-transform done-when): every frame whose
+    cell is an orthogonal box in a ROTATED orientation is canonicalised to
+    the axis-aligned box first (see _canonical_cell_frame) -- a rigid
+    rotation of a frame is the same microstate, and the whole cascade
+    measures minimum-image invariants that the canonicalisation preserves
+    exactly (the fractional coordinates are unchanged)."""
+    frame = _canonical_cell_frame(frame)
     field_parts = _field_parts(field) if field is not None else None
     if T is None:
         try:
@@ -96,6 +104,35 @@ def lift_frame(frame, dialect, T=None, mode="auto", field=None):
     return _record_lift_diag(program, frame, dialect, unexplained)
 
 
+def _canonical_cell_frame(frame):
+    """The frame re-expressed in its cell's axis-aligned orientation.
+
+    A rigidly rotated copy of a periodic frame (rotation + translation +
+    re-imaging + re-ordering) carries the same microstate, but its cell is
+    a rotated box and every `frame.cell_diag` wrap in the molecular stack
+    would mis-wrap it.  For an orthogonal box the fractional coordinates
+    are rotation-invariant, so the canonical positions are simply
+    `frac * L` in the diagonal cell -- exact for the already-diagonal case
+    (returned unchanged, the same object), one float-rounding away for a
+    rotated one.  A non-orthogonal (triclinic) cell is NOT rotated back:
+    no rotation canonicalises it, so it passes through untouched and the
+    arms' own orthogonal-cell contracts answer (fail closed)."""
+    cell = np.asarray(frame.cell, float)
+    diag = np.diag(cell)
+    if np.array_equal(cell, np.diag(diag)):
+        return frame
+    gram = cell @ cell.T
+    scale = float(np.max(np.diag(gram)))
+    off = gram - np.diag(np.diag(gram))
+    if not np.allclose(off, 0.0, atol=1e-9 * scale):   # dialect-exempt: numerical-guard: orthogonality of a rigidly rotated box
+        return frame
+    L = np.sqrt(np.diag(gram))
+    frac = frame.pos @ np.linalg.inv(cell)
+    from ..io.frames import Frame
+    return Frame(pos=np.mod(frac, 1.0) * L, cell=np.diag(L),  # dialect-exempt: numerical-guard: unit fractional range
+                 symbols=frame.symbols, pbc=frame.pbc, info=dict(frame.info))
+
+
 def _nanotube_composition(frame, dialect, T):
     """D35 (docs/reviews/open_items_v4.md, Y3): the tube-plus-liquid
     composition of mode="auto". Returns the composed Program, or raises
@@ -109,9 +146,11 @@ def _nanotube_composition(frame, dialect, T):
     The composition: one crystal tube region per identified tube (the RD2
     chirality inference inside its RD1 cylinder); the atoms INSIDE each
     cylinder lift as the confined liquid region with the molecular stack
-    (census, density, cn, g(r) peak referred to the REGION volume --
-    pipeline._fit_fluid_region's rule: a sub-region is not the box); the
-    atoms outside every cylinder become their own `all minus cylinder`
+    (census, the accessible-volume density with the linear density, the
+    Li+ solvation shell and ion pairs, the species radial profiles, and
+    the g(r) peak -- pipeline._fit_fluid_region's rule that a sub-region
+    is not the box still governs the g(r) normalisation); the atoms
+    outside every cylinder become their own `all minus cylinder`
     region. Every atom is explained; the residual block is none."""
     from ..lang.errors import ChaordError
     from ..lang.ir import (
@@ -153,17 +192,33 @@ def _nanotube_composition(frame, dialect, T):
     assigned = np.zeros(len(frame), bool)
     assigned[tube_atoms] = True
     regions = []
+    # Y5's transform-invariance rule: the PRINTED cylinder centres are
+    # canonical, not the fitted cell coordinates -- the largest tube's axis
+    # is stated at the cell centre and every other tube at its
+    # minimum-image offset from it (a translation of the whole frame is the
+    # same macrostate; the fitted perp centre would follow the origin).
+    # The partition tests below still use each tube's fitted axis, which
+    # differs from the canonical one by a whole-cell shift the minimum
+    # image absorbs.
+    ref = tubes[0].chirality
+    cylinders = []           # the canonical cylinders, reused by `outside`
     for k, tube in enumerate(tubes):
         chir = tube.chirality
         axis = "xyz".index(chir.axis)
         perp = [j for j in range(3) if j != axis]
+        d = np.array(chir.centre, float)[perp] - np.array(ref.centre, float)[perp]
+        d -= L[perp] * np.round(d / L[perp])
+        c_can = [0.0, 0.0, 0.0]  # dialect-exempt: exact-geometry: axis-point fill
+        c_can[perp[0]], c_can[perp[1]] = (L[perp] / 2 + d)[0], (L[perp] / 2 + d)[1]
+        c_can[axis] = chir.centre[axis]     # L/2 for a tube periodic in its cell
         cylinder = ShCylinder(
             axis=chir.axis,
-            cx=Quantity(num=f"{chir.centre[perp[0]]:.3f}"),
-            cy=Quantity(num=f"{chir.centre[perp[1]]:.3f}"),
-            cz=Quantity(num=f"{chir.centre[axis]:.3f}"),
+            cx=Quantity(num=f"{c_can[perp[0]]:.3f}"),
+            cy=Quantity(num=f"{c_can[perp[1]]:.3f}"),
+            cz=Quantity(num=f"{c_can[axis]:.3f}"),
             radius=Quantity(num=f"{chir.radius:.3f}", unit="A"),
             length=Quantity(num=f"{chir.length:.3f}", unit="A"))
+        cylinders.append(cylinder)
         suffix = "" if k == 0 else str(k + 1)
         regions.append(RegionBlock(
             phase="crystal", name=f"tube{suffix}",
@@ -184,7 +239,7 @@ def _nanotube_composition(frame, dialect, T):
         regions.append(RegionBlock(
             phase="liquid", name=f"fluid{suffix}",
             geometry=GeoChain(parts=[_copy_cylinder(cylinder)], ops=[]),
-            statements=_confined_statements(sub, volume, dialect)))
+            statements=_confined_statements(sub, volume, dialect, tube=chir)))
 
     outside = np.where(~assigned)[0]
     if len(outside):
@@ -196,8 +251,7 @@ def _nanotube_composition(frame, dialect, T):
                 "the identified cylinders' volumes exceed the cell (do the "
                 "tubes overlap?): the outside region has no volume to state")
         geometry = GeoChain(
-            parts=[ShAll()] + [_copy_cylinder(_tube_cyl(t.chirality))
-                               for t in tubes],
+            parts=[ShAll()] + [_copy_cylinder(c) for c in cylinders],
             ops=["minus"] * len(tubes))
         regions.append(RegionBlock(
             phase="liquid", name="outside", geometry=geometry,
@@ -216,9 +270,10 @@ def _nanotube_composition(frame, dialect, T):
             "atoms inside each cylinder as the confined fluid region; atoms "
             "outside as their own region"))]),
         Statement(kind="build", key="note", values=[StrVal(text=(
-            "fluid density and g(r) referred to the tube-interior region "
-            "volume (pipeline._fit_fluid_region's rule: a sub-region is not "
-            "the box)"))]),
+            "fluid g(r) referred to the tube-interior region volume; the "
+            "density to the accessible volume pi (R - r_wall)^2 L with "
+            "r_wall from the dialect (pipeline._fit_fluid_region's rule: "
+            "a sub-region is not the box; Y5 item 4, open_items_v4.md)"))]),
     ]
     if isinstance(T, AssumedT):
         provenance.append(Statement(
@@ -232,20 +287,6 @@ def _nanotube_composition(frame, dialect, T):
                 PhysicsBlock(statements=physics_statements),
                 *regions, ResidualBlock(none=True),
                 ProvenanceBlock(statements=provenance)])
-
-
-def _tube_cyl(chir):
-    """The tube's cylinder shape (the region's own geometry)."""
-    from ..lang.ir import Quantity, ShCylinder
-    axis = "xyz".index(chir.axis)
-    perp = [j for j in range(3) if j != axis]
-    return ShCylinder(
-        axis=chir.axis,
-        cx=Quantity(num=f"{chir.centre[perp[0]]:.3f}"),
-        cy=Quantity(num=f"{chir.centre[perp[1]]:.3f}"),
-        cz=Quantity(num=f"{chir.centre[axis]:.3f}"),
-        radius=Quantity(num=f"{chir.radius:.3f}", unit="A"),
-        length=Quantity(num=f"{chir.length:.3f}", unit="A"))
 
 
 def _copy_cylinder(cyl):
@@ -271,14 +312,112 @@ def _subset(frame, idx):
                  pbc=frame.pbc, info=info)
 
 
-def _confined_statements(sub, volume, dialect) -> list:
+def _accessible_radius(dialect, tube) -> float | None:
+    """R - r_wall of the accessible volume pi (R - r_wall)^2 L (Y5 item 4),
+    or None when the dialect names no `pore_wall_exclusion` (stacks without
+    the research keys keep the legacy region-volume density) or the tube is
+    narrower than the wall exclusion (no accessible volume to state; the
+    legacy density stands)."""
+    from ..lang.errors import ChaordError
+    if tube is None:
+        return None
+    try:
+        r_wall = float(dialect.threshold("pore_wall_exclusion"))
+    except ChaordError as e:
+        if "defines no threshold" in str(e):
+            return None
+        raise
+    r_acc = float(tube.radius) - r_wall
+    return r_acc if r_acc > 0 else None
+
+
+def _electrolyte_statements(sub, tube, dialect) -> list:
+    """The Y5 electrolyte statements of one fluid region (D36,
+    docs/reviews/open_items_v4.md): the Li+ solvation shell BY SPECIES on
+    the dialect's named sites with its g(r)-derived cutoffs, the
+    SSIP/CIP/AGG ion-pair classes, and -- inside a tube -- the species
+    radial number-density profiles up to the tube radius.
+
+    Dialect-gated exactly like the blind dipole statement (D29): a stack
+    whose dialect names no solvation species (`li_shell_sites` absent)
+    declares the observable out of scope and gets none of it; a frame with
+    no cation has no shell to average and gets none of it either.  Every
+    number comes from chaord.cv.field (one definition per quantity)."""
+    from ..cv.field import solvation_shell, species_radial_profiles
+    from ..lang.errors import ChaordError
+    from ..lang.ir import Name, Quantity, Statement, Tol
+    from .reactive import display_name
+    try:
+        shell = solvation_shell(sub, dialect)
+    except ChaordError as e:
+        if "defines no threshold" in str(e):
+            return []
+        raise
+    statements = []
+    if shell is not None:
+        rules = dialect.threshold("li_shell_sites")
+        for formula, (mean, sd) in shell["per_species"].items():
+            rule = str(rules[formula])
+            statements.append(Statement(
+                kind="assert", key="li_shell",
+                values=[Name(text=display_name(formula, dialect)),
+                        Quantity(num=f"{mean:.1f}"),
+                        Tol(value=Quantity(num=f"{sd:.1f}")),
+                        Name(text=rule),
+                        Quantity(num=f"{shell['cutoffs'][formula]:.2f}",
+                                 unit="A")]))
+        ip = shell["ion_pairs"]
+        statements.append(Statement(
+            kind="assert", key="ion_pairs",
+            values=[v for k in ("SSIP", "CIP", "AGG") for v in
+                    (Name(text=k), Quantity(num=str(ip[k])))]))
+    if tube is not None:
+        axis = "xyz".index(tube.axis)
+        perp = [j for j in range(3) if j != axis]
+        try:
+            width = float(dialect.threshold("species_nr_bin_width"))
+            profiles = species_radial_profiles(
+                sub, dialect, axis=tube.axis,
+                centre=(tube.centre[perp[0]], tube.centre[perp[1]]),
+                r_max=float(tube.radius))
+        except ChaordError as e:
+            if "defines no threshold" in str(e):
+                profiles = {}
+            else:
+                raise
+        for formula, prof in profiles.items():
+            statements.append(Statement(
+                kind="state", key="n_r",
+                values=[Name(text=display_name(formula, dialect))]
+                + [Quantity(num=f"{v:.4f}") for v in prof["profile"]]
+                + [Name(text="bin"), Quantity(num=f"{width:g}", unit="A")]))
+    return statements
+
+
+def _confined_statements(sub, volume, dialect, tube=None) -> list:
     """The legacy fluid lifter's statement set on a sub-region: census,
-    density, cn and g(r) referred to the REGION volume (the rule the old
-    research pipeline used, one definition -- pipeline._fit_fluid_region)."""
+    density and g(r) referred to the REGION volume (the rule the old
+    research pipeline used, one definition -- pipeline._fit_fluid_region).
+
+    Y5 (D36) for a MOLECULAR fluid:
+      * inside a tube (`tube`, a NanotubeChirality), the density is stated
+        on the ACCESSIBLE volume pi (R - r_wall)^2 L with the linear
+        density (molecules per A of tube axis) next to it (item 4);
+      * the molecule-centre `cn` assert is REPLACED by the site-based
+        solvation-shell asserts (item 5): the centre-centre count at the
+        only defensible cutoff -- the O-O first shell `cn_cutoff_fluid` --
+        asserts that no two molecule centres come within it, trivially
+        true for 10- and 15-atom molecules (0.0 +- 0.0 in 55 of the 84
+        pilot frames), while the Li+ shell statements carry this
+        electrolyte's actual coordination;
+      * `n_r` species radial number-density profiles inside the tube
+        radius (item 3).
+    Atomic fluids keep their statements unchanged (their atoms ARE the
+    sites, so centre-cn is site-based already)."""
     import numpy as np
     from ..build.molecules import molecule_census
     from ..lang.ir import Name, Quantity, Statement, Tol
-    from .fluid import _all_elements, _centers, _cn_stats, _cn_stats_centers
+    from .fluid import _all_elements, _centers, _cn_stats
     from .pipeline import _rdf_region
     from .reactive import display_name
 
@@ -294,22 +433,36 @@ def _confined_statements(sub, volume, dialect) -> list:
         from ase.data import atomic_masses, chemical_symbols
         total_mass = sum(atomic_masses[chemical_symbols.index(s)]
                          for s in sub.symbols)
-        rho_g = total_mass / volume / 0.6022140857  # u/A^3 -> g/cm3  # dialect-exempt: exact-geometry
-        statements.append(Statement(
-            kind="state", key="density",
-            values=[Quantity(num=f"{rho_g:.3f}", unit="g/cm3")]))
+        r_acc = _accessible_radius(dialect, tube)
+        if r_acc is not None:
+            rho_g = (total_mass / (np.pi * r_acc ** 2 * float(tube.length))
+                     / 0.6022140857)  # dialect-exempt: exact-geometry: u/A^3 -> g/cm3 (fluid.py constant)
+            statements.append(Statement(
+                kind="state", key="density",
+                values=[Quantity(num=f"{rho_g:.3f}", unit="g/cm3"),
+                        Name(text="accessible")]))
+            statements.append(Statement(
+                kind="state", key="linear_density",
+                values=[Quantity(
+                    num=f"{sum(census.values()) / float(tube.length):.3f}"),
+                    Name(text="A^-1")]))
+        else:
+            rho_g = total_mass / volume / 0.6022140857  # dialect-exempt: exact-geometry: u/A^3 -> g/cm3  (fluid.py constant)
+            statements.append(Statement(
+                kind="state", key="density",
+                values=[Quantity(num=f"{rho_g:.3f}", unit="g/cm3")]))
         centers = _centers(sub, dialect)
-        cn, cn_sd, cn_cut = _cn_stats_centers(sub, centers, dialect)
     else:
         rho_n = len(sub) / volume if volume > 0 else 0.0  # dialect-exempt: numerical-guard: empty-region density
         statements.append(Statement(
             kind="state", key="density", values=[Quantity(num=f"{rho_n:.3f}")]))
         centers = None
         cn, cn_sd, cn_cut = _cn_stats(sub, dialect)
-    statements.append(Statement(
-        kind="assert", key="cn",
-        values=[Quantity(num=f"{cn:.1f}"), Tol(value=Quantity(num=f"{cn_sd:.1f}")),
-                Name(text="cutoff"), Quantity(num=f"{cn_cut:.2f}", unit="A")]))
+        statements.append(Statement(
+            kind="assert", key="cn",
+            values=[Quantity(num=f"{cn:.1f}"), Tol(value=Quantity(num=f"{cn_sd:.1f}")),
+                    Name(text="cutoff"), Quantity(num=f"{cn_cut:.2f}", unit="A")]))
+    statements += _electrolyte_statements(sub, tube, dialect)
     if centers is not None:
         rm, g = _rdf_region(centers, sub.cell_diag, len(centers) / volume,
                             dialect)

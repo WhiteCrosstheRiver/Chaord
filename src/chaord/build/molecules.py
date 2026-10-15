@@ -833,3 +833,36 @@ def _formula(symbols: list[str]) -> str:
     for el in order:
         parts.append(f"{el}{c[el] if c[el] > 1 else ''}")
     return "".join(parts)
+
+
+def _neighbour_lists(frame: Frame, edges) -> dict:
+    """Atom -> bonded neighbours of the covalent bond graph (undirected)."""
+    from collections import defaultdict
+    nbrs: dict[int, list[int]] = defaultdict(list)
+    for i, j in edges:
+        nbrs[i].append(j)
+        nbrs[j].append(i)
+    return nbrs
+
+
+def carbonyl_oxygen_sites(frame: Frame, dialect) -> np.ndarray:
+    """Indices of the carbonate carbonyl oxygens (the named site of the
+    research dialect's ``li_shell_sites`` rule, Y5/D36).
+
+    A carbonyl O of a carbonate solvent is the oxygen whose ONLY heavy-atom
+    neighbour is a carbon carrying three oxygens (the O=C(-O)(-O) centre of
+    EC, EMC and PC): the ether oxygens of the same molecules hold a second
+    heavy neighbour (C-O-C) and are never selected.  Purely structural (the
+    bond graph of the frame), so it holds for any carbonate solvent the
+    census recognises, with no per-species table."""
+    nbrs = _neighbour_lists(frame, bond_graph(frame, dialect))
+    out = []
+    for i, s in enumerate(frame.symbols):
+        if s != "O":
+            continue
+        heavy = [j for j in nbrs[i] if frame.symbols[j] != "H"]
+        if len(heavy) != 1 or frame.symbols[heavy[0]] != "C":
+            continue
+        if sum(1 for j in nbrs[heavy[0]] if frame.symbols[j] == "O") >= 3:
+            out.append(i)
+    return np.array(out, int)

@@ -17,16 +17,23 @@ units: []   # no new units: lengths, densities and charges are in the
             # system's own units (A and e under the molecular stack)
 
 keys:
-  # D29 (docs/reviews/open_items_v4.md): the ONE statement key this
-  # dialect declares is the assert that names its own observable --
-  # `assert dipole_p1 <v> +- <tol> along <axis>` in the system block,
-  # next to `state T` (and next to the assumed `state field` line when the
-  # caller supplied one -- RD3, carbon.yaml), measured by the CV the
-  # thresholds below define. The statement is BLIND: the lift measures it
-  # for every frame whose dialect names dipolar species, with or without
-  # field=. Everything else stays as the header below says: no statement
-  # vocabulary lives here.
+  # D29 (docs/reviews/open_items_v4.md): `assert dipole_p1 <v> +- <tol>
+  # along <axis>` in the system block, next to `state T` (and next to the
+  # assumed `state field` line when the caller supplied one -- RD3,
+  # carbon.yaml), measured by the CV the thresholds below define. The
+  # statement is BLIND: the lift measures it for every frame whose dialect
+  # names dipolar species, with or without field=.
   system: [dipole_p1]
+  # D36 (docs/reviews/open_items_v4.md Y5): the electrolyte statements the
+  # composed lift prints in a confined-liquid region (the tube interior):
+  # the Li+ solvation shell by species (`assert li_shell C3H4O3 2.5 +- 0.5
+  # carbonyl_O 2.45 A`), the ion-pair classes (`assert ion_pairs SSIP 1
+  # CIP 1 AGG 0`), the species radial number-density profile inside the
+  # tube radius (`state n_r C3H4O3 0.0000 ... bin 0.5 A`) and the linear
+  # density next to the accessible-volume density (`state linear_density
+  # 0.346 A^-1`). Measured by chaord/cv/field.py (solvation_shell,
+  # species_radial_profiles); every number they read lives below.
+  region_liquid: [li_shell, ion_pairs, n_r, linear_density]
 
 thresholds:
   # --- dipole-orientation order parameter (cv/field.py dipole_orientation).
@@ -102,3 +109,56 @@ thresholds:
                                # axis, < 1 when the axis is depleted. The
                                # scalar is the distance()-friendly summary;
                                # the raw profile array ships alongside it.
+  # --- Li+ solvation shell (cv/field.py solvation_shell; D36, Y5). The
+  # shell is counted by SPECIES on named sites, and the ion pairs are
+  # classified SSIP (no anion in the first shell) / CIP (an anion contacted
+  # by exactly one Li+) / AGG (an anion shared by two or more Li+).
+  li_shell_cation: Li          # census element of the cation whose first
+                               # solvation shell the statements measure
+                               # (monatomic in the census: the bond graph
+                               # never bonds through ion_solvation_elements)
+  li_shell_anion: F6P          # census formula of the counter-anion whose
+                               # contacts define the SSIP/CIP/AGG classes
+  li_shell_sites:              # census formula -> first-shell site rule
+    C3H4O3: carbonyl_O         # EC: the carbonyl O (the O whose single
+    C4H8O3: carbonyl_O         # heavy-atom neighbour is a carbonate C with
+                               # three O neighbours; EC and EMC each hold
+                               # exactly one -- build/molecules.py
+                               # carbonyl_oxygen_sites). The ether Os never
+                               # solvate Li+ directly in this model family.
+    F6P: F                     # PF6-: every fluorine
+  # Cutoffs: the first minimum of the Li-O and Li-F g(r) of the REFERENCE
+  # zero-field runs (D36: never measured on the frames under test).
+  # PROVISIONAL -- pending the Stage A zero-field runs (Y6); today's source
+  # is the pilot's zero-field EQUILIBRATION trajectories, which are not
+  # part of the 84 production frames the statements are measured on:
+  # runs/cnt10_field0/equil.dump + runs/cnt16_field0/equil.dump, 17 frames
+  # each, 2 + 6 Li+, 136 Li-ion frames in total. Estimator (recomputed and
+  # pinned by tests/test_electrolyte_statements.py
+  # ::test_solvation_cutoffs_match_the_zero_field_reference_runs):
+  # Li-O(carbonyl of EC+EMC pooled) and Li-F g(r) in 0.1 A bins, each frame
+  # normalised by its own site count in the geometric pore volume pi R^2 Lz
+  # (R 6.78135 / 10.85015 A from the runs' provenance), averaged over the
+  # 34 frames; cutoff = the first local minimum after the first peak.
+  #   Li-O(carbonyl): first peak 1.95 A (g 157.4), first minimum 2.45 A
+  #                   (g 0.00); mean first shell 3.88 O per Li+
+  #   Li-F:           first peak 1.95 A (g 26.3), first minimum 2.45 A
+  #                   (g 1.31); mean first shell 0.60 F per Li+
+  # Stage A replaces both when its zero-field runs land.
+  li_shell_cutoffs:
+    C3H4O3: 2.45               # A, Li-O(carbonyl of EC)
+    C4H8O3: 2.45               # A, Li-O(carbonyl of EMC)
+    F6P: 2.45                  # A, Li-F
+  # --- species radial number-density profiles inside the tube radius
+  # (cv/field.py species_radial_profiles; Y5 item 3): cylindrical shells of
+  # molecule centres from the tube axis to the tube radius.
+  species_nr_bin_width: 0.5    # A, radial bin width of `state n_r` lines
+  # --- density on the accessible volume (Y5 item 4): the confined fluid's
+  # density statement refers to pi (R - r_wall)^2 Lz, the pore volume the
+  # pilot generator itself used for its vdw pore record (build_systems.py
+  # R_vdw = R - 3.2: sigma_C/2 1.7 A of the Werder sp2-carbon wall plus the
+  # typical O half-width 1.5 A; provenance pore_volume_vdw_nm3), with the
+  # linear density (molecules per A of tube axis) stated next to it.
+  pore_wall_exclusion: 3.2     # A, r_wall: the wall's van der Waals
+                               # exclusion depth subtracted from the tube
+                               # radius for the accessible volume
