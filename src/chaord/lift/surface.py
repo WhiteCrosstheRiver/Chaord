@@ -132,7 +132,13 @@ def _aligned_z(frame: Frame, dialect):
                 extra.extend(end)
         stack = stack + extra
     idx = np.concatenate(stack)
-    zs = np.sort(quantize_coords(z[idx]))  # W10 quantized canonical keys
+    # W10 quantized canonical keys, X1 fix: the quantized values may only
+    # ORDER the stack; the values themselves (and so the rotation point)
+    # come from the unrounded coordinates. A rounded-up key used as `rot`
+    # would leave its atom at z - rot < 0, wrapping it to the top of the
+    # box and lifting it as a fake adatom.
+    order = np.argsort(quantize_coords(z[idx]), kind="stable")
+    zs = z[idx][order]
     gaps = np.diff(np.r_[zs, zs[0] + L])
     rot = zs[(int(np.argmax(gaps)) + 1) % len(zs)]
     return np.mod(z - rot, L)
