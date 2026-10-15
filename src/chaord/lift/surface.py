@@ -39,7 +39,15 @@ def _net_dialect(dialect):
 
 
 def has_vacuum(frame: Frame, dialect) -> bool:
-    """A z-gap in the atom distribution wider than the dialect threshold."""
+    """A z-gap in the atom distribution wider than the dialect threshold.
+
+    The gap is CIRCULAR: a vacuum that wraps through z = 0 is one gap, not
+    two half-runs (X4, Review 10: the old ``np.r_[occ, occ[:1]]`` scan
+    extended the tail run by a single bin, so a translation that straddled
+    the vacuum across z = 0 split it into two sub-threshold halves and the
+    surface arm refused a translated copy of a frame it had just lifted).
+    The scan reuses ``regions._circular_empty_run``, whose occupancy rule
+    this function has always shared."""
     try:
         gap_min = float(dialect.threshold("vacuum_gap_min"))
     except Exception:
@@ -52,16 +60,11 @@ def has_vacuum(frame: Frame, dialect) -> bool:
     z = np.mod(frame.pos[:, 2], L[2])
     idx = np.clip((z / L[2] * n).astype(int), 0, n - 1)
     occ = np.bincount(idx, minlength=n) > 0
-    # circular: the gap may wrap through z = 0
-    best = 0
-    run = 0
-    for o in np.r_[occ, occ[:1]]:
-        if not o:
-            run += 1
-            best = max(best, run)
-        else:
-            run = 0
-    gap = best * (L[2] / n)
+    if not occ.any():
+        return False
+    from .regions import _circular_empty_run
+    _start, length = _circular_empty_run(occ)
+    gap = length * (L[2] / n)
     return gap >= gap_min
 
 

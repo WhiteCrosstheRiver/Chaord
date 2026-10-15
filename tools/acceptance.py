@@ -849,11 +849,13 @@ def _slots_from_counts(name: str, counts: dict) -> tuple:
     raise ValueError(f"cannot map {counts} onto {name} slots")
 
 
-def check_a2(mutation: str | None = None, n_transforms: int = 2,
+def check_a2(mutation: str | None = None, n_transforms: int = 20,
              case_filter: str | None = None):
     """Byte-identical text under rotation, translation, re-ordering and
     re-imaging on 100% of bench crystal and random-solid-solution cases,
-    >= 2 transforms per case."""
+    20 transforms per case (D21, docs/reviews/open_items_v3.md X4: AGENTS
+    rule 2 -- a criterion with a random element is judged over at least 20
+    draws; the old 2-per-case default judged canonical invariance on two)."""
     from chaord.dialects import load_dialect
     from chaord.io.frames import Frame
     from chaord.lift import lift_frame
@@ -904,8 +906,8 @@ def check_a2(mutation: str | None = None, n_transforms: int = 2,
     ok = all(s for _, s, _ in rows) and rows
     ev = (f"{n_cases_ok}/{len(crystal_cases)} crystal + random-solution cases; "
           f"{sum(s for _, s, _ in rows)}/{n_transforms_total} rigid transforms "
-          f"(rotation + translation + re-imaging + re-ordering, {n_transforms} "
-          f"per case) lift to byte-identical text")
+          f"(rotation + translation + re-imaging + re-ordering; {n_transforms} "
+          f"draws per case, D21) lift to byte-identical text")
     bad = sorted({c for c, s, _ in rows if not s})
     if bad:
         ev += f"; differing: {bad}"
@@ -2523,9 +2525,19 @@ def check_a7(mutation: str | None = None, frames=(0, 1, 2, 3, 4)):
 
 
 # ---- A8 ----------------------------------------------------------------------
-def check_a8(mutation: str | None = None):
+def check_a8(mutation: str | None = None, site_draws: int = 20,
+             site_translations: int = 20, clean_draws: int = 20):
     """Reactive census exact on independently constructed frames: an H2O/OH/H
-    mixture built by the verifier in raw numpy (no chaord builder involved)."""
+    mixture built by the verifier in raw numpy (no chaord builder involved).
+
+    Site half per D21 (docs/reviews/open_items_v3.md X4): `site_draws`
+    construction draws x `site_translations` random in-box translations each
+    (default 20 x 20 -- AGENTS rule 2; the old criterion judged ONE planted
+    frame), PLUS the X1 clean-slab false-positive check wired into the
+    criterion: clean thermal Pt(111)/Pt(100) slabs at 0.05/0.08/0.10 A,
+    `clean_draws` draws each, must print zero `adsorb` statements, and the
+    evidence states that count.  Any reduced fast-lane scope passed by a test
+    is printed in the evidence with its own numbers, never silently."""
     from chaord.build.molecules import molecule_census
     from chaord.dialects import load_dialect
 
@@ -2556,46 +2568,100 @@ def check_a8(mutation: str | None = None):
     ok = all(r["exact"] for r in rows)
 
     # ---- PLAN A8's second half: adsorption sites >= 90% correct ----------
-    # an independently constructed Pt(111) slab with O adsorbates at KNOWN
-    # site types; the lifted program's `adsorb ... site <t>` claims are
-    # compared to the planted truth per site type
+    # independently constructed Pt(111) slabs with O adsorbates at KNOWN site
+    # types; D21: 20 construction draws x 20 random in-box translations; the
+    # lifted programs' `adsorb ... site <t>` claims are compared to the
+    # planted truth per site type, aggregated over every adsorbate judged
     import re as _re
+    from chaord.io.frames import Frame
     from chaord.lift import lift_frame
     surf = load_dialect(("core", "metal", "surface"))
-    frame, truth = _plated_adsorbate_frame(
-        shift_tops=(1.0 if mutation == "wrong_site" else 0.0))
-    text = format_program_text(lift_frame(frame, surf))
-    claims = {}
-    for m in _re.finditer(r"adsorb (\S+) count (\d+) site (\S+)", text):
-        n, site = int(m.group(2)), m.group(3)
-        claims[site] = claims.get(site, 0) + n
-    n_total = sum(truth.values())
-    if not claims:
-        site_ok = False
-        site_note = "no adsorb statements in the lifted text"
-    else:
-        # correctness = fraction of adsorbates whose planted site type is
-        # claimed correctly: 1 - (total count disagreement)/(2N); N = planted
-        wrong = sum(abs(claims.get(s, 0) - truth.get(s, 0))
-                    for s in set(claims) | set(truth))
-        frac_correct = round(1.0 - wrong / (2.0 * max(n_total, 1)), 3)
-        site_ok = frac_correct >= 0.90
-        site_note = (f"adsorption sites {frac_correct:.0%} correct "
-                     f"(claims {claims} vs planted {truth}, "
-                     f"{n_total} adsorbates on a raw-numpy Pt(111) slab; "
-                     f"PLAN gate >= 90%)")
-    ok = ok and site_ok
+    n_wrong = n_ads = n_frames = 0
+    claims_total: dict[str, int] = {}
+    truth_total: dict[str, int] = {}
+    for d in range(site_draws):
+        frame, truth = _plated_adsorbate_frame(
+            shift_tops=(1.0 if mutation == "wrong_site" else 0.0), draw=d)
+        rng = np.random.default_rng(_stable_seed(f"A8site|{d}"))
+        L = np.asarray(frame.cell_diag, float)
+        for _t in range(site_translations):
+            shift = rng.uniform(0.0, L)
+            moved = Frame(pos=np.mod(frame.pos + shift, L), cell=frame.cell,
+                          symbols=frame.symbols, pbc=frame.pbc)
+            text = format_program_text(lift_frame(moved, surf))
+            claims = {}
+            for m in _re.finditer(r"adsorb (\S+) count (\d+) site (\S+)", text):
+                n, site = int(m.group(2)), m.group(3)
+                claims[site] = claims.get(site, 0) + n
+            for s, v in claims.items():
+                claims_total[s] = claims_total.get(s, 0) + v
+            for s, v in truth.items():
+                truth_total[s] = truth_total.get(s, 0) + v
+            n_wrong += sum(abs(claims.get(s, 0) - truth.get(s, 0))
+                           for s in set(claims) | set(truth))
+            n_ads += sum(truth.values())
+            n_frames += 1
+    # correctness = fraction of adsorbates whose planted site type is claimed
+    # correctly: 1 - (total count disagreement)/(2N) over ALL judged frames
+    frac_correct = round(1.0 - n_wrong / (2.0 * max(n_ads, 1)), 3)
+    site_ok = frac_correct >= 0.90
+    site_note = (f"adsorption sites {frac_correct:.0%} correct over "
+                 f"{site_draws} draws x {site_translations} random "
+                 f"translations ({n_frames} frames, {n_ads} adsorbates; "
+                 f"claims {dict(sorted(claims_total.items()))} vs planted "
+                 f"{dict(sorted(truth_total.items()))} on raw-numpy Pt(111) "
+                 f"slabs; PLAN gate >= 90%)")
+
+    # ---- D21: the X1 clean-slab false-positive check, in the criterion ----
+    # clean thermal slabs must never print an adsorb statement of their own
+    # species (the W10 regression); the evidence states the count, and any
+    # nonzero count fails the criterion
+    amps = (0.05, 0.08, 0.10)
+    clean_false = 0
+    clean_total = 0
+    clean_rows = []
+    for surface, seed0 in (("pt111", 3000), ("pt100", 4000)):
+        for amp in amps:
+            fp = 0
+            for d in range(clean_draws):
+                clean = _clean_slab_frame(surface, amp, seed0 + d)
+                if (mutation == "planted_adatom"
+                        and (surface, amp, d) == ("pt111", 0.08, 0)):
+                    # seeded fault (wiring canary for the new half): a real Pt
+                    # adatom placed on one clean draw -- the count must see
+                    # the adsorb statement or the check is not wired
+                    clean = _with_planted_adatom(clean)
+                text = format_program_text(lift_frame(clean, surf))
+                if _re.search(r"\badsorb\b", text):
+                    fp += 1
+            clean_false += fp
+            clean_total += clean_draws
+            clean_rows.append(dict(surface=surface, amp=amp,
+                                   false_positives=fp, draws=clean_draws))
+    clean_ok = clean_false == 0
+    clean_note = (f"clean-slab false positives {clean_false} of {clean_total} "
+                  f"(Pt(111) + Pt(100) at "
+                  f"{','.join(f'{a:g}' for a in amps)} A, {clean_draws} draws "
+                  f"each; X1 class)")
+
+    ok = ok and site_ok and clean_ok
     ev = "; ".join(
         f"plan {r['plan']}: census {r['census']} == planted {r['expected']} "
         f"({r['n_atoms']} atoms, coordinates written directly in numpy)"
-        for r in rows) + "; " + site_note
+        for r in rows) + "; " + site_note + "; " + clean_note
     return record("A8", "reactive census", ok, ev,
-                  dict(rows=rows, adsorption=dict(claims=claims,
-                                                  truth=truth,
-                                                  correct=site_ok)))
+                  dict(rows=rows,
+                       adsorption=dict(claims=claims_total, truth=truth_total,
+                                       correct=site_ok,
+                                       frac_correct=frac_correct,
+                                       frames=n_frames, adsorbates=n_ads,
+                                       draws=site_draws,
+                                       translations=site_translations),
+                       clean_slab=dict(false_positives=clean_false,
+                                       total=clean_total, rows=clean_rows)))
 
 
-def _plated_adsorbate_frame(shift_tops: float = 0.0):
+def _plated_adsorbate_frame(shift_tops: float = 0.0, draw: int = 0):
     """Verifier-side adsorption construction (PLAN A8's second half): a
     4-layer Pt(111) slab and 8 O adsorbates written directly in numpy, with
     the verifier's own fcc(111) geometry (no chaord builder involved).
@@ -2606,7 +2672,11 @@ def _plated_adsorbate_frame(shift_tops: float = 0.0):
     spacings (2 a_NN) under the minimum image convention -- the previously
     committed frame had 6 of its 8 O only 1.35-1.39 A apart (neighbouring
     sites), which is not a physical adsorbate geometry. `shift_tops` shifts
-    the top-site adsorbates laterally -- the planted-fault knob."""
+    the top-site adsorbates laterally -- the planted-fault knob.
+
+    `draw` (D21) reseeds everything random in the construction: the slab's
+    thermal jitter (0.05 A -- inside the X1 amplitudes a clean slab must
+    survive) and the adsorbate displacement, one independent frame per draw."""
     a = 3.92                                    # Pt lattice constant, A
     ann = a / np.sqrt(2.0)                      # (111) in-plane NN distance
     d111 = a / np.sqrt(3.0)                     # interlayer spacing
@@ -2635,6 +2705,10 @@ def _plated_adsorbate_frame(shift_tops: float = 0.0):
                 if k == n_layers - 1:
                     top_rows.append((y, row_off, xy))
             r += 3
+    pos = np.array(pos, float)
+    # draw-seeded thermal jitter of the slab itself (0.05 A, X1-safe)
+    pos += np.random.default_rng(4000 + draw).normal(
+        scale=0.05, size=pos.shape)
     z_top = (n_layers - 1) * d111
     z_ads = z_top + 2.00
 
@@ -2663,7 +2737,7 @@ def _plated_adsorbate_frame(shift_tops: float = 0.0):
                     for y, off, _xy in top_rows for i in range(nx)]
     bridge_sites = _pick(bridge_cands, 3, taken)
 
-    rng = np.random.default_rng(303)
+    rng = np.random.default_rng(303 + draw)
     jitter = rng.uniform(-0.03, 0.03, (8, 2))
     ads = []
     for i, xy in enumerate(top_sites):
@@ -2675,13 +2749,64 @@ def _plated_adsorbate_frame(shift_tops: float = 0.0):
         ads.append((m + jitter[5 + i], "bridge"))
     truth = {}
     for xy, site in ads:
-        pos.append([xy[0], xy[1], z_ads])
+        pos = np.vstack([pos, [xy[0], xy[1], z_ads]])
         syms.append("O")
         truth[site] = truth.get(site, 0) + 1
     from chaord.io.frames import Frame
-    frame = Frame(pos=np.array(pos), cell=np.diag([Lx, Ly, Lz]),
+    frame = Frame(pos=pos, cell=np.diag([Lx, Ly, Lz]),
                   symbols=syms, pbc=(True, True, True))
     return frame, truth
+
+
+def _clean_slab_frame(surface: str, amp: float, seed: int):
+    """Verifier-side clean thermal slab for the A8 false-positive half (the
+    X1 class, docs/reviews/open_items_v3.md): 'pt111' is the X1 brief's
+    Pt(111) parametrisation, 'pt100' the W9 reviewer Pt(100) one.  Gaussian
+    `amp` displacement, z lifted clear of the wrap, wrapped into the box --
+    no adsorbate of any species is present."""
+    a = 3.92                                    # Pt lattice constant, A
+    ann = a / np.sqrt(2.0)
+    if surface == "pt111":
+        d111 = a / np.sqrt(3.0)
+        nx, nrow, nl = 6, 10, 4
+        Lx, Ly = nx * ann, (nrow // 2) * ann * np.sqrt(3)
+        step = ann * np.sqrt(3) / 6
+        P = []
+        for k in range(nl):
+            r = k % 3
+            while r * step < Ly - 1e-9:
+                off = ann / 2 if r % 2 else 0.0
+                P += [[(i * ann + off) % Lx, (r * step) % Ly, k * d111]
+                      for i in range(nx)]
+                r += 3
+        L = np.array([Lx, Ly, 24.0])
+    elif surface == "pt100":
+        n, nl = 6, 4
+        P = [[((i + 0.5 * (k % 2)) * ann) % (n * ann),
+              ((j + 0.5 * (k % 2)) * ann) % (n * ann), k * a / 2]
+             for k in range(nl) for i in range(n) for j in range(n)]
+        L = np.array([n * ann, n * ann, 22.0])
+    else:
+        raise ValueError(f"unknown clean-slab surface {surface!r}")
+    P = np.array(P, float)
+    P += np.random.default_rng(seed).normal(scale=amp, size=P.shape)
+    P[:, 2] += 3.0
+    from chaord.io.frames import Frame
+    return Frame(pos=np.mod(P, L), cell=np.diag(L), symbols=["Pt"] * len(P),
+                 pbc=(True, True, True))
+
+
+def _with_planted_adatom(frame):
+    """Seeded fault for the clean-slab half (A8 mutation 'planted_adatom'):
+    the lowest atom of a clean slab is placed 2 A above the top layer -- a
+    REAL adatom.  The clean-slab count must see the lift's adsorb statement
+    (the wiring canary for the false-positive check: a count that stays 0
+    with an adatom in the frame is not counting)."""
+    pos = np.array(frame.pos, float)
+    pos[int(np.argmin(pos[:, 2])), 2] = float(pos[:, 2].max()) + 2.0
+    from chaord.io.frames import Frame
+    return Frame(pos=np.mod(pos, frame.cell_diag), cell=frame.cell,
+                 symbols=frame.symbols, pbc=frame.pbc)
 
 
 def _build_mixture_frame(counts: dict, box: float, seed: int):
@@ -2957,43 +3082,215 @@ def check_a10(mutation: str | None = None):
 
 
 # ---- A11 ---------------------------------------------------------------------
-def check_a11(mutation: str | None = None, n_atoms: int = 100_000,
+A11_SIZES = (10_000, 100_000)
+A11_ARMS = ("crystal", "defects", "surface", "slab", "fluid", "amorphous")
+A11_PT_A = 3.92                    # Pt lattice constant, A (surface arm)
+A11_CU_A = 3.615                   # Cu lattice constant, A (crystal/defects)
+A11_SI_A = 5.43                    # Si lattice constant, A (amorphous arm)
+A11_DNN_JITTER = 0.06              # bench thermal amplitude, fraction of d_NN
+A11_DEFECT_COUNT = 10              # vacancies + interstitials in the defects arm
+
+
+def check_a11(mutation: str | None = None, sizes=A11_SIZES, arms=A11_ARMS,
               elapsed_override: float | None = None):
-    """Lift 100,000 atoms in <= 120 s on one CPU core.  Input, honestly
-    stated: an fcc lattice at rho = 0.85 (LJ reduced units) with Gaussian
-    jitter of 0.10 x a -- a thermally disordered single-phase frame, NOT an
-    equilibrated MD liquid."""
-    from chaord.build.crystal import build_conventional
+    """PLAN A11: lift 100,000 atoms in <= 120 s on one CPU core -- judged on
+    the fluid arm at the largest size (the historical PLAN case: fcc at
+    rho = 0.85 with 0.10 x a Gaussian jitter, a thermally disordered
+    single-phase frame, NOT an equilibrated MD liquid).  D21 (X4) adds the
+    per-arm table: every lift arm (crystal, defects, surface, slab, fluid,
+    amorphous) is timed on a verifier-built synthetic frame at 10,000 and
+    100,000 atoms and the seconds are REPORTED in the evidence -- the gate
+    stays the PLAN claim; the table is disclosure, so a slow arm is a
+    visible number, never a silent omission.  Timings are single wall-clock
+    draws on the runner as-is (no CPU pinning)."""
     from chaord.dialects import load_dialect
-    from chaord.io.frames import Frame
     from chaord.lift import lift_frame
 
-    rho = 0.85
-    a = (4.0 / rho) ** (1.0 / 3.0)
-    rng = np.random.default_rng(20260928)
-    reps = _balanced_reps(n_atoms // 4)
-    base = build_conventional("fcc", {"a": a}, ("X",), reps)
-    assert len(base) == n_atoms, f"{len(base)} != {n_atoms}"
-    amp = 0.10 * a
-    pos = np.mod(base.pos + rng.normal(size=base.pos.shape) * amp,
-                 base.cell_diag)
-    frame = Frame(pos=pos, cell=base.cell, symbols=list(base.symbols),
-                  pbc=(True, True, True))
-    dl = load_dialect(("core", "lj"))
-    t0 = time.perf_counter()
-    program = lift_frame(frame, dl, mode="fluid")
-    elapsed = time.perf_counter() - t0
+    if mutation is not None:
+        raise ValueError(f"check_a11 defines no mutation {mutation!r}: the "
+                         "power canary is elapsed_override (a gate breach)")
+    dialects = {
+        "crystal": load_dialect(("core", "metal")),
+        "defects": load_dialect(("core", "metal")),
+        "surface": load_dialect(("core", "metal", "surface")),
+        "slab": load_dialect(("core", "lj")),
+        "fluid": load_dialect(("core", "lj")),
+        "amorphous": load_dialect(("core", "glass")),
+    }
+    rows = []
+    table: dict[str, dict[int, float]] = {}
+    gate_text = ""
+    big = max(sizes)
+    for arm in arms:
+        for n in sizes:
+            frame = _a11_arm_frame(arm, n)
+            t0 = time.perf_counter()
+            program = lift_frame(frame, dialects[arm], mode=arm)
+            seconds = time.perf_counter() - t0
+            table.setdefault(arm, {})[len(frame)] = seconds
+            rows.append(dict(arm=arm, mode=arm, n_atoms=len(frame),
+                             seconds=round(seconds, 2)))
+            if arm == "fluid" and n == big:
+                gate_text = format_program_text(program)
+    if "fluid" in table and big in table["fluid"]:
+        elapsed = table["fluid"][big]
+        gate_note = (f"PLAN gate (<= 120 s on {big:,} atoms, one core) "
+                     f"judged on the fluid arm: {elapsed:.1f} s")
+    else:
+        # a scope without the fluid arm at the largest size judges no gate
+        # (the DEFAULT scope always includes it); the evidence says so
+        elapsed = 0.0
+        gate_note = (f"PLAN gate NOT JUDGED in this scope (no fluid arm at "
+                     f"{big:,} atoms among the arms run)")
     if elapsed_override is not None:
         elapsed = elapsed_override
-    text = format_program_text(program)
-    stated = f"conserve atoms X {n_atoms}" in text
+        gate_note = (f"PLAN gate (<= 120 s on {big:,} atoms, one core) "
+                     f"judged on the fluid arm: {elapsed:.1f} s")
+    if gate_text:
+        count_note = (f"program states the exact count: "
+                      f"{'yes' if f'conserve atoms X {big}' in gate_text else 'NO'}")
+    else:
+        count_note = "program count check n/a (fluid arm not in scope)"
     ok = elapsed <= 120.0
-    ev = (f"lift_frame(mode=fluid) on {len(frame):,} atoms took {elapsed:.1f} s "
-          f"(target <= 120 s); input = fcc lattice at rho 0.85 with 0.10 x a "
-          f"jitter (thermally disordered, not equilibrated MD); program states "
-          f"the exact count: {'yes' if stated else 'NO'}")
-    return record("A11", "speed", ok, ev, dict(elapsed=elapsed,
-                                               n_atoms=len(frame)))
+    arm_txt = "; ".join(
+        f"{arm} " + "/".join(f"{table[arm][n]:.1f} s" for n in sorted(
+            table[arm], reverse=True)) for arm in arms if arm in table)
+    sizes_txt = "/".join(f"{n:,}" for n in sorted(sizes, reverse=True))
+    ev = (f"per-arm lift wall-time at {sizes_txt} atoms "
+          f"(crystal/defects on a Cu fcc host, surface Pt(111), slab a "
+          f"solid-liquid interface, amorphous a Si diamond block at 0.55 A "
+          f"disorder, fluid the PLAN frame): {arm_txt}; {gate_note}; "
+          f"fluid input = fcc lattice at rho 0.85 with 0.10 x a jitter "
+          f"(thermally disordered, not equilibrated MD); {count_note}; "
+          f"single wall-clock draws, no CPU pinning -- the Review-10 local "
+          f"numbers were measured with a LAMMPS queue running concurrently, "
+          f"so read them as upper bounds (the clean-runner run replaces "
+          f"them)")
+    return record("A11", "speed", ok, ev,
+                  dict(elapsed=elapsed, rows=rows,
+                       gate=("fluid@max" if "fluid" in table else
+                             "not-judged"),
+                       sizes=sorted(sizes, reverse=True)))
+
+
+def _a11_surface_reps(n: int) -> tuple[int, int]:
+    """(layers, m) with layers * m^2 == n atoms for the fcc(111) surface
+    arm (m columns per row, m rows per layer; raises when n admits no such
+    factorisation -- the sizes are chosen to admit one)."""
+    for nl in range(4, n // 4 + 1):
+        if n % nl:
+            continue
+        m2 = n // nl
+        m = int(round(m2 ** 0.5))
+        if m * m == m2 and m >= 4:
+            return nl, m
+    raise ValueError(f"no fcc(111) slab factorisation for {n} atoms")
+
+
+def _a11_arm_frame(arm: str, n: int):
+    """Verifier-side synthetic frame for one A11 lift arm, sized to exactly
+    `n` atoms (every construction below is exact-count; AGENTS: synthetic
+    test inputs must be physical).  Returns the Frame; the dialect and mode
+    are the arm's own (`mode == arm`)."""
+    from chaord.build.crystal import build_conventional
+    from chaord.io.frames import Frame
+
+    if arm in ("crystal", "defects"):
+        # Cu fcc host; the crystal arm is the perfect lattice (the spglib
+        # exact path), the defects arm the same lattice with 10 vacancies +
+        # 10 octahedral interstitials and bench-level thermal jitter
+        reps = _balanced_reps(n // 4)
+        base = build_conventional("fcc", {"a": A11_CU_A}, ("Cu",), reps)
+        assert len(base) == n, f"{len(base)} != {n}"
+        if arm == "crystal":
+            return Frame(pos=base.pos.copy(), cell=base.cell,
+                         symbols=list(base.symbols), pbc=(True,) * 3)
+        rng = np.random.default_rng(_stable_seed(f"A11defects|{n}"))
+        d_nn = A11_CU_A / np.sqrt(2.0)
+        vac = _pick_separated(base.pos, base.symbols, "Cu", A11_DEFECT_COUNT,
+                              PLANTED_DEFECT_SEP * d_nn, rng, return_idx=True,
+                              L=base.cell_diag)
+        _kind, sites, contact = _interstitial_site_lattice(
+            "fcc", {"a": A11_CU_A}, reps)
+        inter = _pick_interstitial_sites(
+            base.pos, sites, A11_DEFECT_COUNT, d_nn, rng, contact,
+            exclude=base.pos[vac], L=base.cell_diag)
+        keep = np.ones(len(base), bool)
+        keep[vac] = False
+        pos = np.vstack([base.pos[keep], inter])
+        _assert_planted_physical(pos, ["Cu"] * len(pos), base.cell_diag,
+                                 d_nn, contact)
+        pos = np.mod(pos + rng.normal(scale=A11_DNN_JITTER * d_nn,
+                                      size=pos.shape), base.cell_diag)
+        assert len(pos) == n, f"{len(pos)} != {n}"
+        return Frame(pos=pos, cell=base.cell, symbols=["Cu"] * n,
+                     pbc=(True,) * 3)
+    if arm == "surface":
+        # Pt(111) slab (verifier geometry, the A8/X1 class) + 14 A vacuum,
+        # 0.05 A thermal jitter; layers x m x m atoms
+        nl, m = _a11_surface_reps(n)
+        a = A11_PT_A
+        ann = a / np.sqrt(2.0)
+        d111 = a / np.sqrt(3.0)
+        Lx, Ly = m * ann, m * ann * np.sqrt(3.0) / 2.0
+        step = ann * np.sqrt(3.0) / 6.0
+        Lz = nl * d111 + 14.0
+        P = []
+        for k in range(nl):
+            r = k % 3
+            while r * step < Ly - 1e-9:
+                off = ann / 2.0 if r % 2 else 0.0
+                P += [[(i * ann + off) % Lx, (r * step) % Ly, k * d111]
+                      for i in range(m)]
+                r += 3
+        P = np.array(P, float)
+        assert len(P) == n, f"{len(P)} != {n}"
+        P += np.random.default_rng(_stable_seed(f"A11surface|{n}")).normal(
+            scale=0.05, size=P.shape)
+        P[:, 2] += 2.0
+        return Frame(pos=np.mod(P, [Lx, Ly, Lz]),
+                     cell=np.diag([Lx, Ly, Lz]), symbols=["Pt"] * n,
+                     pbc=(True,) * 3)
+    if arm == "slab":
+        # solid-liquid interface: one fcc lattice at rho 0.85 whose lower
+        # half is the perfect crystal and whose upper half carries 0.15 x a
+        # disorder (the lj_solid_liquid class)
+        rho = 0.85
+        a = (4.0 / rho) ** (1.0 / 3.0)
+        reps = _balanced_reps(n // 4)
+        base = build_conventional("fcc", {"a": a}, ("X",), reps)
+        assert len(base) == n, f"{len(base)} != {n}"
+        pos = base.pos.copy()
+        z_split = (reps[2] // 2) * a
+        top = pos[:, 2] >= z_split
+        pos[top] += np.random.default_rng(
+            _stable_seed(f"A11slab|{n}")).normal(scale=0.15 * a,
+                                                 size=(int(top.sum()), 3))
+        return Frame(pos=np.mod(pos, base.cell_diag), cell=base.cell,
+                     symbols=["X"] * n, pbc=(True,) * 3)
+    if arm == "fluid":
+        # the PLAN A11 frame: fcc at rho 0.85 with 0.10 x a jitter
+        rho = 0.85
+        a = (4.0 / rho) ** (1.0 / 3.0)
+        reps = _balanced_reps(n // 4)
+        base = build_conventional("fcc", {"a": a}, ("X",), reps)
+        assert len(base) == n, f"{len(base)} != {n}"
+        pos = np.mod(base.pos + np.random.default_rng(20260928).normal(
+            size=base.pos.shape) * (0.10 * a), base.cell_diag)
+        return Frame(pos=pos, cell=base.cell, symbols=["X"] * n,
+                     pbc=(True,) * 3)
+    if arm == "amorphous":
+        # Si diamond block at 0.55 A disorder: a bonded amorphous network
+        # (no lattice survives, every atom 4-coordinated on average)
+        reps = _balanced_reps(n // 8)
+        base = build_conventional("diamond", {"a": A11_SI_A}, ("Si",), reps)
+        assert len(base) == n, f"{len(base)} != {n}"
+        pos = np.mod(base.pos + np.random.default_rng(
+            _stable_seed(f"A11amorph|{n}")).normal(size=base.pos.shape)
+            * 0.55, base.cell_diag)
+        return Frame(pos=pos, cell=base.cell, symbols=["Si"] * n,
+                     pbc=(True,) * 3)
+    raise ValueError(f"unknown A11 arm {arm!r}")
 
 
 def _balanced_reps(n_cells: int) -> tuple[int, int, int]:
@@ -3352,6 +3649,26 @@ def _md_report(results) -> str:
             for m in d["rows"]:
                 out.append(f"| {m['plan']} | {m['expected']} | {m['census']} | "
                            f"{m['exact']} |")
+            site = d.get("adsorption") or {}
+            if site:
+                out += ["", "| site half | draws x translations | frames | "
+                        "adsorbates | correct |", "| --- | --- | --- | --- | --- |"]
+                out.append(f"| Pt(111) top/bridge | {site['draws']} x "
+                           f"{site['translations']} | {site['frames']} | "
+                           f"{site['adsorbates']} | "
+                           f"{site['frac_correct']:.0%} |")
+            clean = d.get("clean_slab") or {}
+            if clean.get("rows"):
+                out += ["", "| clean slab | amp A | false adsorbates | draws |",
+                        "| --- | --- | --- | --- |"]
+                for m in clean["rows"]:
+                    out.append(f"| {m['surface']} | {m['amp']:g} | "
+                               f"{m['false_positives']} | {m['draws']} |")
+        if r["id"] == "A11" and d.get("rows"):
+            out += ["| arm | mode | atoms | seconds |", "| --- | --- | --- | --- |"]
+            for m in d["rows"]:
+                out.append(f"| {m['arm']} | {m['mode']} | {m['n_atoms']:,} | "
+                           f"{m['seconds']:.2f} |")
         if r["id"] == "A9" and d.get("measurements"):
             out += ["| case | atoms | program B | extxyz B | ratio % | source |",
                     "| --- | --- | --- | --- | --- | --- |"]

@@ -29,6 +29,12 @@ def test_a1_fmt_idempotence_and_parse():
 def test_a2_canonical_invariance():
     clean = acc.check_a2(case_filter="fcc_cu")
     assert clean["passed"], clean["evidence"]
+    # D21 (X4): 20 draws per case, stated in the evidence.  Red on the old
+    # implementation: details n_transforms == 2 and the evidence read
+    # "2 per case" -- two draws judged canonical invariance (rule 2 breach).
+    assert clean["details"]["n_transforms"] == 20
+    assert "20 draws per case, D21" in clean["evidence"], clean["evidence"]
+    assert "20/20 rigid transforms" in clean["evidence"], clean["evidence"]
     bad = acc.check_a2(mutation="scale_lattice", case_filter="fcc_cu")
     assert not bad["passed"], bad["evidence"]
 
@@ -197,27 +203,69 @@ def test_a7_core_scope_gate():
 
 # --------------------------------------------------------------------- A8 ----
 def test_a8_reactive_census_independent_construction():
-    clean = acc.check_a8()
+    # scoped fast lane (1 draw x 1 translation, 1 clean draw): the criterion
+    # NAMES its reduced scope in the evidence; the full 20 x 20 + 20 evidence
+    # is the nightly acceptance run's (pinned by the slow test below)
+    clean = acc.check_a8(site_draws=1, site_translations=1, clean_draws=1)
     assert clean["passed"], clean["evidence"]
-    bad = acc.check_a8(mutation="extra_oh")
+    assert "1 draws x 1 random translations (1 frames" in clean["evidence"]
+    assert "clean-slab false positives 0 of 6" in clean["evidence"]
+    bad = acc.check_a8(mutation="extra_oh", site_draws=1, site_translations=1,
+                       clean_draws=1)
     assert not bad["passed"], bad["evidence"]
 
 
 def test_a8_adsorption_sites_power_mutation():
-    """PLAN A8's second half (adsorption sites >= 90% correct): the clean
-    planted slab reads 100% (5 top + 3 bridge claimed exactly); shifting the
-    top-site adsorbates laterally by 1 A -- the planted-fault stand-in for a
+    """PLAN A8's second half (adsorption sites >= 90% correct), scoped to a
+    named fast lane (2 draws x 2 translations): the clean draws read 100%
+    (5 top + 3 bridge claimed exactly per frame); shifting the top-site
+    adsorbates laterally by 1 A -- the planted-fault stand-in for a
     mis-assigned site -- moves every shifted O onto the nearest bridge
-    feature (38% correct, claims 8 bridge vs planted 5 top + 3 bridge; with
-    the O >= 2 a_NN apart, a 1 A shift can no longer land on a neighbouring
-    top) and the criterion FAILs."""
-    clean = acc.check_a8()
-    row = clean["details"]["adsorption"]
-    assert row["correct"] and row["claims"] == {"top": 5, "bridge": 3}, row
-    bad = acc.check_a8(mutation="wrong_site")
+    feature (claims 8 bridge vs planted 5 top + 3 bridge; with the O >=
+    2 a_NN apart, a 1 A shift can no longer land on a neighbouring top) and
+    the criterion FAILs.  The full 20 x 20 scope is pinned by the slow
+    full-scope test below."""
+    clean = acc.check_a8(site_draws=2, site_translations=2, clean_draws=2)
+    assert clean["passed"], clean["evidence"]
+    assert "2 draws x 2 random translations (4 frames, 32 adsorbates" \
+        in clean["evidence"], clean["evidence"]
+    site = clean["details"]["adsorption"]
+    assert site["correct"] and site["claims"] == {"top": 20, "bridge": 12}, site
+    bad = acc.check_a8(mutation="wrong_site", site_draws=2,
+                       site_translations=2, clean_draws=2)
     assert not bad["passed"], bad["evidence"]
     assert "38% correct" in bad["evidence"], bad["evidence"]
-    assert "claims {'bridge': 8}" in bad["evidence"], bad["evidence"]
+    assert "claims {'bridge': 32}" in bad["evidence"], bad["evidence"]
+
+
+def test_a8_clean_slab_false_positive_wiring_mutation():
+    """D21's new half: the clean-slab false-positive count must be wired, not
+    decorative -- planting one REAL Pt adatom on one clean draw (the X1
+    regression's observable) must make the count nonzero and the criterion
+    FAIL.  Scoped to 1 clean draw set; the count is named in the evidence."""
+    clean = acc.check_a8(site_draws=1, site_translations=1, clean_draws=2)
+    assert clean["passed"], clean["evidence"]
+    bad = acc.check_a8(mutation="planted_adatom", site_draws=1,
+                       site_translations=1, clean_draws=2)
+    assert not bad["passed"], bad["evidence"]
+    assert "clean-slab false positives 1 of 12" in bad["evidence"], \
+        bad["evidence"]
+
+
+@pytest.mark.slow
+def test_a8_full_scope_evidence_d21():
+    """The nightly-shape evidence at the DEFAULT scope (D21 / X4 done-when):
+    20 draws x 20 random translations judged (400 frames, 3,200 adsorbates)
+    and 0 false adsorbates on 120 clean slabs (2 surfaces x 3 amplitudes x
+    20 draws).  Slow on purpose: this is the acceptance run's own scope."""
+    r = acc.check_a8()
+    assert r["passed"], r["evidence"]
+    assert "20 draws x 20 random translations (400 frames, 3200 " \
+        "adsorbates" in r["evidence"], r["evidence"]
+    assert "clean-slab false positives 0 of 120" in r["evidence"], \
+        r["evidence"]
+    assert r["details"]["adsorption"]["claims"] == {"top": 2000,
+                                                    "bridge": 1200}
 
 
 # --------------------------------------------------------------------- A9 ----
@@ -240,10 +288,33 @@ def test_a10_determinism():
 
 # -------------------------------------------------------------------- A11 ----
 def test_a11_speed_limit():
-    clean = acc.check_a11()
+    """D21 (X4): A11 REPORTS every lift arm at 10,000 and 100,000 atoms (the
+    gate stays PLAN's -- fluid at the largest size <= 120 s).  This canary
+    runs a NAMED fast lane (all six arms at 4,096 atoms; the scope appears
+    in the evidence, never silent) and pins the default scope; the full
+    per-arm table is the nightly acceptance run's evidence.
+
+    Red on the old implementation: check_a11(n_atoms=...) accepted no
+    sizes/arms, timed only the fluid arm at one size, and its evidence named
+    no per-arm seconds."""
+    import inspect
+
+    clean = acc.check_a11(sizes=(4_096,))
     assert clean["passed"], clean["evidence"]
-    bad = acc.check_a11(elapsed_override=120.5)
+    assert "at 4,096 atoms" in clean["evidence"], clean["evidence"]
+    arms_seen = {r["arm"] for r in clean["details"]["rows"]}
+    assert arms_seen == set(acc.A11_ARMS), arms_seen
+    assert all(r["n_atoms"] == 4_096 for r in clean["details"]["rows"])
+    bad = acc.check_a11(sizes=(4_096,), arms=("fluid",),
+                        elapsed_override=120.5)
     assert not bad["passed"], bad["evidence"]
+    # the default scope is pinned: six arms, both sizes (no silent shrink)
+    sig = inspect.signature(acc.check_a11)
+    assert sig.parameters["arms"].default == acc.A11_ARMS
+    assert sig.parameters["sizes"].default == acc.A11_SIZES
+    assert acc.A11_ARMS == ("crystal", "defects", "surface", "slab",
+                            "fluid", "amorphous")
+    assert acc.A11_SIZES == (10_000, 100_000)
 
 
 # -------------------------------------------------------------------- A12 ----
@@ -313,8 +384,11 @@ def test_a14_reference_coverage():
 
 # ------------------------------------------------------------- runner shape --
 def test_runner_report_schema():
-    results = acc.run_all(only=["A8"])
+    # A14, not A8: D21 took A8's default scope off the fast lane (20 x 20
+    # site draws plus 120 clean-slab draws); the schema shape does not care
+    # which criterion run_all executes
+    results = acc.run_all(only=["A14"])
     assert len(results) == 1
     r = results[0]
     assert set(r) >= {"id", "name", "passed", "evidence", "details"}
-    assert r["id"] == "A8" and isinstance(r["passed"], bool)
+    assert r["id"] == "A14" and isinstance(r["passed"], bool)

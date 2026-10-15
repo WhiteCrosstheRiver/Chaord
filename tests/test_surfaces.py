@@ -407,3 +407,56 @@ def test_interface_width_within_noise_floor():
         f"width {w_rebuilt:.2f} vs {w_ref:.2f}, floor {eff_floor:.2f} "
         f"(tanh frame floor {floor_tanh:.2f}, half spread {half_spread:.2f}, "
         f"bin {binw:.2f}, median of {len(samples)} draws {np.sort(samples)})")
+
+
+def test_has_vacuum_is_translation_invariant(dialect):
+    """X4 (Review 10, docs/reviews/open_items_v3.md): a vacuum that straddles
+    z = 0 used to be scanned as TWO half-runs (``np.r_[occ, occ[:1]]`` extends
+    the tail run by one bin only), so translations splitting the ~10 A gap
+    roughly in half read each half below ``vacuum_gap_min`` (6 A), the surface
+    arm returned not-my-phase and the cascade fell to the fluid arm, which
+    refused the slab ('extended bonded component').  A rigid in-box
+    translation of a periodic frame is the same microstate: every draw keeps
+    the vacuum (rule 2: 20 draws).
+
+    Red on 43d683f-class code: draws that straddle the gap report False
+    (measured: the A8 site-half frame class -- 4 Pt layers plus an
+    adsorbate layer 2 A higher, occupied span 8.77 A in the 18.79 A cell
+    -- loses its vacuum whenever the split leaves < 6 A on each side:
+    7 of the first 20 seeded draws, [2, 5, 12, 13, 15, 16, 19])."""
+    from chaord.lift.surface import has_vacuum
+
+    a = 3.92                                    # Pt, A (X1 brief geometry)
+    ann = a / np.sqrt(2.0)
+    d111 = a / np.sqrt(3.0)
+    nx, nrow, nl = 6, 10, 4
+    Lx, Ly = nx * ann, (nrow // 2) * ann * np.sqrt(3)
+    Lz = 18.79                                  # ~10 A vacuum above the slab
+    step = ann * np.sqrt(3) / 6
+    P = []
+    for k in range(nl):
+        r = k % 3
+        while r * step < Ly - 1e-9:
+            off = ann / 2 if r % 2 else 0.0
+            P += [[(i * ann + off) % Lx, (r * step) % Ly, k * d111]
+                  for i in range(nx)]
+            r += 3
+    P = np.array(P, float)
+    # the A8 site-half frame class: an adsorbate layer 2 A above the top
+    # layer widens the occupied span to 8.77 A, so a z = 0-straddling
+    # translation can split the 10 A vacuum into two < 6 A halves
+    top = P[P[:, 2] == P[:, 2].max()][:8]
+    P = np.vstack([P, np.c_[top[:, :2],
+                            np.full(8, P[:, 2].max() + 2.0)]])
+    syms = ["Pt"] * (len(P) - 8) + ["O"] * 8
+    L = np.array([Lx, Ly, Lz])
+    bad = []
+    for d in range(20):
+        shift = np.random.default_rng(5000 + d).uniform(0.0, L)
+        frame = Frame(pos=np.mod(P + shift, L), cell=np.diag(L),
+                      symbols=syms, pbc=(True,) * 3)
+        if not has_vacuum(frame, dialect):
+            bad.append(d)
+    assert not bad, (
+        f"{len(bad)} of 20 translated slabs lost their vacuum (draws {bad}): "
+        "has_vacuum must be invariant under in-box translation")
