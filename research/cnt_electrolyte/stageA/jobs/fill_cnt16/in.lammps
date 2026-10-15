@@ -1,0 +1,94 @@
+# LAMMPS input: fill_cnt16  (Stage A / Y6: filling: open CNT in a bulk 1M LiPF6/EC:EMC bath; 500 ps T+P anneal (10->300 K, barostat target -2000->1 atm, Pdamp 2000 fs, compressing the sub-target-density packed bath) then 5 ns NPT 1 atm 300 K; tube starts empty (imbibition))
+# Engine: LAMMPS 22 Jul 2025 Update 4. Units: real (A, kcal/mol, fs, V/A).
+# Model: pilot model (owner_inputs.md D37 note): OPLS-AA-based rigid
+#   molecules from Nutakki 2023 Tables II-III, Werder sp2-C tube carbons,
+#   Lorentz-Berthelot mixing (recorded deviation), full +-1 ion charges.
+# Thermostat: ONE Langevin scheme for every mobile atom, damping 1 ps:
+#   fix rigid/nve/small molecule langevin (multi-atom bodies) + fix nve +
+#   fix langevin (Li+); no Nose-Hoover anywhere (Y6 settings).
+# Dumps: every 1 ps, dump_modify format float %.10g, with image flags.
+# Thermo: every 1 ps.
+#
+
+units           real
+atom_style      full
+boundary        p p p
+
+read_data       system.data
+
+pair_style      lj/cut/coul/long 12.0
+pair_modify     mix arithmetic tail no
+kspace_style    pppm 0.0001
+pair_coeff      1 1 0.085300 3.4000
+pair_coeff      2 2 0.104995 3.7500
+pair_coeff      3 3 0.170005 3.0000
+pair_coeff      4 4 0.065989 3.5000
+pair_coeff      5 5 0.209990 2.9600
+pair_coeff      6 6 0.015010 2.4200
+pair_coeff      7 7 0.029995 2.5000
+pair_coeff      8 8 0.066000 3.5000
+pair_coeff      9 9 0.165057 1.5100
+pair_coeff      10 10 0.200000 3.7400
+pair_coeff      11 11 0.060994 3.1180
+
+bond_style       harmonic
+bond_coeff      1 0.0 1.0
+special_bonds   lj/coul 0.0 0.0 0.0
+
+neighbor        2.0 bin
+neigh_modify    every 1 delay 0 check yes exclude molecule/intra all
+
+group           tube type 1
+group           mobile subtract all tube
+group           li type 9
+group           bodies subtract mobile li
+fix             frz tube setforce 0.0 0.0 0.0
+
+# honest mobile-subsystem temperature: 2*KE/(DOF*kB), real units
+# (the default thermo temp is diluted by the frozen tube atoms)
+compute         keb bodies ke
+compute         keli li ke
+variable        Tmob equal 2.0*(c_keb+c_keli)/(11382*0.0019872041)
+
+timestep        1.0
+
+# smoke self-test:  lmp -var smoke 1 -in in.lammps
+variable        smoke index 0
+if "${smoke} == 1" then "variable nrampf equal 500" "variable nprodf equal 500" &
+else "variable nrampf equal 500000" "variable nprodf equal 5000000"
+
+thermo          1000
+thermo_style    custom step atoms v_Tmob temp pe etotal press vol density
+
+velocity        mobile create 10.0 20265101 mom yes rot yes dist gaussian
+
+# --- stage 1 (500 ps): temperature ramp 10 -> 300 K and
+#     pressure anneal. The bath is BUILT at 95% of the
+#     target bulk density (bulk-density sequential packing jams in the
+#     small periodic build block - recorded in the build manifest), so the
+#     barostat target ramps -2000 atm -> 1 atm over this stage and
+#     compresses the bath before production. The barostat (fix nph, pure
+#     pressure control - NO thermostat, so the single Langevin scheme
+#     covers every mobile atom) is the fix-rigid docs' rigid-bodies-plus-
+#     point-particles hybrid; dilate mobile never rescales the frozen
+#     tube; the NPT pressure is the global thermo one.
+fix             thb bodies rigid/nve/small molecule langevin 10.0 300.0 1000 5101101
+fix             thl li nph iso -2000 1 2000 dilate mobile
+fix             thla li langevin 10.0 300.0 1000 5101102
+run             ${nrampf}
+
+# --- stage 2: 5000 ps NPT production (1 atm, 300 K),
+#     dump every 1 ps
+unfix           thb
+unfix           thl
+unfix           thla
+fix             thb bodies rigid/nve/small molecule langevin 300.0 300.0 1000 5101103
+fix             thl li nph iso 1 1 2000 dilate mobile
+fix             thla li langevin 300.0 300.0 1000 5101104
+reset_timestep  0
+dump            pd all custom 1000 prod.dump id mol type q x y z ix iy iz
+dump_modify     pd sort id format float %.10g
+
+run             ${nprodf}
+
+write_data      final.data nocoeff

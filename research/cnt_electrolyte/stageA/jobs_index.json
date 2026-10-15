@@ -1,0 +1,610 @@
+[
+  {
+    "kind": "fill",
+    "tube": 10,
+    "build": null,
+    "field": null,
+    "source": "data/fill_cnt10.data",
+    "depends": null,
+    "atoms": 16040,
+    "steps_ps": 5500.0,
+    "dof": 8301,
+    "seeds": {
+      "bodies": 5100101,
+      "li": 5100102,
+      "bodies2": 5100103,
+      "li2": 5100104,
+      "velocity": 20265100
+    },
+    "name": "fill_cnt10",
+    "est_wall_min": 4010.0
+  },
+  {
+    "kind": "zf",
+    "tube": 10,
+    "build": "b1",
+    "field": 0.0,
+    "source": "data/cnt10_b1.data",
+    "depends": null,
+    "atoms": 971,
+    "steps_ps": 3000.0,
+    "dof": 93,
+    "seeds": {
+      "bodies": 3100101,
+      "li": 3100102,
+      "bodies2": 3100103,
+      "li2": 3100104,
+      "velocity": 20263100
+    },
+    "name": "zf_cnt10_b1",
+    "est_wall_min": 132.4
+  },
+  {
+    "kind": "wf",
+    "tube": 10,
+    "build": "b1",
+    "field": 0.01,
+    "source": "jobs/zf_cnt10_b1/final.data",
+    "depends": "zf_cnt10_b1",
+    "atoms": 971,
+    "steps_ps": 2000.0,
+    "dof": 93,
+    "seeds": {
+      "bodies": 3100201,
+      "li": 3100202
+    },
+    "name": "wf_cnt10_b1",
+    "est_wall_min": 88.3
+  },
+  {
+    "kind": "sf",
+    "tube": 10,
+    "build": "b1",
+    "field": 0.2,
+    "source": "jobs/zf_cnt10_b1/final.data",
+    "depends": "zf_cnt10_b1",
+    "atoms": 971,
+    "steps_ps": 2000.0,
+    "dof": 93,
+    "seeds": {
+      "bodies": 3100301,
+      "li": 3100302
+    },
+    "name": "sf_cnt10_b1",
+    "est_wall_min": 88.3
+  },
+  {
+    "kind": "off",
+    "tube": 10,
+    "build": "b1",
+    "field": 0.0,
+    "source": "jobs/sf_cnt10_b1/final.data",
+    "depends": "sf_cnt10_b1",
+    "atoms": 971,
+    "steps_ps": 2000.0,
+    "dof": 93,
+    "seeds": {
+      "bodies": 3100401,
+      "li": 3100402
+    },
+    "name": "off_cnt10_b1",
+    "est_wall_min": 88.3
+  },
+  {
+    "kind": "zf",
+    "tube": 10,
+    "build": "b2",
+    "field": 0.0,
+    "source": "data/cnt10_b2.data",
+    "depends": null,
+    "atoms": 971,
+    "steps_ps": 3000.0,
+    "dof": 93,
+    "seeds": {
+      "bodies": 3102101,
+      "li": 3102102,
+      "bodies2": 3102103,
+      "li2": 3102104,
+      "velocity": 20263102
+    },
+    "name": "zf_cnt10_b2",
+    "est_wall_min": 132.4
+  },
+  {
+    "kind": "wf",
+    "tube": 10,
+    "build": "b2",
+    "field": 0.01,
+    "source": "jobs/zf_cnt10_b2/final.data",
+    "depends": "zf_cnt10_b2",
+    "atoms": 971,
+    "steps_ps": 2000.0,
+    "dof": 93,
+    "seeds": {
+      "bodies": 3102201,
+      "li": 3102202
+    },
+    "name": "wf_cnt10_b2",
+    "est_wall_min": 88.3
+  },
+  {
+    "kind": "sf",
+    "tube": 10,
+    "build": "b2",
+    "field": 0.2,
+    "source": "jobs/zf_cnt10_b2/final.data",
+    "depends": "zf_cnt10_b2",
+    "atoms": 971,
+    "steps_ps": 2000.0,
+    "dof": 93,
+    "seeds": {
+      "bodies": 3102301,
+      "li": 3102302
+    },
+    "name": "sf_cnt10_b2",
+    "est_wall_min": 88.3
+  },
+  {
+    "kind": "off",
+    "tube": 10,
+    "build": "b2",
+    "field": 0.0,
+    "source": "jobs/sf_cnt10_b2/final.data",
+    "depends": "sf_cnt10_b2",
+    "atoms": 971,
+    "steps_ps": 2000.0,
+    "dof": 93,
+    "seeds": {
+      "bodies": 3102401,
+      "li": 3102402
+    },
+    "name": "off_cnt10_b2",
+    "est_wall_min": 88.3
+  },
+  {
+    "kind": "zf",
+    "tube": 10,
+    "build": "b3",
+    "field": 0.0,
+    "source": "data/cnt10_b3.data",
+    "depends": null,
+    "atoms": 971,
+    "steps_ps": 3000.0,
+    "dof": 93,
+    "seeds": {
+      "bodies": 3104101,
+      "li": 3104102,
+      "bodies2": 3104103,
+      "li2": 3104104,
+      "velocity": 20263104
+    },
+    "name": "zf_cnt10_b3",
+    "est_wall_min": 132.4
+  },
+  {
+    "kind": "wf",
+    "tube": 10,
+    "build": "b3",
+    "field": 0.01,
+    "source": "jobs/zf_cnt10_b3/final.data",
+    "depends": "zf_cnt10_b3",
+    "atoms": 971,
+    "steps_ps": 2000.0,
+    "dof": 93,
+    "seeds": {
+      "bodies": 3104201,
+      "li": 3104202
+    },
+    "name": "wf_cnt10_b3",
+    "est_wall_min": 88.3
+  },
+  {
+    "kind": "sf",
+    "tube": 10,
+    "build": "b3",
+    "field": 0.2,
+    "source": "jobs/zf_cnt10_b3/final.data",
+    "depends": "zf_cnt10_b3",
+    "atoms": 971,
+    "steps_ps": 2000.0,
+    "dof": 93,
+    "seeds": {
+      "bodies": 3104301,
+      "li": 3104302
+    },
+    "name": "sf_cnt10_b3",
+    "est_wall_min": 88.3
+  },
+  {
+    "kind": "off",
+    "tube": 10,
+    "build": "b3",
+    "field": 0.0,
+    "source": "jobs/sf_cnt10_b3/final.data",
+    "depends": "sf_cnt10_b3",
+    "atoms": 971,
+    "steps_ps": 2000.0,
+    "dof": 93,
+    "seeds": {
+      "bodies": 3104401,
+      "li": 3104402
+    },
+    "name": "off_cnt10_b3",
+    "est_wall_min": 88.3
+  },
+  {
+    "kind": "zf",
+    "tube": 10,
+    "build": "b1m",
+    "field": 0.0,
+    "source": "data/cnt10_b1m.data",
+    "depends": null,
+    "atoms": 971,
+    "steps_ps": 3000.0,
+    "dof": 93,
+    "seeds": {
+      "bodies": 3107101,
+      "li": 3107102,
+      "bodies2": 3107103,
+      "li2": 3107104,
+      "velocity": 20263107
+    },
+    "name": "zf_cnt10_b1m",
+    "est_wall_min": 132.4
+  },
+  {
+    "kind": "wf",
+    "tube": 10,
+    "build": "b1m",
+    "field": 0.01,
+    "source": "jobs/zf_cnt10_b1m/final.data",
+    "depends": "zf_cnt10_b1m",
+    "atoms": 971,
+    "steps_ps": 2000.0,
+    "dof": 93,
+    "seeds": {
+      "bodies": 3107201,
+      "li": 3107202
+    },
+    "name": "wf_cnt10_b1m",
+    "est_wall_min": 88.3
+  },
+  {
+    "kind": "sf",
+    "tube": 10,
+    "build": "b1m",
+    "field": 0.2,
+    "source": "jobs/zf_cnt10_b1m/final.data",
+    "depends": "zf_cnt10_b1m",
+    "atoms": 971,
+    "steps_ps": 2000.0,
+    "dof": 93,
+    "seeds": {
+      "bodies": 3107301,
+      "li": 3107302
+    },
+    "name": "sf_cnt10_b1m",
+    "est_wall_min": 88.3
+  },
+  {
+    "kind": "off",
+    "tube": 10,
+    "build": "b1m",
+    "field": 0.0,
+    "source": "jobs/sf_cnt10_b1m/final.data",
+    "depends": "sf_cnt10_b1m",
+    "atoms": 971,
+    "steps_ps": 2000.0,
+    "dof": 93,
+    "seeds": {
+      "bodies": 3107401,
+      "li": 3107402
+    },
+    "name": "off_cnt10_b1m",
+    "est_wall_min": 88.3
+  },
+  {
+    "kind": "fill",
+    "tube": 16,
+    "build": null,
+    "field": null,
+    "source": "data/fill_cnt16.data",
+    "depends": null,
+    "atoms": 22009,
+    "steps_ps": 5500.0,
+    "dof": 11382,
+    "seeds": {
+      "bodies": 5101101,
+      "li": 5101102,
+      "bodies2": 5101103,
+      "li2": 5101104,
+      "velocity": 20265101
+    },
+    "name": "fill_cnt16",
+    "est_wall_min": 5502.2
+  },
+  {
+    "kind": "zf",
+    "tube": 16,
+    "build": "b1",
+    "field": 0.0,
+    "source": "data/cnt16_b1.data",
+    "depends": null,
+    "atoms": 2058,
+    "steps_ps": 3000.0,
+    "dof": 417,
+    "seeds": {
+      "bodies": 3101101,
+      "li": 3101102,
+      "bodies2": 3101103,
+      "li2": 3101104,
+      "velocity": 20263101
+    },
+    "name": "zf_cnt16_b1",
+    "est_wall_min": 280.6
+  },
+  {
+    "kind": "wf",
+    "tube": 16,
+    "build": "b1",
+    "field": 0.01,
+    "source": "jobs/zf_cnt16_b1/final.data",
+    "depends": "zf_cnt16_b1",
+    "atoms": 2058,
+    "steps_ps": 2000.0,
+    "dof": 417,
+    "seeds": {
+      "bodies": 3101201,
+      "li": 3101202
+    },
+    "name": "wf_cnt16_b1",
+    "est_wall_min": 187.1
+  },
+  {
+    "kind": "sf",
+    "tube": 16,
+    "build": "b1",
+    "field": 0.2,
+    "source": "jobs/zf_cnt16_b1/final.data",
+    "depends": "zf_cnt16_b1",
+    "atoms": 2058,
+    "steps_ps": 2000.0,
+    "dof": 417,
+    "seeds": {
+      "bodies": 3101301,
+      "li": 3101302
+    },
+    "name": "sf_cnt16_b1",
+    "est_wall_min": 187.1
+  },
+  {
+    "kind": "off",
+    "tube": 16,
+    "build": "b1",
+    "field": 0.0,
+    "source": "jobs/sf_cnt16_b1/final.data",
+    "depends": "sf_cnt16_b1",
+    "atoms": 2058,
+    "steps_ps": 2000.0,
+    "dof": 417,
+    "seeds": {
+      "bodies": 3101401,
+      "li": 3101402
+    },
+    "name": "off_cnt16_b1",
+    "est_wall_min": 187.1
+  },
+  {
+    "kind": "zf",
+    "tube": 16,
+    "build": "b2",
+    "field": 0.0,
+    "source": "data/cnt16_b2.data",
+    "depends": null,
+    "atoms": 2058,
+    "steps_ps": 3000.0,
+    "dof": 417,
+    "seeds": {
+      "bodies": 3103101,
+      "li": 3103102,
+      "bodies2": 3103103,
+      "li2": 3103104,
+      "velocity": 20263103
+    },
+    "name": "zf_cnt16_b2",
+    "est_wall_min": 280.6
+  },
+  {
+    "kind": "wf",
+    "tube": 16,
+    "build": "b2",
+    "field": 0.01,
+    "source": "jobs/zf_cnt16_b2/final.data",
+    "depends": "zf_cnt16_b2",
+    "atoms": 2058,
+    "steps_ps": 2000.0,
+    "dof": 417,
+    "seeds": {
+      "bodies": 3103201,
+      "li": 3103202
+    },
+    "name": "wf_cnt16_b2",
+    "est_wall_min": 187.1
+  },
+  {
+    "kind": "sf",
+    "tube": 16,
+    "build": "b2",
+    "field": 0.2,
+    "source": "jobs/zf_cnt16_b2/final.data",
+    "depends": "zf_cnt16_b2",
+    "atoms": 2058,
+    "steps_ps": 2000.0,
+    "dof": 417,
+    "seeds": {
+      "bodies": 3103301,
+      "li": 3103302
+    },
+    "name": "sf_cnt16_b2",
+    "est_wall_min": 187.1
+  },
+  {
+    "kind": "off",
+    "tube": 16,
+    "build": "b2",
+    "field": 0.0,
+    "source": "jobs/sf_cnt16_b2/final.data",
+    "depends": "sf_cnt16_b2",
+    "atoms": 2058,
+    "steps_ps": 2000.0,
+    "dof": 417,
+    "seeds": {
+      "bodies": 3103401,
+      "li": 3103402
+    },
+    "name": "off_cnt16_b2",
+    "est_wall_min": 187.1
+  },
+  {
+    "kind": "zf",
+    "tube": 16,
+    "build": "b3",
+    "field": 0.0,
+    "source": "data/cnt16_b3.data",
+    "depends": null,
+    "atoms": 2058,
+    "steps_ps": 3000.0,
+    "dof": 417,
+    "seeds": {
+      "bodies": 3105101,
+      "li": 3105102,
+      "bodies2": 3105103,
+      "li2": 3105104,
+      "velocity": 20263105
+    },
+    "name": "zf_cnt16_b3",
+    "est_wall_min": 280.6
+  },
+  {
+    "kind": "wf",
+    "tube": 16,
+    "build": "b3",
+    "field": 0.01,
+    "source": "jobs/zf_cnt16_b3/final.data",
+    "depends": "zf_cnt16_b3",
+    "atoms": 2058,
+    "steps_ps": 2000.0,
+    "dof": 417,
+    "seeds": {
+      "bodies": 3105201,
+      "li": 3105202
+    },
+    "name": "wf_cnt16_b3",
+    "est_wall_min": 187.1
+  },
+  {
+    "kind": "sf",
+    "tube": 16,
+    "build": "b3",
+    "field": 0.2,
+    "source": "jobs/zf_cnt16_b3/final.data",
+    "depends": "zf_cnt16_b3",
+    "atoms": 2058,
+    "steps_ps": 2000.0,
+    "dof": 417,
+    "seeds": {
+      "bodies": 3105301,
+      "li": 3105302
+    },
+    "name": "sf_cnt16_b3",
+    "est_wall_min": 187.1
+  },
+  {
+    "kind": "off",
+    "tube": 16,
+    "build": "b3",
+    "field": 0.0,
+    "source": "jobs/sf_cnt16_b3/final.data",
+    "depends": "sf_cnt16_b3",
+    "atoms": 2058,
+    "steps_ps": 2000.0,
+    "dof": 417,
+    "seeds": {
+      "bodies": 3105401,
+      "li": 3105402
+    },
+    "name": "off_cnt16_b3",
+    "est_wall_min": 187.1
+  },
+  {
+    "kind": "zf",
+    "tube": 16,
+    "build": "b1m",
+    "field": 0.0,
+    "source": "data/cnt16_b1m.data",
+    "depends": null,
+    "atoms": 2058,
+    "steps_ps": 3000.0,
+    "dof": 417,
+    "seeds": {
+      "bodies": 3108101,
+      "li": 3108102,
+      "bodies2": 3108103,
+      "li2": 3108104,
+      "velocity": 20263108
+    },
+    "name": "zf_cnt16_b1m",
+    "est_wall_min": 280.6
+  },
+  {
+    "kind": "wf",
+    "tube": 16,
+    "build": "b1m",
+    "field": 0.01,
+    "source": "jobs/zf_cnt16_b1m/final.data",
+    "depends": "zf_cnt16_b1m",
+    "atoms": 2058,
+    "steps_ps": 2000.0,
+    "dof": 417,
+    "seeds": {
+      "bodies": 3108201,
+      "li": 3108202
+    },
+    "name": "wf_cnt16_b1m",
+    "est_wall_min": 187.1
+  },
+  {
+    "kind": "sf",
+    "tube": 16,
+    "build": "b1m",
+    "field": 0.2,
+    "source": "jobs/zf_cnt16_b1m/final.data",
+    "depends": "zf_cnt16_b1m",
+    "atoms": 2058,
+    "steps_ps": 2000.0,
+    "dof": 417,
+    "seeds": {
+      "bodies": 3108301,
+      "li": 3108302
+    },
+    "name": "sf_cnt16_b1m",
+    "est_wall_min": 187.1
+  },
+  {
+    "kind": "off",
+    "tube": 16,
+    "build": "b1m",
+    "field": 0.0,
+    "source": "jobs/sf_cnt16_b1m/final.data",
+    "depends": "sf_cnt16_b1m",
+    "atoms": 2058,
+    "steps_ps": 2000.0,
+    "dof": 417,
+    "seeds": {
+      "bodies": 3108401,
+      "li": 3108402
+    },
+    "name": "off_cnt16_b1m",
+    "est_wall_min": 187.1
+  }
+]

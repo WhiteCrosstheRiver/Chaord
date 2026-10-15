@@ -1,0 +1,11 @@
+# Stage A outputs (D37/Y6): raw trajectories, logs and staged data stay
+# out of git; job inputs (in.lammps), jobs_index.json, manifests/ and the
+# analysis outputs are tracked.
+*.dump
+*.data
+log.lammps
+screen.log
+DONE
+queue.out
+queue.err
+queue_log.jsonl

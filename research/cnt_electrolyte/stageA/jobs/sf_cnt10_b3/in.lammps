@@ -1,0 +1,77 @@
+# LAMMPS input: sf_cnt10_b3  (Stage A / Y6: switch-on, field 0.2 V/A, from zf_cnt10_b3 final state.)
+# Engine: LAMMPS 22 Jul 2025 Update 4. Units: real (A, kcal/mol, fs, V/A).
+# Model: pilot model (owner_inputs.md D37 note): OPLS-AA-based rigid
+#   molecules from Nutakki 2023 Tables II-III, Werder sp2-C tube carbons,
+#   Lorentz-Berthelot mixing (recorded deviation), full +-1 ion charges.
+# Thermostat: ONE Langevin scheme for every mobile atom, damping 1 ps:
+#   fix rigid/nve/small molecule langevin (multi-atom bodies) + fix nve +
+#   fix langevin (Li+); no Nose-Hoover anywhere (Y6 settings).
+# Dumps: every 1 ps, dump_modify format float %.10g, with image flags.
+# Thermo: every 1 ps.
+#
+
+units           real
+atom_style      full
+boundary        p p p
+
+read_data       system.data
+
+pair_style      lj/cut/coul/long 12.0
+pair_modify     mix arithmetic tail no
+kspace_style    pppm 0.0001
+pair_coeff      1 1 0.085300 3.4000
+pair_coeff      2 2 0.104995 3.7500
+pair_coeff      3 3 0.170005 3.0000
+pair_coeff      4 4 0.065989 3.5000
+pair_coeff      5 5 0.209990 2.9600
+pair_coeff      6 6 0.015010 2.4200
+pair_coeff      7 7 0.029995 2.5000
+pair_coeff      8 8 0.066000 3.5000
+pair_coeff      9 9 0.165057 1.5100
+pair_coeff      10 10 0.200000 3.7400
+pair_coeff      11 11 0.060994 3.1180
+
+bond_style       harmonic
+bond_coeff      1 0.0 1.0
+special_bonds   lj/coul 0.0 0.0 0.0
+
+neighbor        2.0 bin
+neigh_modify    every 1 delay 0 check yes exclude molecule/intra all
+
+group           tube type 1
+group           mobile subtract all tube
+group           li type 9
+group           bodies subtract mobile li
+fix             frz tube setforce 0.0 0.0 0.0
+
+# honest mobile-subsystem temperature: 2*KE/(DOF*kB), real units
+# (the default thermo temp is diluted by the frozen tube atoms)
+compute         keb bodies ke
+compute         keli li ke
+variable        Tmob equal 2.0*(c_keb+c_keli)/(93*0.0019872041)
+
+timestep        1.0
+
+# smoke self-test:  lmp -var smoke 1 -in in.lammps
+variable        smoke index 0
+if "${smoke} == 1" then "variable nprod equal 500" &
+else "variable nprod equal 2000000"
+
+thermo          1000
+thermo_style    custom step atoms v_Tmob temp pe etotal press vol
+
+# external field along +z switched ON at t = 0 (V/A, real units)
+fix             efield mobile efield 0.0 0.0 0.2
+# velocities continue from the read-in final state (no re-draw)
+fix             thb bodies rigid/nve/small molecule langevin 300.0 300.0 1000 3104301
+fix             thl li nve
+fix             thla li langevin 300.0 300.0 1000 3104302
+
+# --- 2000 ps production, dump every 1 ps
+reset_timestep  0
+dump            pd all custom 1000 prod.dump id mol type q x y z ix iy iz
+dump_modify     pd sort id format float %.10g
+
+run             ${nprod}
+
+write_data      final.data nocoeff

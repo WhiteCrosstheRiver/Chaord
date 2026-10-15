@@ -15,7 +15,13 @@ PARAMETER PROVENANCE (primary sources, see research/cnt_electrolyte/_lit/):
                  Charges: CHELPG fit to the MP2/aug-cc-pVTZ electrostatic
                  potential (Gaussian 16); LJ from OPLS-AA atom types.
                  Local copy: _lit/nutakki2023.pdf (downloaded from
-                 https://indigo.uic.edu, file 44990929).
+                 https://indigo.uic.edu, file 44990929). Canonical record:
+                 https://indigo.uic.edu/articles/thesis/25392199
+                 (verified 2026-10-14). NO DOI exists for this thesis: a
+                 Figshare-style DOI (10.6084/m9.figshare.25392199, from the
+                 Indigo article id) does not resolve, and Crossref has no
+                 record under the title/author (checked 2026-10-14); the
+                 citable reference is the URL above.
   [Jorgensen96]  W. L. Jorgensen, D. S. Maxwell, J. Tirado-Rives,
                  J. Am. Chem. Soc. 118, 11225 (1996). OPLS-AA (LJ types,
                  alkyl sites carry zero charge in OPLS-AA alkanes).
@@ -36,13 +42,25 @@ PARAMETER PROVENANCE (primary sources, see research/cnt_electrolyte/_lit/):
                  (1998). Graphene lattice constant a = 2.46 A; armchair (n,n)
                  diameter d = (a/pi) * n * sqrt(3); unit cell length along the
                  tube axis T = a containing 4n atoms.
-  [Xie2023]      Y. Xie et al., "A computational study of the effect of
-                 external heat flux and electric field on the water flow
-                 inside CNTs" (2023), used 0.1 V/A on a CNT in MD.
-                 doi:10.1016/j.c2tec.2023.100157-ish (ScienceDirect
-                 S2238785423012498). MD of field-driven transport in
-                 nanopores commonly uses 0.1-0.5 V/A; we use 0.2 V/A
-                 (see FIELD below for the reasoning).
+  [Xie2023]      Y. Xie, M. Al-Bahrani, N. Nasajpour-Esfahani, D. J. Jasim,
+                 M. Hekmatifar, S. Esmaeili, F. Fathdal, S. H. Zain
+                 Al-Abdeen, D. Toghraie, M. J. Ali, "A computational study
+                 of the effect of external heat flux and electric field on
+                 the nano-pumping of C20 molecules in carbon nanotubes by
+                 molecular dynamics simulation", J. Mater. Res. Technol. 25,
+                 1898-1908 (2023). doi:10.1016/j.jmrt.2023.06.001
+                 (DOI fixed 2026-10-14: this is the exact DOI of the
+                 ScienceDirect PII S2238785423012498, verified via the
+                 Crossref API. The previously guessed DOI
+                 doi:10.1016/j.c2tec.2023.100157 was WRONG, and so was the
+                 previously recorded title ("... on the water flow inside
+                 CNTs") - the PII resolves to this C20 nano-pumping paper;
+                 no Crossref record carries the water-flow title. Cited
+                 here only as an example of external-field MD on CNT
+                 transport; the 0.1-0.5 V/A range quoted under FIELD below
+                 is the general nanopore field-transport literature range,
+                 not a claim about this paper's specific field value,
+                 which was not re-verified from the full text.)
 
 DEVIATIONS / SIMPLIFICATIONS (honest record):
   * Molecules are RIGID (fixed literature geometry, LJ + point charges).
@@ -155,12 +173,14 @@ GRAPHENE_A = 2.46  # A [Saito98]
 
 # --------------------------------------------------------------- field
 # Field strength for the "on" state, V/Angstrom (LAMMPS real units).
-# 0.2 V/A: within the 0.1-0.5 V/A range used in MD of field-driven
-# transport in CNTs/nanopores ([Xie2023] used 0.1 V/A). Chosen at 2x the
-# low end so that PF6- (the slower ion) shows a resolvable drift inside a
-# viscous confined carbonate electrolyte within the 100 ps production
-# window, while staying far below the 0.5 V/A upper end where carbonate
-# chemistry would be field-distorted.
+# 0.2 V/A: within the 0.1-0.5 V/A range commonly used in MD of
+# field-driven transport in CNTs/nanopores ([Xie2023] and its literature
+# context; see the citation note - the specific value used there was not
+# re-verified from the full text). Chosen at 2x the low end so that PF6-
+# (the slower ion) shows a resolvable drift inside a viscous confined
+# carbonate electrolyte within the production window, while staying far
+# below the 0.5 V/A upper end where carbonate chemistry would be
+# field-distorted.
 FIELD_ON_V_PER_A = 0.2
 
 # --------------------------------------------------------------- protocol
@@ -217,3 +237,80 @@ COMPOSITION = {
 
 # solvent number density used only for reporting (bulk EC/EMC ~0.088 atoms/A^3)
 BULK_ATOM_DENSITY = 0.088  # atoms/A^3
+
+# ======================================================================
+# Stage A (Review 10 work order Y6): relaxation times and filling.
+# See docs/reviews/open_items_v4.md section 2, Y6.
+# ======================================================================
+STAGEA = {
+    # -- thermostat: ONE Langevin scheme for every mobile atom, 1 ps damping
+    #    (fix rigid/small ... langevin for multi-atom bodies; fix nve +
+    #    fix langevin for Li+; no separate Nose-Hoover anywhere)
+    "langevin_damp_fs": 1000.0,
+    # -- barostat (filling runs only): pure pressure control, NO thermostat,
+    #    so the one-Langevin rule survives the NPT (fix nph ... dilate mobile;
+    #    the tube is never dilated, the LAMMPS-blessed rigid+point-particle
+    #    hybrid of the fix rigid docs)
+    "baro_press_atm": 1.0,
+    "baro_damp_fs": 1000.0,
+    # -- fields for the switch-on runs (V/A): D30 default working field and
+    #    the saturating pilot field
+    "field_wf": 0.01,
+    "field_sf": 0.2,
+    # -- tube-run protocol: 100 ps ramp 10->300 K, 900 ps equilibration,
+    #    2000 ps production (dump/thermo every 1 ps)
+    "ramp_ps": 100.0,
+    "equil_ps": 900.0,
+    "prod_ps": 2000.0,
+    # -- filling protocol: 500 ps pressure-anneal + temperature ramp, then
+    #    5000 ps NPT production at 1 atm
+    "fill_ramp_ps": 500.0,
+    "fill_prod_ps": 5000.0,
+    "fill_press_anneal_start_atm": -2000.0,
+    "fill_baro_damp_fs": 2000.0,
+    # the bath block is packed toward this fraction of the target bulk
+    # density with skip-on-fail insertion (bulk-density sequential
+    # insertion jams in a small PBC box: found on execution 2026-10-15,
+    # best-of-20000 tolerant candidates fall below the 0.70 floor near
+    # ~95% fill); the barostat anneal compresses the remainder
+    "block_pack_frac": 0.95,
+    "dump_every_ps": 1.0,
+    "thermo_every_ps": 1.0,
+    # -- filling geometry: >= 3 nm reservoir on each tube mouth (Y6), our
+    #    lateral liquid shell around the tube, and the resulting total
+    #    axial box length 2*reservoir + 49.2 A
+    "fill_reservoir_A": 30.0,
+    "fill_lat_liquid_A": 15.0,
+    # zero-field builds: 3 fresh seeds per tube + mirrored copy of build 1
+    "builds": ("b1", "b2", "b3", "b1m"),
+}
+
+# Stage A zero-field build systems (same geometry/composition as the pilot
+# four, new build and velocity seeds; "field" is decided by the run input,
+# not the build, so all zero-field builds share field="zf").
+for _i, _b in enumerate(("b1", "b2", "b3")):
+    for _n in (10, 16):
+        SYSTEMS[f"cnt{_n}_{_b}"] = dict(n=_n, ncell=20, field="zf")
+        SEEDS[f"cnt{_n}_{_b}"] = dict(build=20262100 + 2 * _i + _n // 16,
+                                      velocity=20263100 + 2 * _i + _n // 16)
+# mirrored copy of build 1 (z -> Lz - z, positions only; fresh velocities)
+SEEDS["cnt10_b1m"] = dict(build=None, velocity=20263107)   # build: mirror of b1
+SEEDS["cnt16_b1m"] = dict(build=None, velocity=20263108)
+
+# filling baths: open tube in a bulk 1 M LiPF6 / 1:1 EC:EMC bath
+# target bulk number densities (1/A^3), 1:1 by VOLUME EC:EMC from the CRC
+# mass densities already cited in the COMPOSITION block above:
+#   rho_EC = 1.321 g/cm3 (MW 88.063), rho_EMC = 1.00 g/cm3 (MW 104.075).
+#   A 1:1 mixture BY VOLUME halves each pure-liquid number density:
+#   n_EC/V = 0.5 * 1.321/88.063 * 0.6022 = 0.004517 /A^3,
+#   n_EMC/V = 0.5 * 1.00/104.075 * 0.6022 = 0.002892 /A^3;
+#   total solvent atom density 0.0886 + salt 0.0048 = 0.0934 /A^3.
+#   1 M salt = 6.022e-4 /A^3.
+_MW = {"EC": 3 * 12.011 + 4 * 1.008 + 3 * 15.999,
+       "EMC": 4 * 12.011 + 8 * 1.008 + 3 * 15.999}
+STAGEA["bulk_n_dens"] = {
+    "EC": 0.5 * 1.321 / _MW["EC"] * 0.60221408,   # = 0.004517 /A^3
+    "EMC": 0.5 * 1.00 / _MW["EMC"] * 0.60221408,  # = 0.002892 /A^3
+    "LiPF6": 1.0 * 0.00060221408,                 # 1 mol/L
+}
+del _MW, _i, _b, _n

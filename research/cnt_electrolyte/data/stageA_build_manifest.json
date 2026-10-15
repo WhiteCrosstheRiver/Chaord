@@ -1,0 +1,428 @@
+{
+  "cnt10_b1": {
+    "name": "cnt10_b1",
+    "cnt_chirality": [
+      10,
+      10
+    ],
+    "cnt_diameter_A": 13.5627,
+    "cnt_length_A": 49.2,
+    "cnt_atoms": 800,
+    "R_pack_A": 3.881345413688043,
+    "box": [
+      -16.7813,
+      16.7813,
+      -16.7813,
+      16.7813,
+      0.0,
+      49.2
+    ],
+    "composition": {
+      "n_EC": 8,
+      "n_EMC": 5,
+      "n_LiPF6": 2
+    },
+    "n_atoms_total": 971,
+    "n_bonds": 162,
+    "V_pore_geom_nm3": 7.108,
+    "V_pore_vdw_nm3": 1.9825,
+    "molarity_M_vdw_volume": 1.675,
+    "ec_ring_angles": {
+      "OS_CO_OS": 113.2,
+      "CO_OC": 0.0,
+      "C_O_C": 109.31,
+      "O_CH2_CH2": 104.09,
+      "OC_CO_OS": 123.4
+    },
+    "initial_min_atom_gap_A": 2.204,
+    "initial_min_wall_gap_A": 2.478,
+    "build_seed": 20262100,
+    "packer": "rejection + pack-then-relax (W8-style push-apart, 2026-10-14): strict floor = max(2.0 A, 2.2 A with H, 0.85 x LB-mixed sigma) inter-body and wall; tolerant insert >= 0.70 x floor then relaxed back above floor",
+    "n_tolerant_inserts": 5,
+    "final_relax_converged_sweep": null,
+    "stageA_role": "zero-field independent build",
+    "build_seconds": 37.2
+  },
+  "cnt10_b2": {
+    "name": "cnt10_b2",
+    "cnt_chirality": [
+      10,
+      10
+    ],
+    "cnt_diameter_A": 13.5627,
+    "cnt_length_A": 49.2,
+    "cnt_atoms": 800,
+    "R_pack_A": 3.881345413688043,
+    "box": [
+      -16.7813,
+      16.7813,
+      -16.7813,
+      16.7813,
+      0.0,
+      49.2
+    ],
+    "composition": {
+      "n_EC": 8,
+      "n_EMC": 5,
+      "n_LiPF6": 2
+    },
+    "n_atoms_total": 971,
+    "n_bonds": 162,
+    "V_pore_geom_nm3": 7.108,
+    "V_pore_vdw_nm3": 1.9825,
+    "molarity_M_vdw_volume": 1.675,
+    "ec_ring_angles": {
+      "OS_CO_OS": 113.2,
+      "CO_OC": 0.0,
+      "C_O_C": 109.31,
+      "O_CH2_CH2": 104.09,
+      "OC_CO_OS": 123.4
+    },
+    "initial_min_atom_gap_A": 2.204,
+    "initial_min_wall_gap_A": 2.478,
+    "build_seed": 20262102,
+    "packer": "rejection + pack-then-relax (W8-style push-apart, 2026-10-14): strict floor = max(2.0 A, 2.2 A with H, 0.85 x LB-mixed sigma) inter-body and wall; tolerant insert >= 0.70 x floor then relaxed back above floor",
+    "n_tolerant_inserts": 3,
+    "final_relax_converged_sweep": null,
+    "stageA_role": "zero-field independent build",
+    "build_seconds": 35.3
+  },
+  "cnt10_b3": {
+    "name": "cnt10_b3",
+    "cnt_chirality": [
+      10,
+      10
+    ],
+    "cnt_diameter_A": 13.5627,
+    "cnt_length_A": 49.2,
+    "cnt_atoms": 800,
+    "R_pack_A": 3.881345413688043,
+    "box": [
+      -16.7813,
+      16.7813,
+      -16.7813,
+      16.7813,
+      0.0,
+      49.2
+    ],
+    "composition": {
+      "n_EC": 8,
+      "n_EMC": 5,
+      "n_LiPF6": 2
+    },
+    "n_atoms_total": 971,
+    "n_bonds": 162,
+    "V_pore_geom_nm3": 7.108,
+    "V_pore_vdw_nm3": 1.9825,
+    "molarity_M_vdw_volume": 1.675,
+    "ec_ring_angles": {
+      "OS_CO_OS": 113.2,
+      "CO_OC": 0.0,
+      "C_O_C": 109.31,
+      "O_CH2_CH2": 104.09,
+      "OC_CO_OS": 123.4
+    },
+    "initial_min_atom_gap_A": 2.204,
+    "initial_min_wall_gap_A": 2.513,
+    "build_seed": 20262104,
+    "packer": "rejection + pack-then-relax (W8-style push-apart, 2026-10-14): strict floor = max(2.0 A, 2.2 A with H, 0.85 x LB-mixed sigma) inter-body and wall; tolerant insert >= 0.70 x floor then relaxed back above floor",
+    "n_tolerant_inserts": 3,
+    "final_relax_converged_sweep": null,
+    "stageA_role": "zero-field independent build",
+    "build_seconds": 32.7
+  },
+  "cnt10_b1m": {
+    "name": "cnt10_b1m",
+    "stageA_role": "zero-field MIRRORED copy of b1 (z -> Lz - z, every atom, positions only; fresh velocities in the run input)",
+    "source": "cnt10_b1.data",
+    "atoms_mirrored": 971,
+    "n_atoms_total": 971,
+    "cnt_length_A": 49.2,
+    "build_seed": null,
+    "velocity_seed": 20263107,
+    "build_seconds": 0.0
+  },
+  "cnt16_b1": {
+    "name": "cnt16_b1",
+    "cnt_chirality": [
+      16,
+      16
+    ],
+    "cnt_diameter_A": 21.7003,
+    "cnt_length_A": 49.2,
+    "cnt_atoms": 1280,
+    "R_pack_A": 7.950152661900868,
+    "box": [
+      -20.8502,
+      20.8502,
+      -20.8502,
+      20.8502,
+      0.0,
+      49.2
+    ],
+    "composition": {
+      "n_EC": 37,
+      "n_EMC": 24,
+      "n_LiPF6": 6
+    },
+    "n_atoms_total": 2058,
+    "n_bonds": 742,
+    "V_pore_geom_nm3": 18.1965,
+    "V_pore_vdw_nm3": 9.046,
+    "molarity_M_vdw_volume": 1.101,
+    "ec_ring_angles": {
+      "OS_CO_OS": 113.2,
+      "CO_OC": 0.0,
+      "C_O_C": 109.31,
+      "O_CH2_CH2": 104.09,
+      "OC_CO_OS": 123.4
+    },
+    "initial_min_atom_gap_A": 2.004,
+    "initial_min_wall_gap_A": 2.478,
+    "build_seed": 20262101,
+    "packer": "rejection + pack-then-relax (W8-style push-apart, 2026-10-14): strict floor = max(2.0 A, 2.2 A with H, 0.85 x LB-mixed sigma) inter-body and wall; tolerant insert >= 0.70 x floor then relaxed back above floor",
+    "n_tolerant_inserts": 16,
+    "final_relax_converged_sweep": null,
+    "stageA_role": "zero-field independent build",
+    "build_seconds": 365.0
+  },
+  "cnt16_b2": {
+    "name": "cnt16_b2",
+    "cnt_chirality": [
+      16,
+      16
+    ],
+    "cnt_diameter_A": 21.7003,
+    "cnt_length_A": 49.2,
+    "cnt_atoms": 1280,
+    "R_pack_A": 7.950152661900868,
+    "box": [
+      -20.8502,
+      20.8502,
+      -20.8502,
+      20.8502,
+      0.0,
+      49.2
+    ],
+    "composition": {
+      "n_EC": 37,
+      "n_EMC": 24,
+      "n_LiPF6": 6
+    },
+    "n_atoms_total": 2058,
+    "n_bonds": 742,
+    "V_pore_geom_nm3": 18.1965,
+    "V_pore_vdw_nm3": 9.046,
+    "molarity_M_vdw_volume": 1.101,
+    "ec_ring_angles": {
+      "OS_CO_OS": 113.2,
+      "CO_OC": 0.0,
+      "C_O_C": 109.31,
+      "O_CH2_CH2": 104.09,
+      "OC_CO_OS": 123.4
+    },
+    "initial_min_atom_gap_A": 2.004,
+    "initial_min_wall_gap_A": 2.478,
+    "build_seed": 20262103,
+    "packer": "rejection + pack-then-relax (W8-style push-apart, 2026-10-14): strict floor = max(2.0 A, 2.2 A with H, 0.85 x LB-mixed sigma) inter-body and wall; tolerant insert >= 0.70 x floor then relaxed back above floor",
+    "n_tolerant_inserts": 14,
+    "final_relax_converged_sweep": null,
+    "stageA_role": "zero-field independent build",
+    "build_seconds": 359.3
+  },
+  "cnt16_b3": {
+    "name": "cnt16_b3",
+    "cnt_chirality": [
+      16,
+      16
+    ],
+    "cnt_diameter_A": 21.7003,
+    "cnt_length_A": 49.2,
+    "cnt_atoms": 1280,
+    "R_pack_A": 7.950152661900868,
+    "box": [
+      -20.8502,
+      20.8502,
+      -20.8502,
+      20.8502,
+      0.0,
+      49.2
+    ],
+    "composition": {
+      "n_EC": 37,
+      "n_EMC": 24,
+      "n_LiPF6": 6
+    },
+    "n_atoms_total": 2058,
+    "n_bonds": 742,
+    "V_pore_geom_nm3": 18.1965,
+    "V_pore_vdw_nm3": 9.046,
+    "molarity_M_vdw_volume": 1.101,
+    "ec_ring_angles": {
+      "OS_CO_OS": 113.2,
+      "CO_OC": 0.0,
+      "C_O_C": 109.31,
+      "O_CH2_CH2": 104.09,
+      "OC_CO_OS": 123.4
+    },
+    "initial_min_atom_gap_A": 2.041,
+    "initial_min_wall_gap_A": 2.478,
+    "build_seed": 20262105,
+    "packer": "rejection + pack-then-relax (W8-style push-apart, 2026-10-14): strict floor = max(2.0 A, 2.2 A with H, 0.85 x LB-mixed sigma) inter-body and wall; tolerant insert >= 0.70 x floor then relaxed back above floor",
+    "n_tolerant_inserts": 15,
+    "final_relax_converged_sweep": null,
+    "stageA_role": "zero-field independent build",
+    "build_seconds": 373.1
+  },
+  "cnt16_b1m": {
+    "name": "cnt16_b1m",
+    "stageA_role": "zero-field MIRRORED copy of b1 (z -> Lz - z, every atom, positions only; fresh velocities in the run input)",
+    "source": "cnt16_b1.data",
+    "atoms_mirrored": 2058,
+    "n_atoms_total": 2058,
+    "cnt_length_A": 49.2,
+    "build_seed": null,
+    "velocity_seed": 20263108,
+    "build_seconds": 0.0
+  },
+  "fill_cnt10": {
+    "name": "fill_cnt10",
+    "cnt_chirality": [
+      10,
+      10
+    ],
+    "cnt_diameter_A": 13.5627,
+    "cnt_length_A": 49.2,
+    "cnt_atoms": 800,
+    "tube_z_span_A": [
+      30.0,
+      79.2
+    ],
+    "box": [
+      -21.7813,
+      21.7813,
+      -21.7813,
+      21.7813,
+      0.0,
+      109.2
+    ],
+    "reservoir_each_side_A": 30.0,
+    "lateral_liquid_A": 15.0,
+    "block": {
+      "block_box_A": [
+        21.7813,
+        21.7813,
+        27.3
+      ],
+      "pack_frac_target": 0.95,
+      "n_EC": 56,
+      "n_EMC": 29,
+      "n_PF6": 7,
+      "n_Li": 7,
+      "skipped": {
+        "EC": 0,
+        "EMC": 7,
+        "PF6": 0,
+        "Li": 0
+      },
+      "achieved_frac_of_bulk": 0.8691,
+      "n_atoms": 1051,
+      "n_tolerant_inserts": 29,
+      "final_relax_converged_sweep": null,
+      "build_seed": 20264100,
+      "build_seconds": 1385.5
+    },
+    "tiles": "2x2x4",
+    "molecules_tiled": 1584,
+    "molecules_deleted_by_carving": {
+      "EC": 82,
+      "EMC": 44,
+      "PF6": 12,
+      "Li": 12
+    },
+    "composition": {
+      "n_EC": 814,
+      "n_EMC": 420,
+      "n_LiPF6": 100
+    },
+    "note": "bath packed at 95% of the target bulk density (see block.pack_frac); the run's pressure anneal (fix nph target -1000 atm -> 1 atm over the 300 ps ramp stage) compresses it to 1 atm before the 5 ns production",
+    "bath_molarity_M_at_pack": 0.8013,
+    "bath_molarity_M_after_anneal": 0.8435,
+    "bath_atom_density_per_A3": 0.07354,
+    "n_atoms_total": 16040,
+    "n_bonds": 14620,
+    "build_seed": 20264100,
+    "packer": "tri-periodic block (pack-then-relax at 95% bulk density) tiled 2x2x4, carved around the tube; tube starts empty (imbibition start)",
+    "build_seconds": 1386.3
+  },
+  "fill_cnt16": {
+    "name": "fill_cnt16",
+    "cnt_chirality": [
+      16,
+      16
+    ],
+    "cnt_diameter_A": 21.7003,
+    "cnt_length_A": 49.2,
+    "cnt_atoms": 1280,
+    "tube_z_span_A": [
+      30.0,
+      79.2
+    ],
+    "box": [
+      -25.8502,
+      25.8502,
+      -25.8502,
+      25.8502,
+      0.0,
+      109.2
+    ],
+    "reservoir_each_side_A": 30.0,
+    "lateral_liquid_A": 15.0,
+    "block": {
+      "block_box_A": [
+        25.8502,
+        25.8502,
+        27.3
+      ],
+      "pack_frac_target": 0.95,
+      "n_EC": 78,
+      "n_EMC": 39,
+      "n_PF6": 10,
+      "n_Li": 10,
+      "skipped": {
+        "EC": 0,
+        "EMC": 11,
+        "PF6": 0,
+        "Li": 0
+      },
+      "achieved_frac_of_bulk": 0.8483,
+      "n_atoms": 1445,
+      "n_tolerant_inserts": 39,
+      "final_relax_converged_sweep": null,
+      "build_seed": 20264101,
+      "build_seconds": 1768.7
+    },
+    "tiles": "2x2x4",
+    "molecules_tiled": 2192,
+    "molecules_deleted_by_carving": {
+      "EC": 116,
+      "EMC": 73,
+      "PF6": 17,
+      "Li": 17
+    },
+    "composition": {
+      "n_EC": 1132,
+      "n_EMC": 551,
+      "n_LiPF6": 143
+    },
+    "note": "bath packed at 95% of the target bulk density (see block.pack_frac); the run's pressure anneal (fix nph target -1000 atm -> 1 atm over the 300 ps ramp stage) compresses it to 1 atm before the 5 ns production",
+    "bath_molarity_M_at_pack": 0.8135,
+    "bath_molarity_M_after_anneal": 0.8564,
+    "bath_atom_density_per_A3": 0.07102,
+    "n_atoms_total": 22009,
+    "n_bonds": 19892,
+    "build_seed": 20264101,
+    "packer": "tri-periodic block (pack-then-relax at 95% bulk density) tiled 2x2x4, carved around the tube; tube starts empty (imbibition start)",
+    "build_seconds": 1769.5
+  }
+}
