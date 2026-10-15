@@ -50,7 +50,8 @@ All four systems, all 21 production frames:
   dialect: 0.75 x Bondi sum on heavy-atom pairs, cation pairs exempt);
 - 0.8 x mixed-sigma LJ floor PASS;
 - in-tube density (vdW pore): 1.2805 g/cm3 (cnt10) and 1.2241 (cnt16)
-  vs 1.17 bulk EC:EMC 1:1 (+9.4% / +4.6%; confinement-compressed);
+  vs 1.17 bulk EC:EMC 1:1 (+9.4% / +4.6%; packed to the target
+  composition; filling not equilibrated with a reservoir);
 - equilibration evidence: Tmob 299-303 K (correct-DOF mobile temperature
   v_Tmob; the raw LAMMPS `temp` column is diluted by the frozen tube
   atoms); PE quarter-means settle during the 400 ps stage

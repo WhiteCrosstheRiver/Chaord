@@ -1,29 +1,55 @@
-# First result: the programs' statements separate field-on from field-off
+# Pilot at a saturating field (0.2 V/Å, about 10 kT per EC dipole)
 
-The reviewer's done-when (docs/reviews/open_items_v2.md, section 5, item 3):
-"Lift 20 frames with the field off and 20 with it on, for two tube
-diameters. Done when the programs' statements, not the coordinates,
-separate the states beyond their noise floors, and a classifier that reads
-only the statements tells field on from off with at least 95% accuracy."
-
-**Verdict: met, with the numbers below.** All 84 production frames of the
-four committed systems (2 diameters x field on/off x 21 frames, 0-100 ps
-every 5 ps) were lifted; within each diameter the field1-vs-field0
+**Verdict: pilot at a saturating field (0.2 V/Å, about 10 kT per EC
+dipole).** What this run shows: the pipeline works end to end. Four
+systems were built, run and lifted; all 84 production frames (2
+diameters x field on/off x 21 frames, 0-100 ps every 5 ps) passed every
+static check; within each diameter the field1-vs-field0
 statement-observable distance exceeds the per-system noise floor by
-x3.3-x4.8 (mean) and x2.1-x3.3 (worst pair); a classifier that reads only
-the statement texts classifies all 84 frames correctly (100% >= 95%),
-leave-one-out and cross-diameter both ways. The P1 physics is the only
-statement that separates: a control classifier denied every field-related
-line falls to 64% / chance — the honest negative that shows the separation
-is the field's, not a side effect of composition asserts.
+x3.3-x4.8 (mean) and x2.1-x3.3 (worst pair); the field-on and field-off
+P1 ranges never overlap (cnt10: [-0.245, +0.005] vs [+0.585, +0.838];
+cnt16: [+0.092, +0.191] vs [+0.460, +0.708]); and a classifier that
+reads only the statement texts classifies all 84 frames correctly
+(100%), leave-one-out and cross-diameter both ways. The P1 physics is
+the only statement that separates: a control classifier denied every
+field-related line falls to 64% / chance — the honest negative that
+shows the separation is the field's, not a side effect of composition
+asserts.
+
+What this run does NOT show: weak-field sensitivity (only 0 and 0.2 V/A
+were run, and 0.2 V/A saturates — the title's about-10-kT-per-EC-dipole
+field; nothing here probes the working field or the linear-response
+regime); an equilibrated zero-field orientation (section 3: the
+zero-field runs had 500 ps after the ramp, 7 of 13 and 38 of 61
+molecules never reverse their axial dipole, and each molecule's 500 ps
+mean of cos theta spreads by 0.57-0.61); independent runs (one
+trajectory per system — the section 4 floors are frame pairs within
+single trajectories, not ensembles; D31 judges ensembles, not frames,
+and the field ladder of D30 is what would answer the missing
+questions).
+
+The bar this pilot answered (docs/reviews/open_items_v2.md, section 5,
+item 3): "Lift 20 frames with the field off and 20 with it on, for two
+tube diameters. Done when the programs' statements, not the
+coordinates, separate the states beyond their noise floors, and a
+classifier that reads only the statements tells field on from off with
+at least 95% accuracy." That bar is met at this field, with the numbers
+below — and only at this field.
 
 Every number in this file is produced by
-`research/cnt_electrolyte/analyze_first_result.py` from the committed run
-data and pinned by `tests/test_field_classifier.py` (slow). The full
+`research/cnt_electrolyte/analyze_first_result.py` (the lift, the
+statement inventory, the P1 table and the classifier) or by
+`research/cnt_electrolyte/orientation_check.py` (the orientation
+relaxation, the P1-line census and the measured-P1 threshold; numpy and
+stdlib only, no chaord) from the committed run data; the classifier
+numbers are pinned by `tests/test_field_classifier.py` (slow). The full
 record, including every program text, is
 `research/cnt_electrolyte/runs/first_result_summary.json`.
 
-Reproduce:  `python research/cnt_electrolyte/analyze_first_result.py`
+Reproduce (from the repository root):
+
+    python research/cnt_electrolyte/analyze_first_result.py
+    python research/cnt_electrolyte/orientation_check.py
 
 ## 1. Inputs and verification (fail-closed, before any lifting)
 
@@ -121,13 +147,28 @@ earlier probe without the molecular stack measured).
 | cnt16_field0 | +0.152 +- 0.030 | [+0.092, +0.191] | +0.246 | +0.007 | 61 |
 | cnt16_field1 | **+0.606 +- 0.053** | [+0.460, +0.708] | +0.743 | +0.395 | 61 |
 
-Physics notes, honestly: the field-off states are NOT at P1 = 0 —
-confinement aligns the solvent (EC +0.25 in the wide tube), and in the
-narrow tube the five EMC molecules sit at -0.34 on average (their dipoles
-anti-align along the axis; the EC average is ~0). The 0.2 V/A field moves
-the EC average to +0.94/+0.74 (mu x E ~ 8 kT for EC's ~4.9 D) and the EMC
-average to +0.38/+0.40. The two states' RANGES do not overlap in either
-diameter (cnt10: +0.005 vs +0.585; cnt16: +0.191 vs +0.460).
+Reading. By symmetry, the equilibrium zero-field expectation is P1 = 0:
+an achiral armchair tube is invariant under z -> -z, so no confined
+equilibrium state can carry a nonzero mean axial orientation. The
+measured field-off means (-0.121, +0.152) are therefore not a
+confinement effect to read physics from — they are the unrelaxed
+remnant of the packed starting orientations, and
+`orientation_check.py` (chaord-free, per molecule over equil + prod
+dumps, frames 50-550 ps) shows the orientation had not equilibrated in
+the 500 ps available:
+
+    cnt10_field0: P1 range -0.24..+0.25; 7 of 13 molecules never reverse; per-molecule 500 ps mean cos, sd 0.61
+    cnt16_field0: P1 range +0.03..+0.20; 38 of 61 molecules never reverse; per-molecule 500 ps mean cos, sd 0.57
+    cnt10_field1: P1 range +0.55..+0.84; 10 of 13 molecules never reverse; per-molecule 500 ps mean cos, sd 0.38
+    cnt16_field1: P1 range +0.46..+0.71; 27 of 61 molecules never reverse; per-molecule 500 ps mean cos, sd 0.30
+
+With the field on, the solvent is saturated: the cnt10 zero-field P1
+swings from -0.24 to +0.25 across the same 500 ps window, while the
+field-on per-frame P1 stays within +0.55..+0.84 / +0.46..+0.71, and in
+the production window the two states' RANGES do not overlap in either
+diameter (cnt10: +0.005 vs +0.585; cnt16: +0.191 vs +0.460). Even
+saturated, the per-molecule 500 ps mean cos keeps an sd of 0.38/0.30:
+the field fixes the mean, not every molecule.
 
 ## 4. Noise floors and separation
 
@@ -179,6 +220,19 @@ value-only content is what the numbers above carry, and the underlying
 physics is section 3-4: the measured P1 of every field-on frame exceeds
 every field-off frame's, in both diameters, beyond the floors.
 
+The caveat, quantified (`orientation_check.py`): the P1 line's presence
+co-occurs with the field by construction —
+
+    field off: 0 of 42 programs carry the P1 line
+    field on:  42 of 42 programs carry the P1 line
+
+— but the value alone carries the separation: a threshold on each
+frame's MEASURED P1 (`records[].p1_measured`, recorded for all 84
+frames whether or not the program asserts it) also classifies 100% at
+this field — leave-one-out 84/84, cnt10 -> cnt16 42/42, cnt16 -> cnt10
+42/42, over measured ranges field0 -0.245..+0.191 vs field1
++0.460..+0.838.
+
 ## 6. Honest negatives, limitations and open items
 
 1. **The radial observable is unusable on these cells as defined.**
@@ -218,6 +272,10 @@ every field-off frame's, in both diameters, beyond the floors.
 
 - Pipeline: `research/cnt_electrolyte/analyze_first_result.py` (this
   directory), deterministic, no randomness anywhere.
+- Orientation, reversal counts, P1-line census and the measured-P1
+  threshold: `research/cnt_electrolyte/orientation_check.py` (this
+  directory; numpy + stdlib only, no chaord; run from the repository
+  root).
 - Raw record with every program text and per-frame P1:
   `research/cnt_electrolyte/runs/first_result_summary.json` (written by
   the pipeline run of 2026-10-14/15 on the committed `runs/` data;
