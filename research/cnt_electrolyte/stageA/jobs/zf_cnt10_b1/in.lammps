@@ -4,8 +4,15 @@
 #   molecules from Nutakki 2023 Tables II-III, Werder sp2-C tube carbons,
 #   Lorentz-Berthelot mixing (recorded deviation), full +-1 ion charges.
 # Thermostat: ONE Langevin scheme for every mobile atom, damping 1 ps:
-#   fix rigid/nve/small molecule langevin (multi-atom bodies) + fix nve +
+#   fix rigid/nve molecule langevin (multi-atom bodies) + fix nve +
 #   fix langevin (Li+); no Nose-Hoover anywhere (Y6 settings).
+#   NOTE rigid/nve (not the /small variant): the local conda build's
+#   fix rigid/nve/small molecule corrupted body data at the first
+#   integration step for 3 of 4 cnt16 fresh builds (heap-layout
+#   dependent; atoms teleported out of the PPPM brick at step 1 with
+#   sane step-0 forces/velocities - see stageA_plan.md addendum
+#   2026-10-16). Same Langevin scheme, same damping, deterministic
+#   body bookkeeping.
 # Dumps: every 1 ps, dump_modify format float %.10g, with image flags.
 # Thermo: every 1 ps.
 #
@@ -63,7 +70,7 @@ thermo_style    custom step atoms v_Tmob temp pe etotal press vol
 velocity        mobile create 10.0 20263100 mom yes rot yes dist gaussian
 
 # --- stage 1: ramp 10 -> 300 K over 100 ps (Langevin only)
-fix             thb bodies rigid/nve/small molecule langevin 10.0 300.0 1000 3100101
+fix             thb bodies rigid/nve molecule langevin 10.0 300.0 1000 3100101
 fix             thl li nve
 fix             thla li langevin 10.0 300.0 1000 3100102
 run             ${nramp}
@@ -72,7 +79,7 @@ run             ${nramp}
 unfix           thb
 unfix           thl
 unfix           thla
-fix             thb bodies rigid/nve/small molecule langevin 300.0 300.0 1000 3100103
+fix             thb bodies rigid/nve molecule langevin 300.0 300.0 1000 3100103
 fix             thl li nve
 fix             thla li langevin 300.0 300.0 1000 3100104
 dump            ed all custom 100000 equil.dump id mol type q x y z ix iy iz

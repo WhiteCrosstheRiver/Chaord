@@ -41,7 +41,15 @@
     "n_tolerant_inserts": 5,
     "final_relax_converged_sweep": null,
     "stageA_role": "zero-field independent build",
-    "build_seconds": 37.2
+    "build_seconds": 37.2,
+    "guard": {
+      "min_intermolecular_A": 2.204,
+      "min_mol_tube_A": 2.531,
+      "max_molecule_split_A": 0.0,
+      "max_raw_bond_A": 1.606,
+      "floor_ratio": 0.95,
+      "checked_pairs": "all, min image"
+    }
   },
   "cnt10_b2": {
     "name": "cnt10_b2",
@@ -85,7 +93,15 @@
     "n_tolerant_inserts": 3,
     "final_relax_converged_sweep": null,
     "stageA_role": "zero-field independent build",
-    "build_seconds": 35.3
+    "build_seconds": 35.3,
+    "guard": {
+      "min_intermolecular_A": 2.204,
+      "min_mol_tube_A": 2.49,
+      "max_molecule_split_A": 0.0,
+      "max_raw_bond_A": 1.606,
+      "floor_ratio": 0.95,
+      "checked_pairs": "all, min image"
+    }
   },
   "cnt10_b3": {
     "name": "cnt10_b3",
@@ -129,7 +145,15 @@
     "n_tolerant_inserts": 3,
     "final_relax_converged_sweep": null,
     "stageA_role": "zero-field independent build",
-    "build_seconds": 32.7
+    "build_seconds": 32.7,
+    "guard": {
+      "min_intermolecular_A": 2.204,
+      "min_mol_tube_A": 2.525,
+      "max_molecule_split_A": 0.0,
+      "max_raw_bond_A": 1.606,
+      "floor_ratio": 0.95,
+      "checked_pairs": "all, min image"
+    }
   },
   "cnt10_b1m": {
     "name": "cnt10_b1m",
@@ -140,7 +164,15 @@
     "cnt_length_A": 49.2,
     "build_seed": null,
     "velocity_seed": 20263107,
-    "build_seconds": 0.0
+    "build_seconds": 0.0,
+    "guard": {
+      "min_intermolecular_A": 2.204,
+      "min_mol_tube_A": 2.531,
+      "max_molecule_split_A": 0.0,
+      "max_raw_bond_A": 1.606,
+      "floor_ratio": 0.95,
+      "checked_pairs": "all, min image"
+    }
   },
   "cnt16_b1": {
     "name": "cnt16_b1",
@@ -184,7 +216,15 @@
     "n_tolerant_inserts": 16,
     "final_relax_converged_sweep": null,
     "stageA_role": "zero-field independent build",
-    "build_seconds": 365.0
+    "build_seconds": 365.0,
+    "guard": {
+      "min_intermolecular_A": 2.004,
+      "min_mol_tube_A": 2.493,
+      "max_molecule_split_A": 0.0,
+      "max_raw_bond_A": 1.606,
+      "floor_ratio": 0.95,
+      "checked_pairs": "all, min image"
+    }
   },
   "cnt16_b2": {
     "name": "cnt16_b2",
@@ -228,7 +268,15 @@
     "n_tolerant_inserts": 14,
     "final_relax_converged_sweep": null,
     "stageA_role": "zero-field independent build",
-    "build_seconds": 359.3
+    "guard": {
+      "min_intermolecular_A": 2.004,
+      "min_mol_tube_A": 2.51,
+      "max_molecule_split_A": 0.0,
+      "max_raw_bond_A": 1.606,
+      "floor_ratio": 0.95,
+      "checked_pairs": "all, min image"
+    },
+    "build_seconds": 340.3
   },
   "cnt16_b3": {
     "name": "cnt16_b3",
@@ -272,7 +320,15 @@
     "n_tolerant_inserts": 15,
     "final_relax_converged_sweep": null,
     "stageA_role": "zero-field independent build",
-    "build_seconds": 373.1
+    "guard": {
+      "min_intermolecular_A": 2.041,
+      "min_mol_tube_A": 2.481,
+      "max_molecule_split_A": 0.0,
+      "max_raw_bond_A": 1.606,
+      "floor_ratio": 0.95,
+      "checked_pairs": "all, min image"
+    },
+    "build_seconds": 367.7
   },
   "cnt16_b1m": {
     "name": "cnt16_b1m",
@@ -283,7 +339,15 @@
     "cnt_length_A": 49.2,
     "build_seed": null,
     "velocity_seed": 20263108,
-    "build_seconds": 0.0
+    "guard": {
+      "min_intermolecular_A": 2.004,
+      "min_mol_tube_A": 2.493,
+      "max_molecule_split_A": 0.0,
+      "max_raw_bond_A": 1.606,
+      "floor_ratio": 0.95,
+      "checked_pairs": "all, min image"
+    },
+    "build_seconds": 0.3
   },
   "fill_cnt10": {
     "name": "fill_cnt10",
@@ -353,7 +417,15 @@
     "n_bonds": 14620,
     "build_seed": 20264100,
     "packer": "tri-periodic block (pack-then-relax at 95% bulk density) tiled 2x2x4, carved around the tube; tube starts empty (imbibition start)",
-    "build_seconds": 1386.3
+    "build_seconds": 1386.3,
+    "guard": {
+      "min_intermolecular_A": 2.008,
+      "min_mol_tube_A": 2.474,
+      "max_molecule_split_A": 0.0,
+      "max_raw_bond_A": 1.606,
+      "floor_ratio": 0.95,
+      "checked_pairs": "all, min image"
+    }
   },
   "fill_cnt16": {
     "name": "fill_cnt16",
@@ -423,6 +495,14 @@
     "n_bonds": 19892,
     "build_seed": 20264101,
     "packer": "tri-periodic block (pack-then-relax at 95% bulk density) tiled 2x2x4, carved around the tube; tube starts empty (imbibition start)",
-    "build_seconds": 1769.5
+    "build_seconds": 1769.5,
+    "guard": {
+      "min_intermolecular_A": 2.004,
+      "min_mol_tube_A": 2.209,
+      "max_molecule_split_A": 0.0,
+      "max_raw_bond_A": 1.606,
+      "floor_ratio": 0.95,
+      "checked_pairs": "all, min image"
+    }
   }
 }

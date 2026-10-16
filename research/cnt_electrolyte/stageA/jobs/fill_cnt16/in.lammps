@@ -4,8 +4,15 @@
 #   molecules from Nutakki 2023 Tables II-III, Werder sp2-C tube carbons,
 #   Lorentz-Berthelot mixing (recorded deviation), full +-1 ion charges.
 # Thermostat: ONE Langevin scheme for every mobile atom, damping 1 ps:
-#   fix rigid/nve/small molecule langevin (multi-atom bodies) + fix nve +
+#   fix rigid/nve molecule langevin (multi-atom bodies) + fix nve +
 #   fix langevin (Li+); no Nose-Hoover anywhere (Y6 settings).
+#   NOTE rigid/nve (not the /small variant): the local conda build's
+#   fix rigid/nve/small molecule corrupted body data at the first
+#   integration step for 3 of 4 cnt16 fresh builds (heap-layout
+#   dependent; atoms teleported out of the PPPM brick at step 1 with
+#   sane step-0 forces/velocities - see stageA_plan.md addendum
+#   2026-10-16). Same Langevin scheme, same damping, deterministic
+#   body bookkeeping.
 # Dumps: every 1 ps, dump_modify format float %.10g, with image flags.
 # Thermo: every 1 ps.
 #
@@ -72,7 +79,7 @@ velocity        mobile create 10.0 20265101 mom yes rot yes dist gaussian
 #     covers every mobile atom) is the fix-rigid docs' rigid-bodies-plus-
 #     point-particles hybrid; dilate mobile never rescales the frozen
 #     tube; the NPT pressure is the global thermo one.
-fix             thb bodies rigid/nve/small molecule langevin 10.0 300.0 1000 5101101
+fix             thb bodies rigid/nve molecule langevin 10.0 300.0 1000 5101101
 fix             thl li nph iso -2000 1 2000 dilate mobile
 fix             thla li langevin 10.0 300.0 1000 5101102
 run             ${nrampf}
@@ -82,7 +89,7 @@ run             ${nrampf}
 unfix           thb
 unfix           thl
 unfix           thla
-fix             thb bodies rigid/nve/small molecule langevin 300.0 300.0 1000 5101103
+fix             thb bodies rigid/nve molecule langevin 300.0 300.0 1000 5101103
 fix             thl li nph iso 1 1 2000 dilate mobile
 fix             thla li langevin 300.0 300.0 1000 5101104
 reset_timestep  0

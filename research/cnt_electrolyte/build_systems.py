@@ -646,6 +646,166 @@ def write_data(path, box, tube_xyz, molecules, comment):
 
 
 # ----------------------------------------------------------------------------
+# post-build geometric guard (added 2026-10-16, Stage A restart)
+# ----------------------------------------------------------------------------
+
+def validate_data_file(path, floor_ratio=0.95, chunk=256):
+    """Post-build guard on a written LAMMPS 'full' data file (rows
+    'id mol type q x y z'; no image flags). Refuses (RuntimeError) a build
+    whose file would make LAMMPS die at setup/step 0:
+
+      1. every INTER-molecular pair distance (minimum image, all 3 dims)
+         must be >= floor_ratio x the packing floor MIN_ALLOWED[t1,t2];
+      2. every molecule-tube pair distance likewise (the tube is
+         molecule 1 / type C_tube; checked explicitly rather than via a
+         radial gap so a mis-placed molecule cannot hide behind COM
+         sampling radii);
+      3. every molecule must be WHOLE in raw (as-written) coordinates:
+         its raw diameter must match the minimum-image diameter within
+         1 A - a molecule the writer left split across a periodic
+         boundary produces huge raw intra-molecular distances;
+      4. every written bond must be whole (raw length < 3.0 A; the
+         templates' bonds are all 0.99-1.61 A).
+
+    Returns a stats dict for the build manifest. Intra-molecular pairs
+    (including the rigid templates' fixed geometry) are exempt from 1-2,
+    as in the packer's own verify().
+    """
+    box = {}
+    atoms, bonds = [], []
+    sect = None
+    with open(path) as f:
+        for l in f:
+            s = l.strip()
+            if not s:
+                continue
+            low = s.lower()
+            hit = False
+            for ax in "xyz":
+                if low.endswith(f"{ax}lo {ax}hi"):
+                    box[ax] = (float(s.split()[0]), float(s.split()[1]))
+                    hit = True
+            if hit:
+                continue
+            if s.startswith("Atoms"):
+                sect = "atoms"
+            elif s.startswith("Bonds"):
+                sect = "bonds"
+            elif s.startswith(("Masses", "Velocities")):
+                sect = None
+            elif sect == "atoms":
+                p = s.split()
+                atoms.append([int(p[0]), int(p[1]), int(p[2]),
+                              float(p[4]), float(p[5]), float(p[6])])
+            elif sect == "bonds":
+                p = s.split()
+                bonds.append((int(p[2]), int(p[3])))
+    if not box or not atoms:
+        raise RuntimeError(f"{path}: could not parse box/atoms for the guard")
+    A = np.array(atoms, float)
+    order = np.argsort(A[:, 0])
+    A = A[order]                       # rows sorted by atom id
+    X, mol, typ = A[:, 3:6], A[:, 1].astype(int), A[:, 2].astype(int)
+    ids = A[:, 0].astype(int)
+    L = np.array([box["x"][1] - box["x"][0], box["y"][1] - box["y"][0],
+                  box["z"][1] - box["z"][0]])
+    t_tube = TYPE_OF["C_tube"]
+    n = len(A)
+
+    # --- 1+2: chunked min-image pair scan (inter-molecule, mol-vs-tube)
+    min_inter, min_tube = np.inf, np.inf
+    off_inter = off_tube = None
+    for s0 in range(0, n, chunk):
+        s1 = min(n, s0 + chunk)
+        d = X[s0:s1, None, :] - X[None, :, :]
+        d -= L * np.round(d / L)
+        d2 = (d ** 2).sum(-1)
+        same = mol[s0:s1, None] == mol[None, :]
+        m = (~same) & (d2 > 0.0)
+        d2_m = np.where(m, d2, np.inf)
+        tube_pair = m & ((typ[s0:s1, None] == t_tube) |
+                         (typ[None, :] == t_tube))
+        d2_t = np.where(tube_pair, d2, np.inf)
+        k = np.unravel_index(np.argmin(d2_m), d2_m.shape)
+        if d2_m[k] < min_inter:
+            min_inter, off_inter = d2_m[k], (s0 + k[0], k[1])
+        k = np.unravel_index(np.argmin(d2_t), d2_t.shape)
+        if d2_t[k] < min_tube:
+            min_tube, off_tube = d2_t[k], (s0 + k[0], k[1])
+    min_inter, min_tube = math.sqrt(max(min_inter, 0.0)), \
+        math.sqrt(max(min_tube, 0.0))
+
+    def _pair_types(off):
+        return int(typ[off[0]]), int(typ[off[1]])
+
+    ti, tj = _pair_types(off_inter)
+    if min_inter < floor_ratio * MIN_ALLOWED[ti, tj]:
+        raise RuntimeError(
+            f"{os.path.basename(path)}: BUILD REFUSED - inter-molecular "
+            f"contact {min_inter:.3f} A (atom {ids[off_inter[0]]} type {ti} "
+            f"- atom {ids[off_inter[1]]} type {tj}) is below "
+            f"{floor_ratio:.2f} x the packing floor "
+            f"{MIN_ALLOWED[ti, tj]:.3f} A")
+    ti, tj = _pair_types(off_tube)
+    if min_tube < floor_ratio * MIN_ALLOWED[ti, tj]:
+        raise RuntimeError(
+            f"{os.path.basename(path)}: BUILD REFUSED - molecule-tube "
+            f"contact {min_tube:.3f} A (atom {ids[off_tube[0]]} type {ti} "
+            f"- atom {ids[off_tube[1]]} type {tj}) is below "
+            f"{floor_ratio:.2f} x the packing floor "
+            f"{MIN_ALLOWED[ti, tj]:.3f} A")
+
+    # --- 3: molecule wholeness in raw coordinates. The TUBE (molecule 1)
+    # is exempt: it is a single frozen body that intentionally spans the
+    # box, so its min-image diameter is legitimately shorter than its raw
+    # diameter (any object larger than half the box has no unique min-image
+    # diameter). Liquid molecules are all << L/2.
+    worst_split = 0.0
+    split_mol = None
+    for m in np.unique(mol):
+        if m == 1:
+            continue
+        ix = np.flatnonzero(mol == m)
+        sub = X[ix]
+        if len(ix) == 1:
+            continue
+        dv = sub[:, None, :] - sub[None, :, :]
+        raw_span = float(np.sqrt((dv ** 2).sum(-1).max()))
+        dd = dv - L * np.round(dv / L)
+        mi_span = float(np.sqrt((dd ** 2).sum(-1).max()))
+        if mi_span > 0.5 * L.min():
+            continue                    # min-image diameter ill-defined
+        if raw_span - mi_span > worst_split:
+            worst_split, split_mol = raw_span - mi_span, int(m)
+    if worst_split > 1.0:
+        raise RuntimeError(
+            f"{os.path.basename(path)}: BUILD REFUSED - molecule "
+            f"{split_mol} is split across a periodic boundary in the "
+            f"written file (raw diameter exceeds min-image diameter by "
+            f"{worst_split:.1f} A)")
+
+    # --- 4: bond wholeness
+    row_of = {int(k): i for i, k in enumerate(ids)}
+    max_bond = 0.0
+    bad_bond = None
+    for a, b in bonds:
+        dv = X[row_of[a]] - X[row_of[b]]
+        d = float(np.linalg.norm(dv))
+        if d > max_bond:
+            max_bond, bad_bond = d, (a, b)
+    if max_bond > 3.0:
+        raise RuntimeError(
+            f"{os.path.basename(path)}: BUILD REFUSED - bond "
+            f"{bad_bond[0]}-{bad_bond[1]} raw length {max_bond:.3f} A "
+            f"(molecule broken across the boundary in the written file)")
+    return dict(min_intermolecular_A=round(min_inter, 3),
+                min_mol_tube_A=round(min_tube, 3),
+                max_molecule_split_A=round(worst_split, 3),
+                max_raw_bond_A=round(max_bond, 3),
+                floor_ratio=floor_ratio, checked_pairs="all, min image")
+
+
+# ----------------------------------------------------------------------------
 # per-system build
 # ----------------------------------------------------------------------------
 

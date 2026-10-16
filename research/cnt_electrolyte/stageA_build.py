@@ -471,17 +471,24 @@ def main():
                 t0 = time.time()
                 info, _ = B.build_system(name)
                 info["stageA_role"] = "zero-field independent build"
+                info["guard"] = B.validate_data_file(
+                    os.path.join(HERE, "data", f"{name}.data"))
                 info["build_seconds"] = round(time.time() - t0, 1)
                 manifest[name] = info
                 save()
                 print(f"[stageA-build] {name}: {info['n_atoms_total']} atoms "
-                      f"({info['build_seconds']} s)", flush=True)
+                      f"({info['build_seconds']} s), guard OK: inter-mol "
+                      f">= {info['guard']['min_intermolecular_A']} A, "
+                      f"mol-tube >= {info['guard']['min_mol_tube_A']} A",
+                      flush=True)
             name = f"cnt{n}_b1m"
             if name not in manifest or not os.path.isfile(
                     os.path.join(HERE, "data", f"{name}.data")):
                 t0 = time.time()
                 nmir, Lz = mirror_data(
                     os.path.join(HERE, "data", f"cnt{n}_b1.data"),
+                    os.path.join(HERE, "data", f"{name}.data"))
+                guard = B.validate_data_file(
                     os.path.join(HERE, "data", f"{name}.data"))
                 manifest[name] = dict(
                     name=name, stageA_role="zero-field MIRRORED copy of b1 "
@@ -491,6 +498,7 @@ def main():
                     n_atoms_total=manifest[f"cnt{n}_b1"]["n_atoms_total"],
                     cnt_length_A=round(Lz, 4), build_seed=None,
                     velocity_seed=P.SEEDS[name]["velocity"],
+                    guard=guard,
                     build_seconds=round(time.time() - t0, 1))
                 save()
             print(f"[stageA-build] {name}: mirrored "
@@ -505,14 +513,16 @@ def main():
                 continue
             t0 = time.time()
             info = build_fill(name, n, 20264100 + n // 16)
+            info["guard"] = B.validate_data_file(
+                os.path.join(HERE, "data", f"{name}.data"))
             info["build_seconds"] = round(time.time() - t0, 1)
             manifest[name] = info
             save()
             print(f"[stageA-build] {name}: {info['n_atoms_total']} atoms, "
                   f"{info['bath_molarity_M_after_anneal']} M bath after "
                   f"anneal (packed at {info['bath_molarity_M_at_pack']} M), "
-                  f"deleted {info['molecules_deleted_by_carving']} "
-                  f"({info['build_seconds']} s)", flush=True)
+                  f"deleted {info['molecules_deleted_by_carving']}, "
+                  f"guard OK ({info['build_seconds']} s)", flush=True)
     print("[stageA-build] wrote", out)
 
 

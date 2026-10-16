@@ -111,3 +111,69 @@ per job) and the `lmp` binary is a queue-runner flag
   SEMs; JSON in `stageA/analysis/`, small P1(t) series in
   `stageA/p1_series/`. It runs after data exists; partial runs are
   analyzed with whatever jobs have finished.
+
+## Addendum 2026-10-16: the 22:33 Oct 15 queue abort, diagnosis, restart
+
+**What happened.** After zf_cnt16_b1 finished (22:33), zf_cnt16_b1m /
+b2 / b3 each died in ~0.3 s with `ERROR on proc 0: Out of range atoms -
+cannot compute PPPM` immediately after the step-0 thermo line; the
+abort-after-3 guard stopped the queue, leaving 24 chained jobs and 2
+fills unstarted.
+
+**Diagnosis (the suspected bad builds were NOT bad).** All three data
+files pass every packing floor: min inter-molecular distance 2.004 /
+2.004 / 2.041 A (floor 2.0 A), min molecule-tube distance 2.493 / 2.510
+/ 2.481 A (H-C_tube floor 2.2 A; the packer's wall check is per-atom
+against the actual cylinder radius R, so the suspected
+"spherical-exclusion clips the wider tube" bug is not present), every
+molecule whole in raw coordinates, every bond 1.09-1.606 A. zf_cnt16_b1
+(the run that worked) has the same statistics (2.004 / 2.493 A), and
+b1m is a byte-faithful mirror: identical step-0 PotEng -5373.4878.
+The crash is not overlap physics: step-0 forces are sane (max 76
+kcal/mol/A) and the run dies during step 1 EVEN AT dt = 0.1 fs, where
+no physical force can displace an atom out of the PPPM grid brick. The
+outcome is instead heap-layout dependent in this local LAMMPS build
+(conda 22 Jul 2025 u4): adding one inert `variable` line to the input
+flips b1m from immediate crash to a clean 12000+-step run; so do other
+input perturbations. b1 itself rode out the same packed-start
+Coulomb-relaxation transient (Tmob spike to 642 K at step 1000, then a
+normal ramp). Root cause: `fix rigid/nve/small molecule` (the
+distributed-body variant) corrupts body data at the first integration
+step for some heap layouts in this build - 3 of 4 cnt16 fresh builds
+lost that lottery; the pilot four and the cnt10 builds won it.
+
+**Fix (run inputs).** All Stage A inputs now use
+`fix rigid/nve molecule langevin ...` - the non-distributed rigid
+variant: same Langevin keyword, same 1 ps damping, same per-atom
+application (the one-Langevin rule is untouched), deterministic body
+bookkeeping. Verified: all three failing jobs then integrate cleanly
+and reproduce bit-identically across reruns (Tmob tracks the 10->300 K
+ramp, e.g. 56 K at 16 ps where the target is 56.4 K). The 5 already
+DONE jobs keep their history (their manifests pin the sha256 of the
+inputs that actually ran).
+
+**Builder guard (permanent hardening).**
+`build_systems.validate_data_file(path)` now re-parses every data file
+after writing and REFUSES the build unless (1) every inter-molecular
+and molecule-tube minimum-image pair distance is >= 0.95x the packing
+floor for its type pair, (2) every liquid molecule is whole in raw
+(as-written) coordinates (raw diameter == min-image diameter; the
+box-spanning frozen tube is exempt), (3) every bond's raw length is
+< 3 A. `stageA_build.py` calls it for every zf build, mirror and fill
+and records the stats in `data/stageA_build_manifest.json` under
+"guard". All 10 Stage A data files pass: inter-mol >= 2.004 A,
+mol-tube >= 2.209 A, zero molecule splits, max raw bond 1.606 A. The
+three "failing" systems were rebuilt through the guarded builder and
+are byte-identical to the originals (sha256 in the queue/manifests) -
+confirming the builds were never the problem.
+
+**Smoke.** All three jobs pass `lmp -var smoke 1 -in in.lammps` with
+the new inputs (rc = 0, all 500-step stages complete).
+
+**Restart.** Queue relaunched detached 2026-10-16 16:25 with the same
+command as before (`python stageA_queue.py` from
+research/cnt_electrolyte, appending to `stageA/queue.out` /
+`stageA/queue.err`, events in `stageA/queue_log.jsonl`); the 5 DONE
+jobs were skipped and zf_cnt16_b1m started immediately: step 16000
+within ~2 min, Tmob 46-64 K (ramp target 56 K), PotEng relaxing toward
+the equilibrated ~-6715 kcal/mol.

@@ -58,8 +58,15 @@ HEADER = """\
 #   molecules from Nutakki 2023 Tables II-III, Werder sp2-C tube carbons,
 #   Lorentz-Berthelot mixing (recorded deviation), full +-1 ion charges.
 # Thermostat: ONE Langevin scheme for every mobile atom, damping 1 ps:
-#   fix rigid/nve/small molecule langevin (multi-atom bodies) + fix nve +
+#   fix rigid/nve molecule langevin (multi-atom bodies) + fix nve +
 #   fix langevin (Li+); no Nose-Hoover anywhere (Y6 settings).
+#   NOTE rigid/nve (not the /small variant): the local conda build's
+#   fix rigid/nve/small molecule corrupted body data at the first
+#   integration step for 3 of 4 cnt16 fresh builds (heap-layout
+#   dependent; atoms teleported out of the PPPM brick at step 1 with
+#   sane step-0 forces/velocities - see stageA_plan.md addendum
+#   2026-10-16). Same Langevin scheme, same damping, deterministic
+#   body bookkeeping.
 # Dumps: every 1 ps, dump_modify format float %.10g, with image flags.
 # Thermo: every 1 ps.
 {extra}#
@@ -125,7 +132,7 @@ def zf_input(name, build, field_note, dof, seeds, vseed, s):
 velocity        mobile create 10.0 {vseed} mom yes rot yes dist gaussian
 
 # --- stage 1: ramp 10 -> 300 K over {s['ramp_ps']:g} ps (Langevin only)
-fix             thb bodies rigid/nve/small molecule langevin 10.0 300.0 {s['langevin_damp_fs']:g} {seeds['bodies']}
+fix             thb bodies rigid/nve molecule langevin 10.0 300.0 {s['langevin_damp_fs']:g} {seeds['bodies']}
 fix             thl li nve
 fix             thla li langevin 10.0 300.0 {s['langevin_damp_fs']:g} {seeds['li']}
 run             ${{nramp}}
@@ -134,7 +141,7 @@ run             ${{nramp}}
 unfix           thb
 unfix           thl
 unfix           thla
-fix             thb bodies rigid/nve/small molecule langevin 300.0 300.0 {s['langevin_damp_fs']:g} {seeds['bodies2']}
+fix             thb bodies rigid/nve molecule langevin 300.0 300.0 {s['langevin_damp_fs']:g} {seeds['bodies2']}
 fix             thl li nve
 fix             thla li langevin 300.0 300.0 {s['langevin_damp_fs']:g} {seeds['li2']}
 {DUMP_CMD.format(did="ed", every=100000, fname="equil.dump")}
@@ -174,7 +181,7 @@ def field_input(name, kind, build, field, source_job, dof, seeds, s):
     body = f"""\
 {efield}\
 # velocities continue from the read-in final state (no re-draw)
-fix             thb bodies rigid/nve/small molecule langevin 300.0 300.0 {s['langevin_damp_fs']:g} {seeds['bodies']}
+fix             thb bodies rigid/nve molecule langevin 300.0 300.0 {s['langevin_damp_fs']:g} {seeds['bodies']}
 fix             thl li nve
 fix             thla li langevin 300.0 300.0 {s['langevin_damp_fs']:g} {seeds['li']}
 
@@ -214,7 +221,7 @@ velocity        mobile create 10.0 {vseed} mom yes rot yes dist gaussian
 #     covers every mobile atom) is the fix-rigid docs' rigid-bodies-plus-
 #     point-particles hybrid; dilate mobile never rescales the frozen
 #     tube; the NPT pressure is the global thermo one.
-fix             thb bodies rigid/nve/small molecule langevin 10.0 300.0 {s['langevin_damp_fs']:g} {seeds['bodies']}
+fix             thb bodies rigid/nve molecule langevin 10.0 300.0 {s['langevin_damp_fs']:g} {seeds['bodies']}
 fix             thl li nph iso {p0:g} {s['baro_press_atm']:g} {pdamp:g} dilate mobile
 fix             thla li langevin 10.0 300.0 {s['langevin_damp_fs']:g} {seeds['li']}
 run             ${{nrampf}}
@@ -224,7 +231,7 @@ run             ${{nrampf}}
 unfix           thb
 unfix           thl
 unfix           thla
-fix             thb bodies rigid/nve/small molecule langevin 300.0 300.0 {s['langevin_damp_fs']:g} {seeds['bodies2']}
+fix             thb bodies rigid/nve molecule langevin 300.0 300.0 {s['langevin_damp_fs']:g} {seeds['bodies2']}
 fix             thl li nph iso {s['baro_press_atm']:g} {s['baro_press_atm']:g} {pdamp:g} dilate mobile
 fix             thla li langevin 300.0 300.0 {s['langevin_damp_fs']:g} {seeds['li2']}
 reset_timestep  0
