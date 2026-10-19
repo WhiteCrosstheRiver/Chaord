@@ -1,0 +1,2382 @@
+[
+  {
+    "job": "off_cnt10_b1",
+    "kind": "off",
+    "tube": 10,
+    "build": "b1",
+    "field": 0.0,
+    "n_frames": 2001,
+    "dt_ps": 1.0,
+    "tube_R_A": 6.7813454736790915,
+    "tube_z_A": [
+      0.0,
+      47.97
+    ],
+    "n_solvent": 13,
+    "tau_rot": {
+      "EC": {
+        "per_molecule_tau_ps": [
+          613.0,
+          15141.7,
+          16940.0,
+          499.1,
+          14511.3,
+          1503.0
+        ],
+        "mean_tau_ps": 8201.4,
+        "sem_over_molecules_ps": 3009.8,
+        "pooled_tau_ps": 2847.0
+      },
+      "EMC": {
+        "per_molecule_tau_ps": [
+          47.1,
+          1846.0,
+          6643.1,
+          1623.5,
+          253.3
+        ],
+        "mean_tau_ps": 2082.6,
+        "sem_over_molecules_ps": 1068.7,
+        "pooled_tau_ps": 1414.3
+      }
+    },
+    "reversals": {
+      "never_reversed": 5,
+      "n_molecules": 13,
+      "frac_never_reversed": 0.385,
+      "per_molecule_mean_cos_sd": 0.669
+    },
+    "P1_mean": 0.0587,
+    "P1_block_sem": 0.0586,
+    "tau_M_switch_off_ps": 1386.4
+  },
+  {
+    "job": "off_cnt10_b1m",
+    "kind": "off",
+    "tube": 10,
+    "build": "b1m",
+    "field": 0.0,
+    "n_frames": 2001,
+    "dt_ps": 1.0,
+    "tube_R_A": 6.7813454736790915,
+    "tube_z_A": [
+      0.0,
+      47.97
+    ],
+    "n_solvent": 13,
+    "tau_rot": {
+      "EC": {
+        "per_molecule_tau_ps": [
+          358.9,
+          5319.4,
+          11249.0,
+          186.1,
+          5617.4,
+          4536.5
+        ],
+        "mean_tau_ps": 4544.6,
+        "sem_over_molecules_ps": 1520.4,
+        "pooled_tau_ps": 2717.0
+      },
+      "EMC": {
+        "per_molecule_tau_ps": [
+          116.6,
+          118.4,
+          324.2,
+          2520.1,
+          1345.0
+        ],
+        "mean_tau_ps": 884.8,
+        "sem_over_molecules_ps": 418.5,
+        "pooled_tau_ps": 783.0
+      }
+    },
+    "reversals": {
+      "never_reversed": 2,
+      "n_molecules": 13,
+      "frac_never_reversed": 0.154,
+      "per_molecule_mean_cos_sd": 0.554
+    },
+    "P1_mean": 0.3579,
+    "P1_block_sem": 0.0554,
+    "tau_M_switch_off_ps": 3792.1
+  },
+  {
+    "job": "off_cnt10_b2",
+    "kind": "off",
+    "tube": 10,
+    "build": "b2",
+    "field": 0.0,
+    "n_frames": 2001,
+    "dt_ps": 1.0,
+    "tube_R_A": 6.7813454736790915,
+    "tube_z_A": [
+      0.0,
+      47.97
+    ],
+    "n_solvent": 13,
+    "tau_rot": {
+      "EC": {
+        "per_molecule_tau_ps": [
+          397.9,
+          299.0,
+          6091.1,
+          11993.5,
+          2179.2,
+          4707.8
+        ],
+        "mean_tau_ps": 4278.1,
+        "sem_over_molecules_ps": 1652.4,
+        "pooled_tau_ps": 1303.7
+      },
+      "EMC": {
+        "per_molecule_tau_ps": [
+          6775.6,
+          842.0,
+          2611.7,
+          2918.3,
+          5107.3
+        ],
+        "mean_tau_ps": 3651.0,
+        "sem_over_molecules_ps": 925.0,
+        "pooled_tau_ps": 2526.1
+      }
+    },
+    "reversals": {
+      "never_reversed": 7,
+      "n_molecules": 13,
+      "frac_never_reversed": 0.538,
+      "per_molecule_mean_cos_sd": 0.584
+    },
+    "P1_mean": 0.2517,
+    "P1_block_sem": 0.0543,
+    "tau_M_switch_off_ps": 1094.3
+  },
+  {
+    "job": "off_cnt10_b3",
+    "kind": "off",
+    "tube": 10,
+    "build": "b3",
+    "field": 0.0,
+    "n_frames": 2001,
+    "dt_ps": 1.0,
+    "tube_R_A": 6.7813454736790915,
+    "tube_z_A": [
+      0.0,
+      47.97
+    ],
+    "n_solvent": 13,
+    "tau_rot": {
+      "EC": {
+        "per_molecule_tau_ps": [
+          1200.3,
+          12256.0,
+          3319.2,
+          327.2,
+          1192.1,
+          479150.6,
+          367.0
+        ],
+        "mean_tau_ps": 71116.0,
+        "sem_over_molecules_ps": 62978.3,
+        "pooled_tau_ps": 1103.8
+      },
+      "EMC": {
+        "per_molecule_tau_ps": [
+          3692.3,
+          2281.9,
+          3560.2,
+          705.2,
+          1987.0
+        ],
+        "mean_tau_ps": 2445.3,
+        "sem_over_molecules_ps": 492.4,
+        "pooled_tau_ps": 1413.4
+      }
+    },
+    "reversals": {
+      "never_reversed": 6,
+      "n_molecules": 13,
+      "frac_never_reversed": 0.462,
+      "per_molecule_mean_cos_sd": 0.508
+    },
+    "P1_mean": 0.3001,
+    "P1_block_sem": 0.0489,
+    "tau_M_switch_off_ps": 1570.6
+  },
+  {
+    "job": "off_cnt16_b1",
+    "kind": "off",
+    "tube": 16,
+    "build": "b1",
+    "field": 0.0,
+    "n_frames": 2001,
+    "dt_ps": 1.0,
+    "tube_R_A": 10.85015274361989,
+    "tube_z_A": [
+      0.0,
+      47.97
+    ],
+    "n_solvent": 61,
+    "tau_rot": {
+      "EC": {
+        "per_molecule_tau_ps": [
+          379.0,
+          1097.5,
+          1936.5,
+          12628.8,
+          826.9,
+          309.4,
+          4710.0,
+          458.8,
+          372.0,
+          783.7,
+          9284.7,
+          1552.8,
+          436.8,
+          1143.1,
+          1196.1,
+          3277.9,
+          11184.1,
+          4798.6,
+          1625.8,
+          10039.7,
+          409.5,
+          1382.9,
+          516.2,
+          307.1,
+          1109.0,
+          817.5,
+          835.9,
+          14728.5,
+          792.4,
+          496.2,
+          4032.3,
+          7435.0,
+          2495.1,
+          212192.4,
+          1663.6,
+          620.3
+        ],
+        "mean_tau_ps": 8829.9,
+        "sem_over_molecules_ps": 5764.5,
+        "pooled_tau_ps": 1222.1
+      },
+      "EMC": {
+        "per_molecule_tau_ps": [
+          1016.6,
+          2966.1,
+          1011.4,
+          621.7,
+          154.9,
+          480.5,
+          1440.4,
+          592.6,
+          72.0,
+          1227.8,
+          476.8,
+          448.9,
+          830.6,
+          696.7,
+          72.8,
+          14039.4,
+          8235.8,
+          1604.6,
+          586.0,
+          866.6,
+          704.0,
+          685.9,
+          846.1,
+          1156.5
+        ],
+        "mean_tau_ps": 1701.4,
+        "sem_over_molecules_ps": 616.9,
+        "pooled_tau_ps": 732.0
+      }
+    },
+    "reversals": {
+      "never_reversed": 13,
+      "n_molecules": 61,
+      "frac_never_reversed": 0.213,
+      "per_molecule_mean_cos_sd": 0.492
+    },
+    "P1_mean": 0.2519,
+    "P1_block_sem": 0.0197,
+    "tau_M_switch_off_ps": 2140.9
+  },
+  {
+    "job": "off_cnt16_b1m",
+    "kind": "off",
+    "tube": 16,
+    "build": "b1m",
+    "field": 0.0,
+    "n_frames": 2001,
+    "dt_ps": 1.0,
+    "tube_R_A": 10.85015274361989,
+    "tube_z_A": [
+      0.0,
+      47.97
+    ],
+    "n_solvent": 61,
+    "tau_rot": {
+      "EC": {
+        "per_molecule_tau_ps": [
+          2077.4,
+          1899.3,
+          2904.9,
+          7749.6,
+          1555.0,
+          368.2,
+          1217.6,
+          1223.0,
+          268.5,
+          373.7,
+          655.9,
+          5818.4,
+          15930.7,
+          46116.0,
+          2186.3,
+          1051.9,
+          1705.3,
+          889.7,
+          2680.6,
+          355.9,
+          4444.4,
+          23766.8,
+          5119.5,
+          7084.4,
+          12629.8,
+          8703.4,
+          681.0,
+          1806.4,
+          10618.0,
+          485.4,
+          1725.4,
+          1880.5,
+          1520.4,
+          1359.7
+        ],
+        "mean_tau_ps": 5260.4,
+        "sem_over_molecules_ps": 1498.7,
+        "pooled_tau_ps": 1791.4
+      },
+      "EMC": {
+        "per_molecule_tau_ps": [
+          53225.7,
+          1345.2,
+          1944.2,
+          6799.5,
+          4990.5,
+          3358.4,
+          1639.6,
+          871.1,
+          435.8,
+          8453.2,
+          5911.9,
+          1822.0,
+          96.7,
+          299.0,
+          730.5,
+          1262.1,
+          4292.5,
+          12060.5,
+          3575.2,
+          6829.7,
+          1262.5,
+          144.5,
+          439.6,
+          3193.1
+        ],
+        "mean_tau_ps": 5207.6,
+        "sem_over_molecules_ps": 2133.2,
+        "pooled_tau_ps": 1235.3
+      }
+    },
+    "reversals": {
+      "never_reversed": 19,
+      "n_molecules": 61,
+      "frac_never_reversed": 0.311,
+      "per_molecule_mean_cos_sd": 0.481
+    },
+    "P1_mean": 0.2056,
+    "P1_block_sem": 0.0343,
+    "tau_M_switch_off_ps": 1073.6
+  },
+  {
+    "job": "off_cnt16_b2",
+    "kind": "off",
+    "tube": 16,
+    "build": "b2",
+    "field": 0.0,
+    "n_frames": 2001,
+    "dt_ps": 1.0,
+    "tube_R_A": 10.85015274361989,
+    "tube_z_A": [
+      0.0,
+      47.97
+    ],
+    "n_solvent": 61,
+    "tau_rot": {
+      "EC": {
+        "per_molecule_tau_ps": [
+          3890.5,
+          4583.5,
+          393.3,
+          10476.8,
+          7862.7,
+          909.3,
+          224.4,
+          400.0,
+          636.1,
+          43520.7,
+          4242.4,
+          431.4,
+          1010.1,
+          1186.2,
+          695.1,
+          2068.8,
+          137.1,
+          818.0,
+          1526.4,
+          16379.8,
+          4434.1,
+          473.0,
+          57055.1,
+          3576.7,
+          991.2,
+          1767.1,
+          733.5,
+          35401.2,
+          2698.3,
+          658.0,
+          197.5,
+          1173.0
+        ],
+        "mean_tau_ps": 6579.7,
+        "sem_over_molecules_ps": 2332.2,
+        "pooled_tau_ps": 1553.3
+      },
+      "EMC": {
+        "per_molecule_tau_ps": [
+          640.0,
+          275.8,
+          1508.8,
+          2618.6,
+          7045.0,
+          566.1,
+          1036.3,
+          1352.8,
+          1658.0,
+          225.8,
+          421.0,
+          955.4,
+          1010.9,
+          394.4,
+          1999.3,
+          466.2,
+          1021.0,
+          290.0,
+          931.3,
+          679.6,
+          2756.6,
+          306.9
+        ],
+        "mean_tau_ps": 1280.0,
+        "sem_over_molecules_ps": 307.8,
+        "pooled_tau_ps": 800.7
+      }
+    },
+    "reversals": {
+      "never_reversed": 15,
+      "n_molecules": 61,
+      "frac_never_reversed": 0.246,
+      "per_molecule_mean_cos_sd": 0.518
+    },
+    "P1_mean": 0.2044,
+    "P1_block_sem": 0.0312,
+    "tau_M_switch_off_ps": 1192.3
+  },
+  {
+    "job": "off_cnt16_b3",
+    "kind": "off",
+    "tube": 16,
+    "build": "b3",
+    "field": 0.0,
+    "n_frames": 2001,
+    "dt_ps": 1.0,
+    "tube_R_A": 10.85015274361989,
+    "tube_z_A": [
+      0.0,
+      47.97
+    ],
+    "n_solvent": 61,
+    "tau_rot": {
+      "EC": {
+        "per_molecule_tau_ps": [
+          316.9,
+          1965.6,
+          4589.2,
+          3790.9,
+          224.4,
+          241.6,
+          2841.6,
+          165.9,
+          5029.8,
+          2164.4,
+          3223.3,
+          10976.7,
+          2083.7,
+          2940.2,
+          233.4,
+          300.4,
+          2201.0,
+          575.2,
+          811.9,
+          849.1,
+          1733.4,
+          313.6,
+          507.5,
+          3316.9,
+          1048.6,
+          664.0,
+          435.6,
+          528.3,
+          2341.7,
+          6245.5,
+          1052.5,
+          3608.3,
+          618.7,
+          417.4,
+          24349.4,
+          1189.6
+        ],
+        "mean_tau_ps": 2608.2,
+        "sem_over_molecules_ps": 709.9,
+        "pooled_tau_ps": 1075.6
+      },
+      "EMC": {
+        "per_molecule_tau_ps": [
+          967.5,
+          489.0,
+          643.3,
+          8175.5,
+          1509.9,
+          4828.1,
+          1713.7,
+          361.9,
+          153.8,
+          2955.9,
+          216.0,
+          884.6,
+          245.0,
+          2251.5,
+          1268.4,
+          2640.2,
+          622.9,
+          356.2,
+          4590.0,
+          413.5,
+          694.3,
+          620.0,
+          1034.8
+        ],
+        "mean_tau_ps": 1636.3,
+        "sem_over_molecules_ps": 394.9,
+        "pooled_tau_ps": 827.1
+      }
+    },
+    "reversals": {
+      "never_reversed": 16,
+      "n_molecules": 61,
+      "frac_never_reversed": 0.262,
+      "per_molecule_mean_cos_sd": 0.45
+    },
+    "P1_mean": 0.0583,
+    "P1_block_sem": 0.0404,
+    "tau_M_switch_off_ps": 985.1
+  },
+  {
+    "job": "sf_cnt10_b1",
+    "kind": "sf",
+    "tube": 10,
+    "build": "b1",
+    "field": 0.2,
+    "n_frames": 2001,
+    "dt_ps": 1.0,
+    "tube_R_A": 6.7813454736790915,
+    "tube_z_A": [
+      0.0,
+      47.97
+    ],
+    "n_solvent": 13,
+    "tau_rot": {
+      "EC": {
+        "per_molecule_tau_ps": [
+          379.5,
+          12135.8,
+          6424.0,
+          210.8
+        ],
+        "mean_tau_ps": 4787.5,
+        "sem_over_molecules_ps": 2462.9,
+        "pooled_tau_ps": 1896.1
+      },
+      "EMC": {
+        "per_molecule_tau_ps": [
+          391.9,
+          3960.4,
+          663.7,
+          271.9,
+          2077.3
+        ],
+        "mean_tau_ps": 1473.1,
+        "sem_over_molecules_ps": 626.7,
+        "pooled_tau_ps": 425.2
+      }
+    },
+    "reversals": {
+      "never_reversed": 4,
+      "n_molecules": 13,
+      "frac_never_reversed": 0.308,
+      "per_molecule_mean_cos_sd": 0.456
+    },
+    "P1_mean": 0.4796,
+    "P1_block_sem": 0.0179,
+    "tau_M_switch_on_ps": 5707.8,
+    "P1_final_mean": 0.4784
+  },
+  {
+    "job": "sf_cnt10_b1m",
+    "kind": "sf",
+    "tube": 10,
+    "build": "b1m",
+    "field": 0.2,
+    "n_frames": 2001,
+    "dt_ps": 1.0,
+    "tube_R_A": 6.7813454736790915,
+    "tube_z_A": [
+      0.0,
+      47.97
+    ],
+    "n_solvent": 13,
+    "tau_rot": {
+      "EC": {
+        "per_molecule_tau_ps": [
+          679182.3,
+          4177.6,
+          325.3,
+          346.6
+        ],
+        "mean_tau_ps": 171008.0,
+        "sem_over_molecules_ps": 146699.4,
+        "pooled_tau_ps": 1806.1
+      },
+      "EMC": {
+        "per_molecule_tau_ps": [
+          7637.6,
+          471.0,
+          1659.9,
+          1921.4,
+          1749.2
+        ],
+        "mean_tau_ps": 2687.8,
+        "sem_over_molecules_ps": 1130.3,
+        "pooled_tau_ps": 1514.0
+      }
+    },
+    "reversals": {
+      "never_reversed": 5,
+      "n_molecules": 13,
+      "frac_never_reversed": 0.385,
+      "per_molecule_mean_cos_sd": 0.519
+    },
+    "P1_mean": 0.4594,
+    "P1_block_sem": 0.0526,
+    "tau_M_switch_on_ps": 1398.6,
+    "P1_final_mean": 0.5482
+  },
+  {
+    "job": "sf_cnt10_b2",
+    "kind": "sf",
+    "tube": 10,
+    "build": "b2",
+    "field": 0.2,
+    "n_frames": 2001,
+    "dt_ps": 1.0,
+    "tube_R_A": 6.7813454736790915,
+    "tube_z_A": [
+      0.0,
+      47.97
+    ],
+    "n_solvent": 13,
+    "tau_rot": {
+      "EC": {
+        "per_molecule_tau_ps": [
+          131450.6,
+          8795.7,
+          113691.4,
+          1516.9,
+          7978.1,
+          5096.6,
+          69372.1
+        ],
+        "mean_tau_ps": 48271.6,
+        "sem_over_molecules_ps": 19627.0,
+        "pooled_tau_ps": 8656.1
+      },
+      "EMC": {
+        "per_molecule_tau_ps": [
+          39.8,
+          101.7,
+          68.7,
+          8000.0,
+          6873.0
+        ],
+        "mean_tau_ps": 3016.6,
+        "sem_over_molecules_ps": 1621.8,
+        "pooled_tau_ps": 1463.0
+      }
+    },
+    "reversals": {
+      "never_reversed": 0,
+      "n_molecules": 13,
+      "frac_never_reversed": 0.0,
+      "per_molecule_mean_cos_sd": 0.465
+    },
+    "P1_mean": 0.494,
+    "P1_block_sem": 0.0266,
+    "tau_M_switch_on_ps": 2490.9,
+    "P1_final_mean": 0.6186
+  },
+  {
+    "job": "sf_cnt10_b3",
+    "kind": "sf",
+    "tube": 10,
+    "build": "b3",
+    "field": 0.2,
+    "n_frames": 2001,
+    "dt_ps": 1.0,
+    "tube_R_A": 6.7813454736790915,
+    "tube_z_A": [
+      0.0,
+      47.97
+    ],
+    "n_solvent": 13,
+    "tau_rot": {
+      "EC": {
+        "per_molecule_tau_ps": [
+          640.0,
+          40417.4,
+          12645.2,
+          8028.4,
+          882.4,
+          2632.2,
+          80225.8,
+          11144.0
+        ],
+        "mean_tau_ps": 19576.9,
+        "sem_over_molecules_ps": 9151.8,
+        "pooled_tau_ps": 3912.6
+      },
+      "EMC": {
+        "per_molecule_tau_ps": [
+          410.3,
+          1979.0,
+          5868.7,
+          2407.2,
+          1853.1
+        ],
+        "mean_tau_ps": 2503.7,
+        "sem_over_molecules_ps": 810.3,
+        "pooled_tau_ps": 1270.7
+      }
+    },
+    "reversals": {
+      "never_reversed": 0,
+      "n_molecules": 13,
+      "frac_never_reversed": 0.0,
+      "per_molecule_mean_cos_sd": 0.222
+    },
+    "P1_mean": 0.6175,
+    "P1_block_sem": 0.0652,
+    "tau_M_switch_on_ps": 1069.9,
+    "P1_final_mean": 0.7517
+  },
+  {
+    "job": "sf_cnt16_b1",
+    "kind": "sf",
+    "tube": 16,
+    "build": "b1",
+    "field": 0.2,
+    "n_frames": 2001,
+    "dt_ps": 1.0,
+    "tube_R_A": 10.85015274361989,
+    "tube_z_A": [
+      0.0,
+      47.97
+    ],
+    "n_solvent": 61,
+    "tau_rot": {
+      "EC": {
+        "per_molecule_tau_ps": [
+          646.3,
+          3727.8,
+          648946.5,
+          9021.0,
+          1271.2,
+          17698.7,
+          3161.7,
+          3755.8,
+          16215.0,
+          19769.0,
+          42406.4,
+          947.2,
+          9334.6,
+          4902.5,
+          9331.3,
+          33851.9,
+          12921.1,
+          1514.6,
+          6116.9,
+          7635.7,
+          1860.5,
+          20916.2,
+          3502.5,
+          6731.7,
+          277023.5,
+          14469.9,
+          1557.4,
+          33175.5,
+          7347.2
+        ],
+        "mean_tau_ps": 42060.7,
+        "sem_over_molecules_ps": 23207.0,
+        "pooled_tau_ps": 6601.0
+      },
+      "EMC": {
+        "per_molecule_tau_ps": [
+          2681.7,
+          1405.2,
+          4024.8,
+          1390.0,
+          2866.7,
+          8609.3,
+          3416.7,
+          2002.9,
+          114.8,
+          34.8,
+          683.4,
+          350.9,
+          1538.6,
+          1191.5,
+          2082.0,
+          1233.7,
+          1285.7,
+          53.6,
+          41.0,
+          1951.2,
+          953.9,
+          1301.7,
+          4935.3,
+          70.4
+        ],
+        "mean_tau_ps": 1842.5,
+        "sem_over_molecules_ps": 387.6,
+        "pooled_tau_ps": 71.2
+      }
+    },
+    "reversals": {
+      "never_reversed": 1,
+      "n_molecules": 61,
+      "frac_never_reversed": 0.016,
+      "per_molecule_mean_cos_sd": 0.258
+    },
+    "P1_mean": 0.5438,
+    "P1_block_sem": 0.0134,
+    "tau_M_switch_on_ps": 4576.9,
+    "P1_final_mean": 0.5037
+  },
+  {
+    "job": "sf_cnt16_b1m",
+    "kind": "sf",
+    "tube": 16,
+    "build": "b1m",
+    "field": 0.2,
+    "n_frames": 2001,
+    "dt_ps": 1.0,
+    "tube_R_A": 10.85015274361989,
+    "tube_z_A": [
+      0.0,
+      47.97
+    ],
+    "n_solvent": 61,
+    "tau_rot": {
+      "EC": {
+        "per_molecule_tau_ps": [
+          34112.8,
+          66379.5,
+          5950.6,
+          16385.1,
+          2079.1,
+          589.0,
+          94416.9,
+          1970.9,
+          6404.8,
+          711.1,
+          11071.8,
+          14600.1,
+          4007.0,
+          1699.7,
+          1743.0,
+          7834.2,
+          3010.7,
+          2372.5,
+          1180.6,
+          2745.0,
+          1723.4,
+          26127.8,
+          1958.5,
+          1549.2,
+          35101.5,
+          6417.6,
+          3275.4,
+          239155.6,
+          4425.8,
+          5871.4,
+          17968.7,
+          4342.6,
+          9201.8,
+          5592.4
+        ],
+        "mean_tau_ps": 18881.6,
+        "sem_over_molecules_ps": 7373.1,
+        "pooled_tau_ps": 4087.7
+      },
+      "EMC": {
+        "per_molecule_tau_ps": [
+          111.5,
+          4140.0,
+          1157.9,
+          68.7,
+          59.0,
+          893.5,
+          56.1,
+          4767.4,
+          1395.6,
+          13972.3,
+          1221.8,
+          268.3,
+          852.8,
+          1186.3,
+          1697.0,
+          59.6,
+          55.0,
+          40.2,
+          2403.2,
+          2211.3,
+          45.0,
+          50.9,
+          2715.1,
+          2279.4
+        ],
+        "mean_tau_ps": 1737.8,
+        "sem_over_molecules_ps": 584.1,
+        "pooled_tau_ps": 75.2
+      }
+    },
+    "reversals": {
+      "never_reversed": 1,
+      "n_molecules": 61,
+      "frac_never_reversed": 0.016,
+      "per_molecule_mean_cos_sd": 0.271
+    },
+    "P1_mean": 0.541,
+    "P1_block_sem": 0.0085,
+    "tau_M_switch_on_ps": NaN,
+    "P1_final_mean": 0.52
+  },
+  {
+    "job": "sf_cnt16_b2",
+    "kind": "sf",
+    "tube": 16,
+    "build": "b2",
+    "field": 0.2,
+    "n_frames": 2001,
+    "dt_ps": 1.0,
+    "tube_R_A": 10.85015274361989,
+    "tube_z_A": [
+      0.0,
+      47.97
+    ],
+    "n_solvent": 61,
+    "tau_rot": {
+      "EC": {
+        "per_molecule_tau_ps": [
+          9344.0,
+          2912.7,
+          8656.8,
+          2927.8,
+          14842.4,
+          16818.3,
+          3353.1,
+          2606.8,
+          3347.5,
+          14996.4,
+          52749.2,
+          4353.7,
+          4354.9,
+          3508.1,
+          14710.5,
+          849.1,
+          5914.7,
+          5655.1,
+          21870.4,
+          2540.7,
+          8999.7,
+          41913.4,
+          65.5,
+          2026.6,
+          4747.6,
+          43592.5,
+          3576.4,
+          1306.1,
+          4574.8,
+          20052.5,
+          5804.3,
+          4628.4,
+          12660.6,
+          5749.4,
+          1249.8
+        ],
+        "mean_tau_ps": 10207.4,
+        "sem_over_molecules_ps": 2088.6,
+        "pooled_tau_ps": 4835.7
+      },
+      "EMC": {
+        "per_molecule_tau_ps": [
+          2365.2,
+          199.0,
+          2070.1,
+          689.1,
+          39.2,
+          299.7,
+          1710.1,
+          189.1,
+          26.7,
+          839.7,
+          36.5,
+          486.6,
+          1370.7,
+          15936.3,
+          707.8,
+          73.2,
+          707.3,
+          1514.5,
+          884.1,
+          245.8,
+          178.8,
+          775.6
+        ],
+        "mean_tau_ps": 1424.8,
+        "sem_over_molecules_ps": 689.9,
+        "pooled_tau_ps": 65.6
+      }
+    },
+    "reversals": {
+      "never_reversed": 0,
+      "n_molecules": 61,
+      "frac_never_reversed": 0.0,
+      "per_molecule_mean_cos_sd": 0.232
+    },
+    "P1_mean": 0.5323,
+    "P1_block_sem": 0.0123,
+    "tau_M_switch_on_ps": 9679.9,
+    "P1_final_mean": 0.5369
+  },
+  {
+    "job": "sf_cnt16_b3",
+    "kind": "sf",
+    "tube": 16,
+    "build": "b3",
+    "field": 0.2,
+    "n_frames": 2001,
+    "dt_ps": 1.0,
+    "tube_R_A": 10.85015274361989,
+    "tube_z_A": [
+      0.0,
+      47.97
+    ],
+    "n_solvent": 61,
+    "tau_rot": {
+      "EC": {
+        "per_molecule_tau_ps": [
+          9314.6,
+          1625.4,
+          4204.2,
+          1292.4,
+          6146.7,
+          2467.4,
+          3014.2,
+          1805.3,
+          34955.6,
+          2411.6,
+          28306.1,
+          22850.5,
+          20244.8,
+          2761.3,
+          10901.3,
+          1632.0,
+          10522.7,
+          8783.4,
+          14337.4,
+          20063.4,
+          4857.0,
+          11547.2,
+          97158.5,
+          91186.3,
+          4033.6,
+          17991.8,
+          1011.7,
+          1788.0,
+          4815.5,
+          4907.0,
+          23821.9,
+          2428.9,
+          1255.8,
+          2308.5
+        ],
+        "mean_tau_ps": 14022.1,
+        "sem_over_molecules_ps": 3749.2,
+        "pooled_tau_ps": 4898.8
+      },
+      "EMC": {
+        "per_molecule_tau_ps": [
+          1686.5,
+          1388.6,
+          5935.6,
+          6889.1,
+          42.4,
+          65.3,
+          27.6,
+          106.0,
+          733.8,
+          272.9,
+          6270.8,
+          196.6,
+          1670.3,
+          1059.6,
+          1504.7,
+          1239.3,
+          812.5,
+          1436.0,
+          2121.7,
+          5706.7,
+          110.6,
+          1019.3,
+          2775.2,
+          1415.3
+        ],
+        "mean_tau_ps": 1853.6,
+        "sem_over_molecules_ps": 423.4,
+        "pooled_tau_ps": 81.3
+      }
+    },
+    "reversals": {
+      "never_reversed": 1,
+      "n_molecules": 61,
+      "frac_never_reversed": 0.016,
+      "per_molecule_mean_cos_sd": 0.283
+    },
+    "P1_mean": 0.5339,
+    "P1_block_sem": 0.0129,
+    "tau_M_switch_on_ps": 6055.9,
+    "P1_final_mean": 0.5544
+  },
+  {
+    "job": "wf_cnt10_b1",
+    "kind": "wf",
+    "tube": 10,
+    "build": "b1",
+    "field": 0.01,
+    "n_frames": 2001,
+    "dt_ps": 1.0,
+    "tube_R_A": 6.7813454736790915,
+    "tube_z_A": [
+      0.0,
+      47.97
+    ],
+    "n_solvent": 13,
+    "tau_rot": {
+      "EC": {
+        "per_molecule_tau_ps": [
+          2855.9,
+          74940.1,
+          6041.9,
+          25603.9
+        ],
+        "mean_tau_ps": 27360.5,
+        "sem_over_molecules_ps": 14408.9,
+        "pooled_tau_ps": 25502.0
+      },
+      "EMC": {
+        "per_molecule_tau_ps": [
+          1746.8,
+          22035.1,
+          4184.0,
+          1074.3,
+          226.0
+        ],
+        "mean_tau_ps": 5853.2,
+        "sem_over_molecules_ps": 3666.1,
+        "pooled_tau_ps": 1535.8
+      }
+    },
+    "reversals": {
+      "never_reversed": 8,
+      "n_molecules": 13,
+      "frac_never_reversed": 0.615,
+      "per_molecule_mean_cos_sd": 0.759
+    },
+    "P1_mean": 0.0895,
+    "P1_block_sem": 0.0197,
+    "tau_M_switch_on_ps": 5992.9,
+    "P1_final_mean": 0.1321
+  },
+  {
+    "job": "wf_cnt10_b1m",
+    "kind": "wf",
+    "tube": 10,
+    "build": "b1m",
+    "field": 0.01,
+    "n_frames": 2001,
+    "dt_ps": 1.0,
+    "tube_R_A": 6.7813454736790915,
+    "tube_z_A": [
+      0.0,
+      47.97
+    ],
+    "n_solvent": 13,
+    "tau_rot": {
+      "EC": {
+        "per_molecule_tau_ps": [
+          20993.5,
+          24243.2,
+          5029.3,
+          1257.6,
+          519622.7
+        ],
+        "mean_tau_ps": 114229.3,
+        "sem_over_molecules_ps": 90735.1,
+        "pooled_tau_ps": 16313.3
+      },
+      "EMC": {
+        "per_molecule_tau_ps": [
+          242.6,
+          7084.2,
+          6198.7,
+          19345.3,
+          676.8
+        ],
+        "mean_tau_ps": 6709.5,
+        "sem_over_molecules_ps": 3087.2,
+        "pooled_tau_ps": 909.2
+      }
+    },
+    "reversals": {
+      "never_reversed": 6,
+      "n_molecules": 13,
+      "frac_never_reversed": 0.462,
+      "per_molecule_mean_cos_sd": 0.714
+    },
+    "P1_mean": 0.1171,
+    "P1_block_sem": 0.0299,
+    "tau_M_switch_on_ps": 3480.2,
+    "P1_final_mean": 0.1196
+  },
+  {
+    "job": "wf_cnt10_b2",
+    "kind": "wf",
+    "tube": 10,
+    "build": "b2",
+    "field": 0.01,
+    "n_frames": 2001,
+    "dt_ps": 1.0,
+    "tube_R_A": 6.7813454736790915,
+    "tube_z_A": [
+      0.0,
+      47.97
+    ],
+    "n_solvent": 13,
+    "tau_rot": {
+      "EC": {
+        "per_molecule_tau_ps": [
+          2140.1,
+          16937.5,
+          2621.8,
+          3275.8,
+          451.6
+        ],
+        "mean_tau_ps": 5085.4,
+        "sem_over_molecules_ps": 2683.0,
+        "pooled_tau_ps": 3508.7
+      },
+      "EMC": {
+        "per_molecule_tau_ps": [
+          2117.6,
+          2050.8,
+          2748.1,
+          2037.6,
+          1214.7
+        ],
+        "mean_tau_ps": 2033.8,
+        "sem_over_molecules_ps": 218.0,
+        "pooled_tau_ps": 1926.4
+      }
+    },
+    "reversals": {
+      "never_reversed": 8,
+      "n_molecules": 13,
+      "frac_never_reversed": 0.615,
+      "per_molecule_mean_cos_sd": 0.681
+    },
+    "P1_mean": -0.22,
+    "P1_block_sem": 0.0278,
+    "tau_M_switch_on_ps": 2396.9,
+    "P1_final_mean": -0.0914
+  },
+  {
+    "job": "wf_cnt10_b3",
+    "kind": "wf",
+    "tube": 10,
+    "build": "b3",
+    "field": 0.01,
+    "n_frames": 2001,
+    "dt_ps": 1.0,
+    "tube_R_A": 6.7813454736790915,
+    "tube_z_A": [
+      0.0,
+      47.97
+    ],
+    "n_solvent": 13,
+    "tau_rot": {
+      "EC": {
+        "per_molecule_tau_ps": [
+          2835.9,
+          3242.5,
+          38692.1
+        ],
+        "mean_tau_ps": 14923.5,
+        "sem_over_molecules_ps": 9704.0,
+        "pooled_tau_ps": 85467.1
+      },
+      "EMC": {
+        "per_molecule_tau_ps": [
+          13340.4,
+          4207.3,
+          1587.9,
+          15164.8
+        ],
+        "mean_tau_ps": 8575.1,
+        "sem_over_molecules_ps": 2894.3,
+        "pooled_tau_ps": 5841.4
+      }
+    },
+    "reversals": {
+      "never_reversed": 10,
+      "n_molecules": 13,
+      "frac_never_reversed": 0.769,
+      "per_molecule_mean_cos_sd": 0.682
+    },
+    "P1_mean": 0.2033,
+    "P1_block_sem": 0.0032,
+    "tau_M_switch_on_ps": NaN,
+    "P1_final_mean": 0.2186
+  },
+  {
+    "job": "wf_cnt16_b1",
+    "kind": "wf",
+    "tube": 16,
+    "build": "b1",
+    "field": 0.01,
+    "n_frames": 2001,
+    "dt_ps": 1.0,
+    "tube_R_A": 10.85015274361989,
+    "tube_z_A": [
+      0.0,
+      47.97
+    ],
+    "n_solvent": 61,
+    "tau_rot": {
+      "EC": {
+        "per_molecule_tau_ps": [
+          4313.0,
+          750.6,
+          6311.0,
+          3848.7,
+          667.8,
+          3042.6,
+          322.9,
+          3996.8,
+          1030.0,
+          972.5,
+          1624.5,
+          339.0,
+          1766.7,
+          4563.5,
+          2022.3,
+          476.8,
+          587.6,
+          1785.1,
+          7253.1,
+          1982.3,
+          47281.6,
+          1537.1,
+          897.5,
+          4335.0,
+          461.8,
+          4187.8,
+          3394.5,
+          26130.8,
+          5761.4,
+          179.5,
+          8258.0,
+          1529.1,
+          1292.0,
+          9393.7
+        ],
+        "mean_tau_ps": 4773.4,
+        "sem_over_molecules_ps": 1494.3,
+        "pooled_tau_ps": 1728.1
+      },
+      "EMC": {
+        "per_molecule_tau_ps": [
+          602.4,
+          3262.8,
+          3852.9,
+          530.3,
+          97.5,
+          1139.4,
+          955.6,
+          906.7,
+          751.5,
+          119.0,
+          219.3,
+          274.6,
+          330.7,
+          229.7,
+          4186.9,
+          873.1,
+          933.7,
+          1720.5,
+          4190.8,
+          588.5,
+          807.8,
+          679.5,
+          375.1,
+          407.3
+        ],
+        "mean_tau_ps": 1168.1,
+        "sem_over_molecules_ps": 259.4,
+        "pooled_tau_ps": 627.7
+      }
+    },
+    "reversals": {
+      "never_reversed": 19,
+      "n_molecules": 61,
+      "frac_never_reversed": 0.311,
+      "per_molecule_mean_cos_sd": 0.535
+    },
+    "P1_mean": 0.0578,
+    "P1_block_sem": 0.0167,
+    "tau_M_switch_on_ps": 2240.1,
+    "P1_final_mean": 0.1081
+  },
+  {
+    "job": "wf_cnt16_b1m",
+    "kind": "wf",
+    "tube": 16,
+    "build": "b1m",
+    "field": 0.01,
+    "n_frames": 2001,
+    "dt_ps": 1.0,
+    "tube_R_A": 10.85015274361989,
+    "tube_z_A": [
+      0.0,
+      47.97
+    ],
+    "n_solvent": 61,
+    "tau_rot": {
+      "EC": {
+        "per_molecule_tau_ps": [
+          1021.0,
+          6052.2,
+          6073.4,
+          897.1,
+          2109.8,
+          2175.1,
+          253.6,
+          667.1,
+          1516.8,
+          1521.4,
+          393.5,
+          4689.4,
+          5569.7,
+          1417.2,
+          627.5,
+          5834.7,
+          1027.4,
+          428.8,
+          975.6,
+          1307.9,
+          1806.8,
+          2931.4,
+          568.5,
+          3285.6,
+          4411.8,
+          5480.2,
+          3598.4,
+          966.4,
+          1186.2,
+          307.5,
+          1642.7,
+          1156.3,
+          2744.3,
+          1788.0,
+          608.9
+        ],
+        "mean_tau_ps": 2201.2,
+        "sem_over_molecules_ps": 308.5,
+        "pooled_tau_ps": 1507.2
+      },
+      "EMC": {
+        "per_molecule_tau_ps": [
+          64.1,
+          191.0,
+          1137.2,
+          690.7,
+          81.9,
+          831.2,
+          996.9,
+          145.3,
+          442.3,
+          4375.8,
+          365.8,
+          303.1,
+          866.7,
+          275.8,
+          377.2,
+          2821.0,
+          1397.9,
+          576.1,
+          728.1,
+          304.1,
+          275.3,
+          1085.7,
+          109.1,
+          1821.6
+        ],
+        "mean_tau_ps": 844.3,
+        "sem_over_molecules_ps": 197.2,
+        "pooled_tau_ps": 425.8
+      }
+    },
+    "reversals": {
+      "never_reversed": 12,
+      "n_molecules": 61,
+      "frac_never_reversed": 0.197,
+      "per_molecule_mean_cos_sd": 0.472
+    },
+    "P1_mean": 0.1742,
+    "P1_block_sem": 0.0207,
+    "tau_M_switch_on_ps": 5784.3,
+    "P1_final_mean": 0.1936
+  },
+  {
+    "job": "wf_cnt16_b2",
+    "kind": "wf",
+    "tube": 16,
+    "build": "b2",
+    "field": 0.01,
+    "n_frames": 2001,
+    "dt_ps": 1.0,
+    "tube_R_A": 10.85015274361989,
+    "tube_z_A": [
+      0.0,
+      47.97
+    ],
+    "n_solvent": 61,
+    "tau_rot": {
+      "EC": {
+        "per_molecule_tau_ps": [
+          1440.5,
+          440.4,
+          761.4,
+          1834.1,
+          619.4,
+          24161.1,
+          549.4,
+          1974.9,
+          149661.5,
+          663.1,
+          436.7,
+          33742.8,
+          3165.1,
+          6526.0,
+          3547.8,
+          447.1,
+          1217.9,
+          3900.1,
+          1369.5,
+          1031.2,
+          5408.2,
+          461.9,
+          16488.4,
+          15227.8,
+          94337.8,
+          16841.4,
+          1344.0,
+          18006.8,
+          4838.1,
+          1546.1,
+          27121.2
+        ],
+        "mean_tau_ps": 14164.9,
+        "sem_over_molecules_ps": 5474.5,
+        "pooled_tau_ps": 2185.6
+      },
+      "EMC": {
+        "per_molecule_tau_ps": [
+          52.2,
+          63.5,
+          14238.9,
+          18387.6,
+          388.0,
+          759.3,
+          4165.2,
+          1700.3,
+          102.2,
+          1292.5,
+          24002.5,
+          600.2,
+          884.9,
+          1878.0,
+          3319.1,
+          1837.6,
+          36.1,
+          3620.3,
+          4117.0,
+          3388.9,
+          3267.0,
+          649.2,
+          1647.8
+        ],
+        "mean_tau_ps": 3930.4,
+        "sem_over_molecules_ps": 1274.1,
+        "pooled_tau_ps": 1806.5
+      }
+    },
+    "reversals": {
+      "never_reversed": 32,
+      "n_molecules": 61,
+      "frac_never_reversed": 0.525,
+      "per_molecule_mean_cos_sd": 0.595
+    },
+    "P1_mean": 0.0709,
+    "P1_block_sem": 0.0225,
+    "tau_M_switch_on_ps": 1715.2,
+    "P1_final_mean": 0.1413
+  },
+  {
+    "job": "wf_cnt16_b3",
+    "kind": "wf",
+    "tube": 16,
+    "build": "b3",
+    "field": 0.01,
+    "n_frames": 2001,
+    "dt_ps": 1.0,
+    "tube_R_A": 10.85015274361989,
+    "tube_z_A": [
+      0.0,
+      47.97
+    ],
+    "n_solvent": 61,
+    "tau_rot": {
+      "EC": {
+        "per_molecule_tau_ps": [
+          289.3,
+          794.3,
+          240.7,
+          346.3,
+          288.4,
+          314.4,
+          490.8,
+          344.3,
+          487.3,
+          406.0,
+          261.3,
+          401.5,
+          358.2,
+          241.4,
+          2400.7,
+          1485.0,
+          322.2,
+          519.1,
+          8905.2,
+          340.3,
+          305.3,
+          376.0,
+          460.9,
+          437.5,
+          458.8,
+          426.7,
+          1260.7,
+          2812.5,
+          293.6,
+          303.9,
+          587.3,
+          291.4,
+          235.7,
+          722.0
+        ],
+        "mean_tau_ps": 829.7,
+        "sem_over_molecules_ps": 260.3,
+        "pooled_tau_ps": 438.7
+      },
+      "EMC": {
+        "per_molecule_tau_ps": [
+          1103.9,
+          1560.5,
+          877.2,
+          5105.1,
+          204.2,
+          666.2,
+          121.1,
+          4759.6,
+          298.2,
+          90.1,
+          123.2,
+          248.4,
+          1700.7,
+          412.8,
+          419.7,
+          874.0,
+          121.0,
+          1075.5,
+          264.5,
+          2587.1,
+          353.4,
+          1447.6,
+          1454.8,
+          826.6
+        ],
+        "mean_tau_ps": 1112.3,
+        "sem_over_molecules_ps": 267.0,
+        "pooled_tau_ps": 517.4
+      }
+    },
+    "reversals": {
+      "never_reversed": 22,
+      "n_molecules": 61,
+      "frac_never_reversed": 0.361,
+      "per_molecule_mean_cos_sd": 0.497
+    },
+    "P1_mean": 0.2107,
+    "P1_block_sem": 0.0162,
+    "tau_M_switch_on_ps": 2310.3,
+    "P1_final_mean": 0.2396
+  },
+  {
+    "job": "zf_cnt10_b1",
+    "kind": "zf",
+    "tube": 10,
+    "build": "b1",
+    "field": 0.0,
+    "n_frames": 2001,
+    "dt_ps": 1.0,
+    "tube_R_A": 6.7813454736790915,
+    "tube_z_A": [
+      0.0,
+      47.97
+    ],
+    "n_solvent": 13,
+    "tau_rot": {
+      "EC": {
+        "per_molecule_tau_ps": [
+          14063.6,
+          7624.4,
+          1063.0,
+          2979.6,
+          2925.6,
+          24867.5
+        ],
+        "mean_tau_ps": 8920.6,
+        "sem_over_molecules_ps": 3396.9,
+        "pooled_tau_ps": 6113.3
+      },
+      "EMC": {
+        "per_molecule_tau_ps": [
+          515.1,
+          1677.2,
+          376.3,
+          8037.7,
+          2558.8
+        ],
+        "mean_tau_ps": 2633.0,
+        "sem_over_molecules_ps": 1260.3,
+        "pooled_tau_ps": 768.9
+      }
+    },
+    "reversals": {
+      "never_reversed": 7,
+      "n_molecules": 13,
+      "frac_never_reversed": 0.538,
+      "per_molecule_mean_cos_sd": 0.693
+    },
+    "P1_mean": 0.0567,
+    "P1_block_sem": 0.0313,
+    "tau_M_P1autocorr_ps": 330.4
+  },
+  {
+    "job": "zf_cnt10_b1m",
+    "kind": "zf",
+    "tube": 10,
+    "build": "b1m",
+    "field": 0.0,
+    "n_frames": 2001,
+    "dt_ps": 1.0,
+    "tube_R_A": 6.7813454736790915,
+    "tube_z_A": [
+      0.0,
+      47.97
+    ],
+    "n_solvent": 13,
+    "tau_rot": {
+      "EC": {
+        "per_molecule_tau_ps": [
+          925.9,
+          1234.8,
+          54739.4,
+          11135.0,
+          30326.7,
+          237237.4
+        ],
+        "mean_tau_ps": 55933.2,
+        "sem_over_molecules_ps": 33974.2,
+        "pooled_tau_ps": 8986.3
+      },
+      "EMC": {
+        "per_molecule_tau_ps": [
+          300.4,
+          2430.3,
+          210.7,
+          11155.7,
+          147.9
+        ],
+        "mean_tau_ps": 2849.0,
+        "sem_over_molecules_ps": 1896.6,
+        "pooled_tau_ps": 226.7
+      }
+    },
+    "reversals": {
+      "never_reversed": 4,
+      "n_molecules": 13,
+      "frac_never_reversed": 0.308,
+      "per_molecule_mean_cos_sd": 0.656
+    },
+    "P1_mean": 0.0568,
+    "P1_block_sem": 0.0231,
+    "tau_M_P1autocorr_ps": 198.5
+  },
+  {
+    "job": "zf_cnt10_b2",
+    "kind": "zf",
+    "tube": 10,
+    "build": "b2",
+    "field": 0.0,
+    "n_frames": 2001,
+    "dt_ps": 1.0,
+    "tube_R_A": 6.7813454736790915,
+    "tube_z_A": [
+      0.0,
+      47.97
+    ],
+    "n_solvent": 13,
+    "tau_rot": {
+      "EC": {
+        "per_molecule_tau_ps": [
+          11791.5,
+          25627.6,
+          238481.5,
+          20501.9,
+          42493.5,
+          25709.9,
+          41759.4
+        ],
+        "mean_tau_ps": 58052.2,
+        "sem_over_molecules_ps": 28106.8,
+        "pooled_tau_ps": 36834.9
+      },
+      "EMC": {
+        "per_molecule_tau_ps": [
+          3541.6,
+          13643.0,
+          934.7,
+          6062.1,
+          2522.8
+        ],
+        "mean_tau_ps": 5340.8,
+        "sem_over_molecules_ps": 2000.4,
+        "pooled_tau_ps": 2519.2
+      }
+    },
+    "reversals": {
+      "never_reversed": 9,
+      "n_molecules": 13,
+      "frac_never_reversed": 0.692,
+      "per_molecule_mean_cos_sd": 0.735
+    },
+    "P1_mean": -0.2479,
+    "P1_block_sem": 0.0115,
+    "tau_M_P1autocorr_ps": 388.8
+  },
+  {
+    "job": "zf_cnt10_b3",
+    "kind": "zf",
+    "tube": 10,
+    "build": "b3",
+    "field": 0.0,
+    "n_frames": 2001,
+    "dt_ps": 1.0,
+    "tube_R_A": 6.7813454736790915,
+    "tube_z_A": [
+      0.0,
+      47.97
+    ],
+    "n_solvent": 13,
+    "tau_rot": {
+      "EC": {
+        "per_molecule_tau_ps": [
+          379.8,
+          12753.5,
+          832.1,
+          39997.9,
+          2452.4,
+          115.7,
+          11116.9
+        ],
+        "mean_tau_ps": 9664.0,
+        "sem_over_molecules_ps": 5028.9,
+        "pooled_tau_ps": 2424.0
+      },
+      "EMC": {
+        "per_molecule_tau_ps": [
+          15555.1,
+          6950.8,
+          9361.7,
+          276.6,
+          364.8
+        ],
+        "mean_tau_ps": 6501.8,
+        "sem_over_molecules_ps": 2582.7,
+        "pooled_tau_ps": 1110.3
+      }
+    },
+    "reversals": {
+      "never_reversed": 4,
+      "n_molecules": 13,
+      "frac_never_reversed": 0.308,
+      "per_molecule_mean_cos_sd": 0.562
+    },
+    "P1_mean": 0.1343,
+    "P1_block_sem": 0.0223,
+    "tau_M_P1autocorr_ps": 461.7
+  },
+  {
+    "job": "zf_cnt16_b1",
+    "kind": "zf",
+    "tube": 16,
+    "build": "b1",
+    "field": 0.0,
+    "n_frames": 2001,
+    "dt_ps": 1.0,
+    "tube_R_A": 10.85015274361989,
+    "tube_z_A": [
+      0.0,
+      47.97
+    ],
+    "n_solvent": 61,
+    "tau_rot": {
+      "EC": {
+        "per_molecule_tau_ps": [
+          2832.6,
+          1673.6,
+          2289.5,
+          2457.6,
+          5123.6,
+          610.6,
+          1224.9,
+          663.8,
+          2193.6,
+          1333.6,
+          619.2,
+          3021.5,
+          867.4,
+          1535.0,
+          319.8,
+          634.4,
+          528.8,
+          4891.5,
+          3408.5,
+          307.0,
+          6336.4,
+          1782.2,
+          721.5,
+          2003.8,
+          6018.4,
+          116.4,
+          2647.3,
+          1027.1,
+          1984.1,
+          6532.4,
+          1443.5,
+          1267.5,
+          916.7,
+          593.8,
+          1371.7
+        ],
+        "mean_tau_ps": 2037.1,
+        "sem_over_molecules_ps": 295.0,
+        "pooled_tau_ps": 1457.0
+      },
+      "EMC": {
+        "per_molecule_tau_ps": [
+          978.9,
+          2553.6,
+          887.3,
+          1467.9,
+          2420.1,
+          157.2,
+          21140.4,
+          1955.8,
+          78.6,
+          2341.8,
+          1681.6,
+          2448.8,
+          1827.3,
+          108.5,
+          120.8,
+          1260.7,
+          515.3,
+          1161.1,
+          20069.6,
+          577.3,
+          4391.5
+        ],
+        "mean_tau_ps": 3245.0,
+        "sem_over_molecules_ps": 1250.1,
+        "pooled_tau_ps": 1552.8
+      }
+    },
+    "reversals": {
+      "never_reversed": 19,
+      "n_molecules": 61,
+      "frac_never_reversed": 0.311,
+      "per_molecule_mean_cos_sd": 0.572
+    },
+    "P1_mean": -0.0471,
+    "P1_block_sem": 0.0058,
+    "tau_M_P1autocorr_ps": 2223.2
+  },
+  {
+    "job": "zf_cnt16_b1m",
+    "kind": "zf",
+    "tube": 16,
+    "build": "b1m",
+    "field": 0.0,
+    "n_frames": 2001,
+    "dt_ps": 1.0,
+    "tube_R_A": 10.85015274361989,
+    "tube_z_A": [
+      0.0,
+      47.97
+    ],
+    "n_solvent": 61,
+    "tau_rot": {
+      "EC": {
+        "per_molecule_tau_ps": [
+          1870.2,
+          576.3,
+          7226.6,
+          647.8,
+          1519.6,
+          837.8,
+          3130.0,
+          268.9,
+          4091.4,
+          385.0,
+          326.6,
+          4800.4,
+          1156.5,
+          1515.7,
+          546.6,
+          922.3,
+          1636.6,
+          1133.0,
+          452.8,
+          616.5,
+          1466.6,
+          189.3,
+          603.8,
+          380.2,
+          1465.9,
+          3612.4,
+          6994.5,
+          825.5,
+          1047.3,
+          581.5,
+          322.6,
+          483.6,
+          1067.9,
+          510.9,
+          6512.8,
+          14495.6
+        ],
+        "mean_tau_ps": 2061.7,
+        "sem_over_molecules_ps": 472.2,
+        "pooled_tau_ps": 848.2
+      },
+      "EMC": {
+        "per_molecule_tau_ps": [
+          1155.9,
+          147.7,
+          338.2,
+          867.5,
+          752.5,
+          216.0,
+          392.3,
+          778.0,
+          271.1,
+          425.1,
+          294.1,
+          140.6,
+          3107.8,
+          1144.2,
+          1310.2,
+          235.1,
+          411.6,
+          516.3,
+          768.9,
+          590.2,
+          347.8,
+          190.7,
+          822.3,
+          746.6
+        ],
+        "mean_tau_ps": 665.4,
+        "sem_over_molecules_ps": 123.9,
+        "pooled_tau_ps": 395.3
+      }
+    },
+    "reversals": {
+      "never_reversed": 16,
+      "n_molecules": 61,
+      "frac_never_reversed": 0.262,
+      "per_molecule_mean_cos_sd": 0.535
+    },
+    "P1_mean": 0.0197,
+    "P1_block_sem": 0.0208,
+    "tau_M_P1autocorr_ps": 199.0
+  },
+  {
+    "job": "zf_cnt16_b2",
+    "kind": "zf",
+    "tube": 16,
+    "build": "b2",
+    "field": 0.0,
+    "n_frames": 2001,
+    "dt_ps": 1.0,
+    "tube_R_A": 10.85015274361989,
+    "tube_z_A": [
+      0.0,
+      47.97
+    ],
+    "n_solvent": 61,
+    "tau_rot": {
+      "EC": {
+        "per_molecule_tau_ps": [
+          3158.5,
+          5787.8,
+          2840.0,
+          416.8,
+          7397.0,
+          1061.2,
+          23901.8,
+          774.2,
+          23033.4,
+          1762.1,
+          167550.8,
+          877.9,
+          3739.8,
+          530.0,
+          2368.5,
+          1113.4,
+          638.9,
+          408.6,
+          729.5,
+          777.2,
+          1128.0,
+          1049.3,
+          1347.2,
+          566.3,
+          526.5,
+          7394.6,
+          1336.1,
+          973.8,
+          1956.3,
+          5843.2,
+          7990.9
+        ],
+        "mean_tau_ps": 8999.3,
+        "sem_over_molecules_ps": 5296.9,
+        "pooled_tau_ps": 1899.1
+      },
+      "EMC": {
+        "per_molecule_tau_ps": [
+          114.8,
+          64.7,
+          2656.2,
+          2638.6,
+          981.4,
+          265.7,
+          2141.8,
+          2896.8,
+          1130.0,
+          891.1,
+          4456.9,
+          2516.4,
+          196.0,
+          1531.1,
+          1037.7,
+          2565.9,
+          1007.5,
+          1997.8,
+          2361.6,
+          1398.9,
+          1682.6,
+          19448.3
+        ],
+        "mean_tau_ps": 2453.7,
+        "sem_over_molecules_ps": 822.6,
+        "pooled_tau_ps": 1574.1
+      }
+    },
+    "reversals": {
+      "never_reversed": 21,
+      "n_molecules": 61,
+      "frac_never_reversed": 0.344,
+      "per_molecule_mean_cos_sd": 0.566
+    },
+    "P1_mean": 0.0455,
+    "P1_block_sem": 0.0169,
+    "tau_M_P1autocorr_ps": 951.9
+  },
+  {
+    "job": "zf_cnt16_b3",
+    "kind": "zf",
+    "tube": 16,
+    "build": "b3",
+    "field": 0.0,
+    "n_frames": 2001,
+    "dt_ps": 1.0,
+    "tube_R_A": 10.85015274361989,
+    "tube_z_A": [
+      0.0,
+      47.97
+    ],
+    "n_solvent": 61,
+    "tau_rot": {
+      "EC": {
+        "per_molecule_tau_ps": [
+          497.6,
+          1342.9,
+          487.8,
+          485.0,
+          448.1,
+          940.0,
+          290.3,
+          388.2,
+          344.3,
+          1305.5,
+          1137.4,
+          5359.1,
+          693.9,
+          299.8,
+          374.8,
+          300.3,
+          1751.5,
+          7919.8,
+          221.1,
+          4880.8,
+          391.0,
+          2594.3,
+          316.4,
+          548.6,
+          356.2,
+          403.9,
+          2898.5,
+          371.0,
+          571.1,
+          470.8,
+          250.5,
+          496.8,
+          447.6,
+          422.6,
+          6002.2
+        ],
+        "mean_tau_ps": 1314.6,
+        "sem_over_molecules_ps": 311.7,
+        "pooled_tau_ps": 553.4
+      },
+      "EMC": {
+        "per_molecule_tau_ps": [
+          1213.2,
+          626.5,
+          714.4,
+          132.2,
+          731.3,
+          2846.4,
+          600.5,
+          2493.0,
+          1008.9,
+          791.6,
+          125.0,
+          548.4,
+          299.0,
+          1181.1,
+          1435.1,
+          167.8,
+          139.1,
+          1510.3,
+          574.4,
+          2071.9,
+          561.3,
+          615.0,
+          130.8,
+          93.2
+        ],
+        "mean_tau_ps": 858.8,
+        "sem_over_molecules_ps": 150.7,
+        "pooled_tau_ps": 515.1
+      }
+    },
+    "reversals": {
+      "never_reversed": 10,
+      "n_molecules": 61,
+      "frac_never_reversed": 0.164,
+      "per_molecule_mean_cos_sd": 0.439
+    },
+    "P1_mean": 0.0088,
+    "P1_block_sem": 0.0363,
+    "tau_M_P1autocorr_ps": 442.9
+  }
+]

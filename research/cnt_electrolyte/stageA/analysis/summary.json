@@ -1,0 +1,118 @@
+{
+  "mirror_verdict": {
+    "cnt10": {
+      "b1_P1": 0.0567,
+      "b1m_P1": 0.0568,
+      "b1_sem": 0.0313,
+      "b1m_sem": 0.0231,
+      "signs_opposite": false,
+      "verdict": "zero-field offset does NOT flip sign in the mirrored copy (both builds same sign)"
+    },
+    "cnt16": {
+      "b1_P1": -0.0471,
+      "b1m_P1": 0.0197,
+      "b1_sem": 0.0058,
+      "b1m_sem": 0.0208,
+      "signs_opposite": true,
+      "verdict": "zero-field offset flips sign in the mirrored copy"
+    }
+  },
+  "tau_M_ensemble": {
+    "cnt10_tau_M_switch_on_wf": {
+      "field": "tau_M_switch_on_wf",
+      "key": "tau_M_switch_on_ps",
+      "mean_ps": NaN,
+      "sem_over_builds_ps": NaN,
+      "per_build": [
+        5992.9,
+        3480.2,
+        2396.9,
+        NaN
+      ]
+    },
+    "cnt10_tau_M_switch_on_sf": {
+      "field": "tau_M_switch_on_sf",
+      "key": "tau_M_switch_on_ps",
+      "mean_ps": 2666.8,
+      "sem_over_builds_ps": 1058.2,
+      "per_build": [
+        5707.8,
+        1398.6,
+        2490.9,
+        1069.9
+      ]
+    },
+    "cnt10_tau_M_switch_off": {
+      "field": "tau_M_switch_off",
+      "key": "tau_M_switch_off_ps",
+      "mean_ps": 1960.8,
+      "sem_over_builds_ps": 618.2,
+      "per_build": [
+        1386.4,
+        3792.1,
+        1094.3,
+        1570.6
+      ]
+    },
+    "cnt10_tau_M_zf_autocorr": {
+      "field": "tau_M_zf_autocorr",
+      "key": "tau_M_P1autocorr_ps",
+      "mean_ps": 344.9,
+      "sem_over_builds_ps": 55.7,
+      "per_build": [
+        330.4,
+        198.5,
+        388.8,
+        461.7
+      ]
+    },
+    "cnt16_tau_M_switch_on_wf": {
+      "field": "tau_M_switch_on_wf",
+      "key": "tau_M_switch_on_ps",
+      "mean_ps": 3012.5,
+      "sem_over_builds_ps": 933.4,
+      "per_build": [
+        2240.1,
+        5784.3,
+        1715.2,
+        2310.3
+      ]
+    },
+    "cnt16_tau_M_switch_on_sf": {
+      "field": "tau_M_switch_on_sf",
+      "key": "tau_M_switch_on_ps",
+      "mean_ps": NaN,
+      "sem_over_builds_ps": NaN,
+      "per_build": [
+        4576.9,
+        NaN,
+        9679.9,
+        6055.9
+      ]
+    },
+    "cnt16_tau_M_switch_off": {
+      "field": "tau_M_switch_off",
+      "key": "tau_M_switch_off_ps",
+      "mean_ps": 1348.0,
+      "sem_over_builds_ps": 267.7,
+      "per_build": [
+        2140.9,
+        1073.6,
+        1192.3,
+        985.1
+      ]
+    },
+    "cnt16_tau_M_zf_autocorr": {
+      "field": "tau_M_zf_autocorr",
+      "key": "tau_M_P1autocorr_ps",
+      "mean_ps": 954.2,
+      "sem_over_builds_ps": 451.1,
+      "per_build": [
+        2223.2,
+        199.0,
+        951.9,
+        442.9
+      ]
+    }
+  }
+}
