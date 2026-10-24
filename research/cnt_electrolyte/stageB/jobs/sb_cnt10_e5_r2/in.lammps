@@ -1,0 +1,101 @@
+# LAMMPS input: sb_cnt10_e5_r2  (Stage B / Y7: field ladder, tau_M-limited blocks)
+# Engine: LAMMPS 22 Jul 2025 Update 4. Units: real (A, kcal/mol, fs, V/A).
+# Model: pilot model (owner_inputs.md D37 note): OPLS-AA-based rigid
+#   molecules from Nutakki 2023 Tables II-III, Werder sp2-C tube carbons,
+#   Lorentz-Berthelot mixing (recorded deviation), full +-1 ion charges.
+# Thermostat: ONE Langevin scheme for every mobile atom, damping 1 ps:
+#   fix rigid/nve molecule langevin (multi-atom bodies) + fix nve +
+#   fix langevin (Li+); no Nose-Hoover anywhere (same rule as Stage A).
+#   NOTE rigid/nve (not the /small variant), same as Stage A (the local
+#   conda build's fix rigid/nve/small molecule corrupted body data at
+#   step 1 for 3 of 4 cnt16 builds - stageA_plan.md addendum 2026-10-16).
+# Dumps: every 1 ps (settle: every 10 ps), dump_modify format float
+#   %.10g, with image flags. Thermo: every 1 ps.
+# Stage B protocol (reports/research/stage_b_plan.md):
+#   start = zf_cnt10_b2 final.data (equilibrated zero-field state: 100 ps
+#   10->300 K ramp + 900 ps equil + 2 ns zero-field production);
+#   settle 1000 ps (field on from t = 0), then 2 x
+#   6000 ps production blocks (one continuous dumped trajectory;
+#   the analysis splits blocks at 6000 ps). Block length
+#   6 ns = 2 x tau_M(cnt16 @0.01 V/A) = 2 x 3.01 ns;
+#   2.25 x tau_M for cnt10 (2.67 ns) - tau_M measured in Stage A
+#   (reports/research/stage_a.md, stageA/analysis/summary.json).
+# ladder field 0.005 V/A, run 2 of 3, from zf_cnt10_b2 final state.
+#
+
+units           real
+atom_style      full
+boundary        p p p
+
+read_data       system.data
+
+pair_style      lj/cut/coul/long 12.0
+pair_modify     mix arithmetic tail no
+kspace_style    pppm 0.0001
+pair_coeff      1 1 0.085300 3.4000
+pair_coeff      2 2 0.104995 3.7500
+pair_coeff      3 3 0.170005 3.0000
+pair_coeff      4 4 0.065989 3.5000
+pair_coeff      5 5 0.209990 2.9600
+pair_coeff      6 6 0.015010 2.4200
+pair_coeff      7 7 0.029995 2.5000
+pair_coeff      8 8 0.066000 3.5000
+pair_coeff      9 9 0.165057 1.5100
+pair_coeff      10 10 0.200000 3.7400
+pair_coeff      11 11 0.060994 3.1180
+
+bond_style       harmonic
+bond_coeff      1 0.0 1.0
+special_bonds   lj/coul 0.0 0.0 0.0
+
+neighbor        2.0 bin
+neigh_modify    every 1 delay 0 check yes exclude molecule/intra all
+
+group           tube type 1
+group           mobile subtract all tube
+group           li type 9
+group           bodies subtract mobile li
+fix             frz tube setforce 0.0 0.0 0.0
+
+# honest mobile-subsystem temperature: 2*KE/(DOF*kB), real units
+# (the default thermo temp is diluted by the frozen tube atoms)
+compute         keb bodies ke
+compute         keli li ke
+variable        Tmob equal 2.0*(c_keb+c_keli)/(93*0.0019872041)
+
+timestep        1.0
+
+# smoke self-test:  lmp -var smoke 1 -in in.lammps
+variable        smoke index 0
+if "${smoke} == 1" then "variable nsettle equal 500" "variable nblockA equal 500" "variable nblockB equal 500" &
+else "variable nsettle equal 1000000" "variable nblockA equal 6000000" "variable nblockB equal 6000000"
+
+thermo          1000
+thermo_style    custom step atoms v_Tmob temp pe etotal press vol
+
+# external field along +z switched ON at t = 0 (V/A, real units)
+fix             efield mobile efield 0.0 0.0 0.005
+# velocities continue from the read-in zero-field final state (no re-draw)
+fix             thb bodies rigid/nve molecule langevin 300.0 300.0 1000 21272021
+fix             thl li nve
+fix             thla li langevin 300.0 300.0 1000 21272022
+
+# long job: flush the log/screen buffers at every thermo output
+thermo_modify    flush yes
+
+# --- stage 1: 1000 ps settle (field already on), dump every 10 ps
+dump            ed all custom 10000 equil.dump id mol type q x y z ix iy iz
+dump_modify     ed sort id format float %.10g
+run             ${nsettle}
+undump          ed
+
+# --- stage 2: 2 x 6000 ps production blocks, dump every 1 ps
+#     (one continuous trajectory; block A = 0-6000 ps,
+#      block B = 6000-12000 ps, split in the analysis)
+reset_timestep  0
+dump            pd all custom 1000 prod.dump id mol type q x y z ix iy iz
+dump_modify     pd sort id format float %.10g
+run             ${nblockA}
+run             ${nblockB}
+
+write_data      final.data nocoeff
