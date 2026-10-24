@@ -1,0 +1,72 @@
+# r0_q03: Kob-Andersen 80:20 LJ glass, X7 rate sweep (research/ka_convergence)
+# rate 0.019 T*/tau | seed base 20261028 | params: ka_params.py (cited there)
+units           lj
+dimension       3
+boundary        p p p
+atom_style      atomic
+read_data       data.r0_q03
+
+# KA potential (lj_mixtures.yaml kob_andersen == bench provenance):
+# per-pair eps/sigma, each pair cut at 2.5 sigma_ab, energy-shifted at its
+# own cutoff (pair_modify shift yes); forces plain truncated, the repo
+# convention.  LAMMPS damp = 1/gamma*.
+pair_style      lj/cut 2.5
+pair_modify     shift yes
+pair_coeff      1 1 1.0 1.0 2.5
+pair_coeff      1 2 1.5 0.8 2.0
+pair_coeff      2 2 0.5 0.88 2.2
+
+neighbor        0.3 bin
+neigh_modify    delay 0 every 1 check yes
+timestep        0.005
+
+thermo          50
+thermo_style    custom step temp pe press etotal
+thermo_modify   flush yes
+
+velocity        all create 2.0 202610283 mom yes rot no dist gaussian
+
+# ---- melt: T*=2.0 for 2000 steps (10.0 tau), gamma*=1.0 (D19c: 10/tau_stage)
+fix             int all nve
+fix             bathm all langevin 2.0 2.0 1.0 202610284 zero yes
+run             2000
+print           "STAGE_END melt T*=$(temp:%.4f) PE=$(pe:%.8f)"
+unfix           bathm
+
+# ---- quench: linear 2.0 -> 0.1 over 20000 steps (rate 0.019 T*/tau), gamma*=9.5
+fix             bathq all langevin 2.0 0.1 0.10526315789473684 202610285 zero yes
+run             20000
+print           "STAGE_END quench T*=$(temp:%.4f) PE=$(pe:%.8f)"
+unfix           bathq
+
+# ---- anneal: T*=0.1 for 4000 steps, gamma*=0.5 (10/tau_stage floor)
+fix             batha all langevin 0.1 0.1 2.0 202610286 zero yes
+run             4000
+print           "STAGE_END anneal T*=$(temp:%.4f) PE=$(pe:%.8f)"
+
+# ---- sampling: 5 frames at 800-step stride (bench ka_glass convention)
+run             800
+print           "FRAME 0 PE=$(pe:%.8f)"
+write_dump      all custom frame_0.lammpstrj id type x y z modify sort id
+run             800
+print           "FRAME 1 PE=$(pe:%.8f)"
+write_dump      all custom frame_1.lammpstrj id type x y z modify sort id
+run             800
+print           "FRAME 2 PE=$(pe:%.8f)"
+write_dump      all custom frame_2.lammpstrj id type x y z modify sort id
+run             800
+print           "FRAME 3 PE=$(pe:%.8f)"
+write_dump      all custom frame_3.lammpstrj id type x y z modify sort id
+run             800
+print           "FRAME 4 PE=$(pe:%.8f)"
+write_dump      all custom frame_4.lammpstrj id type x y z modify sort id
+print           "STAGE_END sample T*=$(temp:%.4f) PE=$(pe:%.8f)"
+unfix           batha
+unfix           int
+
+# ---- inherent structure (D20): FIRE minimisation of the final frame
+min_style       fire
+min_modify      integrator eulerimplicit
+minimize        1e-10 1e-10 100000 200000
+print           "IS_RESULT T*=$(temp:%.6f) PE=$(pe:%.10f) F=$(fnorm:%.6e) step=$(step)"
+write_dump      all custom is_frame.lammpstrj id type x y z modify sort id

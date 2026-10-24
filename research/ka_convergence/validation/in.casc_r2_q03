@@ -1,0 +1,19 @@
+units lj
+boundary p p p
+atom_style atomic
+read_data final_r2_q03.data
+pair_style lj/cut 2.5
+pair_modify shift yes
+pair_coeff 1 1 1.0 1.0 2.5
+pair_coeff 1 2 1.5 0.8 2.0
+pair_coeff 2 2 0.5 0.88 2.2
+thermo 1000
+min_style fire
+minimize 1e-12 1e-12 200000 400000
+print "CASCADE fire1 $(pe:%.10f) $(fnorm:%.6e)"
+min_style hftn
+minimize 1e-12 1e-12 200000 400000
+print "CASCADE hftn $(pe:%.10f) $(fnorm:%.6e)"
+min_style fire
+minimize 1e-12 1e-12 200000 400000
+print "CASCADE fire2 $(pe:%.10f) $(fnorm:%.6e)"

@@ -1,0 +1,104 @@
+{
+ "lammps": "C:/ProgramData/anaconda3/Scripts/lmp.exe",
+ "checks": {
+  "V1_potential_energy_per_atom": {
+   "measured": {
+    "3": -7.464783679454,
+    "4": -7.470565469219,
+    "8": -7.456721171999,
+    "9": -7.469010489487,
+    "13": -7.452280606727,
+    "14": -7.448585042371
+   },
+   "recorded_reference_values": [
+    -7.4648,
+    -7.4706,
+    -7.4567,
+    -7.469,
+    -7.4523,
+    -7.4486
+   ],
+   "recorded_mean": -7.460324409878239,
+   "measured_mean": -7.460324409876168,
+   "max_abs_dev_vs_recorded_set": 3.453078099990847e-05,
+   "pass": true
+  },
+  "V2_inherent_structure_per_atom": {
+   "measured": {
+    "4": -7.6197272969,
+    "9": -7.610958805,
+    "14": -7.5984898999
+   },
+   "recorded": {
+    "4": -7.615,
+    "9": -7.611,
+    "14": -7.598
+   },
+   "deviation": {
+    "4": -0.004727296899999622,
+    "9": 4.119499999966081e-05,
+    "14": -0.0004898998999998128
+   },
+   "detail": {
+    "4": {
+     "is_energy_per_atom": -7.6197272969,
+     "fnorm": "2.176027e-02",
+     "fire_iterations": "1801",
+     "seconds": 2.3
+    },
+    "9": {
+     "is_energy_per_atom": -7.610958805,
+     "fnorm": "1.636120e-02",
+     "fire_iterations": "691",
+     "seconds": 1.0
+    },
+    "14": {
+     "is_energy_per_atom": -7.5984898999,
+     "fnorm": "1.676377e-02",
+     "fire_iterations": "1485",
+     "seconds": 2.0
+    }
+   },
+   "pass": true
+  },
+  "V3_floor_observables": {
+   "pass": true,
+   "gr_rms": {
+    "measured_mean": 0.03781726967073593,
+    "measured_max": 0.045699678496053754,
+    "recorded_mean": 0.03781726967073593,
+    "recorded_max": 0.045699678496053754,
+    "rel_dev_of_mean": 0.0
+   },
+   "gr_rms_A-A": {
+    "measured_mean": 0.0448641144508348,
+    "measured_max": 0.056997047346698713,
+    "recorded_mean": 0.0448641144508348,
+    "recorded_max": 0.056997047346698713,
+    "rel_dev_of_mean": 0.0
+   },
+   "gr_rms_A-B": {
+    "measured_mean": 0.0693767145494013,
+    "measured_max": 0.10337025542366496,
+    "recorded_mean": 0.0693767145494013,
+    "recorded_max": 0.10337025542366496,
+    "rel_dev_of_mean": 0.0
+   },
+   "gr_rms_B-B": {
+    "measured_mean": 0.17507959265647066,
+    "measured_max": 0.20073241952618023,
+    "recorded_mean": 0.17507959265647066,
+    "recorded_max": 0.20073241952618023,
+    "rel_dev_of_mean": 0.0
+   },
+   "cn_tv": {
+    "measured_mean": 0.03099999999999999,
+    "measured_max": 0.039999999999999994,
+    "recorded_mean": 0.03099999999999999,
+    "recorded_max": 0.039999999999999994,
+    "rel_dev_of_mean": 0.0
+   }
+  }
+ },
+ "passed": true
+}

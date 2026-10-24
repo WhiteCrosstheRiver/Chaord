@@ -1,0 +1,637 @@
+{
+ "per_run": {
+  "r0_q00": {
+   "single_fire": -7.5859637381,
+   "single_fire_fnorm": 0.1950968,
+   "cascade_stages": {
+    "fire1": {
+     "pe": -7.585963899,
+     "fnorm": 0.002367804
+    },
+    "hftn": {
+     "pe": -7.5859639169,
+     "fnorm": 0.0006504858
+    },
+    "fire2": {
+     "pe": -7.5859639169,
+     "fnorm": 4.039227e-05
+    }
+   },
+   "cascade_final": -7.5859639169,
+   "cascade_final_fnorm": 4.039227e-05,
+   "shift": -1.787999996949452e-07
+  },
+  "r0_q01": {
+   "single_fire": -7.6030980144,
+   "single_fire_fnorm": 0.02163496,
+   "cascade_stages": {
+    "fire1": {
+     "pe": -7.6030981346,
+     "fnorm": 0.002678154
+    },
+    "hftn": {
+     "pe": -7.6030981355,
+     "fnorm": 3.235255e-09
+    },
+    "fire2": {
+     "pe": -7.6030981355,
+     "fnorm": 1.194026e-09
+    }
+   },
+   "cascade_final": -7.6030981355,
+   "cascade_final_fnorm": 1.194026e-09,
+   "shift": -1.210999993617179e-07
+  },
+  "r0_q02": {
+   "single_fire": -7.5938126899,
+   "single_fire_fnorm": 0.02106498,
+   "cascade_stages": {
+    "fire1": {
+     "pe": -7.5938130134,
+     "fnorm": 0.003918413
+    },
+    "hftn": {
+     "pe": -7.5938130593,
+     "fnorm": 0.001029293
+    },
+    "fire2": {
+     "pe": -7.5938130593,
+     "fnorm": 6.600182e-05
+    }
+   },
+   "cascade_final": -7.5938130593,
+   "cascade_final_fnorm": 6.600182e-05,
+   "shift": -3.694000003662268e-07
+  },
+  "r0_q03": {
+   "single_fire": -7.6029538944,
+   "single_fire_fnorm": 0.01838603,
+   "cascade_stages": {
+    "fire1": {
+     "pe": -7.6029539231,
+     "fnorm": 0.002566101
+    },
+    "hftn": {
+     "pe": -7.6029539502,
+     "fnorm": 8.489665e-07
+    },
+    "fire2": {
+     "pe": -7.6029539502,
+     "fnorm": 2.868121e-07
+    }
+   },
+   "cascade_final": -7.6029539502,
+   "cascade_final_fnorm": 2.868121e-07,
+   "shift": -5.58000001760206e-08
+  },
+  "r0_q04": {
+   "single_fire": -7.5918954897,
+   "single_fire_fnorm": 0.428718,
+   "cascade_stages": {
+    "fire1": {
+     "pe": -7.591895972,
+     "fnorm": 0.002181005
+    },
+    "hftn": {
+     "pe": -7.591896027,
+     "fnorm": 6.799476e-10
+    },
+    "fire2": {
+     "pe": -7.591896027,
+     "fnorm": 2.487629e-10
+    }
+   },
+   "cascade_final": -7.591896027,
+   "cascade_final_fnorm": 2.487629e-10,
+   "shift": -5.373000000474804e-07
+  },
+  "r0_q05": {
+   "single_fire": -7.6019184096,
+   "single_fire_fnorm": 0.2052087,
+   "cascade_stages": {
+    "fire1": {
+     "pe": -7.6019188335,
+     "fnorm": 0.0021856
+    },
+    "hftn": {
+     "pe": -7.6019188584,
+     "fnorm": 0.0005336615
+    },
+    "fire2": {
+     "pe": -7.6019188584,
+     "fnorm": 3.751735e-05
+    }
+   },
+   "cascade_final": -7.6019188584,
+   "cascade_final_fnorm": 3.751735e-05,
+   "shift": -4.488000007185633e-07
+  },
+  "r0_q06": {
+   "single_fire": -7.6025433015,
+   "single_fire_fnorm": 0.01762418,
+   "cascade_stages": {
+    "fire1": {
+     "pe": -7.6025434098,
+     "fnorm": 0.03644323
+    },
+    "hftn": {
+     "pe": -7.6025439029,
+     "fnorm": 1.215238e-11
+    },
+    "fire2": {
+     "pe": -7.6025439029,
+     "fnorm": 1.218529e-11
+    }
+   },
+   "cascade_final": -7.6025439029,
+   "cascade_final_fnorm": 1.218529e-11,
+   "shift": -6.014000000220676e-07
+  },
+  "r0_q07": {
+   "single_fire": -7.6034567797,
+   "single_fire_fnorm": 1.106867,
+   "cascade_stages": {
+    "fire1": {
+     "pe": -7.6034889776,
+     "fnorm": 0.003139943
+    },
+    "hftn": {
+     "pe": -7.6034890069,
+     "fnorm": 1.864722e-10
+    },
+    "fire2": {
+     "pe": -7.6034890069,
+     "fnorm": 9.345747e-11
+    }
+   },
+   "cascade_final": -7.6034890069,
+   "cascade_final_fnorm": 9.345747e-11,
+   "shift": -3.222720000017887e-05
+  },
+  "r0_q08": {
+   "single_fire": -7.5972327503,
+   "single_fire_fnorm": 0.0189867,
+   "cascade_stages": {
+    "fire1": {
+     "pe": -7.5972353198,
+     "fnorm": 0.002353914
+    },
+    "hftn": {
+     "pe": -7.5972353282,
+     "fnorm": 0.003363395
+    },
+    "fire2": {
+     "pe": -7.5972353282,
+     "fnorm": 0.0002873503
+    }
+   },
+   "cascade_final": -7.5972353282,
+   "cascade_final_fnorm": 0.0002873503,
+   "shift": -2.5779000001335817e-06
+  },
+  "r0_q09": {
+   "single_fire": -7.6041050495,
+   "single_fire_fnorm": 0.02994522,
+   "cascade_stages": {
+    "fire1": {
+     "pe": -7.60410533,
+     "fnorm": 0.002277391
+    },
+    "hftn": {
+     "pe": -7.6041053403,
+     "fnorm": 0.0005801965
+    },
+    "fire2": {
+     "pe": -7.6041053403,
+     "fnorm": 4.249972e-05
+    }
+   },
+   "cascade_final": -7.6041053403,
+   "cascade_final_fnorm": 4.249972e-05,
+   "shift": -2.9080000008008255e-07
+  },
+  "r1_q00": {
+   "single_fire": -7.6484569228,
+   "single_fire_fnorm": 0.02001942,
+   "cascade_stages": {
+    "fire1": {
+     "pe": -7.6484570483,
+     "fnorm": 0.002255987
+    },
+    "hftn": {
+     "pe": -7.648457049,
+     "fnorm": 1.892592e-09
+    },
+    "fire2": {
+     "pe": -7.648457049,
+     "fnorm": 6.737017e-10
+    }
+   },
+   "cascade_final": -7.648457049,
+   "cascade_final_fnorm": 6.737017e-10,
+   "shift": -1.2619999978369378e-07
+  },
+  "r1_q01": {
+   "single_fire": -7.6367922175,
+   "single_fire_fnorm": 0.02156259,
+   "cascade_stages": {
+    "fire1": {
+     "pe": -7.6367923683,
+     "fnorm": 0.002205296
+    },
+    "hftn": {
+     "pe": -7.6367924075,
+     "fnorm": 0.002153238
+    },
+    "fire2": {
+     "pe": -7.6367924075,
+     "fnorm": 0.0001429566
+    }
+   },
+   "cascade_final": -7.6367924075,
+   "cascade_final_fnorm": 0.0001429566,
+   "shift": -1.8999999973345894e-07
+  },
+  "r1_q02": {
+   "single_fire": -7.6404187697,
+   "single_fire_fnorm": 0.0206573,
+   "cascade_stages": {
+    "fire1": {
+     "pe": -7.6404772038,
+     "fnorm": 0.002326663
+    },
+    "hftn": {
+     "pe": -7.6404772369,
+     "fnorm": 5.186204e-07
+    },
+    "fire2": {
+     "pe": -7.6404772369,
+     "fnorm": 1.851224e-07
+    }
+   },
+   "cascade_final": -7.6404772369,
+   "cascade_final_fnorm": 1.851224e-07,
+   "shift": -5.846719999968997e-05
+  },
+  "r1_q03": {
+   "single_fire": -7.6311481864,
+   "single_fire_fnorm": 0.02328341,
+   "cascade_stages": {
+    "fire1": {
+     "pe": -7.6311483589,
+     "fnorm": 0.002540375
+    },
+    "hftn": {
+     "pe": -7.6311483652,
+     "fnorm": 0.003839539
+    },
+    "fire2": {
+     "pe": -7.6311483652,
+     "fnorm": 0.0002853547
+    }
+   },
+   "cascade_final": -7.6311483652,
+   "cascade_final_fnorm": 0.0002853547,
+   "shift": -1.787999996949452e-07
+  },
+  "r1_q04": {
+   "single_fire": -7.6390146581,
+   "single_fire_fnorm": 0.02244289,
+   "cascade_stages": {
+    "fire1": {
+     "pe": -7.6390147316,
+     "fnorm": 0.002226301
+    },
+    "hftn": {
+     "pe": -7.6390147461,
+     "fnorm": 0.0005833081
+    },
+    "fire2": {
+     "pe": -7.6390147461,
+     "fnorm": 4.415419e-05
+    }
+   },
+   "cascade_final": -7.6390147461,
+   "cascade_final_fnorm": 4.415419e-05,
+   "shift": -8.800000017572529e-08
+  },
+  "r1_q05": {
+   "single_fire": -7.6327918654,
+   "single_fire_fnorm": 0.1046786,
+   "cascade_stages": {
+    "fire1": {
+     "pe": -7.6327919347,
+     "fnorm": 0.02117542
+    },
+    "hftn": {
+     "pe": -7.6327919447,
+     "fnorm": 0.0001090195
+    },
+    "fire2": {
+     "pe": -7.6327919447,
+     "fnorm": 8.117898e-06
+    }
+   },
+   "cascade_final": -7.6327919447,
+   "cascade_final_fnorm": 8.117898e-06,
+   "shift": -7.930000034406248e-08
+  },
+  "r1_q06": {
+   "single_fire": -7.6415957302,
+   "single_fire_fnorm": 0.4355429,
+   "cascade_stages": {
+    "fire1": {
+     "pe": -7.6415962755,
+     "fnorm": 0.00241635
+    },
+    "hftn": {
+     "pe": -7.6415962762,
+     "fnorm": 1.64508e-09
+    },
+    "fire2": {
+     "pe": -7.6415962762,
+     "fnorm": 6.501464e-10
+    }
+   },
+   "cascade_final": -7.6415962762,
+   "cascade_final_fnorm": 6.501464e-10,
+   "shift": -5.459999998791432e-07
+  },
+  "r1_q07": {
+   "single_fire": -7.6391380305,
+   "single_fire_fnorm": 0.01831703,
+   "cascade_stages": {
+    "fire1": {
+     "pe": -7.6391383301,
+     "fnorm": 0.002518748
+    },
+    "hftn": {
+     "pe": -7.6391383307,
+     "fnorm": 3.311802e-10
+    },
+    "fire2": {
+     "pe": -7.6391383307,
+     "fnorm": 1.200313e-10
+    }
+   },
+   "cascade_final": -7.6391383307,
+   "cascade_final_fnorm": 1.200313e-10,
+   "shift": -3.001999999696636e-07
+  },
+  "r1_q08": {
+   "single_fire": -7.6399830033,
+   "single_fire_fnorm": 0.01912428,
+   "cascade_stages": {
+    "fire1": {
+     "pe": -7.6399831249,
+     "fnorm": 0.002764248
+    },
+    "hftn": {
+     "pe": -7.6399831256,
+     "fnorm": 3.817558e-09
+    },
+    "fire2": {
+     "pe": -7.6399831256,
+     "fnorm": 1.575703e-09
+    }
+   },
+   "cascade_final": -7.6399831256,
+   "cascade_final_fnorm": 1.575703e-09,
+   "shift": -1.2229999946100634e-07
+  },
+  "r1_q09": {
+   "single_fire": -7.6419310221,
+   "single_fire_fnorm": 0.02456947,
+   "cascade_stages": {
+    "fire1": {
+     "pe": -7.6419312569,
+     "fnorm": 0.002281529
+    },
+    "hftn": {
+     "pe": -7.6419607841,
+     "fnorm": 3.243039e-07
+    },
+    "fire2": {
+     "pe": -7.6419607841,
+     "fnorm": 1.277574e-07
+    }
+   },
+   "cascade_final": -7.6419607841,
+   "cascade_final_fnorm": 1.277574e-07,
+   "shift": -2.9762000000488342e-05
+  },
+  "r2_q00": {
+   "single_fire": -7.6593448391,
+   "single_fire_fnorm": 0.02591258,
+   "cascade_stages": {
+    "fire1": {
+     "pe": -7.6593449289,
+     "fnorm": 0.03504987
+    },
+    "hftn": {
+     "pe": -7.6593449933,
+     "fnorm": 0.0008787872
+    },
+    "fire2": {
+     "pe": -7.6593449933,
+     "fnorm": 6.028688e-05
+    }
+   },
+   "cascade_final": -7.6593449933,
+   "cascade_final_fnorm": 6.028688e-05,
+   "shift": -1.5420000032406733e-07
+  },
+  "r2_q01": {
+   "single_fire": -7.6636121249,
+   "single_fire_fnorm": 0.02227378,
+   "cascade_stages": {
+    "fire1": {
+     "pe": -7.6636121831,
+     "fnorm": 0.001996769
+    },
+    "hftn": {
+     "pe": -7.6636122773,
+     "fnorm": 1.197308e-07
+    },
+    "fire2": {
+     "pe": -7.6636122773,
+     "fnorm": 4.522459e-08
+    }
+   },
+   "cascade_final": -7.6636122773,
+   "cascade_final_fnorm": 4.522459e-08,
+   "shift": -1.5240000017513466e-07
+  },
+  "r2_q02": {
+   "single_fire": -7.6703316987,
+   "single_fire_fnorm": 0.05098798,
+   "cascade_stages": {
+    "fire1": {
+     "pe": -7.67033174,
+     "fnorm": 0.002269753
+    },
+    "hftn": {
+     "pe": -7.6703317406,
+     "fnorm": 1.69778e-09
+    },
+    "fire2": {
+     "pe": -7.6703317406,
+     "fnorm": 5.859516e-10
+    }
+   },
+   "cascade_final": -7.6703317406,
+   "cascade_final_fnorm": 5.859516e-10,
+   "shift": -4.1899999914107866e-08
+  },
+  "r2_q03": {
+   "single_fire": -7.6605019323,
+   "single_fire_fnorm": 0.6379502,
+   "cascade_stages": {
+    "fire1": {
+     "pe": -7.6605032403,
+     "fnorm": 0.0302334
+    },
+    "hftn": {
+     "pe": -7.6605032417,
+     "fnorm": 9.060514e-08
+    },
+    "fire2": {
+     "pe": -7.6605032417,
+     "fnorm": 2.981114e-08
+    }
+   },
+   "cascade_final": -7.6605032417,
+   "cascade_final_fnorm": 2.981114e-08,
+   "shift": -1.3093999999824746e-06
+  },
+  "r2_q04": {
+   "single_fire": -7.6632841586,
+   "single_fire_fnorm": 0.0178334,
+   "cascade_stages": {
+    "fire1": {
+     "pe": -7.66328446,
+     "fnorm": 0.001961239
+    },
+    "hftn": {
+     "pe": -7.6632844604,
+     "fnorm": 2.860115e-10
+    },
+    "fire2": {
+     "pe": -7.6632844604,
+     "fnorm": 1.019743e-10
+    }
+   },
+   "cascade_final": -7.6632844604,
+   "cascade_final_fnorm": 1.019743e-10,
+   "shift": -3.018000001020482e-07
+  },
+  "r2_q05": {
+   "single_fire": -7.662507392,
+   "single_fire_fnorm": 0.01960066,
+   "cascade_stages": {
+    "fire1": {
+     "pe": -7.662507885,
+     "fnorm": 0.004359827
+    },
+    "hftn": {
+     "pe": -7.6625079607,
+     "fnorm": 6.830803e-08
+    },
+    "fire2": {
+     "pe": -7.6625079607,
+     "fnorm": 1.465511e-08
+    }
+   },
+   "cascade_final": -7.6625079607,
+   "cascade_final_fnorm": 1.465511e-08,
+   "shift": -5.686999999809927e-07
+  },
+  "r2_q06": {
+   "single_fire": -7.6600699045,
+   "single_fire_fnorm": 0.0142814,
+   "cascade_stages": {
+    "fire1": {
+     "pe": -7.660069938,
+     "fnorm": 0.002196889
+    },
+    "hftn": {
+     "pe": -7.6600699384,
+     "fnorm": 0.0001437835
+    },
+    "fire2": {
+     "pe": -7.6600699384,
+     "fnorm": 1.067416e-05
+    }
+   },
+   "cascade_final": -7.6600699384,
+   "cascade_final_fnorm": 1.067416e-05,
+   "shift": -3.390000014036332e-08
+  },
+  "r2_q07": {
+   "single_fire": -7.6571151276,
+   "single_fire_fnorm": 0.5346865,
+   "cascade_stages": {
+    "fire1": {
+     "pe": -7.657115988,
+     "fnorm": 0.002190085
+    },
+    "hftn": {
+     "pe": -7.6571159884,
+     "fnorm": 9.575771e-10
+    },
+    "fire2": {
+     "pe": -7.6571159884,
+     "fnorm": 3.866751e-10
+    }
+   },
+   "cascade_final": -7.6571159884,
+   "cascade_final_fnorm": 3.866751e-10,
+   "shift": -8.608000001686378e-07
+  },
+  "r2_q08": {
+   "single_fire": -7.6630632327,
+   "single_fire_fnorm": 0.0986827,
+   "cascade_stages": {
+    "fire1": {
+     "pe": -7.6630633455,
+     "fnorm": 0.002265323
+    },
+    "hftn": {
+     "pe": -7.6630633809,
+     "fnorm": 5.501637e-09
+    },
+    "fire2": {
+     "pe": -7.6630633809,
+     "fnorm": 1.935263e-09
+    }
+   },
+   "cascade_final": -7.6630633809,
+   "cascade_final_fnorm": 1.935263e-09,
+   "shift": -1.481999998276251e-07
+  },
+  "r2_q09": {
+   "single_fire": -7.6657757678,
+   "single_fire_fnorm": 0.02006058,
+   "cascade_stages": {
+    "fire1": {
+     "pe": -7.6657970795,
+     "fnorm": 0.001894988
+    },
+    "hftn": {
+     "pe": -7.6657970822,
+     "fnorm": 1.113381e-07
+    },
+    "fire2": {
+     "pe": -7.6657970822,
+     "fnorm": 3.824552e-08
+    }
+   },
+   "cascade_final": -7.6657970822,
+   "cascade_final_fnorm": 3.824552e-08,
+   "shift": -2.13144000005272e-05
+  }
+ },
+ "max_abs_shift_vs_single_fire": 5.846719999968997e-05,
+ "mean_abs_shift": 5.0718066667047404e-06,
+ "max_cascade_fnorm": 0.0002873503
+}

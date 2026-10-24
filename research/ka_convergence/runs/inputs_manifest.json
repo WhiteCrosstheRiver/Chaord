@@ -1,0 +1,1453 @@
+{
+ "generator": "research/ka_convergence/gen_inputs.py",
+ "params_module": "research/ka_convergence/ka_params.py",
+ "records": {
+  "potential": "src/chaord/dialects/lj_mixtures.yaml kob_andersen; bench/reference/generate_reference.py KA_*; bench/reference/ka_glass/provenance.json",
+  "melt_anneal": "src/chaord/dialects/glass.yaml D7 block at glass_protocol_ref_n=2000 (scale 1.0)",
+  "thermostat": "D19(c)/X5: glass.yaml ramp_gamma_tau_multiple 10, ramp_gamma_rate_multiple 500, relax_gamma 0.5",
+  "sampling": "bench/reference/ka_glass/provenance.json steps (anneal_equilibration 4000, stride 800, 5 frames)",
+  "order": "docs/reviews/open_items_v3.md X7 item 1"
+ },
+ "runs": {
+  "r0_q00": {
+   "run_id": "r0_q00",
+   "rate_idx": 0,
+   "seed_idx": 0,
+   "rate": 0.019,
+   "seed_base": 20261025,
+   "seeds": {
+    "delete": 202610251,
+    "species": 202610252,
+    "velocity": 202610253,
+    "langevin_melt": 202610254,
+    "langevin_quench": 202610255,
+    "langevin_anneal": 202610256
+   },
+   "protocol": {
+    "rate_Tstar_per_tau": 0.019,
+    "melt_steps": 2000,
+    "melt_T": 2.0,
+    "quench_steps": 20000,
+    "quench_tau": 100.0,
+    "anneal_steps": 4000,
+    "anneal_T": 0.1,
+    "sampling_stride": 800,
+    "frames_per_quench": 5,
+    "dt_tau_per_step": 0.005,
+    "gamma_melt": 1.0,
+    "gamma_quench": 9.5,
+    "gamma_anneal": 0.5,
+    "gamma_sample": 0.5,
+    "total_md_steps": 30000,
+    "frame_steps": [
+     26800,
+     27600,
+     28400,
+     29200,
+     30000
+    ]
+   },
+   "n_atoms": 2000,
+   "n_B": 400,
+   "rho_star": 1.2,
+   "box_L": 11.856311014966874,
+   "lammps": "C:/ProgramData/anaconda3/Scripts/lmp.exe",
+   "files": [
+    "data.r0_q00",
+    "in.r0_q00"
+   ]
+  },
+  "r0_q01": {
+   "run_id": "r0_q01",
+   "rate_idx": 0,
+   "seed_idx": 1,
+   "rate": 0.019,
+   "seed_base": 20261026,
+   "seeds": {
+    "delete": 202610261,
+    "species": 202610262,
+    "velocity": 202610263,
+    "langevin_melt": 202610264,
+    "langevin_quench": 202610265,
+    "langevin_anneal": 202610266
+   },
+   "protocol": {
+    "rate_Tstar_per_tau": 0.019,
+    "melt_steps": 2000,
+    "melt_T": 2.0,
+    "quench_steps": 20000,
+    "quench_tau": 100.0,
+    "anneal_steps": 4000,
+    "anneal_T": 0.1,
+    "sampling_stride": 800,
+    "frames_per_quench": 5,
+    "dt_tau_per_step": 0.005,
+    "gamma_melt": 1.0,
+    "gamma_quench": 9.5,
+    "gamma_anneal": 0.5,
+    "gamma_sample": 0.5,
+    "total_md_steps": 30000,
+    "frame_steps": [
+     26800,
+     27600,
+     28400,
+     29200,
+     30000
+    ]
+   },
+   "n_atoms": 2000,
+   "n_B": 400,
+   "rho_star": 1.2,
+   "box_L": 11.856311014966874,
+   "lammps": "C:/ProgramData/anaconda3/Scripts/lmp.exe",
+   "files": [
+    "data.r0_q01",
+    "in.r0_q01"
+   ]
+  },
+  "r0_q02": {
+   "run_id": "r0_q02",
+   "rate_idx": 0,
+   "seed_idx": 2,
+   "rate": 0.019,
+   "seed_base": 20261027,
+   "seeds": {
+    "delete": 202610271,
+    "species": 202610272,
+    "velocity": 202610273,
+    "langevin_melt": 202610274,
+    "langevin_quench": 202610275,
+    "langevin_anneal": 202610276
+   },
+   "protocol": {
+    "rate_Tstar_per_tau": 0.019,
+    "melt_steps": 2000,
+    "melt_T": 2.0,
+    "quench_steps": 20000,
+    "quench_tau": 100.0,
+    "anneal_steps": 4000,
+    "anneal_T": 0.1,
+    "sampling_stride": 800,
+    "frames_per_quench": 5,
+    "dt_tau_per_step": 0.005,
+    "gamma_melt": 1.0,
+    "gamma_quench": 9.5,
+    "gamma_anneal": 0.5,
+    "gamma_sample": 0.5,
+    "total_md_steps": 30000,
+    "frame_steps": [
+     26800,
+     27600,
+     28400,
+     29200,
+     30000
+    ]
+   },
+   "n_atoms": 2000,
+   "n_B": 400,
+   "rho_star": 1.2,
+   "box_L": 11.856311014966874,
+   "lammps": "C:/ProgramData/anaconda3/Scripts/lmp.exe",
+   "files": [
+    "data.r0_q02",
+    "in.r0_q02"
+   ]
+  },
+  "r0_q03": {
+   "run_id": "r0_q03",
+   "rate_idx": 0,
+   "seed_idx": 3,
+   "rate": 0.019,
+   "seed_base": 20261028,
+   "seeds": {
+    "delete": 202610281,
+    "species": 202610282,
+    "velocity": 202610283,
+    "langevin_melt": 202610284,
+    "langevin_quench": 202610285,
+    "langevin_anneal": 202610286
+   },
+   "protocol": {
+    "rate_Tstar_per_tau": 0.019,
+    "melt_steps": 2000,
+    "melt_T": 2.0,
+    "quench_steps": 20000,
+    "quench_tau": 100.0,
+    "anneal_steps": 4000,
+    "anneal_T": 0.1,
+    "sampling_stride": 800,
+    "frames_per_quench": 5,
+    "dt_tau_per_step": 0.005,
+    "gamma_melt": 1.0,
+    "gamma_quench": 9.5,
+    "gamma_anneal": 0.5,
+    "gamma_sample": 0.5,
+    "total_md_steps": 30000,
+    "frame_steps": [
+     26800,
+     27600,
+     28400,
+     29200,
+     30000
+    ]
+   },
+   "n_atoms": 2000,
+   "n_B": 400,
+   "rho_star": 1.2,
+   "box_L": 11.856311014966874,
+   "lammps": "C:/ProgramData/anaconda3/Scripts/lmp.exe",
+   "files": [
+    "data.r0_q03",
+    "in.r0_q03"
+   ]
+  },
+  "r0_q04": {
+   "run_id": "r0_q04",
+   "rate_idx": 0,
+   "seed_idx": 4,
+   "rate": 0.019,
+   "seed_base": 20261029,
+   "seeds": {
+    "delete": 202610291,
+    "species": 202610292,
+    "velocity": 202610293,
+    "langevin_melt": 202610294,
+    "langevin_quench": 202610295,
+    "langevin_anneal": 202610296
+   },
+   "protocol": {
+    "rate_Tstar_per_tau": 0.019,
+    "melt_steps": 2000,
+    "melt_T": 2.0,
+    "quench_steps": 20000,
+    "quench_tau": 100.0,
+    "anneal_steps": 4000,
+    "anneal_T": 0.1,
+    "sampling_stride": 800,
+    "frames_per_quench": 5,
+    "dt_tau_per_step": 0.005,
+    "gamma_melt": 1.0,
+    "gamma_quench": 9.5,
+    "gamma_anneal": 0.5,
+    "gamma_sample": 0.5,
+    "total_md_steps": 30000,
+    "frame_steps": [
+     26800,
+     27600,
+     28400,
+     29200,
+     30000
+    ]
+   },
+   "n_atoms": 2000,
+   "n_B": 400,
+   "rho_star": 1.2,
+   "box_L": 11.856311014966874,
+   "lammps": "C:/ProgramData/anaconda3/Scripts/lmp.exe",
+   "files": [
+    "data.r0_q04",
+    "in.r0_q04"
+   ]
+  },
+  "r0_q05": {
+   "run_id": "r0_q05",
+   "rate_idx": 0,
+   "seed_idx": 5,
+   "rate": 0.019,
+   "seed_base": 20261030,
+   "seeds": {
+    "delete": 202610301,
+    "species": 202610302,
+    "velocity": 202610303,
+    "langevin_melt": 202610304,
+    "langevin_quench": 202610305,
+    "langevin_anneal": 202610306
+   },
+   "protocol": {
+    "rate_Tstar_per_tau": 0.019,
+    "melt_steps": 2000,
+    "melt_T": 2.0,
+    "quench_steps": 20000,
+    "quench_tau": 100.0,
+    "anneal_steps": 4000,
+    "anneal_T": 0.1,
+    "sampling_stride": 800,
+    "frames_per_quench": 5,
+    "dt_tau_per_step": 0.005,
+    "gamma_melt": 1.0,
+    "gamma_quench": 9.5,
+    "gamma_anneal": 0.5,
+    "gamma_sample": 0.5,
+    "total_md_steps": 30000,
+    "frame_steps": [
+     26800,
+     27600,
+     28400,
+     29200,
+     30000
+    ]
+   },
+   "n_atoms": 2000,
+   "n_B": 400,
+   "rho_star": 1.2,
+   "box_L": 11.856311014966874,
+   "lammps": "C:/ProgramData/anaconda3/Scripts/lmp.exe",
+   "files": [
+    "data.r0_q05",
+    "in.r0_q05"
+   ]
+  },
+  "r0_q06": {
+   "run_id": "r0_q06",
+   "rate_idx": 0,
+   "seed_idx": 6,
+   "rate": 0.019,
+   "seed_base": 20261031,
+   "seeds": {
+    "delete": 202610311,
+    "species": 202610312,
+    "velocity": 202610313,
+    "langevin_melt": 202610314,
+    "langevin_quench": 202610315,
+    "langevin_anneal": 202610316
+   },
+   "protocol": {
+    "rate_Tstar_per_tau": 0.019,
+    "melt_steps": 2000,
+    "melt_T": 2.0,
+    "quench_steps": 20000,
+    "quench_tau": 100.0,
+    "anneal_steps": 4000,
+    "anneal_T": 0.1,
+    "sampling_stride": 800,
+    "frames_per_quench": 5,
+    "dt_tau_per_step": 0.005,
+    "gamma_melt": 1.0,
+    "gamma_quench": 9.5,
+    "gamma_anneal": 0.5,
+    "gamma_sample": 0.5,
+    "total_md_steps": 30000,
+    "frame_steps": [
+     26800,
+     27600,
+     28400,
+     29200,
+     30000
+    ]
+   },
+   "n_atoms": 2000,
+   "n_B": 400,
+   "rho_star": 1.2,
+   "box_L": 11.856311014966874,
+   "lammps": "C:/ProgramData/anaconda3/Scripts/lmp.exe",
+   "files": [
+    "data.r0_q06",
+    "in.r0_q06"
+   ]
+  },
+  "r0_q07": {
+   "run_id": "r0_q07",
+   "rate_idx": 0,
+   "seed_idx": 7,
+   "rate": 0.019,
+   "seed_base": 20261032,
+   "seeds": {
+    "delete": 202610321,
+    "species": 202610322,
+    "velocity": 202610323,
+    "langevin_melt": 202610324,
+    "langevin_quench": 202610325,
+    "langevin_anneal": 202610326
+   },
+   "protocol": {
+    "rate_Tstar_per_tau": 0.019,
+    "melt_steps": 2000,
+    "melt_T": 2.0,
+    "quench_steps": 20000,
+    "quench_tau": 100.0,
+    "anneal_steps": 4000,
+    "anneal_T": 0.1,
+    "sampling_stride": 800,
+    "frames_per_quench": 5,
+    "dt_tau_per_step": 0.005,
+    "gamma_melt": 1.0,
+    "gamma_quench": 9.5,
+    "gamma_anneal": 0.5,
+    "gamma_sample": 0.5,
+    "total_md_steps": 30000,
+    "frame_steps": [
+     26800,
+     27600,
+     28400,
+     29200,
+     30000
+    ]
+   },
+   "n_atoms": 2000,
+   "n_B": 400,
+   "rho_star": 1.2,
+   "box_L": 11.856311014966874,
+   "lammps": "C:/ProgramData/anaconda3/Scripts/lmp.exe",
+   "files": [
+    "data.r0_q07",
+    "in.r0_q07"
+   ]
+  },
+  "r0_q08": {
+   "run_id": "r0_q08",
+   "rate_idx": 0,
+   "seed_idx": 8,
+   "rate": 0.019,
+   "seed_base": 20261033,
+   "seeds": {
+    "delete": 202610331,
+    "species": 202610332,
+    "velocity": 202610333,
+    "langevin_melt": 202610334,
+    "langevin_quench": 202610335,
+    "langevin_anneal": 202610336
+   },
+   "protocol": {
+    "rate_Tstar_per_tau": 0.019,
+    "melt_steps": 2000,
+    "melt_T": 2.0,
+    "quench_steps": 20000,
+    "quench_tau": 100.0,
+    "anneal_steps": 4000,
+    "anneal_T": 0.1,
+    "sampling_stride": 800,
+    "frames_per_quench": 5,
+    "dt_tau_per_step": 0.005,
+    "gamma_melt": 1.0,
+    "gamma_quench": 9.5,
+    "gamma_anneal": 0.5,
+    "gamma_sample": 0.5,
+    "total_md_steps": 30000,
+    "frame_steps": [
+     26800,
+     27600,
+     28400,
+     29200,
+     30000
+    ]
+   },
+   "n_atoms": 2000,
+   "n_B": 400,
+   "rho_star": 1.2,
+   "box_L": 11.856311014966874,
+   "lammps": "C:/ProgramData/anaconda3/Scripts/lmp.exe",
+   "files": [
+    "data.r0_q08",
+    "in.r0_q08"
+   ]
+  },
+  "r0_q09": {
+   "run_id": "r0_q09",
+   "rate_idx": 0,
+   "seed_idx": 9,
+   "rate": 0.019,
+   "seed_base": 20261034,
+   "seeds": {
+    "delete": 202610341,
+    "species": 202610342,
+    "velocity": 202610343,
+    "langevin_melt": 202610344,
+    "langevin_quench": 202610345,
+    "langevin_anneal": 202610346
+   },
+   "protocol": {
+    "rate_Tstar_per_tau": 0.019,
+    "melt_steps": 2000,
+    "melt_T": 2.0,
+    "quench_steps": 20000,
+    "quench_tau": 100.0,
+    "anneal_steps": 4000,
+    "anneal_T": 0.1,
+    "sampling_stride": 800,
+    "frames_per_quench": 5,
+    "dt_tau_per_step": 0.005,
+    "gamma_melt": 1.0,
+    "gamma_quench": 9.5,
+    "gamma_anneal": 0.5,
+    "gamma_sample": 0.5,
+    "total_md_steps": 30000,
+    "frame_steps": [
+     26800,
+     27600,
+     28400,
+     29200,
+     30000
+    ]
+   },
+   "n_atoms": 2000,
+   "n_B": 400,
+   "rho_star": 1.2,
+   "box_L": 11.856311014966874,
+   "lammps": "C:/ProgramData/anaconda3/Scripts/lmp.exe",
+   "files": [
+    "data.r0_q09",
+    "in.r0_q09"
+   ]
+  },
+  "r1_q00": {
+   "run_id": "r1_q00",
+   "rate_idx": 1,
+   "seed_idx": 0,
+   "rate": 0.0019,
+   "seed_base": 20261125,
+   "seeds": {
+    "delete": 202611251,
+    "species": 202611252,
+    "velocity": 202611253,
+    "langevin_melt": 202611254,
+    "langevin_quench": 202611255,
+    "langevin_anneal": 202611256
+   },
+   "protocol": {
+    "rate_Tstar_per_tau": 0.0019,
+    "melt_steps": 2000,
+    "melt_T": 2.0,
+    "quench_steps": 200000,
+    "quench_tau": 1000.0,
+    "anneal_steps": 4000,
+    "anneal_T": 0.1,
+    "sampling_stride": 800,
+    "frames_per_quench": 5,
+    "dt_tau_per_step": 0.005,
+    "gamma_melt": 1.0,
+    "gamma_quench": 0.95,
+    "gamma_anneal": 0.5,
+    "gamma_sample": 0.5,
+    "total_md_steps": 210000,
+    "frame_steps": [
+     206800,
+     207600,
+     208400,
+     209200,
+     210000
+    ]
+   },
+   "n_atoms": 2000,
+   "n_B": 400,
+   "rho_star": 1.2,
+   "box_L": 11.856311014966874,
+   "lammps": "C:/ProgramData/anaconda3/Scripts/lmp.exe",
+   "files": [
+    "data.r1_q00",
+    "in.r1_q00"
+   ]
+  },
+  "r1_q01": {
+   "run_id": "r1_q01",
+   "rate_idx": 1,
+   "seed_idx": 1,
+   "rate": 0.0019,
+   "seed_base": 20261126,
+   "seeds": {
+    "delete": 202611261,
+    "species": 202611262,
+    "velocity": 202611263,
+    "langevin_melt": 202611264,
+    "langevin_quench": 202611265,
+    "langevin_anneal": 202611266
+   },
+   "protocol": {
+    "rate_Tstar_per_tau": 0.0019,
+    "melt_steps": 2000,
+    "melt_T": 2.0,
+    "quench_steps": 200000,
+    "quench_tau": 1000.0,
+    "anneal_steps": 4000,
+    "anneal_T": 0.1,
+    "sampling_stride": 800,
+    "frames_per_quench": 5,
+    "dt_tau_per_step": 0.005,
+    "gamma_melt": 1.0,
+    "gamma_quench": 0.95,
+    "gamma_anneal": 0.5,
+    "gamma_sample": 0.5,
+    "total_md_steps": 210000,
+    "frame_steps": [
+     206800,
+     207600,
+     208400,
+     209200,
+     210000
+    ]
+   },
+   "n_atoms": 2000,
+   "n_B": 400,
+   "rho_star": 1.2,
+   "box_L": 11.856311014966874,
+   "lammps": "C:/ProgramData/anaconda3/Scripts/lmp.exe",
+   "files": [
+    "data.r1_q01",
+    "in.r1_q01"
+   ]
+  },
+  "r1_q02": {
+   "run_id": "r1_q02",
+   "rate_idx": 1,
+   "seed_idx": 2,
+   "rate": 0.0019,
+   "seed_base": 20261127,
+   "seeds": {
+    "delete": 202611271,
+    "species": 202611272,
+    "velocity": 202611273,
+    "langevin_melt": 202611274,
+    "langevin_quench": 202611275,
+    "langevin_anneal": 202611276
+   },
+   "protocol": {
+    "rate_Tstar_per_tau": 0.0019,
+    "melt_steps": 2000,
+    "melt_T": 2.0,
+    "quench_steps": 200000,
+    "quench_tau": 1000.0,
+    "anneal_steps": 4000,
+    "anneal_T": 0.1,
+    "sampling_stride": 800,
+    "frames_per_quench": 5,
+    "dt_tau_per_step": 0.005,
+    "gamma_melt": 1.0,
+    "gamma_quench": 0.95,
+    "gamma_anneal": 0.5,
+    "gamma_sample": 0.5,
+    "total_md_steps": 210000,
+    "frame_steps": [
+     206800,
+     207600,
+     208400,
+     209200,
+     210000
+    ]
+   },
+   "n_atoms": 2000,
+   "n_B": 400,
+   "rho_star": 1.2,
+   "box_L": 11.856311014966874,
+   "lammps": "C:/ProgramData/anaconda3/Scripts/lmp.exe",
+   "files": [
+    "data.r1_q02",
+    "in.r1_q02"
+   ]
+  },
+  "r1_q03": {
+   "run_id": "r1_q03",
+   "rate_idx": 1,
+   "seed_idx": 3,
+   "rate": 0.0019,
+   "seed_base": 20261128,
+   "seeds": {
+    "delete": 202611281,
+    "species": 202611282,
+    "velocity": 202611283,
+    "langevin_melt": 202611284,
+    "langevin_quench": 202611285,
+    "langevin_anneal": 202611286
+   },
+   "protocol": {
+    "rate_Tstar_per_tau": 0.0019,
+    "melt_steps": 2000,
+    "melt_T": 2.0,
+    "quench_steps": 200000,
+    "quench_tau": 1000.0,
+    "anneal_steps": 4000,
+    "anneal_T": 0.1,
+    "sampling_stride": 800,
+    "frames_per_quench": 5,
+    "dt_tau_per_step": 0.005,
+    "gamma_melt": 1.0,
+    "gamma_quench": 0.95,
+    "gamma_anneal": 0.5,
+    "gamma_sample": 0.5,
+    "total_md_steps": 210000,
+    "frame_steps": [
+     206800,
+     207600,
+     208400,
+     209200,
+     210000
+    ]
+   },
+   "n_atoms": 2000,
+   "n_B": 400,
+   "rho_star": 1.2,
+   "box_L": 11.856311014966874,
+   "lammps": "C:/ProgramData/anaconda3/Scripts/lmp.exe",
+   "files": [
+    "data.r1_q03",
+    "in.r1_q03"
+   ]
+  },
+  "r1_q04": {
+   "run_id": "r1_q04",
+   "rate_idx": 1,
+   "seed_idx": 4,
+   "rate": 0.0019,
+   "seed_base": 20261129,
+   "seeds": {
+    "delete": 202611291,
+    "species": 202611292,
+    "velocity": 202611293,
+    "langevin_melt": 202611294,
+    "langevin_quench": 202611295,
+    "langevin_anneal": 202611296
+   },
+   "protocol": {
+    "rate_Tstar_per_tau": 0.0019,
+    "melt_steps": 2000,
+    "melt_T": 2.0,
+    "quench_steps": 200000,
+    "quench_tau": 1000.0,
+    "anneal_steps": 4000,
+    "anneal_T": 0.1,
+    "sampling_stride": 800,
+    "frames_per_quench": 5,
+    "dt_tau_per_step": 0.005,
+    "gamma_melt": 1.0,
+    "gamma_quench": 0.95,
+    "gamma_anneal": 0.5,
+    "gamma_sample": 0.5,
+    "total_md_steps": 210000,
+    "frame_steps": [
+     206800,
+     207600,
+     208400,
+     209200,
+     210000
+    ]
+   },
+   "n_atoms": 2000,
+   "n_B": 400,
+   "rho_star": 1.2,
+   "box_L": 11.856311014966874,
+   "lammps": "C:/ProgramData/anaconda3/Scripts/lmp.exe",
+   "files": [
+    "data.r1_q04",
+    "in.r1_q04"
+   ]
+  },
+  "r1_q05": {
+   "run_id": "r1_q05",
+   "rate_idx": 1,
+   "seed_idx": 5,
+   "rate": 0.0019,
+   "seed_base": 20261130,
+   "seeds": {
+    "delete": 202611301,
+    "species": 202611302,
+    "velocity": 202611303,
+    "langevin_melt": 202611304,
+    "langevin_quench": 202611305,
+    "langevin_anneal": 202611306
+   },
+   "protocol": {
+    "rate_Tstar_per_tau": 0.0019,
+    "melt_steps": 2000,
+    "melt_T": 2.0,
+    "quench_steps": 200000,
+    "quench_tau": 1000.0,
+    "anneal_steps": 4000,
+    "anneal_T": 0.1,
+    "sampling_stride": 800,
+    "frames_per_quench": 5,
+    "dt_tau_per_step": 0.005,
+    "gamma_melt": 1.0,
+    "gamma_quench": 0.95,
+    "gamma_anneal": 0.5,
+    "gamma_sample": 0.5,
+    "total_md_steps": 210000,
+    "frame_steps": [
+     206800,
+     207600,
+     208400,
+     209200,
+     210000
+    ]
+   },
+   "n_atoms": 2000,
+   "n_B": 400,
+   "rho_star": 1.2,
+   "box_L": 11.856311014966874,
+   "lammps": "C:/ProgramData/anaconda3/Scripts/lmp.exe",
+   "files": [
+    "data.r1_q05",
+    "in.r1_q05"
+   ]
+  },
+  "r1_q06": {
+   "run_id": "r1_q06",
+   "rate_idx": 1,
+   "seed_idx": 6,
+   "rate": 0.0019,
+   "seed_base": 20261131,
+   "seeds": {
+    "delete": 202611311,
+    "species": 202611312,
+    "velocity": 202611313,
+    "langevin_melt": 202611314,
+    "langevin_quench": 202611315,
+    "langevin_anneal": 202611316
+   },
+   "protocol": {
+    "rate_Tstar_per_tau": 0.0019,
+    "melt_steps": 2000,
+    "melt_T": 2.0,
+    "quench_steps": 200000,
+    "quench_tau": 1000.0,
+    "anneal_steps": 4000,
+    "anneal_T": 0.1,
+    "sampling_stride": 800,
+    "frames_per_quench": 5,
+    "dt_tau_per_step": 0.005,
+    "gamma_melt": 1.0,
+    "gamma_quench": 0.95,
+    "gamma_anneal": 0.5,
+    "gamma_sample": 0.5,
+    "total_md_steps": 210000,
+    "frame_steps": [
+     206800,
+     207600,
+     208400,
+     209200,
+     210000
+    ]
+   },
+   "n_atoms": 2000,
+   "n_B": 400,
+   "rho_star": 1.2,
+   "box_L": 11.856311014966874,
+   "lammps": "C:/ProgramData/anaconda3/Scripts/lmp.exe",
+   "files": [
+    "data.r1_q06",
+    "in.r1_q06"
+   ]
+  },
+  "r1_q07": {
+   "run_id": "r1_q07",
+   "rate_idx": 1,
+   "seed_idx": 7,
+   "rate": 0.0019,
+   "seed_base": 20261132,
+   "seeds": {
+    "delete": 202611321,
+    "species": 202611322,
+    "velocity": 202611323,
+    "langevin_melt": 202611324,
+    "langevin_quench": 202611325,
+    "langevin_anneal": 202611326
+   },
+   "protocol": {
+    "rate_Tstar_per_tau": 0.0019,
+    "melt_steps": 2000,
+    "melt_T": 2.0,
+    "quench_steps": 200000,
+    "quench_tau": 1000.0,
+    "anneal_steps": 4000,
+    "anneal_T": 0.1,
+    "sampling_stride": 800,
+    "frames_per_quench": 5,
+    "dt_tau_per_step": 0.005,
+    "gamma_melt": 1.0,
+    "gamma_quench": 0.95,
+    "gamma_anneal": 0.5,
+    "gamma_sample": 0.5,
+    "total_md_steps": 210000,
+    "frame_steps": [
+     206800,
+     207600,
+     208400,
+     209200,
+     210000
+    ]
+   },
+   "n_atoms": 2000,
+   "n_B": 400,
+   "rho_star": 1.2,
+   "box_L": 11.856311014966874,
+   "lammps": "C:/ProgramData/anaconda3/Scripts/lmp.exe",
+   "files": [
+    "data.r1_q07",
+    "in.r1_q07"
+   ]
+  },
+  "r1_q08": {
+   "run_id": "r1_q08",
+   "rate_idx": 1,
+   "seed_idx": 8,
+   "rate": 0.0019,
+   "seed_base": 20261133,
+   "seeds": {
+    "delete": 202611331,
+    "species": 202611332,
+    "velocity": 202611333,
+    "langevin_melt": 202611334,
+    "langevin_quench": 202611335,
+    "langevin_anneal": 202611336
+   },
+   "protocol": {
+    "rate_Tstar_per_tau": 0.0019,
+    "melt_steps": 2000,
+    "melt_T": 2.0,
+    "quench_steps": 200000,
+    "quench_tau": 1000.0,
+    "anneal_steps": 4000,
+    "anneal_T": 0.1,
+    "sampling_stride": 800,
+    "frames_per_quench": 5,
+    "dt_tau_per_step": 0.005,
+    "gamma_melt": 1.0,
+    "gamma_quench": 0.95,
+    "gamma_anneal": 0.5,
+    "gamma_sample": 0.5,
+    "total_md_steps": 210000,
+    "frame_steps": [
+     206800,
+     207600,
+     208400,
+     209200,
+     210000
+    ]
+   },
+   "n_atoms": 2000,
+   "n_B": 400,
+   "rho_star": 1.2,
+   "box_L": 11.856311014966874,
+   "lammps": "C:/ProgramData/anaconda3/Scripts/lmp.exe",
+   "files": [
+    "data.r1_q08",
+    "in.r1_q08"
+   ]
+  },
+  "r1_q09": {
+   "run_id": "r1_q09",
+   "rate_idx": 1,
+   "seed_idx": 9,
+   "rate": 0.0019,
+   "seed_base": 20261134,
+   "seeds": {
+    "delete": 202611341,
+    "species": 202611342,
+    "velocity": 202611343,
+    "langevin_melt": 202611344,
+    "langevin_quench": 202611345,
+    "langevin_anneal": 202611346
+   },
+   "protocol": {
+    "rate_Tstar_per_tau": 0.0019,
+    "melt_steps": 2000,
+    "melt_T": 2.0,
+    "quench_steps": 200000,
+    "quench_tau": 1000.0,
+    "anneal_steps": 4000,
+    "anneal_T": 0.1,
+    "sampling_stride": 800,
+    "frames_per_quench": 5,
+    "dt_tau_per_step": 0.005,
+    "gamma_melt": 1.0,
+    "gamma_quench": 0.95,
+    "gamma_anneal": 0.5,
+    "gamma_sample": 0.5,
+    "total_md_steps": 210000,
+    "frame_steps": [
+     206800,
+     207600,
+     208400,
+     209200,
+     210000
+    ]
+   },
+   "n_atoms": 2000,
+   "n_B": 400,
+   "rho_star": 1.2,
+   "box_L": 11.856311014966874,
+   "lammps": "C:/ProgramData/anaconda3/Scripts/lmp.exe",
+   "files": [
+    "data.r1_q09",
+    "in.r1_q09"
+   ]
+  },
+  "r2_q00": {
+   "run_id": "r2_q00",
+   "rate_idx": 2,
+   "seed_idx": 0,
+   "rate": 0.00019,
+   "seed_base": 20261225,
+   "seeds": {
+    "delete": 202612251,
+    "species": 202612252,
+    "velocity": 202612253,
+    "langevin_melt": 202612254,
+    "langevin_quench": 202612255,
+    "langevin_anneal": 202612256
+   },
+   "protocol": {
+    "rate_Tstar_per_tau": 0.00019,
+    "melt_steps": 2000,
+    "melt_T": 2.0,
+    "quench_steps": 2000000,
+    "quench_tau": 9999.999999999998,
+    "anneal_steps": 4000,
+    "anneal_T": 0.1,
+    "sampling_stride": 800,
+    "frames_per_quench": 5,
+    "dt_tau_per_step": 0.005,
+    "gamma_melt": 1.0,
+    "gamma_quench": 0.5,
+    "gamma_anneal": 0.5,
+    "gamma_sample": 0.5,
+    "total_md_steps": 2010000,
+    "frame_steps": [
+     2006800,
+     2007600,
+     2008400,
+     2009200,
+     2010000
+    ]
+   },
+   "n_atoms": 2000,
+   "n_B": 400,
+   "rho_star": 1.2,
+   "box_L": 11.856311014966874,
+   "lammps": "C:/ProgramData/anaconda3/Scripts/lmp.exe",
+   "files": [
+    "data.r2_q00",
+    "in.r2_q00"
+   ]
+  },
+  "r2_q01": {
+   "run_id": "r2_q01",
+   "rate_idx": 2,
+   "seed_idx": 1,
+   "rate": 0.00019,
+   "seed_base": 20261226,
+   "seeds": {
+    "delete": 202612261,
+    "species": 202612262,
+    "velocity": 202612263,
+    "langevin_melt": 202612264,
+    "langevin_quench": 202612265,
+    "langevin_anneal": 202612266
+   },
+   "protocol": {
+    "rate_Tstar_per_tau": 0.00019,
+    "melt_steps": 2000,
+    "melt_T": 2.0,
+    "quench_steps": 2000000,
+    "quench_tau": 9999.999999999998,
+    "anneal_steps": 4000,
+    "anneal_T": 0.1,
+    "sampling_stride": 800,
+    "frames_per_quench": 5,
+    "dt_tau_per_step": 0.005,
+    "gamma_melt": 1.0,
+    "gamma_quench": 0.5,
+    "gamma_anneal": 0.5,
+    "gamma_sample": 0.5,
+    "total_md_steps": 2010000,
+    "frame_steps": [
+     2006800,
+     2007600,
+     2008400,
+     2009200,
+     2010000
+    ]
+   },
+   "n_atoms": 2000,
+   "n_B": 400,
+   "rho_star": 1.2,
+   "box_L": 11.856311014966874,
+   "lammps": "C:/ProgramData/anaconda3/Scripts/lmp.exe",
+   "files": [
+    "data.r2_q01",
+    "in.r2_q01"
+   ]
+  },
+  "r2_q02": {
+   "run_id": "r2_q02",
+   "rate_idx": 2,
+   "seed_idx": 2,
+   "rate": 0.00019,
+   "seed_base": 20261227,
+   "seeds": {
+    "delete": 202612271,
+    "species": 202612272,
+    "velocity": 202612273,
+    "langevin_melt": 202612274,
+    "langevin_quench": 202612275,
+    "langevin_anneal": 202612276
+   },
+   "protocol": {
+    "rate_Tstar_per_tau": 0.00019,
+    "melt_steps": 2000,
+    "melt_T": 2.0,
+    "quench_steps": 2000000,
+    "quench_tau": 9999.999999999998,
+    "anneal_steps": 4000,
+    "anneal_T": 0.1,
+    "sampling_stride": 800,
+    "frames_per_quench": 5,
+    "dt_tau_per_step": 0.005,
+    "gamma_melt": 1.0,
+    "gamma_quench": 0.5,
+    "gamma_anneal": 0.5,
+    "gamma_sample": 0.5,
+    "total_md_steps": 2010000,
+    "frame_steps": [
+     2006800,
+     2007600,
+     2008400,
+     2009200,
+     2010000
+    ]
+   },
+   "n_atoms": 2000,
+   "n_B": 400,
+   "rho_star": 1.2,
+   "box_L": 11.856311014966874,
+   "lammps": "C:/ProgramData/anaconda3/Scripts/lmp.exe",
+   "files": [
+    "data.r2_q02",
+    "in.r2_q02"
+   ]
+  },
+  "r2_q03": {
+   "run_id": "r2_q03",
+   "rate_idx": 2,
+   "seed_idx": 3,
+   "rate": 0.00019,
+   "seed_base": 20261228,
+   "seeds": {
+    "delete": 202612281,
+    "species": 202612282,
+    "velocity": 202612283,
+    "langevin_melt": 202612284,
+    "langevin_quench": 202612285,
+    "langevin_anneal": 202612286
+   },
+   "protocol": {
+    "rate_Tstar_per_tau": 0.00019,
+    "melt_steps": 2000,
+    "melt_T": 2.0,
+    "quench_steps": 2000000,
+    "quench_tau": 9999.999999999998,
+    "anneal_steps": 4000,
+    "anneal_T": 0.1,
+    "sampling_stride": 800,
+    "frames_per_quench": 5,
+    "dt_tau_per_step": 0.005,
+    "gamma_melt": 1.0,
+    "gamma_quench": 0.5,
+    "gamma_anneal": 0.5,
+    "gamma_sample": 0.5,
+    "total_md_steps": 2010000,
+    "frame_steps": [
+     2006800,
+     2007600,
+     2008400,
+     2009200,
+     2010000
+    ]
+   },
+   "n_atoms": 2000,
+   "n_B": 400,
+   "rho_star": 1.2,
+   "box_L": 11.856311014966874,
+   "lammps": "C:/ProgramData/anaconda3/Scripts/lmp.exe",
+   "files": [
+    "data.r2_q03",
+    "in.r2_q03"
+   ]
+  },
+  "r2_q04": {
+   "run_id": "r2_q04",
+   "rate_idx": 2,
+   "seed_idx": 4,
+   "rate": 0.00019,
+   "seed_base": 20261229,
+   "seeds": {
+    "delete": 202612291,
+    "species": 202612292,
+    "velocity": 202612293,
+    "langevin_melt": 202612294,
+    "langevin_quench": 202612295,
+    "langevin_anneal": 202612296
+   },
+   "protocol": {
+    "rate_Tstar_per_tau": 0.00019,
+    "melt_steps": 2000,
+    "melt_T": 2.0,
+    "quench_steps": 2000000,
+    "quench_tau": 9999.999999999998,
+    "anneal_steps": 4000,
+    "anneal_T": 0.1,
+    "sampling_stride": 800,
+    "frames_per_quench": 5,
+    "dt_tau_per_step": 0.005,
+    "gamma_melt": 1.0,
+    "gamma_quench": 0.5,
+    "gamma_anneal": 0.5,
+    "gamma_sample": 0.5,
+    "total_md_steps": 2010000,
+    "frame_steps": [
+     2006800,
+     2007600,
+     2008400,
+     2009200,
+     2010000
+    ]
+   },
+   "n_atoms": 2000,
+   "n_B": 400,
+   "rho_star": 1.2,
+   "box_L": 11.856311014966874,
+   "lammps": "C:/ProgramData/anaconda3/Scripts/lmp.exe",
+   "files": [
+    "data.r2_q04",
+    "in.r2_q04"
+   ]
+  },
+  "r2_q05": {
+   "run_id": "r2_q05",
+   "rate_idx": 2,
+   "seed_idx": 5,
+   "rate": 0.00019,
+   "seed_base": 20261230,
+   "seeds": {
+    "delete": 202612301,
+    "species": 202612302,
+    "velocity": 202612303,
+    "langevin_melt": 202612304,
+    "langevin_quench": 202612305,
+    "langevin_anneal": 202612306
+   },
+   "protocol": {
+    "rate_Tstar_per_tau": 0.00019,
+    "melt_steps": 2000,
+    "melt_T": 2.0,
+    "quench_steps": 2000000,
+    "quench_tau": 9999.999999999998,
+    "anneal_steps": 4000,
+    "anneal_T": 0.1,
+    "sampling_stride": 800,
+    "frames_per_quench": 5,
+    "dt_tau_per_step": 0.005,
+    "gamma_melt": 1.0,
+    "gamma_quench": 0.5,
+    "gamma_anneal": 0.5,
+    "gamma_sample": 0.5,
+    "total_md_steps": 2010000,
+    "frame_steps": [
+     2006800,
+     2007600,
+     2008400,
+     2009200,
+     2010000
+    ]
+   },
+   "n_atoms": 2000,
+   "n_B": 400,
+   "rho_star": 1.2,
+   "box_L": 11.856311014966874,
+   "lammps": "C:/ProgramData/anaconda3/Scripts/lmp.exe",
+   "files": [
+    "data.r2_q05",
+    "in.r2_q05"
+   ]
+  },
+  "r2_q06": {
+   "run_id": "r2_q06",
+   "rate_idx": 2,
+   "seed_idx": 6,
+   "rate": 0.00019,
+   "seed_base": 20261231,
+   "seeds": {
+    "delete": 202612311,
+    "species": 202612312,
+    "velocity": 202612313,
+    "langevin_melt": 202612314,
+    "langevin_quench": 202612315,
+    "langevin_anneal": 202612316
+   },
+   "protocol": {
+    "rate_Tstar_per_tau": 0.00019,
+    "melt_steps": 2000,
+    "melt_T": 2.0,
+    "quench_steps": 2000000,
+    "quench_tau": 9999.999999999998,
+    "anneal_steps": 4000,
+    "anneal_T": 0.1,
+    "sampling_stride": 800,
+    "frames_per_quench": 5,
+    "dt_tau_per_step": 0.005,
+    "gamma_melt": 1.0,
+    "gamma_quench": 0.5,
+    "gamma_anneal": 0.5,
+    "gamma_sample": 0.5,
+    "total_md_steps": 2010000,
+    "frame_steps": [
+     2006800,
+     2007600,
+     2008400,
+     2009200,
+     2010000
+    ]
+   },
+   "n_atoms": 2000,
+   "n_B": 400,
+   "rho_star": 1.2,
+   "box_L": 11.856311014966874,
+   "lammps": "C:/ProgramData/anaconda3/Scripts/lmp.exe",
+   "files": [
+    "data.r2_q06",
+    "in.r2_q06"
+   ]
+  },
+  "r2_q07": {
+   "run_id": "r2_q07",
+   "rate_idx": 2,
+   "seed_idx": 7,
+   "rate": 0.00019,
+   "seed_base": 20261232,
+   "seeds": {
+    "delete": 202612321,
+    "species": 202612322,
+    "velocity": 202612323,
+    "langevin_melt": 202612324,
+    "langevin_quench": 202612325,
+    "langevin_anneal": 202612326
+   },
+   "protocol": {
+    "rate_Tstar_per_tau": 0.00019,
+    "melt_steps": 2000,
+    "melt_T": 2.0,
+    "quench_steps": 2000000,
+    "quench_tau": 9999.999999999998,
+    "anneal_steps": 4000,
+    "anneal_T": 0.1,
+    "sampling_stride": 800,
+    "frames_per_quench": 5,
+    "dt_tau_per_step": 0.005,
+    "gamma_melt": 1.0,
+    "gamma_quench": 0.5,
+    "gamma_anneal": 0.5,
+    "gamma_sample": 0.5,
+    "total_md_steps": 2010000,
+    "frame_steps": [
+     2006800,
+     2007600,
+     2008400,
+     2009200,
+     2010000
+    ]
+   },
+   "n_atoms": 2000,
+   "n_B": 400,
+   "rho_star": 1.2,
+   "box_L": 11.856311014966874,
+   "lammps": "C:/ProgramData/anaconda3/Scripts/lmp.exe",
+   "files": [
+    "data.r2_q07",
+    "in.r2_q07"
+   ]
+  },
+  "r2_q08": {
+   "run_id": "r2_q08",
+   "rate_idx": 2,
+   "seed_idx": 8,
+   "rate": 0.00019,
+   "seed_base": 20261233,
+   "seeds": {
+    "delete": 202612331,
+    "species": 202612332,
+    "velocity": 202612333,
+    "langevin_melt": 202612334,
+    "langevin_quench": 202612335,
+    "langevin_anneal": 202612336
+   },
+   "protocol": {
+    "rate_Tstar_per_tau": 0.00019,
+    "melt_steps": 2000,
+    "melt_T": 2.0,
+    "quench_steps": 2000000,
+    "quench_tau": 9999.999999999998,
+    "anneal_steps": 4000,
+    "anneal_T": 0.1,
+    "sampling_stride": 800,
+    "frames_per_quench": 5,
+    "dt_tau_per_step": 0.005,
+    "gamma_melt": 1.0,
+    "gamma_quench": 0.5,
+    "gamma_anneal": 0.5,
+    "gamma_sample": 0.5,
+    "total_md_steps": 2010000,
+    "frame_steps": [
+     2006800,
+     2007600,
+     2008400,
+     2009200,
+     2010000
+    ]
+   },
+   "n_atoms": 2000,
+   "n_B": 400,
+   "rho_star": 1.2,
+   "box_L": 11.856311014966874,
+   "lammps": "C:/ProgramData/anaconda3/Scripts/lmp.exe",
+   "files": [
+    "data.r2_q08",
+    "in.r2_q08"
+   ]
+  },
+  "r2_q09": {
+   "run_id": "r2_q09",
+   "rate_idx": 2,
+   "seed_idx": 9,
+   "rate": 0.00019,
+   "seed_base": 20261234,
+   "seeds": {
+    "delete": 202612341,
+    "species": 202612342,
+    "velocity": 202612343,
+    "langevin_melt": 202612344,
+    "langevin_quench": 202612345,
+    "langevin_anneal": 202612346
+   },
+   "protocol": {
+    "rate_Tstar_per_tau": 0.00019,
+    "melt_steps": 2000,
+    "melt_T": 2.0,
+    "quench_steps": 2000000,
+    "quench_tau": 9999.999999999998,
+    "anneal_steps": 4000,
+    "anneal_T": 0.1,
+    "sampling_stride": 800,
+    "frames_per_quench": 5,
+    "dt_tau_per_step": 0.005,
+    "gamma_melt": 1.0,
+    "gamma_quench": 0.5,
+    "gamma_anneal": 0.5,
+    "gamma_sample": 0.5,
+    "total_md_steps": 2010000,
+    "frame_steps": [
+     2006800,
+     2007600,
+     2008400,
+     2009200,
+     2010000
+    ]
+   },
+   "n_atoms": 2000,
+   "n_B": 400,
+   "rho_star": 1.2,
+   "box_L": 11.856311014966874,
+   "lammps": "C:/ProgramData/anaconda3/Scripts/lmp.exe",
+   "files": [
+    "data.r2_q09",
+    "in.r2_q09"
+   ]
+  }
+ }
+}

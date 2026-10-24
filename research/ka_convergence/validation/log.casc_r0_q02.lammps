@@ -1,0 +1,168 @@
+LAMMPS (22 Jul 2025 - Update 4)
+OMP_NUM_THREADS environment is not set. Defaulting to 1 thread.
+  using 1 OpenMP thread(s) per MPI task
+units lj
+boundary p p p
+atom_style atomic
+read_data final_r0_q02.data
+Reading data file ...
+  orthogonal box = (0 0 0) to (11.856311 11.856311 11.856311)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  2000 atoms
+  read_data CPU = 0.013 seconds
+pair_style lj/cut 2.5
+pair_modify shift yes
+pair_coeff 1 1 1.0 1.0 2.5
+pair_coeff 1 2 1.5 0.8 2.0
+pair_coeff 2 2 0.5 0.88 2.2
+thermo 1000
+min_style fire
+minimize 1e-12 1e-12 200000 400000
+Generated 0 of 1 mixed pair_coeff terms from geometric mixing rule
+Neighbor list info ...
+  update: every = 1 steps, delay = 0 steps, check = yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 2.8
+  ghost atom cutoff = 2.8
+  binsize = 1.4, bins = 9 9 9
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair lj/cut, perpetual
+      attributes: half, newton on
+      pair build: half/bin/atomonly/newton
+      stencil: half/bin/3d
+      bin: standard
+  Parameters for fire:
+    dmax  delaystep dtgrow dtshrink alpha0 alphashrink tmax tmin   integrator   halfstepback   abcfire  
+     0.1     20      1.1     0.5     0.25     0.99      10  0.02 eulerimplicit      yes          no     
+Per MPI rank memory allocation (min/avg/max) = 3.243 | 3.243 | 3.243 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+         0   0             -7.4484139      0             -7.4484139     -0.12145347   
+      1000   2.3407272e-07 -7.593808       0             -7.5938077     -0.98884707   
+      1912   3.2712473e-11 -7.593813       0             -7.593813      -0.98823408   
+Loop time of 1.54792 on 1 procs for 1912 steps with 2000 atoms
+
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+Minimization stats:
+  Stopping criterion = energy tolerance
+  Energy initial, next-to-last, final = 
+     -7.44841393144323  -7.59381301340517  -7.59381301341123
+  Force two-norm initial, final = 474.9118 0.0039184132
+  Force max component initial, final = 25.024466 0.0010970035
+  Final line search alpha, max atom move = 0 0
+  Iterations, force evaluations = 1912 2009
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 1.4833     | 1.4833     | 1.4833     |   0.0 | 95.82
+Neigh   | 0.0085122  | 0.0085122  | 0.0085122  |   0.0 |  0.55
+Comm    | 0.022805   | 0.022805   | 0.022805   |   0.0 |  1.47
+Output  | 2.1e-05    | 2.1e-05    | 2.1e-05    |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 0.03332    |            |       |  2.15
+
+Nlocal:           2000 ave        2000 max        2000 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:           4393 ave        4393 max        4393 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:          91643 ave       91643 max       91643 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 91643
+Ave neighs/atom = 45.8215
+Neighbor list builds = 4
+Dangerous builds = 0
+print "CASCADE fire1 $(pe:%.10f) $(fnorm:%.6e)"
+CASCADE fire1 -7.5938130134 3.918413e-03
+min_style hftn
+minimize 1e-12 1e-12 200000 400000
+Generated 0 of 1 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 5.869 | 5.869 | 5.869 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+      1912   3.2712473e-11 -7.593813       0             -7.593813      -0.98823408   
+      1920   3.2712473e-11 -7.5938131      0             -7.5938131     -0.98825234   
+Loop time of 0.700724 on 1 procs for 7 steps with 2000 atoms
+
+100.3% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+Minimization stats:
+  Stopping criterion = energy tolerance
+  Energy initial, next-to-last, final = 
+     -7.59381301341125  -7.59381305928645  -7.59381305933788
+  Force two-norm initial, final = 0.0039184132 0.0010292931
+  Force max component initial, final = 0.0010970035 0.00018350223
+  Final line search alpha, max atom move = 0 0
+  Iterations, force evaluations = 7 909
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.66854    | 0.66854    | 0.66854    |   0.0 | 95.41
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0.0098616  | 0.0098616  | 0.0098616  |   0.0 |  1.41
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 0.02232    |            |       |  3.18
+
+Nlocal:           2000 ave        2000 max        2000 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:           4389 ave        4389 max        4389 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:          91641 ave       91641 max       91641 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 91641
+Ave neighs/atom = 45.8205
+Neighbor list builds = 0
+Dangerous builds = 0
+print "CASCADE hftn $(pe:%.10f) $(fnorm:%.6e)"
+CASCADE hftn -7.5938130593 1.029293e-03
+min_style fire
+minimize 1e-12 1e-12 200000 400000
+Generated 0 of 1 mixed pair_coeff terms from geometric mixing rule
+  Parameters for fire:
+    dmax  delaystep dtgrow dtshrink alpha0 alphashrink tmax tmin   integrator   halfstepback   abcfire  
+     0.1     20      1.1     0.5     0.25     0.99      10  0.02 eulerimplicit      yes          no     
+Per MPI rank memory allocation (min/avg/max) = 3.244 | 3.244 | 3.244 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+      1920   0             -7.5938131      0             -7.5938131     -0.98825234   
+      1942   5.3049305e-14 -7.5938131      0             -7.5938131     -0.98825233   
+Loop time of 0.0184304 on 1 procs for 22 steps with 2000 atoms
+
+84.8% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+Minimization stats:
+  Stopping criterion = energy tolerance
+  Energy initial, next-to-last, final = 
+     -7.59381305933788  -7.59381305933809   -7.5938130593382
+  Force two-norm initial, final = 0.0010292931 6.6001821e-05
+  Force max component initial, final = 0.00018350223 6.5708769e-06
+  Final line search alpha, max atom move = 0 0
+  Iterations, force evaluations = 22 23
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.017739   | 0.017739   | 0.017739   |   0.0 | 96.25
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0.0002839  | 0.0002839  | 0.0002839  |   0.0 |  1.54
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 0.0004077  |            |       |  2.21
+
+Nlocal:           2000 ave        2000 max        2000 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:           4389 ave        4389 max        4389 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:          91640 ave       91640 max       91640 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 91640
+Ave neighs/atom = 45.82
+Neighbor list builds = 0
+Dangerous builds = 0
+print "CASCADE fire2 $(pe:%.10f) $(fnorm:%.6e)"
+CASCADE fire2 -7.5938130593 6.600182e-05
+Total wall time: 0:00:02

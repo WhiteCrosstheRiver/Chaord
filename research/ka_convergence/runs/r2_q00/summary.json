@@ -1,0 +1,87 @@
+{
+ "run_id": "r2_q00",
+ "rate": 0.00019,
+ "rate_idx": 2,
+ "protocol": {
+  "rate_Tstar_per_tau": 0.00019,
+  "melt_steps": 2000,
+  "melt_T": 2.0,
+  "quench_steps": 2000000,
+  "quench_tau": 9999.999999999998,
+  "anneal_steps": 4000,
+  "anneal_T": 0.1,
+  "sampling_stride": 800,
+  "frames_per_quench": 5,
+  "dt_tau_per_step": 0.005,
+  "gamma_melt": 1.0,
+  "gamma_quench": 0.5,
+  "gamma_anneal": 0.5,
+  "gamma_sample": 0.5,
+  "total_md_steps": 2010000,
+  "frame_steps": [
+   2006800,
+   2007600,
+   2008400,
+   2009200,
+   2010000
+  ]
+ },
+ "stages": {
+  "melt": {
+   "T_star": 1.9494,
+   "pe_per_atom": -4.56439875
+  },
+  "quench": {
+   "T_star": 0.0999,
+   "pe_per_atom": -7.50865036
+  },
+  "anneal": {
+   "T_star": 0.1007,
+   "pe_per_atom": -7.50982606
+  },
+  "sample": {
+   "T_star": 0.1006,
+   "pe_per_atom": -7.51161693
+  }
+ },
+ "frames": [
+  {
+   "k": 0,
+   "dump_step": 2006800,
+   "protocol_step": 2006800
+  },
+  {
+   "k": 1,
+   "dump_step": 2007600,
+   "protocol_step": 2007600
+  },
+  {
+   "k": 2,
+   "dump_step": 2008400,
+   "protocol_step": 2008400
+  },
+  {
+   "k": 3,
+   "dump_step": 2009200,
+   "protocol_step": 2009200
+  },
+  {
+   "k": 4,
+   "dump_step": 2010000,
+   "protocol_step": 2010000
+  }
+ ],
+ "frame_pe_per_atom": [
+  -7.50742788,
+  -7.50713935,
+  -7.5071922,
+  -7.51127745,
+  -7.51161693
+ ],
+ "inherent_structure": {
+  "pe_per_atom": -7.6593448391,
+  "fnorm": 0.02591258,
+  "fire_steps": 2010918
+ },
+ "density": 1.2000000000000008
+}
