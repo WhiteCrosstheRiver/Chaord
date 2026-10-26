@@ -1,0 +1,65 @@
+[y8] sb_cnt10_e10_r1 (field 0.01 V/A): arm 2 dense stream...
+[y8]   12001 frames read, census+charge verified every frame
+[y8]   arm 1: Y4 read + blind lift of 201 frames...
+[y8]   lift ok; dipole_p1 printed-vs-direct max |diff| 4.99e-04
+[y8] sb_cnt10_e10_r2 (field 0.01 V/A): arm 2 dense stream...
+[y8]   12001 frames read, census+charge verified every frame
+[y8]   arm 1: Y4 read + blind lift of 201 frames...
+[y8]   lift ok; dipole_p1 printed-vs-direct max |diff| 4.99e-04
+[y8] sb_cnt10_e10_r3 (field 0.01 V/A): arm 2 dense stream...
+[y8]   12001 frames read, census+charge verified every frame
+[y8]   arm 1: Y4 read + blind lift of 201 frames...
+[y8]   lift ok; dipole_p1 printed-vs-direct max |diff| 5.00e-04
+[y8] sb_cnt10_e50_r1 (field 0.05 V/A): arm 2 dense stream...
+[y8]   12001 frames read, census+charge verified every frame
+[y8]   arm 1: Y4 read + blind lift of 201 frames...
+[y8]   lift ok; dipole_p1 printed-vs-direct max |diff| 4.97e-04
+[y8] sb_cnt10_e50_r2 (field 0.05 V/A): arm 2 dense stream...
+[y8]   12001 frames read, census+charge verified every frame
+[y8]   arm 1: Y4 read + blind lift of 201 frames...
+[y8]   lift ok; dipole_p1 printed-vs-direct max |diff| 4.98e-04
+[y8] sb_cnt10_e50_r3 (field 0.05 V/A): arm 2 dense stream...
+[y8]   12001 frames read, census+charge verified every frame
+[y8]   arm 1: Y4 read + blind lift of 201 frames...
+[y8]   lift ok; dipole_p1 printed-vs-direct max |diff| 4.92e-04
+[y8] zf_cnt10_b1 (field 0.0 V/A): arm 2 dense stream...
+[y8]   2001 frames read, census+charge verified every frame
+[y8]   arm 1: Y4 read + blind lift of 201 frames...
+[y8]   lift ok; dipole_p1 printed-vs-direct max |diff| 4.96e-04
+[y8] zf_cnt10_b2 (field 0.0 V/A): arm 2 dense stream...
+[y8]   2001 frames read, census+charge verified every frame
+[y8]   arm 1: Y4 read + blind lift of 201 frames...
+[y8]   lift ok; dipole_p1 printed-vs-direct max |diff| 4.98e-04
+[y8] zf_cnt10_b3 (field 0.0 V/A): arm 2 dense stream...
+[y8]   2001 frames read, census+charge verified every frame
+[y8]   arm 1: Y4 read + blind lift of 201 frames...
+[y8]   lift ok; dipole_p1 printed-vs-direct max |diff| 4.99e-04
+[y8] wrote C:\Users\ZemengFeng\Desktop\codes\Chaord\research\cnt_electrolyte\analysis\tranche1_results.json
+[y8] wall 414.7 s
+
+== D15 floors (zf cross-run block pairs, 12 pairs) ==
+  dipole_p1                          floor 0.3935 (mean 0.2591, P90 0.3935)
+  fluid.density                      floor 0.0000 (mean 0.0000, P90 0.0000)
+  fluid.linear_density               floor 0.0000 (mean 0.0000, P90 0.0000)
+  fluid.li_shell.C3H4O3              floor 1.5004 (mean 0.9078, P90 1.5004)
+  fluid.li_shell.C4H8O3              floor 1.4248 (mean 0.8201, P90 1.4248)
+  fluid.li_shell.F6P                 floor 0.4473 (mean 0.2868, P90 0.4473)
+  fluid.ion_pairs.CIP                floor 0.9970 (mean 0.6050, P90 0.9970)
+  fluid.nr.Li+.peak                  floor 0.0155 (mean 0.0093, P90 0.0155)
+  fluid.nr.Li+.mean_r                floor 2.0287 (mean 1.3418, P90 2.0287)
+
+== detection: |mean_on(B) - mean_off| vs 3x floor ==
+  field 0.01 V/A: dipole_p1 on +0.0364 +- 0.1197 vs off -0.0185 +- 0.1175; delta 0.0549 = x0.14 floor (0.3935) -> fail at 3x (z 0.3)
+    moves beyond 2x floor (dipole_p1 excluded) [at/below working field]: none
+    moves beyond 3x floor: none
+  field 0.05 V/A: dipole_p1 on +0.1732 +- 0.0209 vs off -0.0185 +- 0.1175; delta 0.1917 = x0.49 floor (0.3935) -> fail at 3x (z 1.6)
+    moves beyond 2x floor (dipole_p1 excluded): none
+    moves beyond 3x floor: none
+
+== classifier (dipole_p1 blocks, leave-one-run-out) ==
+  field 0.01 V/A vs zf: chaord statement 4/9 blocks (on 2/3, off 2/6); direct P1 subsampled 4/9; direct dense 4/9
+  field 0.05 V/A vs zf: chaord statement 6/9 blocks (on 3/3, off 3/6); direct P1 subsampled 6/9; direct dense 6/9
+
+== linear response (block B, per run sems) ==
+  chaord_dipole_p1_statement: P1(0) -0.0185 +- 0.1175; slope@0.01 5.49+-16.77; slope@0.05 3.83+-2.39; agree within 2 sigma: True
+  direct_p1_dense_blockB: P1(0) -0.0190 +- 0.1166; slope@0.01 5.26+-16.66; slope@0.05 3.77+-2.37; agree within 2 sigma: True
