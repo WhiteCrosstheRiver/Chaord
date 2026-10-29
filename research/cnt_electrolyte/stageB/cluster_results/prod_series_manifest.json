@@ -1,0 +1,134 @@
+{
+ "sb_cnt10_e100_r1": {
+  "prod_thinned_bytes": 42882279,
+  "prod_thinned_sha256": "5da7cda827afaa9797b05884c560b957873cf7ce1b101abada4d822b56e38d6c"
+ },
+ "sb_cnt10_e100_r2": {
+  "prod_thinned_bytes": 42840707,
+  "prod_thinned_sha256": "0f3075f74c79f293b9e920ad93489d8856fc5aa64c565b93e0bca217a2c492b2"
+ },
+ "sb_cnt10_e100_r3": {
+  "prod_thinned_bytes": 42974016,
+  "prod_thinned_sha256": "1ee5613fce310a4de92c2462079b54c0cb364123fd0dfc4a1f7eee4a428274b8"
+ },
+ "sb_cnt10_e200_r1": {
+  "prod_thinned_bytes": 42852434,
+  "prod_thinned_sha256": "5d3f43057cdc508b20d9fdebdae43172cd1b48349ad910442dd2b57a44c3e32e"
+ },
+ "sb_cnt10_e200_r2": {
+  "prod_thinned_bytes": 42860566,
+  "prod_thinned_sha256": "ad137b65889b8f05102cb245e33ce0dc59abebaa216a06991f63e34bf4453ab7"
+ },
+ "sb_cnt10_e200_r3": {
+  "prod_thinned_bytes": 42916751,
+  "prod_thinned_sha256": "08d3973bb363deb6f71cc95b86f3955acbc8bda28b0417d75325ca83bdd8766a"
+ },
+ "sb_cnt10_e20_r1": {
+  "prod_thinned_bytes": 42871047,
+  "prod_thinned_sha256": "3c8e37684859e2bf61815fca485713cd3b00b9c2821e5568f3be77ef4242af90"
+ },
+ "sb_cnt10_e20_r2": {
+  "prod_thinned_bytes": 42938563,
+  "prod_thinned_sha256": "5f61deeee14c9524b62a60e6f18c3a948498c31cd72b76c7f3ef422ff5a91239"
+ },
+ "sb_cnt10_e20_r3": {
+  "prod_thinned_bytes": 42832812,
+  "prod_thinned_sha256": "142ddceb2fd9eeffefc12aba60aeb8b78422aef8ed7e4078a56a927736de4f49"
+ },
+ "sb_cnt10_e5_r1": {
+  "prod_thinned_bytes": 42941468,
+  "prod_thinned_sha256": "089edf9ecc4f728ddb5d50996f1b779b459f689c562cd7fd51e14b2cff23f671"
+ },
+ "sb_cnt10_e5_r2": {
+  "prod_thinned_bytes": 42833859,
+  "prod_thinned_sha256": "f830aa30ce96e21872385e07c4ca44ee4e6889d98700a234132a7cf7956b65c0"
+ },
+ "sb_cnt10_e5_r3": {
+  "prod_thinned_bytes": 42926281,
+  "prod_thinned_sha256": "f142447a972066c43596808cc009f90a7eafcf357ef92023284d1678b4b3d9d8"
+ },
+ "sb_cnt16_e0_r1": {
+  "prod_thinned_bytes": 99364926,
+  "prod_thinned_sha256": "e9fec37cc9d733a3c641976435147c72fc35dc79626e4878b4e21a9365469aa6"
+ },
+ "sb_cnt16_e0_r2": {
+  "prod_thinned_bytes": 99561938,
+  "prod_thinned_sha256": "1436b15d8723583f447093c72f7a6d6ee4ca7cd5377d4ebd3dcaa59b470aeb0c"
+ },
+ "sb_cnt16_e0_r3": {
+  "prod_thinned_bytes": 99835930,
+  "prod_thinned_sha256": "d81d6b2cfc3636aa4fd2bc82eee2a110524337cf85a81d8c75ff6474c5e3a6aa"
+ },
+ "sb_cnt16_e100_r1": {
+  "prod_thinned_bytes": 99621807,
+  "prod_thinned_sha256": "94368027d1e98969399523b32e2de2ba28b2d3f105255547c9769e3787017ffa"
+ },
+ "sb_cnt16_e100_r2": {
+  "prod_thinned_bytes": 99594250,
+  "prod_thinned_sha256": "8010af1de6c84b1112f972e7ca2aad7c5bbf95f5daa99bec93142cd70b85808b"
+ },
+ "sb_cnt16_e100_r3": {
+  "prod_thinned_bytes": 99609918,
+  "prod_thinned_sha256": "67183a6a94c22ab18343a6a776f995027e98ec7d659177e75aa61be4a130f0ec"
+ },
+ "sb_cnt16_e10_r1": {
+  "prod_thinned_bytes": 99667647,
+  "prod_thinned_sha256": "2cdd6924d99af0e9b8b20c893f1ba75105aed2173738e3e48624cb58dc7c7be4"
+ },
+ "sb_cnt16_e10_r2": {
+  "prod_thinned_bytes": 99536114,
+  "prod_thinned_sha256": "ad653ae210d9b17b2d2e61eb12d549c1b890a5a6c4dfe1010589826bb942f873"
+ },
+ "sb_cnt16_e10_r3": {
+  "prod_thinned_bytes": 99963904,
+  "prod_thinned_sha256": "dd2723903c39a8e602fa87dd28c3d41a0f37e5fc8cc2485ba8b6484fa08a922f"
+ },
+ "sb_cnt16_e200_r1": {
+  "prod_thinned_bytes": 99624296,
+  "prod_thinned_sha256": "a7aebe6738d999a73ce26802993c744e7d862fdd691eb74d6b707a346b1a1607"
+ },
+ "sb_cnt16_e200_r2": {
+  "prod_thinned_bytes": 99674424,
+  "prod_thinned_sha256": "785270f33a68fea1d2d3f4f7c3491ad4e07640f00cf7344c16415fb34a52b462"
+ },
+ "sb_cnt16_e200_r3": {
+  "prod_thinned_bytes": 99670437,
+  "prod_thinned_sha256": "35cc42479c7aaf7b2d1c32807ff08a40915d674f8aacc6c0af9a829746bf7de3"
+ },
+ "sb_cnt16_e20_r1": {
+  "prod_thinned_bytes": 99415289,
+  "prod_thinned_sha256": "df32e016851cfc4a1efe4229a3d4b6b82fb00388ec6a9228712dc184832e45ba"
+ },
+ "sb_cnt16_e20_r2": {
+  "prod_thinned_bytes": 99343351,
+  "prod_thinned_sha256": "5de8e686dd3028482dac5ce191a7e6b156c930e1dc98f6cd28be6518f68f3149"
+ },
+ "sb_cnt16_e20_r3": {
+  "prod_thinned_bytes": 99785604,
+  "prod_thinned_sha256": "fc03b3e5e0d1692a70082b0582f517ac5f873fc3870853310b4a11f4fd362b83"
+ },
+ "sb_cnt16_e50_r1": {
+  "prod_thinned_bytes": 99633680,
+  "prod_thinned_sha256": "3672c6f0fc456913a343868e5da6ce404deee2698ee9b4501d060a611f0d549f"
+ },
+ "sb_cnt16_e50_r2": {
+  "prod_thinned_bytes": 99519199,
+  "prod_thinned_sha256": "91fd83aab55a88cf5618d1a41bcb30279185e140243d61fd3245e01b4a529d79"
+ },
+ "sb_cnt16_e50_r3": {
+  "prod_thinned_bytes": 100021309,
+  "prod_thinned_sha256": "52e400495980bf812c930686fe698b51e8633ead4357bba2023471fd5177e849"
+ },
+ "sb_cnt16_e5_r1": {
+  "prod_thinned_bytes": 99410192,
+  "prod_thinned_sha256": "21862d0225e51896fc9ee8924d8122e37af90adf3020994510e04fc422992f39"
+ },
+ "sb_cnt16_e5_r2": {
+  "prod_thinned_bytes": 99381269,
+  "prod_thinned_sha256": "9710a2da1a3796818a1121989b41f2fcd80ae9e0904ba416691b69455f0d5215"
+ },
+ "sb_cnt16_e5_r3": {
+  "prod_thinned_bytes": 99853949,
+  "prod_thinned_sha256": "9bc954613d99aa7d565d9f1f667ff08f71337e8ed6d98ab742e535b67b2d0555"
+ }
+}

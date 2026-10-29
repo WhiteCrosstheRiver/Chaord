@@ -1,3 +1,5 @@
 [queue] {"event": "coordination", "ts": "2026-10-29T17:04:23", "note": "--force: start checks skipped"}
 [queue] {"event": "queue_start", "ts": "2026-10-29T17:04:23", "lmp": "C:\\ProgramData\\anaconda3\\Scripts\\lmp.exe", "pid": 44668, "n_jobs": 7, "smoke": false, "only": ["sb_cnt16_e5_r2", "sb_cnt16_e20_r2", "sb_cnt16_e100_r2", "sb_cnt10_e5_r2", "sb_cnt10_e20_r2", "sb_cnt10_e100_r2", "sb_cnt10_e200_r2"]}
 [queue] {"event": "start", "ts": "2026-10-29T17:04:23", "job": "sb_cnt10_e100_r2", "atoms": 971, "steps_ps": 13000.0, "est_wall_min": 300.0, "cmd": "C:/ProgramData/anaconda3/Scripts/lmp.exe -in in.lammps", "smoke": false}
+[queue] {"event": "end", "ts": "2026-10-29T20:50:07", "job": "sb_cnt10_e100_r2", "wall_s": 13543.5, "manifest": "C:\\Users\\ZemengFeng\\Desktop\\codes\\Chaord\\research\\cnt_electrolyte\\stageB\\manifests\\sb_cnt10_e100_r2.json"}
+[queue] {"event": "start", "ts": "2026-10-29T20:50:07", "job": "sb_cnt10_e5_r2", "atoms": 971, "steps_ps": 13000.0, "est_wall_min": 300.0, "cmd": "C:/ProgramData/anaconda3/Scripts/lmp.exe -in in.lammps", "smoke": false}

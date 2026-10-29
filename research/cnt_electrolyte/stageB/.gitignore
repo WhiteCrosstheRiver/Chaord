@@ -1,13 +1,16 @@
-# Stage B outputs (D37/Y7): raw trajectories, logs and staged data stay
-# out of git; job inputs (in.lammps), jobs_index.json, manifests/ and the
-# analysis outputs are tracked.
-*.dump
-*.data
-log.lammps
-screen.log
-DONE
-DONE.smoke
-queue.out
-queue.err
-queue_log.jsonl
-QUEUE_RUNNING
+# Stage B outputs (D37/Y7): raw trajectories and data stay out of git (D37;
+# also the 只算不存 policy: the cluster holds the compute, the repo holds the
+# evidence summaries). cluster_results/ keeps per-job final.data + equil.dump
+# + log.lammps (small) -- the thinned prod series stay local-only, listed by
+# the sha256 manifest, retrievable from the analysis archive on demand.
+*
+!cluster_results/
+!cluster_results/**
+!cluster_results/**/final.data
+!cluster_results/**/equil.dump
+!cluster_results/**/log.lammps
+!cluster_results/**/manifest.json
+!stageB_inputs.py
+!stageB_queue.py
+!jobs_index.json
+!README*.md
