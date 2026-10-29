@@ -1,14 +1,18 @@
-# Go/no-go — the D32 gate on the FULL stage-B field ladder
+# Go/no-go — the D39 gate on the FULL stage-B field ladder
 
-**FINAL for the Y8 work order (2026-10-29). The PRELIMINARY banner drops:
-this is the full ladder — both tubes, all seven fields (0, 0.005, 0.01,
-0.02, 0.05, 0.1, 0.2 V/Å), 3 independent runs each. The D32 verdict is
-recorded below per its two conditions and is marked PENDING-OWNER-RULING
-on exactly one question: which detection criterion carries "detect" —
-the ordered 3×-floor test over cross-run zero-field blocks, or the
-build-paired contrast. Both result sets are present, neither is
-assumed; under every criterion registered before this analysis the
-verdict is NO-GO, and the report does not loosen that.**
+**VERDICT (Review 11, D40, recorded 2026-10-30): GO for Chaord as an
+instrument. Fidelity is met — the blind Chaord statements equal the direct
+numpy arm to the print quantum on every lift, and both arms give the same
+E_min under every criterion tested. Under D39 (detection = a test of the
+mean shift with independent runs as the unit: Welch's t, two-sided,
+alpha = 0.05), E_min = 0.02 V/Å for (16,16) and 0.1 V/Å for (10,10);
+0.01 V/Å is open until the Z3 confirmatory set (D41) reports. The D39
+criterion supersedes D32's: the registered 3×-floor rule tested per-block
+SEPARATION, not a mean shift — under it even 0.2 V/Å fails in (10,10).
+That was the reviewer's own error in D31/D32, corrected in D39
+(docs/reviews/open_items_v5.md), pre-stated before the Z3 confirmatory
+data exist. The 3×-floor result is kept below as a labelled per-block
+classification result, not as the detection gate.**
 
 Analysis stream Y8, Review 10, run on 2026-10-29/30. Everything below is
 produced by `research/cnt_electrolyte/analysis/y8_full_ladder.py`
@@ -264,7 +268,7 @@ All-blocks sensitivity: same thresholds (12/12 from cnt16 0.02, cnt10
 | B: build-paired ≥ 2σ | 0.1 | 0.1 | **0.01** | **0.01** |
 | LORO perfect separation | 0.1 | 0.1 | 0.02 | 0.02 |
 
-## 8. The D32 verdict — PENDING-OWNER-RULING on the detection criterion
+## 8. The verdict history: D32 (per-block criterion, superseded) → D39 (mean-shift)
 
 **D32 condition 1** (Chaord's blind statements detect at the same
 smallest field as direct P1 without chaord, within one ladder step):
@@ -303,7 +307,8 @@ fields each criterion detects, plainly:
   at 0.2 only (ratio 5.4); ratios ≤ 2.6 everywhere else. Nothing at or
   below the working field under it either.
 
-**Recorded verdict: PENDING-OWNER-RULING.** If the owner rules that
+**Superseded record (kept for the audit trail).** Under D32's per-block
+criterion as written, the answer was PENDING-OWNER-RULING: if the owner ruled that
 "detect" means the ordered 3×-floor test, the paired test at 3σ, or the
 LORO classifier, the D32 verdict is **NO-GO**: Chaord stays the builder
 and recorder for the owner's MLP paper, off its critical path, and R4
@@ -312,26 +317,40 @@ detection, cnt16 detects at the working field marginally while cnt10
 does not — and the owner must then also decide what a tube-split
 verdict means for D32. The conservative registered reading is NO-GO.
 
-## 9. D32 step-7 statement-move list (beyond 2× floor; dipole_p1 excluded)
+## 9. Secondary movers — NONE ESTABLISHED (D42)
 
-**At or below the working field (0.005, 0.01 V/Å): cnt10 — none. cnt16:**
+**Withdrawn per Review 11 (D42) and the reviewer's own recheck on
+ca1a796:** the candidate movers below do not survive the D42 bar
+(monotone dose-response over >= 3 consecutive fields + Holm-corrected
+significance across all statements x fields + >= 10 ions of each kind
+for ion-pair statements):
+
+* `fluid.ion_pairs.AGG` per run at (16,16): [0, 0.17, 0.09] at 0 V/A;
+  [0, 1.82, 0] at 0.005; [0, 0, 0.04] at 0.01; [2.23, 0, 1.27] at 0.02 —
+  a 0-or-2 event with 6 Li+, not a dose-response.
+* `fluid.nr.C4H8O3.peak` = 0.010 / 0.010 / 0.012 / 0.011 from 0 to
+  0.02 V/A — flat, not rising (the tranche-1 "EMC peak rises" reading
+  does not hold on the full ladder).
+
+**No secondary-mover claim is established in any report.** The
+per-block ratios below are kept as the superseded tranche-1 record
+(audit trail only; they are per-block classification observations, not
+established movers):
+
+<details><summary>superseded tranche-1 table</summary>
 
 | E | statement | on vs off | floor | ratio | z | paired z | reading |
 |---|---|---|---|---|---|---|---|
-| 0.005 | `fluid.ion_pairs.AGG` | 0.607 ± 0.607 vs 0.061 | 0.168 | 3.26× | 0.90 | 0.96 | one run of three aggregates (r2: 1.82; r1, r3: 0) — sporadic, not confirmed paired |
-| 0.005 | `fluid.nr.C3H4O3.peak_r` | 6.42 ± 0.36 vs 7.01 Å | 0.275 | 2.16× | 1.61 | −1.45 | EC profile peak shifts inward; driven by r1 |
-| 0.005 | `fluid.nr.Li+.peak` | 0.0076 ± 0.0043 vs 0.0031 | 0.0004 | 11.8× | 1.04 | 1.06 | quantized profile peak; tiny floor amplifies the ratio, z ≈ 1 |
-| 0.01 | `fluid.nr.C3H4O3.peak_r` | 6.42 ± 0.69 vs 7.01 Å | 0.275 | 2.18× | 0.86 | −0.95 | one run at 5.03 vs 7.0-7.2; not coherent |
-| 0.01 | `fluid.nr.C4H8O3.peak` | 0.0114 ± 0.0003 vs 0.0102 | 0.0006 | 2.00× | 3.91 | **3.18** | the one coherent low-field mover: EMC radial-profile peak height rises at the working field in all three runs |
+| 0.005 | `fluid.ion_pairs.AGG` | 0.607 ± 0.607 vs 0.061 | 0.168 | 3.26× | 0.90 | 0.96 | one run of three aggregates — sporadic |
+| 0.005 | `fluid.nr.C3H4O3.peak_r` | 6.42 ± 0.36 vs 7.01 Å | 0.275 | 2.16× | 1.61 | −1.45 | driven by r1 |
+| 0.005 | `fluid.nr.Li+.peak` | 0.0076 ± 0.0043 vs 0.0031 | 0.0004 | 11.8× | 1.04 | 1.06 | quantized peak, tiny floor |
+| 0.01 | `fluid.nr.C3H4O3.peak_r` | 6.42 ± 0.69 vs 7.01 Å | 0.275 | 2.18× | 0.86 | −0.95 | not coherent |
+| 0.01 | `fluid.nr.C4H8O3.peak` | 0.0114 ± 0.0003 vs 0.0102 | 0.0006 | 2.00× | 3.91 | 3.18 | withdrawn: flat on the full ladder |
 
-Above the working field (for the record): `fluid.ion_pairs.AGG` grows
-monotonically with field on cnt16 (0.02: 6.6×, 0.1: 3.1×, 0.2: 10.5× —
-z 20 at 0.2, all three runs 1.4–1.95) and appears on cnt10 at 0.2 only
-(floor 0 there — cnt10 never aggregates in 36 ns of e0; 0.42 ± 0.36,
-two of three runs); `fluid.nr.Li+.peak` at cnt16 0.02 and 0.2
-(saturation-anchor field). Structural constants (`density`,
-`linear_density`, chirality, census) are constant by construction with
-floor ≤ one ulp and zero movement everywhere.
+</details>
+
+D42's implementing script: `research/cnt_electrolyte/analysis/d42_movers.py`
+(reports "none established" on the current data; see its test).
 
 ## 10. Linear response over 0.005–0.02 V/Å (Y8 step 6)
 
