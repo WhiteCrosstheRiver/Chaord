@@ -1,0 +1,3 @@
+[queue] {"event": "coordination", "ts": "2026-10-29T17:04:23", "note": "--force: start checks skipped"}
+[queue] {"event": "queue_start", "ts": "2026-10-29T17:04:23", "lmp": "C:\\ProgramData\\anaconda3\\Scripts\\lmp.exe", "pid": 57536, "n_jobs": 3, "smoke": false, "only": ["sb_cnt16_e10_r2", "sb_cnt16_e50_r2", "sb_cnt16_e200_r2"]}
+[queue] {"event": "start", "ts": "2026-10-29T17:04:23", "job": "sb_cnt16_e10_r2", "atoms": 2058, "steps_ps": 13000.0, "est_wall_min": 1194.5, "cmd": "C:/ProgramData/anaconda3/Scripts/lmp.exe -in in.lammps", "smoke": false}
