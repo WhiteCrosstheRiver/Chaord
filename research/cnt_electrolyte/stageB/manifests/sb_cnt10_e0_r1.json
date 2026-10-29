@@ -1,0 +1,69 @@
+{
+  "job": "sb_cnt10_e0_r1",
+  "kind": "sb",
+  "tube": 10,
+  "build": "b1",
+  "run": 1,
+  "field": 0.0,
+  "field_mv": 0,
+  "lmp": "C:\\ProgramData\\anaconda3\\Scripts\\lmp.exe",
+  "finished": "2026-10-29T02:53:46",
+  "wall_seconds": 9986.0,
+  "protocol": {
+    "settle_ps": 1000.0,
+    "block_ps": 6000.0,
+    "n_blocks": 2,
+    "start_from": "zf_cnt10_b1",
+    "tranche": null
+  },
+  "files": [
+    {
+      "role": "in.lammps",
+      "path": "stageB\\jobs\\sb_cnt10_e0_r1\\in.lammps",
+      "bytes": 4378,
+      "sha256": "04061d053e3a72475336509149e8bd02c8c80983da2efceb457c401fdb1e7ce7"
+    },
+    {
+      "role": "system.data",
+      "path": "stageB\\jobs\\sb_cnt10_e0_r1\\system.data",
+      "bytes": 69538,
+      "sha256": "912452af942402294fe78e512e23c3139122c13571a2f64f4cdc9e4ded5dc254"
+    },
+    {
+      "role": "log.lammps",
+      "path": "stageB\\jobs\\sb_cnt10_e0_r1\\log.lammps",
+      "bytes": 1508286,
+      "sha256": "192defecdea647d83e6afa05716968fbb9849bc0b01b67585dad9837265bb276"
+    },
+    {
+      "role": "screen.log",
+      "path": "stageB\\jobs\\sb_cnt10_e0_r1\\screen.log",
+      "bytes": 1504025,
+      "sha256": "9b18d1bf102d86e6b38b1e2a69fcf079289f5ae26fb66a84957cce7b1209dc56"
+    },
+    {
+      "role": "final.data",
+      "path": "stageB\\jobs\\sb_cnt10_e0_r1\\final.data",
+      "bytes": 69709,
+      "sha256": "00ffadf04603d7d7669022fa08108424e739850d73a14459eaa6b30bd1fb6b15"
+    },
+    {
+      "role": "DONE",
+      "path": "stageB\\jobs\\sb_cnt10_e0_r1\\DONE",
+      "bytes": 164,
+      "sha256": "d5483d24c9b04d24e2dfa89802d004b0f5bda33ccc178dce0901a7010ae5fd5c"
+    },
+    {
+      "role": "raw dump",
+      "path": "stageB\\jobs\\sb_cnt10_e0_r1\\equil.dump",
+      "bytes": 4322614,
+      "sha256": "94e0f573b13fa767cd72acdc1d008bcf1fbb158f37240390ddbc6b858e7cda5b"
+    },
+    {
+      "role": "raw dump",
+      "path": "stageB\\jobs\\sb_cnt10_e0_r1\\prod.dump",
+      "bytes": 515205915,
+      "sha256": "71c60b66c999c5f1d9560576a84fe7c31ffe9033497779966b8ceb452ef0e7c6"
+    }
+  ]
+}

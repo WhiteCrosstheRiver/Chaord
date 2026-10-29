@@ -1,0 +1,54 @@
+{
+  "job": "off_cnt16_b1",
+  "kind": "off",
+  "tube": 16,
+  "build": "b1",
+  "field": 0.0,
+  "lmp": "C:\\ProgramData\\anaconda3\\Scripts\\lmp.exe",
+  "finished": "2026-10-18T18:03:26",
+  "wall_seconds": 6384.3,
+  "files": [
+    {
+      "role": "in.lammps",
+      "path": "stageA\\jobs\\off_cnt16_b1\\in.lammps",
+      "bytes": 3219,
+      "sha256": "4273ab21d2550240c8f1c70f3db5c41311628d4dc7e7bc69cfb06df8c8b759a7"
+    },
+    {
+      "role": "system.data",
+      "path": "stageA\\jobs\\off_cnt16_b1\\system.data",
+      "bytes": 197732,
+      "sha256": "31f6911665d431da105c52407751d2418ebb8cab057bc022b7ff3b0ba0c8f0a7"
+    },
+    {
+      "role": "log.lammps",
+      "path": "stageA\\jobs\\off_cnt16_b1\\log.lammps",
+      "bytes": 237607,
+      "sha256": "91fc7e174e5e903bb143bc525091643a09dae94ce9b78347a4b1f8762c971cf0"
+    },
+    {
+      "role": "screen.log",
+      "path": "stageA\\jobs\\off_cnt16_b1\\screen.log",
+      "bytes": 234429,
+      "sha256": "2a1871a37bbd8db5da17c96c250acacd0428422e32a876fe272dab23c0be1ce3"
+    },
+    {
+      "role": "final.data",
+      "path": "stageA\\jobs\\off_cnt16_b1\\final.data",
+      "bytes": 197819,
+      "sha256": "c6e214698d378325722f028a1eb42261cbe651d8feb919537ccdb553d0fa8daa"
+    },
+    {
+      "role": "DONE",
+      "path": "stageA\\jobs\\off_cnt16_b1\\DONE",
+      "bytes": 164,
+      "sha256": "34a3b94d4a1f59f37f6b19482077dccf50cde31084f6e87034d44db143015bc6"
+    },
+    {
+      "role": "raw dump",
+      "path": "stageA\\jobs\\off_cnt16_b1\\prod.dump",
+      "bytes": 198972002,
+      "sha256": "3fd4f9e000e008e8d66f02351c35850b90b2c3eda4861d61eca3eeedda543295"
+    }
+  ]
+}

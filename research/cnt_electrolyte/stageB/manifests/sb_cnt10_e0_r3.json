@@ -1,0 +1,69 @@
+{
+  "job": "sb_cnt10_e0_r3",
+  "kind": "sb",
+  "tube": 10,
+  "build": "b3",
+  "run": 3,
+  "field": 0.0,
+  "field_mv": 0,
+  "lmp": "C:\\ProgramData\\anaconda3\\Scripts\\lmp.exe",
+  "finished": "2026-10-29T08:29:52",
+  "wall_seconds": 10165.8,
+  "protocol": {
+    "settle_ps": 1000.0,
+    "block_ps": 6000.0,
+    "n_blocks": 2,
+    "start_from": "zf_cnt10_b3",
+    "tranche": null
+  },
+  "files": [
+    {
+      "role": "in.lammps",
+      "path": "stageB\\jobs\\sb_cnt10_e0_r3\\in.lammps",
+      "bytes": 4378,
+      "sha256": "9e7383fcc0d0551dda39ee99688c9a4151058d670669e38e4336b3393f2a2961"
+    },
+    {
+      "role": "system.data",
+      "path": "stageB\\jobs\\sb_cnt10_e0_r3\\system.data",
+      "bytes": 69599,
+      "sha256": "ce7246c64632ed94196a3e055b9bfd6682c720a90108022d4db316713bbddbf8"
+    },
+    {
+      "role": "log.lammps",
+      "path": "stageB\\jobs\\sb_cnt10_e0_r3\\log.lammps",
+      "bytes": 1508286,
+      "sha256": "0fe6443edd43fda92619c4fbba843cbea2ec1093c59714878611131d37c4d674"
+    },
+    {
+      "role": "screen.log",
+      "path": "stageB\\jobs\\sb_cnt10_e0_r3\\screen.log",
+      "bytes": 1504025,
+      "sha256": "caac47df633b3daf06233124a7c5a5e923cde51d13e6f551ee64788ef592e035"
+    },
+    {
+      "role": "final.data",
+      "path": "stageB\\jobs\\sb_cnt10_e0_r3\\final.data",
+      "bytes": 69739,
+      "sha256": "00337a7d6bfdc088eccee52fecdd46d701341aa9f114a20cfcc6b342c6af2e03"
+    },
+    {
+      "role": "DONE",
+      "path": "stageB\\jobs\\sb_cnt10_e0_r3\\DONE",
+      "bytes": 165,
+      "sha256": "576cd8ef8e503710d0d74506fdd6067765842659fbd8fb01b5cb4de9dca8aa6c"
+    },
+    {
+      "role": "raw dump",
+      "path": "stageB\\jobs\\sb_cnt10_e0_r3\\equil.dump",
+      "bytes": 4331361,
+      "sha256": "c6956d65043b5956a6411ba6b749fcd77f8a6e8fec49729fcc3e75adb4a4a0a4"
+    },
+    {
+      "role": "raw dump",
+      "path": "stageB\\jobs\\sb_cnt10_e0_r3\\prod.dump",
+      "bytes": 515419445,
+      "sha256": "24ca2de242dc07c13a350d22a27655e396387387c9a52e1f7ab2772b018df10f"
+    }
+  ]
+}

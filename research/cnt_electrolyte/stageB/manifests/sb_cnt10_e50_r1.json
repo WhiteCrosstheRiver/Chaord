@@ -1,0 +1,69 @@
+{
+  "job": "sb_cnt10_e50_r1",
+  "kind": "sb",
+  "tube": 10,
+  "build": "b1",
+  "run": 1,
+  "field": 0.05,
+  "field_mv": 50,
+  "lmp": "C:\\ProgramData\\anaconda3\\Scripts\\lmp.exe",
+  "finished": "2026-10-25T16:41:03",
+  "wall_seconds": 10124.3,
+  "protocol": {
+    "settle_ps": 1000.0,
+    "block_ps": 6000.0,
+    "n_blocks": 2,
+    "start_from": "zf_cnt10_b1",
+    "tranche": 1
+  },
+  "files": [
+    {
+      "role": "in.lammps",
+      "path": "stageB\\jobs\\sb_cnt10_e50_r1\\in.lammps",
+      "bytes": 4352,
+      "sha256": "93c2aaca553c8f7170228cd62606d3b6e4c88cb6904c7902107e14ddb6bc78b5"
+    },
+    {
+      "role": "system.data",
+      "path": "stageB\\jobs\\sb_cnt10_e50_r1\\system.data",
+      "bytes": 69538,
+      "sha256": "912452af942402294fe78e512e23c3139122c13571a2f64f4cdc9e4ded5dc254"
+    },
+    {
+      "role": "log.lammps",
+      "path": "stageB\\jobs\\sb_cnt10_e50_r1\\log.lammps",
+      "bytes": 1508260,
+      "sha256": "7d5e40d6b392ebce9c0374df7960f516cf0e9f18b2f010aa6850df5175c534e6"
+    },
+    {
+      "role": "screen.log",
+      "path": "stageB\\jobs\\sb_cnt10_e50_r1\\screen.log",
+      "bytes": 1504025,
+      "sha256": "328b57962394029f876e340101913e6f839a5a18ee3d177991acbe8eccf677af"
+    },
+    {
+      "role": "final.data",
+      "path": "stageB\\jobs\\sb_cnt10_e50_r1\\final.data",
+      "bytes": 69539,
+      "sha256": "413b2e0d806728cec9af98635417f3578e555cef0918da12ceac80ca348c2d9b"
+    },
+    {
+      "role": "DONE",
+      "path": "stageB\\jobs\\sb_cnt10_e50_r1\\DONE",
+      "bytes": 165,
+      "sha256": "a48fc8cbfb5b03ef10da24c8fa817ff7eac6edda7e6049d96d7719bf08af0742"
+    },
+    {
+      "role": "raw dump",
+      "path": "stageB\\jobs\\sb_cnt10_e50_r1\\equil.dump",
+      "bytes": 4322987,
+      "sha256": "b3843592676bceb01e2d6313daaf290a90214b9db1f658ff96bb5a38eaecbbdd"
+    },
+    {
+      "role": "raw dump",
+      "path": "stageB\\jobs\\sb_cnt10_e50_r1\\prod.dump",
+      "bytes": 513791406,
+      "sha256": "1a66990f0f978031933318c909a7b1fc8d6c358e1e8a90b1fa8669881f3c7205"
+    }
+  ]
+}

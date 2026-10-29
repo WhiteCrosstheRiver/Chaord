@@ -1,0 +1,69 @@
+{
+  "job": "sb_cnt10_e10_r1",
+  "kind": "sb",
+  "tube": 10,
+  "build": "b1",
+  "run": 1,
+  "field": 0.01,
+  "field_mv": 10,
+  "lmp": "C:\\ProgramData\\anaconda3\\Scripts\\lmp.exe",
+  "finished": "2026-10-25T07:08:31",
+  "wall_seconds": 17099.7,
+  "protocol": {
+    "settle_ps": 1000.0,
+    "block_ps": 6000.0,
+    "n_blocks": 2,
+    "start_from": "zf_cnt10_b1",
+    "tranche": 1
+  },
+  "files": [
+    {
+      "role": "in.lammps",
+      "path": "stageB\\jobs\\sb_cnt10_e10_r1\\in.lammps",
+      "bytes": 4352,
+      "sha256": "d750fa1cc7101de1ca3039bdf77648b458d2720374b8d2962b4d78d8ea78c336"
+    },
+    {
+      "role": "system.data",
+      "path": "stageB\\jobs\\sb_cnt10_e10_r1\\system.data",
+      "bytes": 69538,
+      "sha256": "912452af942402294fe78e512e23c3139122c13571a2f64f4cdc9e4ded5dc254"
+    },
+    {
+      "role": "log.lammps",
+      "path": "stageB\\jobs\\sb_cnt10_e10_r1\\log.lammps",
+      "bytes": 1508262,
+      "sha256": "48ffc0786f3121bde9e6f1dbbfeccb20974d2b20ecabe6c687fe288086d4af56"
+    },
+    {
+      "role": "screen.log",
+      "path": "stageB\\jobs\\sb_cnt10_e10_r1\\screen.log",
+      "bytes": 1504027,
+      "sha256": "621b6777e9c858fca9d3e239228ffc375a1451158902899f916584593fdc41f8"
+    },
+    {
+      "role": "final.data",
+      "path": "stageB\\jobs\\sb_cnt10_e10_r1\\final.data",
+      "bytes": 69580,
+      "sha256": "b89ff16b6d34762427c701729b97c802a02d0d622027f7ef02e2bdf3d8cfb83d"
+    },
+    {
+      "role": "DONE",
+      "path": "stageB\\jobs\\sb_cnt10_e10_r1\\DONE",
+      "bytes": 165,
+      "sha256": "6256c7f1922b02c93d53060bf5a3e005362e0480094d0447889b309162dbaf93"
+    },
+    {
+      "role": "raw dump",
+      "path": "stageB\\jobs\\sb_cnt10_e10_r1\\equil.dump",
+      "bytes": 4322477,
+      "sha256": "449532e2b0439edaeae75e9731586c1af32fab3169da9eb7786b73b4734e1fa0"
+    },
+    {
+      "role": "raw dump",
+      "path": "stageB\\jobs\\sb_cnt10_e10_r1\\prod.dump",
+      "bytes": 513598601,
+      "sha256": "9d7f16130090768e9043ee0a2161bff4dbb053f95c5bfb7c73d2edc7c82615eb"
+    }
+  ]
+}
