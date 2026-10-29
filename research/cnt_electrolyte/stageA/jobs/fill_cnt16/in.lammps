@@ -1,4 +1,4 @@
-# LAMMPS input: fill_cnt16  (Stage A / Y6: filling: open CNT in a bulk 1M LiPF6/EC:EMC bath; 500 ps T+P anneal (10->300 K, barostat target -2000->1 atm, Pdamp 2000 fs, compressing the sub-target-density packed bath) then 5 ns NPT 1 atm 300 K; tube starts empty (imbibition))
+# LAMMPS input: fill_cnt16  (Stage A / Y6: filling: open CNT in a bulk 1M LiPF6/EC:EMC bath; staged decompression: 50 ps 10 K NVT settle + 100 ps 10->300 K NVT warm-up (fixed volume), then a 5000 -> 1000 -> 100 -> 1 atm stepped NPT descent (650 ps total, Pdamp 25000 fs), then 5 ns NPT 1 atm 300 K; tube starts empty (imbibition))
 # Engine: LAMMPS 22 Jul 2025 Update 4. Units: real (A, kcal/mol, fs, V/A).
 # Model: pilot model (owner_inputs.md D37 note): OPLS-AA-based rigid
 #   molecules from Nutakki 2023 Tables II-III, Werder sp2-C tube carbons,
@@ -61,37 +61,116 @@ timestep        1.0
 
 # smoke self-test:  lmp -var smoke 1 -in in.lammps
 variable        smoke index 0
-if "${smoke} == 1" then "variable nrampf equal 500" "variable nprodf equal 500" &
-else "variable nrampf equal 500000" "variable nprodf equal 5000000"
+if "${smoke} == 1" then "variable nsettle equal 500" "variable nwarm equal 500" "variable nbaro1 equal 500" "variable nbaro2 equal 500" "variable nbaro3 equal 500" "variable nbaro4 equal 500" "variable nprodf equal 500" &
+else "variable nsettle equal 50000" "variable nwarm equal 100000" "variable nbaro1 equal 125000" "variable nbaro2 equal 125000" "variable nbaro3 equal 125000" "variable nbaro4 equal 125000" "variable nprodf equal 5000000"
 
 thermo          1000
 thermo_style    custom step atoms v_Tmob temp pe etotal press vol density
 
 velocity        mobile create 10.0 20265101 mom yes rot yes dist gaussian
 
-# --- stage 1 (500 ps): temperature ramp 10 -> 300 K and
-#     pressure anneal. The bath is BUILT at 95% of the
-#     target bulk density (bulk-density sequential packing jams in the
-#     small periodic build block - recorded in the build manifest), so the
-#     barostat target ramps -2000 atm -> 1 atm over this stage and
-#     compresses the bath before production. The barostat (fix nph, pure
-#     pressure control - NO thermostat, so the single Langevin scheme
-#     covers every mobile atom) is the fix-rigid docs' rigid-bodies-plus-
-#     point-particles hybrid; dilate mobile never rescales the frozen
-#     tube; the NPT pressure is the global thermo one.
-fix             thb bodies rigid/nve molecule langevin 10.0 300.0 1000 5101101
-fix             thl li nph iso -2000 1 2000 dilate mobile
-fix             thla li langevin 10.0 300.0 1000 5101102
-run             ${nrampf}
+# force a log/screen flush at every thermo output: these jobs run for
+# days; without it the redirected screen.log buffers ~4 KB and shows
+# nothing for hours (found while monitoring the 2026-10-20 verification)
+thermo_modify    flush yes
 
-# --- stage 2: 5000 ps NPT production (1 atm, 300 K),
-#     dump every 1 ps
+# --- stage 1 (50 ps): NVT settle at 10 K, FIXED volume.
+#     The packed bath is a cold jam carrying ~+20,000 atm of contact
+#     stress (failed-run thermo: P = +20,869 / +11,042 atm at step 0)
+#     because pack-then-relax leaves the contact network AT the packing
+#     floors (0.85 sigma) even though the density is only ~87% of the
+#     CRC target. At fixed volume there is no box degree of freedom to
+#     run away: the Langevin bath (1 ps damping) simply drains the
+#     contact energy released as neighbouring molecules push apart into
+#     local free volume. A Tmob spike like the zf builds' 642 K
+#     step-1000 transient is expected and harmless at fixed V.
+fix             thb bodies rigid/nve molecule langevin 10 10 1000 5101101
+fix             thl li nve
+fix             thla li langevin 10 10 1000 5101102
+run             ${nsettle}
+
+# --- stage 2 (100 ps): NVT warm-up ramp 10 -> 300 K,
+#     still fixed volume. Melt the jam into a normal liquid BEFORE any
+#     barostat sees it, so the first pressure the barostat reads is
+#     ordinary liquid stress, not jam stress. (The failed runs heated
+#     AND barostatted from step 0 - exactly the coupling that ran away.)
 unfix           thb
 unfix           thl
 unfix           thla
-fix             thb bodies rigid/nve molecule langevin 300.0 300.0 1000 5101103
-fix             thl li nph iso 1 1 2000 dilate mobile
-fix             thla li langevin 300.0 300.0 1000 5101104
+fix             thb bodies rigid/nve molecule langevin 10 300 1000 5101201
+fix             thl li nve
+fix             thla li langevin 10 300 1000 5101202
+run             ${nwarm}
+
+# --- stage 3.1: NPT at 300 K, barostat target 5000 atm, held
+#     125 ps (stepped decompression 5000 -> 1000 -> 100 -> 1 atm,
+#     Pdamp 25000 fs - deliberately ~25x the liquid-typical 1 ps, a
+#     very weak barostat: the volume must still grow ~25% to the model's
+#     own equation of state, and the 2026-10-19 failure was box-dynamics
+#     overshoot at Pdamp 2 ps, so the box is made quasi-static).
+#     The 5000 atm head is a conservative UPPER bound on the post-NVT residual pressure, so the barostat's opening action is neutral-to-compressive: it cannot explode by construction.
+unfix           thb
+unfix           thl
+unfix           thla
+fix             thb bodies rigid/nve molecule langevin 300 300 1000 5101301
+fix             thl li nph iso 5000 5000 25000 dilate mobile
+fix             thla li langevin 300 300 1000 5101302
+run             ${nbaro1}
+
+# --- stage 3.2: NPT at 300 K, barostat target 1000 atm, held
+#     125 ps (stepped decompression 5000 -> 1000 -> 100 -> 1 atm,
+#     Pdamp 25000 fs - deliberately ~25x the liquid-typical 1 ps, a
+#     very weak barostat: the volume must still grow ~25% to the model's
+#     own equation of state, and the 2026-10-19 failure was box-dynamics
+#     overshoot at Pdamp 2 ps, so the box is made quasi-static).
+#     Each ~5x pressure step keeps the per-stage volume excursion small; the 300 K liquid re-wets the frozen tube between steps (each dilation by dilate mobile opens a thin sleeve at the un-rescaled tube, which the liquid closes again before the next step).
+unfix           thb
+unfix           thl
+unfix           thla
+fix             thb bodies rigid/nve molecule langevin 300 300 1000 5101401
+fix             thl li nph iso 1000 1000 25000 dilate mobile
+fix             thla li langevin 300 300 1000 5101402
+run             ${nbaro2}
+
+# --- stage 3.3: NPT at 300 K, barostat target 100 atm, held
+#     125 ps (stepped decompression 5000 -> 1000 -> 100 -> 1 atm,
+#     Pdamp 25000 fs - deliberately ~25x the liquid-typical 1 ps, a
+#     very weak barostat: the volume must still grow ~25% to the model's
+#     own equation of state, and the 2026-10-19 failure was box-dynamics
+#     overshoot at Pdamp 2 ps, so the box is made quasi-static).
+#     Each ~5x pressure step keeps the per-stage volume excursion small; the 300 K liquid re-wets the frozen tube between steps (each dilation by dilate mobile opens a thin sleeve at the un-rescaled tube, which the liquid closes again before the next step).
+unfix           thb
+unfix           thl
+unfix           thla
+fix             thb bodies rigid/nve molecule langevin 300 300 1000 5101501
+fix             thl li nph iso 100 100 25000 dilate mobile
+fix             thla li langevin 300 300 1000 5101502
+run             ${nbaro3}
+
+# --- stage 3.4: NPT at 300 K, barostat target 1 atm, held
+#     125 ps (stepped decompression 5000 -> 1000 -> 100 -> 1 atm,
+#     Pdamp 25000 fs - deliberately ~25x the liquid-typical 1 ps, a
+#     very weak barostat: the volume must still grow ~25% to the model's
+#     own equation of state, and the 2026-10-19 failure was box-dynamics
+#     overshoot at Pdamp 2 ps, so the box is made quasi-static).
+#     Each ~5x pressure step keeps the per-stage volume excursion small; the 300 K liquid re-wets the frozen tube between steps (each dilation by dilate mobile opens a thin sleeve at the un-rescaled tube, which the liquid closes again before the next step).
+unfix           thb
+unfix           thl
+unfix           thla
+fix             thb bodies rigid/nve molecule langevin 300 300 1000 5101601
+fix             thl li nph iso 1 1 25000 dilate mobile
+fix             thla li langevin 300 300 1000 5101602
+run             ${nbaro4}
+
+# --- stage 4: 5000 ps NPT production (1 atm, 300 K,
+#     Pdamp 25000 fs - kept weak so the box keeps drifting
+#     adiabatically through the 5 ns), dump every 1 ps
+unfix           thb
+unfix           thl
+unfix           thla
+fix             thb bodies rigid/nve molecule langevin 300 300 1000 5101701
+fix             thl li nph iso 1 1 25000 dilate mobile
+fix             thla li langevin 300 300 1000 5101702
 reset_timestep  0
 dump            pd all custom 1000 prod.dump id mol type q x y z ix iy iz
 dump_modify     pd sort id format float %.10g

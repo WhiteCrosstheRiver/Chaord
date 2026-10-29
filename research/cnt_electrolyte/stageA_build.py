@@ -404,11 +404,18 @@ def build_fill(name, n, seed):
         composition=dict(n_EC=counts["EC"], n_EMC=counts["EMC"],
                          n_LiPF6=counts["Li"]),
         note="bath packed at "
-             f"{frac:.0%} of the target bulk density (see block.pack_frac); "
-             "the run's pressure anneal (fix nph target -1000 atm -> 1 atm "
-             "over the 300 ps ramp stage) compresses it to 1 atm before "
-             "the 5 ns production",
+             f"{frac:.0%} of the CRC-based target density (achieved "
+             f"{block_info['achieved_frac_of_bulk']:.0%}; the packed jam "
+             "carries ~+20,000 atm of CONTACT stress, found on execution "
+             "2026-10-19); the run input's staged decompression (NVT "
+             "settle + warm-up at fixed volume, then a 5000->1000->100->1 "
+             "atm stepped NPT descent, Pdamp 25 ps) relaxes it to the "
+             "MODEL's own 1 atm equation of state - the equilibrated "
+             "density is read off the run thermo, not assumed",
         bath_molarity_M_at_pack=round(counts["Li"] / (0.60221408 * V_nm3), 4),
+        # reference value only: the molarity this ion count would have if
+        # the box sat at the CRC target density (the packed bath instead
+        # equilibrates to the model's own, lower, EOS - see run thermo)
         bath_molarity_M_after_anneal=round(
             counts["Li"] / (0.60221408 * V_nm3 * frac), 4),
         bath_atom_density_per_A3=round(n_liq_atoms / V, 5),

@@ -262,12 +262,32 @@ STAGEA = {
     "ramp_ps": 100.0,
     "equil_ps": 900.0,
     "prod_ps": 2000.0,
-    # -- filling protocol: 500 ps pressure-anneal + temperature ramp, then
-    #    5000 ps NPT production at 1 atm
-    "fill_ramp_ps": 500.0,
-    "fill_prod_ps": 5000.0,
-    "fill_press_anneal_start_atm": -2000.0,
-    "fill_baro_damp_fs": 2000.0,
+    # -- filling protocol: STAGED DECOMPRESSION (2026-10-20 repair of the
+    #    2026-10-19 blow-up: the first attempt opened the barostat at
+    #    step 0 with a -2000 atm target against the packed bath's actual
+    #    +20,000 atm jam pressure and Pdamp 2 ps, and the box blew up
+    #    x26 in 7 ps - fill_cnt10 'Domain too large for neighbor bins',
+    #    fill_cnt16 'Non-numeric box dimensions'; see stageA_plan.md
+    #    addendum 2026-10-20). The repair never lets box dynamics meet
+    #    jam stress: fixed-volume relaxation first, weak stepped
+    #    barostat last. Every value's reason is documented there.
+    "fill_settle_ps": 50.0,      # stage 1: 10 K NVT, FIXED volume - drain
+                                 # the jam's contact energy with no box DOF
+    "fill_warm_ps": 100.0,       # stage 2: 10->300 K NVT, still fixed V -
+                                 # melt the jam before any barostat sees it
+    "fill_baro_stage_ps": 125.0, # hold per pressure step of the descent
+    "fill_baro_stages_atm": (5000.0, 1000.0, 100.0, 1.0),
+                                 # stage 3: stepped decompression; the
+                                 # 5000 atm head is a conservative UPPER
+                                 # bound on the post-NVT residual pressure
+                                 # so the barostat's first action is
+                                 # neutral-to-compressive (cannot explode
+                                 # by construction), then ~5x steps down
+    "fill_prod_ps": 5000.0,      # stage 4: 5 ns NPT production, 1 atm
+    "fill_baro_damp_fs": 25000.0,
+                                 # weak barostat on purpose: ~25x the
+                                 # liquid-typical 1 ps -> quasi-static box
+                                 # motion (the failure WAS box dynamics)
     # the bath block is packed toward this fraction of the target bulk
     # density with skip-on-fail insertion (bulk-density sequential
     # insertion jams in a small PBC box: found on execution 2026-10-15,

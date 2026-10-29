@@ -6,10 +6,15 @@ Jobs (34 total), all dumped every 1 ps with 10 significant digits and
 image flags, thermo every 1 ps, dt 1 fs, ONE Langevin scheme (damping
 1 ps) for every mobile atom:
 
-  fill_cntN            open tube in a bulk bath, 50 ps ramp + 5 ns NPT
-                       (1 atm, 300 K); fix nph ... dilate mobile is the
+  fill_cntN            open tube in a bulk bath, staged decompression
+                       (10 K NVT settle + 10->300 K NVT warm-up at fixed
+                       volume, then a 5000->1000->100->1 atm stepped NPT
+                       descent with Pdamp 25 fs, then 5 ns NPT production
+                       at 1 atm, 300 K); fix nph ... dilate mobile is the
                        pure barostat (no thermostat) so the one-Langevin
-                       rule survives the NPT.
+                       rule survives the NPT. (2026-10-20 repair of the
+                       single-stage T+P anneal that blew up - see
+                       stageA_plan.md addendum 2026-10-20.)
   zf_cntN_bX           zero field: 100 ps ramp (10->300 K) + 900 ps
                        equilibration + 2 ns production; X in b1,b2,b3 and
                        b1m (mirrored copy of b1).
@@ -204,51 +209,131 @@ write_data      final.data nocoeff
 
 
 def fill_input(name, dof, seeds, vseed, s):
-    ramp = int(s["fill_ramp_ps"] * 1000 / P.TIMESTEP_FS)
+    """Staged decompression (2026-10-20 repair). The 2026-10-19 protocol
+    turned the barostat on at step 0 with a -2000 atm target against the
+    packed bath's actual +20,000 atm jam pressure and Pdamp 2 ps; the box
+    blew up x26 within 7 ps (fill_cnt10 thermo: step 0 P=+20,869 atm,
+    V=2.07e5 -> step 7000 Tmob 705 K, V=3.92e7). The repair: fixed-volume
+    relaxation first, weak stepped barostat last - the box never meets
+    the jam. Reasons for every number in stageA_plan.md addendum
+    2026-10-20.
+
+    seeds: 7 (bodies, li) seed pairs, one per thermostat fix pair
+    (settle, warm-up, 4 pressure steps, production)."""
+    setl = int(s["fill_settle_ps"] * 1000 / P.TIMESTEP_FS)
+    warm = int(s["fill_warm_ps"] * 1000 / P.TIMESTEP_FS)
+    baro = int(s["fill_baro_stage_ps"] * 1000 / P.TIMESTEP_FS)
     prod = int(s["fill_prod_ps"] * 1000 / P.TIMESTEP_FS)
     pdamp = s["fill_baro_damp_fs"]
-    p0 = s["fill_press_anneal_start_atm"]
-    body = f"""\
-velocity        mobile create 10.0 {vseed} mom yes rot yes dist gaussian
+    p_desc = " -> ".join(f"{p:g}" for p in s["fill_baro_stages_atm"])
+    damp = s["langevin_damp_fs"]
+    anneal_ps = (s["fill_settle_ps"] + s["fill_warm_ps"]
+                 + s["fill_baro_stage_ps"] * len(s["fill_baro_stages_atm"]))
 
-# --- stage 1 ({s['fill_ramp_ps']:g} ps): temperature ramp 10 -> 300 K and
-#     pressure anneal. The bath is BUILT at {int(s['block_pack_frac'] * 100)}% of the
-#     target bulk density (bulk-density sequential packing jams in the
-#     small periodic build block - recorded in the build manifest), so the
-#     barostat target ramps {p0:g} atm -> 1 atm over this stage and
-#     compresses the bath before production. The barostat (fix nph, pure
-#     pressure control - NO thermostat, so the single Langevin scheme
-#     covers every mobile atom) is the fix-rigid docs' rigid-bodies-plus-
-#     point-particles hybrid; dilate mobile never rescales the frozen
-#     tube; the NPT pressure is the global thermo one.
-fix             thb bodies rigid/nve molecule langevin 10.0 300.0 {s['langevin_damp_fs']:g} {seeds['bodies']}
-fix             thl li nph iso {p0:g} {s['baro_press_atm']:g} {pdamp:g} dilate mobile
-fix             thla li langevin 10.0 300.0 {s['langevin_damp_fs']:g} {seeds['li']}
-run             ${{nrampf}}
+    def lang(t0, t1, sb, sl, li_fix):
+        # one Langevin scheme per atom subset: rigid bodies + free Li+;
+        # li_fix is "nve" (NVT stages) or the nph line (NPT stages), in
+        # which fix nph itself time-integrates the Li+ (no double
+        # integration) - the fix-rigid docs' hybrid, kept from the
+        # 2026-10-19 input.
+        return (f"fix             thb bodies rigid/nve molecule langevin "
+                f"{t0:g} {t1:g} {damp:g} {sb}\n"
+                f"fix             thl li {li_fix}\n"
+                f"fix             thla li langevin {t0:g} {t1:g} {damp:g} "
+                f"{sl}\n")
 
-# --- stage 2: {s['fill_prod_ps']:g} ps NPT production (1 atm, 300 K),
-#     dump every {s['dump_every_ps']:g} ps
+    (sb1, sl1), (sb2, sl2) = seeds[0], seeds[1]
+    baro_stages = []
+    for k, (ptarget, (sb, sl)) in enumerate(
+            zip(s["fill_baro_stages_atm"], seeds[2:]), start=1):
+        head = ("The 5000 atm head is a conservative UPPER bound on the "
+                "post-NVT residual pressure, so the barostat's opening "
+                "action is neutral-to-compressive: it cannot explode by "
+                "construction." if k == 1 else
+                "Each ~5x pressure step keeps the per-stage volume "
+                "excursion small; the 300 K liquid re-wets the frozen "
+                "tube between steps (each dilation by dilate mobile "
+                "opens a thin sleeve at the un-rescaled tube, which the "
+                "liquid closes again before the next step).")
+        baro_stages.append(f"""
+# --- stage 3.{k}: NPT at 300 K, barostat target {ptarget:g} atm, held
+#     {s['fill_baro_stage_ps']:g} ps (stepped decompression {p_desc} atm,
+#     Pdamp {pdamp:g} fs - deliberately ~25x the liquid-typical 1 ps, a
+#     very weak barostat: the volume must still grow ~25% to the model's
+#     own equation of state, and the 2026-10-19 failure was box-dynamics
+#     overshoot at Pdamp 2 ps, so the box is made quasi-static).
+#     {head}
 unfix           thb
 unfix           thl
 unfix           thla
-fix             thb bodies rigid/nve molecule langevin 300.0 300.0 {s['langevin_damp_fs']:g} {seeds['bodies2']}
-fix             thl li nph iso {s['baro_press_atm']:g} {s['baro_press_atm']:g} {pdamp:g} dilate mobile
-fix             thla li langevin 300.0 300.0 {s['langevin_damp_fs']:g} {seeds['li2']}
-reset_timestep  0
+{lang(300.0, 300.0, sb, sl, f"nph iso {ptarget:g} {ptarget:g} {pdamp:g} dilate mobile")}run             ${{nbaro{k}}}
+""")
+
+    sbp, slp = seeds[2 + len(s["fill_baro_stages_atm"])]
+    body = f"""\
+velocity        mobile create 10.0 {vseed} mom yes rot yes dist gaussian
+
+# force a log/screen flush at every thermo output: these jobs run for
+# days; without it the redirected screen.log buffers ~4 KB and shows
+# nothing for hours (found while monitoring the 2026-10-20 verification)
+thermo_modify    flush yes
+
+# --- stage 1 ({s['fill_settle_ps']:g} ps): NVT settle at 10 K, FIXED volume.
+#     The packed bath is a cold jam carrying ~+20,000 atm of contact
+#     stress (failed-run thermo: P = +20,869 / +11,042 atm at step 0)
+#     because pack-then-relax leaves the contact network AT the packing
+#     floors (0.85 sigma) even though the density is only ~87% of the
+#     CRC target. At fixed volume there is no box degree of freedom to
+#     run away: the Langevin bath (1 ps damping) simply drains the
+#     contact energy released as neighbouring molecules push apart into
+#     local free volume. A Tmob spike like the zf builds' 642 K
+#     step-1000 transient is expected and harmless at fixed V.
+{lang(10.0, 10.0, sb1, sl1, "nve")}run             ${{nsettle}}
+
+# --- stage 2 ({s['fill_warm_ps']:g} ps): NVT warm-up ramp 10 -> 300 K,
+#     still fixed volume. Melt the jam into a normal liquid BEFORE any
+#     barostat sees it, so the first pressure the barostat reads is
+#     ordinary liquid stress, not jam stress. (The failed runs heated
+#     AND barostatted from step 0 - exactly the coupling that ran away.)
+unfix           thb
+unfix           thl
+unfix           thla
+{lang(10.0, 300.0, sb2, sl2, "nve")}run             ${{nwarm}}
+{''.join(baro_stages)}
+# --- stage 4: {s['fill_prod_ps']:g} ps NPT production (1 atm, 300 K,
+#     Pdamp {pdamp:g} fs - kept weak so the box keeps drifting
+#     adiabatically through the 5 ns), dump every {s['dump_every_ps']:g} ps
+unfix           thb
+unfix           thl
+unfix           thla
+{lang(300.0, 300.0, sbp, slp, f"nph iso {s['baro_press_atm']:g} {s['baro_press_atm']:g} {pdamp:g} dilate mobile")}reset_timestep  0
 {DUMP_CMD.format(did="pd", every=1000, fname="prod.dump")}
 run             ${{nprodf}}
 
 write_data      final.data nocoeff
 """
-    smoke = (f"variable nrampf equal 500\" \"variable nprodf equal 500")
-    real = (f"variable nrampf equal {ramp}\" \"variable nprodf equal {prod}")
+
+    def if_vars(vals):
+        # LAMMPS if/then command list: a" "b" "c inside the outer quotes
+        return '" "'.join(f"variable {v} equal {x}" for v, x in vals)
+
+    n_baro = len(s["fill_baro_stages_atm"])
+    var_names = (["nsettle", "nwarm"]
+                 + [f"nbaro{k}" for k in range(1, n_baro + 1)]
+                 + ["nprodf"])
+    var_vals = ([("nsettle", setl), ("nwarm", warm)]
+                + [(f"nbaro{k}", baro) for k in range(1, n_baro + 1)]
+                + [("nprodf", prod)])
+    smoke = if_vars((v, 500) for v in var_names)
+    real = if_vars(var_vals)
     txt = HEADER.format(
         name=name, desc="filling: open CNT in a bulk 1M LiPF6/EC:EMC bath; "
-                        f"{s['fill_ramp_ps']:g} ps T+P anneal (10->300 K, "
-                        f"barostat target {s['fill_press_anneal_start_atm']:g}"
-                        "->1 atm, Pdamp "
-                        f"{s['fill_baro_damp_fs']:g} fs, compressing the "
-                        "sub-target-density packed bath) then 5 ns NPT "
+                        f"staged decompression: {s['fill_settle_ps']:g} ps "
+                        f"10 K NVT settle + {s['fill_warm_ps']:g} ps 10->300 K "
+                        f"NVT warm-up (fixed volume), then a "
+                        f"{p_desc} atm stepped NPT descent "
+                        f"({anneal_ps:g} ps total, Pdamp "
+                        f"{s['fill_baro_damp_fs']:g} fs), then 5 ns NPT "
                         "1 atm 300 K; tube starts empty (imbibition)",
         extra="", cutoff=P.CUTOFF_A, pppm_acc=f"{P.PPPM_REL_ACC:g}",
         pair_coeffs=pair_coeff_lines(), dof=dof, dt=P.TIMESTEP_FS,
@@ -283,15 +368,22 @@ def main():
         nb = comp["n_EC"] + comp["n_EMC"] + comp["n_LiPF6"]
         dof = 6 * nb + 3 * comp["n_LiPF6"] - 3
         vseed = 20265100 + n // 16
-        seeds = _seeds(vseed, 1)
+        # (bodies, li) seed pairs, one per thermostat fix pair: settle,
+        # warm-up, one per pressure step, production (a distinct seed per
+        # thermostat fix instance)
+        n_pairs = 2 + len(s["fill_baro_stages_atm"]) + 1
+        seeds = [(_seeds(vseed, c)["bodies"], _seeds(vseed, c)["li"])
+                 for c in range(1, n_pairs + 1)]
         emit(name, fill_input(name, dof, seeds, vseed, s),
              kind="fill", tube=n, build=None, field=None,
              source=f"data/{name}.data", depends=None,
              atoms=info["n_atoms_total"],
-             steps_ps=s["fill_ramp_ps"] + s["fill_prod_ps"], dof=dof,
-             seeds=dict(bodies=seeds["bodies"], li=seeds["li"],
-                        bodies2=seeds["bodies2"], li2=seeds["li2"],
-                        velocity=vseed))
+             steps_ps=(s["fill_settle_ps"] + s["fill_warm_ps"]
+                       + s["fill_baro_stage_ps"]
+                       * len(s["fill_baro_stages_atm"])
+                       + s["fill_prod_ps"]),
+             dof=dof,
+             seeds=dict(velocity=vseed, stage_bodies_li=seeds))
         # ---- zero field + chained field runs
         for build in s["builds"]:
             sysname = f"cnt{n}_{build}"
