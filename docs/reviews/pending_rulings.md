@@ -1,11 +1,14 @@
 # Pending rulings — Chaord (for the external reviewer)
 
-Collected 2026-10-30. Everything below is DECIDED except the items listed
-here; each item states the decision needed, the evidence on both sides, and
-what each ruling changes. The owner (or the reviewer under standing
-delegation) rules by writing "RULED: <option>" next to the item.
+Collected 2026-10-30. **ALL FOUR RULED 2026-10-30 by external Review 11 —
+RULED: see open_items_v5.md (D39–D44).** The record below is preserved as
+the ruling's input; the rulings' operational text lives in open_items_v5.md
+section 1.
 
 ## R1 · The detection criterion for the go/no-go (D32's operational core)
+
+RULED: see open_items_v5.md -- D39 (Welch's t on run means, alpha 0.05; the
+D15 3x-floor rule stays only for per-block classification claims).
 
 **The question.** "Chaord detects the field" — measured how? Two candidate
 criteria give DIFFERENT answers at 0.05 V/Å:
@@ -47,6 +50,9 @@ update lands with the cluster batch).
 
 ## R2 · Stage B run length vs the measured τ_M (D30/Y7 gate, already triggered)
 
+RULED: see open_items_v5.md -- D41 (the 3-run 2x6 ns ladder ratified;
+one confirmatory set Z3 on (16,16) at 98.4 A with 6 new builds per field).
+
 Measured τ_M at the working field: 2.7 ± 1.1 ns (cnt10), 3.0 ± 0.9 ns
 (cnt16) — both > 1 ns, which per the brief pauses Stage B for the owner's
 run-length decision. The runs that exist (Stage B cluster batch) use 6 ns
@@ -66,6 +72,9 @@ carry the claim and the full ladder refines it.
 
 ## R3 · The go/no-go date (2026-10-29, D32)
 
+RULED: see open_items_v5.md -- D43 (the verdict is recorded 2026-10-30;
+the reservoir fills are a separate Y6 deliverable).
+
 The date has passed with the verdict pending on R1/R2 and the fills still
 running on the cluster. Propose: the go/no-go is recorded when (i) the fills
 finish (Y6's reservoir filling), (ii) the full-ladder Y8 analysis is
@@ -77,6 +86,10 @@ detection claim.
 **Status: OPEN — pick one of {immediate-on-R1, ~11-01, a stated date}.**
 
 ## R4 · Minor rulings carried from the review trail (all documented, none blocking)
+
+RULED: see open_items_v5.md -- D44 (A14 closed at 41/41; dipole_axis_default
+z ratified; the 5 pinned cases to regenerate physically, P2; frame-charge
+convention stands; cluster record accepted).
 
 1. **A14's 9 example-less keys** (atom, chirality, dialects, lift_version,
    nanotube, note, reconstruction, source, stacking): chirality/nanotube
