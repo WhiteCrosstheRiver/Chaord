@@ -1,0 +1,45 @@
+{
+ "checks": [
+  {
+   "name": "V0 fcc start box",
+   "pass": true,
+   "detail": "L(5x5x5)=8.37883606 vs committed 8.37883606; L(8x8x8)=13.40613769 vs committed 13.40613769"
+  },
+  {
+   "name": "V1 lj_liquid all 45 pairs",
+   "pass": true,
+   "detail": "45/45 pair distances bit-exact vs all_pairs"
+  },
+  {
+   "name": "V2 lj_liquid main floor (lag>=4, 21 pairs)",
+   "pass": true,
+   "detail": "mean 0.095023 / q90 0.120407 vs committed 0.095023 / 0.120407"
+  },
+  {
+   "name": "V3 lj_liquid averaged floor (rotated 5v5, 10 pairs)",
+   "pass": true,
+   "detail": "10/10 bit-exact; mean 0.043509 vs committed 0.043509"
+  },
+  {
+   "name": "V4 large frame-pair floor (within lag>=2 + cross halves, 21 pairs)",
+   "pass": true,
+   "detail": "21/21 bit-exact vs committed"
+  },
+  {
+   "name": "V5 large averaged floor (5v5 cross + 2v3 rotations, 11 pairs)",
+   "pass": true,
+   "detail": "11/11 bit-exact vs committed"
+  },
+  {
+   "name": "V6 P90 estimator (np.percentile 90, linear)",
+   "pass": true,
+   "detail": "reproduces every committed gr_rms_q90/cn_tv_q90"
+  },
+  {
+   "name": "V7 D15 max(mean,P90) == A5 effective floor",
+   "pass": true,
+   "detail": "lj_liquid gr 0.047/cn 0.041, large gr 0.033/cn 0.017 (acceptance_details)"
+  }
+ ],
+ "passed": true
+}

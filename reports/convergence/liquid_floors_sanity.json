@@ -1,0 +1,62 @@
+{
+ "lj500_t00": {
+  "density_mean": 0.85,
+  "gr_peak_avg": 1.0852,
+  "gr_peak_per_frame_range": [
+   1.0625,
+   1.1306818181818183
+  ],
+  "hardcore_violations": 0,
+  "pass": true
+ },
+ "lj500_t01": {
+  "density_mean": 0.85,
+  "gr_peak_avg": 1.0966,
+  "gr_peak_per_frame_range": [
+   1.0511363636363638,
+   1.1306818181818183
+  ],
+  "hardcore_violations": 0,
+  "pass": true
+ },
+ "lj500_t02": {
+  "density_mean": 0.85,
+  "gr_peak_avg": 1.0852,
+  "gr_peak_per_frame_range": [
+   1.0511363636363638,
+   1.1306818181818183
+  ],
+  "hardcore_violations": 0,
+  "pass": true
+ },
+ "lj2048_t00": {
+  "density_mean": 0.85,
+  "gr_peak_avg": 1.0852,
+  "gr_peak_per_frame_range": [
+   1.0625,
+   1.1079545454545454
+  ],
+  "hardcore_violations": 0,
+  "pass": true
+ },
+ "lj2048_t01": {
+  "density_mean": 0.85,
+  "gr_peak_avg": 1.0852,
+  "gr_peak_per_frame_range": [
+   1.0511363636363638,
+   1.1306818181818183
+  ],
+  "hardcore_violations": 0,
+  "pass": true
+ },
+ "lj2048_t02": {
+  "density_mean": 0.85,
+  "gr_peak_avg": 1.0739,
+  "gr_peak_per_frame_range": [
+   1.0511363636363638,
+   1.1079545454545454
+  ],
+  "hardcore_violations": 0,
+  "pass": true
+ }
+}

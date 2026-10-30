@@ -1,0 +1,175 @@
+# lj2048_t01: single-species LJ liquid, X7 item 2 liquid floors
+# (research/x7_liquid; case lj_liquid_large, trajectory 1 of 3, new seeds,
+# protocol otherwise identical to the committed bench reference)
+# params: liq_params.py (cited there); conventions validated bit-exact in
+# validate_conventions.py (8/8 vs reports/noise_floors.json)
+units           lj
+dimension       3
+boundary        p p p
+atom_style      atomic
+read_data       data.lj2048_t01
+
+# committed reference potential (bench/reference/lj_liquid_large/provenance.json):
+# LJ 12-6, eps=sigma=m=1, cut 2.5 sigma, energy-shifted at rc (pair_modify
+# shift yes), forces truncated.  LAMMPS damp = 1/gamma* = 2.0.
+pair_style      lj/cut 2.5
+pair_modify     shift yes
+pair_coeff      1 1 1.0 1.0 2.5
+
+neighbor        0.3 bin
+neigh_modify    delay 0 every 1 check yes
+timestep        0.005
+
+thermo          1000
+thermo_style    custom step temp pe press etotal
+thermo_modify   flush yes
+
+# == ASE thermalize(): Maxwell velocities at T*, COM momentum zeroed
+velocity        all create 0.72 202611121 mom yes rot no dist gaussian
+
+# ---- equilibration: T*=0.72, 4000 steps (20.0 tau), gamma*=0.5
+fix             int all nve
+fix             bath all langevin 0.72 0.72 2.0 202611122 zero yes
+run             4000
+print           "STAGE_END equil T*=$(temp:%.4f) PE=$(pe:%.8f)"
+
+# ---- sampling: 45 frames at 1000-step (5.0 tau) stride
+#      (committed protocol.steps.sampling_stride; 45 frames vs 10/5 committed)
+run             1000
+print           "FRAME 0 PE=$(pe:%.8f)"
+write_dump      all custom frame_0.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 1 PE=$(pe:%.8f)"
+write_dump      all custom frame_1.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 2 PE=$(pe:%.8f)"
+write_dump      all custom frame_2.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 3 PE=$(pe:%.8f)"
+write_dump      all custom frame_3.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 4 PE=$(pe:%.8f)"
+write_dump      all custom frame_4.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 5 PE=$(pe:%.8f)"
+write_dump      all custom frame_5.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 6 PE=$(pe:%.8f)"
+write_dump      all custom frame_6.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 7 PE=$(pe:%.8f)"
+write_dump      all custom frame_7.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 8 PE=$(pe:%.8f)"
+write_dump      all custom frame_8.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 9 PE=$(pe:%.8f)"
+write_dump      all custom frame_9.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 10 PE=$(pe:%.8f)"
+write_dump      all custom frame_10.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 11 PE=$(pe:%.8f)"
+write_dump      all custom frame_11.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 12 PE=$(pe:%.8f)"
+write_dump      all custom frame_12.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 13 PE=$(pe:%.8f)"
+write_dump      all custom frame_13.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 14 PE=$(pe:%.8f)"
+write_dump      all custom frame_14.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 15 PE=$(pe:%.8f)"
+write_dump      all custom frame_15.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 16 PE=$(pe:%.8f)"
+write_dump      all custom frame_16.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 17 PE=$(pe:%.8f)"
+write_dump      all custom frame_17.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 18 PE=$(pe:%.8f)"
+write_dump      all custom frame_18.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 19 PE=$(pe:%.8f)"
+write_dump      all custom frame_19.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 20 PE=$(pe:%.8f)"
+write_dump      all custom frame_20.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 21 PE=$(pe:%.8f)"
+write_dump      all custom frame_21.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 22 PE=$(pe:%.8f)"
+write_dump      all custom frame_22.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 23 PE=$(pe:%.8f)"
+write_dump      all custom frame_23.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 24 PE=$(pe:%.8f)"
+write_dump      all custom frame_24.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 25 PE=$(pe:%.8f)"
+write_dump      all custom frame_25.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 26 PE=$(pe:%.8f)"
+write_dump      all custom frame_26.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 27 PE=$(pe:%.8f)"
+write_dump      all custom frame_27.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 28 PE=$(pe:%.8f)"
+write_dump      all custom frame_28.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 29 PE=$(pe:%.8f)"
+write_dump      all custom frame_29.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 30 PE=$(pe:%.8f)"
+write_dump      all custom frame_30.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 31 PE=$(pe:%.8f)"
+write_dump      all custom frame_31.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 32 PE=$(pe:%.8f)"
+write_dump      all custom frame_32.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 33 PE=$(pe:%.8f)"
+write_dump      all custom frame_33.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 34 PE=$(pe:%.8f)"
+write_dump      all custom frame_34.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 35 PE=$(pe:%.8f)"
+write_dump      all custom frame_35.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 36 PE=$(pe:%.8f)"
+write_dump      all custom frame_36.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 37 PE=$(pe:%.8f)"
+write_dump      all custom frame_37.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 38 PE=$(pe:%.8f)"
+write_dump      all custom frame_38.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 39 PE=$(pe:%.8f)"
+write_dump      all custom frame_39.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 40 PE=$(pe:%.8f)"
+write_dump      all custom frame_40.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 41 PE=$(pe:%.8f)"
+write_dump      all custom frame_41.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 42 PE=$(pe:%.8f)"
+write_dump      all custom frame_42.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 43 PE=$(pe:%.8f)"
+write_dump      all custom frame_43.lammpstrj id type x y z modify sort id
+run             1000
+print           "FRAME 44 PE=$(pe:%.8f)"
+write_dump      all custom frame_44.lammpstrj id type x y z modify sort id
+unfix           bath
+unfix           int
+print           "RUN_END T*=$(temp:%.4f) PE=$(pe:%.8f)"

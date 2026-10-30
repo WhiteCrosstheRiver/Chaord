@@ -1,0 +1,358 @@
+{
+ "run_id": "lj2048_t01",
+ "case": "lj_liquid_large",
+ "case_idx": 1,
+ "protocol": {
+  "case": "lj_liquid_large",
+  "n_atoms": 2048,
+  "rho_star": 0.85,
+  "box_L": 13.40613768859355,
+  "T_star": 0.72,
+  "equil_steps": 4000,
+  "stride_steps": 1000,
+  "n_frames": 45,
+  "n_traj": 3,
+  "lag_min": 4,
+  "dt_tau_per_step": 0.005,
+  "gamma_per_tau": 0.5,
+  "langevin_damp": 2.0,
+  "sampling_tau": 225.0,
+  "frame_steps": [
+   5000,
+   6000,
+   7000,
+   8000,
+   9000,
+   10000,
+   11000,
+   12000,
+   13000,
+   14000,
+   15000,
+   16000,
+   17000,
+   18000,
+   19000,
+   20000,
+   21000,
+   22000,
+   23000,
+   24000,
+   25000,
+   26000,
+   27000,
+   28000,
+   29000,
+   30000,
+   31000,
+   32000,
+   33000,
+   34000,
+   35000,
+   36000,
+   37000,
+   38000,
+   39000,
+   40000,
+   41000,
+   42000,
+   43000,
+   44000,
+   45000,
+   46000,
+   47000,
+   48000,
+   49000
+  ],
+  "total_md_steps": 49000
+ },
+ "seeds": {
+  "velocity": 202611121,
+  "langevin": 202611122
+ },
+ "stages": {
+  "equil": {
+   "T_star": 0.6925,
+   "pe_per_atom": -5.25711423
+  }
+ },
+ "frames": [
+  {
+   "k": 0,
+   "dump_step": 5000,
+   "protocol_step": 5000
+  },
+  {
+   "k": 1,
+   "dump_step": 6000,
+   "protocol_step": 6000
+  },
+  {
+   "k": 2,
+   "dump_step": 7000,
+   "protocol_step": 7000
+  },
+  {
+   "k": 3,
+   "dump_step": 8000,
+   "protocol_step": 8000
+  },
+  {
+   "k": 4,
+   "dump_step": 9000,
+   "protocol_step": 9000
+  },
+  {
+   "k": 5,
+   "dump_step": 10000,
+   "protocol_step": 10000
+  },
+  {
+   "k": 6,
+   "dump_step": 11000,
+   "protocol_step": 11000
+  },
+  {
+   "k": 7,
+   "dump_step": 12000,
+   "protocol_step": 12000
+  },
+  {
+   "k": 8,
+   "dump_step": 13000,
+   "protocol_step": 13000
+  },
+  {
+   "k": 9,
+   "dump_step": 14000,
+   "protocol_step": 14000
+  },
+  {
+   "k": 10,
+   "dump_step": 15000,
+   "protocol_step": 15000
+  },
+  {
+   "k": 11,
+   "dump_step": 16000,
+   "protocol_step": 16000
+  },
+  {
+   "k": 12,
+   "dump_step": 17000,
+   "protocol_step": 17000
+  },
+  {
+   "k": 13,
+   "dump_step": 18000,
+   "protocol_step": 18000
+  },
+  {
+   "k": 14,
+   "dump_step": 19000,
+   "protocol_step": 19000
+  },
+  {
+   "k": 15,
+   "dump_step": 20000,
+   "protocol_step": 20000
+  },
+  {
+   "k": 16,
+   "dump_step": 21000,
+   "protocol_step": 21000
+  },
+  {
+   "k": 17,
+   "dump_step": 22000,
+   "protocol_step": 22000
+  },
+  {
+   "k": 18,
+   "dump_step": 23000,
+   "protocol_step": 23000
+  },
+  {
+   "k": 19,
+   "dump_step": 24000,
+   "protocol_step": 24000
+  },
+  {
+   "k": 20,
+   "dump_step": 25000,
+   "protocol_step": 25000
+  },
+  {
+   "k": 21,
+   "dump_step": 26000,
+   "protocol_step": 26000
+  },
+  {
+   "k": 22,
+   "dump_step": 27000,
+   "protocol_step": 27000
+  },
+  {
+   "k": 23,
+   "dump_step": 28000,
+   "protocol_step": 28000
+  },
+  {
+   "k": 24,
+   "dump_step": 29000,
+   "protocol_step": 29000
+  },
+  {
+   "k": 25,
+   "dump_step": 30000,
+   "protocol_step": 30000
+  },
+  {
+   "k": 26,
+   "dump_step": 31000,
+   "protocol_step": 31000
+  },
+  {
+   "k": 27,
+   "dump_step": 32000,
+   "protocol_step": 32000
+  },
+  {
+   "k": 28,
+   "dump_step": 33000,
+   "protocol_step": 33000
+  },
+  {
+   "k": 29,
+   "dump_step": 34000,
+   "protocol_step": 34000
+  },
+  {
+   "k": 30,
+   "dump_step": 35000,
+   "protocol_step": 35000
+  },
+  {
+   "k": 31,
+   "dump_step": 36000,
+   "protocol_step": 36000
+  },
+  {
+   "k": 32,
+   "dump_step": 37000,
+   "protocol_step": 37000
+  },
+  {
+   "k": 33,
+   "dump_step": 38000,
+   "protocol_step": 38000
+  },
+  {
+   "k": 34,
+   "dump_step": 39000,
+   "protocol_step": 39000
+  },
+  {
+   "k": 35,
+   "dump_step": 40000,
+   "protocol_step": 40000
+  },
+  {
+   "k": 36,
+   "dump_step": 41000,
+   "protocol_step": 41000
+  },
+  {
+   "k": 37,
+   "dump_step": 42000,
+   "protocol_step": 42000
+  },
+  {
+   "k": 38,
+   "dump_step": 43000,
+   "protocol_step": 43000
+  },
+  {
+   "k": 39,
+   "dump_step": 44000,
+   "protocol_step": 44000
+  },
+  {
+   "k": 40,
+   "dump_step": 45000,
+   "protocol_step": 45000
+  },
+  {
+   "k": 41,
+   "dump_step": 46000,
+   "protocol_step": 46000
+  },
+  {
+   "k": 42,
+   "dump_step": 47000,
+   "protocol_step": 47000
+  },
+  {
+   "k": 43,
+   "dump_step": 48000,
+   "protocol_step": 48000
+  },
+  {
+   "k": 44,
+   "dump_step": 49000,
+   "protocol_step": 49000
+  }
+ ],
+ "frame_pe_per_atom": [
+  -5.23562927,
+  -5.22601185,
+  -5.22467573,
+  -5.16804408,
+  -5.23653376,
+  -5.21033512,
+  -5.25477765,
+  -5.266037,
+  -5.21412306,
+  -5.23887302,
+  -5.23365092,
+  -5.22254439,
+  -5.21545992,
+  -5.22495389,
+  -5.21200997,
+  -5.23487826,
+  -5.23827696,
+  -5.23641666,
+  -5.21762231,
+  -5.21561448,
+  -5.2377236,
+  -5.21925574,
+  -5.1934933,
+  -5.1931945,
+  -5.21294124,
+  -5.22250053,
+  -5.22590474,
+  -5.24182942,
+  -5.21156084,
+  -5.21467372,
+  -5.21919488,
+  -5.22522645,
+  -5.20735911,
+  -5.22633214,
+  -5.20760485,
+  -5.20382441,
+  -5.20153318,
+  -5.21126026,
+  -5.20301726,
+  -5.2315004,
+  -5.2131667,
+  -5.20545786,
+  -5.22432553,
+  -5.24622858,
+  -5.23003703
+ ],
+ "run_end": {
+  "T_star": 0.7188,
+  "pe_per_atom": -5.23003703
+ },
+ "density": 0.85
+}

@@ -1,0 +1,358 @@
+{
+ "run_id": "lj500_t01",
+ "case": "lj_liquid",
+ "case_idx": 0,
+ "protocol": {
+  "case": "lj_liquid",
+  "n_atoms": 500,
+  "rho_star": 0.85,
+  "box_L": 8.378836055370968,
+  "T_star": 0.72,
+  "equil_steps": 2000,
+  "stride_steps": 1000,
+  "n_frames": 45,
+  "n_traj": 3,
+  "lag_min": 4,
+  "dt_tau_per_step": 0.005,
+  "gamma_per_tau": 0.5,
+  "langevin_damp": 2.0,
+  "sampling_tau": 225.0,
+  "frame_steps": [
+   3000,
+   4000,
+   5000,
+   6000,
+   7000,
+   8000,
+   9000,
+   10000,
+   11000,
+   12000,
+   13000,
+   14000,
+   15000,
+   16000,
+   17000,
+   18000,
+   19000,
+   20000,
+   21000,
+   22000,
+   23000,
+   24000,
+   25000,
+   26000,
+   27000,
+   28000,
+   29000,
+   30000,
+   31000,
+   32000,
+   33000,
+   34000,
+   35000,
+   36000,
+   37000,
+   38000,
+   39000,
+   40000,
+   41000,
+   42000,
+   43000,
+   44000,
+   45000,
+   46000,
+   47000
+  ],
+  "total_md_steps": 47000
+ },
+ "seeds": {
+  "velocity": 202611021,
+  "langevin": 202611022
+ },
+ "stages": {
+  "equil": {
+   "T_star": 0.6972,
+   "pe_per_atom": -5.46565753
+  }
+ },
+ "frames": [
+  {
+   "k": 0,
+   "dump_step": 3000,
+   "protocol_step": 3000
+  },
+  {
+   "k": 1,
+   "dump_step": 4000,
+   "protocol_step": 4000
+  },
+  {
+   "k": 2,
+   "dump_step": 5000,
+   "protocol_step": 5000
+  },
+  {
+   "k": 3,
+   "dump_step": 6000,
+   "protocol_step": 6000
+  },
+  {
+   "k": 4,
+   "dump_step": 7000,
+   "protocol_step": 7000
+  },
+  {
+   "k": 5,
+   "dump_step": 8000,
+   "protocol_step": 8000
+  },
+  {
+   "k": 6,
+   "dump_step": 9000,
+   "protocol_step": 9000
+  },
+  {
+   "k": 7,
+   "dump_step": 10000,
+   "protocol_step": 10000
+  },
+  {
+   "k": 8,
+   "dump_step": 11000,
+   "protocol_step": 11000
+  },
+  {
+   "k": 9,
+   "dump_step": 12000,
+   "protocol_step": 12000
+  },
+  {
+   "k": 10,
+   "dump_step": 13000,
+   "protocol_step": 13000
+  },
+  {
+   "k": 11,
+   "dump_step": 14000,
+   "protocol_step": 14000
+  },
+  {
+   "k": 12,
+   "dump_step": 15000,
+   "protocol_step": 15000
+  },
+  {
+   "k": 13,
+   "dump_step": 16000,
+   "protocol_step": 16000
+  },
+  {
+   "k": 14,
+   "dump_step": 17000,
+   "protocol_step": 17000
+  },
+  {
+   "k": 15,
+   "dump_step": 18000,
+   "protocol_step": 18000
+  },
+  {
+   "k": 16,
+   "dump_step": 19000,
+   "protocol_step": 19000
+  },
+  {
+   "k": 17,
+   "dump_step": 20000,
+   "protocol_step": 20000
+  },
+  {
+   "k": 18,
+   "dump_step": 21000,
+   "protocol_step": 21000
+  },
+  {
+   "k": 19,
+   "dump_step": 22000,
+   "protocol_step": 22000
+  },
+  {
+   "k": 20,
+   "dump_step": 23000,
+   "protocol_step": 23000
+  },
+  {
+   "k": 21,
+   "dump_step": 24000,
+   "protocol_step": 24000
+  },
+  {
+   "k": 22,
+   "dump_step": 25000,
+   "protocol_step": 25000
+  },
+  {
+   "k": 23,
+   "dump_step": 26000,
+   "protocol_step": 26000
+  },
+  {
+   "k": 24,
+   "dump_step": 27000,
+   "protocol_step": 27000
+  },
+  {
+   "k": 25,
+   "dump_step": 28000,
+   "protocol_step": 28000
+  },
+  {
+   "k": 26,
+   "dump_step": 29000,
+   "protocol_step": 29000
+  },
+  {
+   "k": 27,
+   "dump_step": 30000,
+   "protocol_step": 30000
+  },
+  {
+   "k": 28,
+   "dump_step": 31000,
+   "protocol_step": 31000
+  },
+  {
+   "k": 29,
+   "dump_step": 32000,
+   "protocol_step": 32000
+  },
+  {
+   "k": 30,
+   "dump_step": 33000,
+   "protocol_step": 33000
+  },
+  {
+   "k": 31,
+   "dump_step": 34000,
+   "protocol_step": 34000
+  },
+  {
+   "k": 32,
+   "dump_step": 35000,
+   "protocol_step": 35000
+  },
+  {
+   "k": 33,
+   "dump_step": 36000,
+   "protocol_step": 36000
+  },
+  {
+   "k": 34,
+   "dump_step": 37000,
+   "protocol_step": 37000
+  },
+  {
+   "k": 35,
+   "dump_step": 38000,
+   "protocol_step": 38000
+  },
+  {
+   "k": 36,
+   "dump_step": 39000,
+   "protocol_step": 39000
+  },
+  {
+   "k": 37,
+   "dump_step": 40000,
+   "protocol_step": 40000
+  },
+  {
+   "k": 38,
+   "dump_step": 41000,
+   "protocol_step": 41000
+  },
+  {
+   "k": 39,
+   "dump_step": 42000,
+   "protocol_step": 42000
+  },
+  {
+   "k": 40,
+   "dump_step": 43000,
+   "protocol_step": 43000
+  },
+  {
+   "k": 41,
+   "dump_step": 44000,
+   "protocol_step": 44000
+  },
+  {
+   "k": 42,
+   "dump_step": 45000,
+   "protocol_step": 45000
+  },
+  {
+   "k": 43,
+   "dump_step": 46000,
+   "protocol_step": 46000
+  },
+  {
+   "k": 44,
+   "dump_step": 47000,
+   "protocol_step": 47000
+  }
+ ],
+ "frame_pe_per_atom": [
+  -5.42280442,
+  -5.31365127,
+  -5.1482259,
+  -5.22596509,
+  -5.21245561,
+  -5.20472688,
+  -5.23633496,
+  -5.19969061,
+  -5.19181328,
+  -5.16510492,
+  -5.21781123,
+  -5.19201425,
+  -5.20640561,
+  -5.15407767,
+  -5.22506874,
+  -5.25254534,
+  -5.21465672,
+  -5.23613518,
+  -5.26191927,
+  -5.20116896,
+  -5.1926373,
+  -5.2581529,
+  -5.22845988,
+  -5.2126561,
+  -5.27318969,
+  -5.25051493,
+  -5.19223982,
+  -5.19173609,
+  -5.2430778,
+  -5.22413444,
+  -5.26015868,
+  -5.21352894,
+  -5.19227273,
+  -5.14232648,
+  -5.14247582,
+  -5.25016428,
+  -5.27041615,
+  -5.26686918,
+  -5.27023107,
+  -5.18338891,
+  -5.24963509,
+  -5.20284176,
+  -5.18109286,
+  -5.26079959,
+  -5.21796356
+ ],
+ "run_end": {
+  "T_star": 0.7104,
+  "pe_per_atom": -5.21796356
+ },
+ "density": 0.85
+}

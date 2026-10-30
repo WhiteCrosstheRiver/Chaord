@@ -1,0 +1,1626 @@
+LAMMPS (3 Mar 2020)
+OMP_NUM_THREADS environment is not set. Defaulting to 1 thread. (../comm.cpp:94)
+  using 1 OpenMP thread(s) per MPI task
+# lj2048_t00: single-species LJ liquid, X7 item 2 liquid floors
+# (research/x7_liquid; case lj_liquid_large, trajectory 0 of 3, new seeds,
+# protocol otherwise identical to the committed bench reference)
+# params: liq_params.py (cited there); conventions validated bit-exact in
+# validate_conventions.py (8/8 vs reports/noise_floors.json)
+units           lj
+dimension       3
+boundary        p p p
+atom_style      atomic
+read_data       data.lj2048_t00
+  orthogonal box = (0 0 0) to (13.4061 13.4061 13.4061)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  2048 atoms
+  read_data CPU = 0.0196524 secs
+
+# committed reference potential (bench/reference/lj_liquid_large/provenance.json):
+# LJ 12-6, eps=sigma=m=1, cut 2.5 sigma, energy-shifted at rc (pair_modify
+# shift yes), forces truncated.  LAMMPS damp = 1/gamma* = 2.0.
+pair_style      lj/cut 2.5
+pair_modify     shift yes
+pair_coeff      1 1 1.0 1.0 2.5
+
+neighbor        0.3 bin
+neigh_modify    delay 0 every 1 check yes
+timestep        0.005
+
+thermo          1000
+thermo_style    custom step temp pe press etotal
+thermo_modify   flush yes
+
+# == ASE thermalize(): Maxwell velocities at T*, COM momentum zeroed
+velocity        all create 0.72 202611111 mom yes rot no dist gaussian
+
+# ---- equilibration: T*=0.72, 4000 steps (20.0 tau), gamma*=0.5
+fix             int all nve
+fix             bath all langevin 0.72 0.72 2.0 202611112 zero yes
+run             4000
+Neighbor list info ...
+  update every 1 steps, delay 0 steps, check yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 2.8
+  ghost atom cutoff = 2.8
+  binsize = 1.4, bins = 10 10 10
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair lj/cut, perpetual
+      attributes: half, newton on
+      pair build: half/bin/atomonly/newton
+      stencil: half/bin/3d/newton
+      bin: standard
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+       0         0.72    -6.383146   -5.6066237   -5.3036734 
+    1000    0.7009525   -5.4990617  -0.56975361   -4.4481463 
+    2000   0.71655957   -5.3595264   0.35870225   -4.2852118 
+    3000   0.70168658   -5.2503539   0.82953693   -4.1983379 
+    4000    0.7162494   -5.2494565   0.80750949    -4.175607 
+Loop time of 3.56254 on 1 procs for 4000 steps with 2048 atoms
+
+Performance: 485046.933 tau/day, 1122.794 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 2.1941     | 2.1941     | 2.1941     |   0.0 | 61.59
+Neigh   | 0.96358    | 0.96358    | 0.96358    |   0.0 | 27.05
+Comm    | 0.056346   | 0.056346   | 0.056346   |   0.0 |  1.58
+Output  | 3.2336e-05 | 3.2336e-05 | 3.2336e-05 |   0.0 |  0.00
+Modify  | 0.32776    | 0.32776    | 0.32776    |   0.0 |  9.20
+Other   |            | 0.0207     |            |       |  0.58
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3782 ave 3782 max 3782 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77246 ave 77246 max 77246 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77246
+Ave neighs/atom = 37.7178
+Neighbor list builds = 441
+Dangerous builds = 0
+print           "STAGE_END equil T*=$(temp:%.4f) PE=$(pe:%.8f)"
+STAGE_END equil T*=0.7162 PE=-5.24945647
+
+# ---- sampling: 45 frames at 1000-step (5.0 tau) stride
+#      (committed protocol.steps.sampling_stride; 45 frames vs 10/5 committed)
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+    4000    0.7162494   -5.2494565   0.80750949    -4.175607 
+    5000   0.70354057   -5.2117798    1.0320094   -4.1569842 
+Loop time of 0.896599 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 481820.923 tau/day, 1115.326 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.55298    | 0.55298    | 0.55298    |   0.0 | 61.67
+Neigh   | 0.24253    | 0.24253    | 0.24253    |   0.0 | 27.05
+Comm    | 0.01402    | 0.01402    | 0.01402    |   0.0 |  1.56
+Output  | 5.2154e-06 | 5.2154e-06 | 5.2154e-06 |   0.0 |  0.00
+Modify  | 0.081944   | 0.081944   | 0.081944   |   0.0 |  9.14
+Other   |            | 0.005125   |            |       |  0.57
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3779 ave 3779 max 3779 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77253 ave 77253 max 77253 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77253
+Ave neighs/atom = 37.7212
+Neighbor list builds = 110
+Dangerous builds = 0
+print           "FRAME 0 PE=$(pe:%.8f)"
+FRAME 0 PE=-5.21177976
+write_dump      all custom frame_0.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+    5000   0.70354057   -5.2117798    1.0320094   -4.1569842 
+    6000   0.72861925   -5.2220787    1.0088626   -4.1296835 
+Loop time of 0.903332 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 478229.625 tau/day, 1107.013 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.55391    | 0.55391    | 0.55391    |   0.0 | 61.32
+Neigh   | 0.24825    | 0.24825    | 0.24825    |   0.0 | 27.48
+Comm    | 0.014094   | 0.014094   | 0.014094   |   0.0 |  1.56
+Output  | 6.8285e-06 | 6.8285e-06 | 6.8285e-06 |   0.0 |  0.00
+Modify  | 0.08194    | 0.08194    | 0.08194    |   0.0 |  9.07
+Other   |            | 0.005135   |            |       |  0.57
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3750 ave 3750 max 3750 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77310 ave 77310 max 77310 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77310
+Ave neighs/atom = 37.749
+Neighbor list builds = 113
+Dangerous builds = 0
+print           "FRAME 1 PE=$(pe:%.8f)"
+FRAME 1 PE=-5.22207874
+write_dump      all custom frame_1.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+    6000   0.72861925   -5.2220787    1.0088626   -4.1296835 
+    7000   0.73178588   -5.2284626   0.96656359   -4.1313198 
+Loop time of 0.913067 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 473130.436 tau/day, 1095.209 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.55431    | 0.55431    | 0.55431    |   0.0 | 60.71
+Neigh   | 0.25736    | 0.25736    | 0.25736    |   0.0 | 28.19
+Comm    | 0.014246   | 0.014246   | 0.014246   |   0.0 |  1.56
+Output  | 9.4064e-06 | 9.4064e-06 | 9.4064e-06 |   0.0 |  0.00
+Modify  | 0.081968   | 0.081968   | 0.081968   |   0.0 |  8.98
+Other   |            | 0.005168   |            |       |  0.57
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3806 ave 3806 max 3806 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77382 ave 77382 max 77382 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77382
+Ave neighs/atom = 37.7842
+Neighbor list builds = 117
+Dangerous builds = 0
+print           "FRAME 2 PE=$(pe:%.8f)"
+FRAME 2 PE=-5.22846260
+write_dump      all custom frame_2.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+    7000   0.73178588   -5.2284626   0.96656359   -4.1313198 
+    8000   0.73067932   -5.2301379   0.93289489   -4.1346541 
+Loop time of 0.902472 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 478684.954 tau/day, 1108.067 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.55477    | 0.55477    | 0.55477    |   0.0 | 61.47
+Neigh   | 0.24651    | 0.24651    | 0.24651    |   0.0 | 27.32
+Comm    | 0.014057   | 0.014057   | 0.014057   |   0.0 |  1.56
+Output  | 7.1097e-06 | 7.1097e-06 | 7.1097e-06 |   0.0 |  0.00
+Modify  | 0.081961   | 0.081961   | 0.081961   |   0.0 |  9.08
+Other   |            | 0.005171   |            |       |  0.57
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3780 ave 3780 max 3780 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77407 ave 77407 max 77407 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77407
+Ave neighs/atom = 37.7964
+Neighbor list builds = 112
+Dangerous builds = 0
+print           "FRAME 3 PE=$(pe:%.8f)"
+FRAME 3 PE=-5.23013787
+write_dump      all custom frame_3.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+    8000   0.73067932   -5.2301379   0.93289489   -4.1346541 
+    9000   0.73475285   -5.2294572   0.97365277    -4.127866 
+Loop time of 0.909876 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 474790.117 tau/day, 1099.051 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.5545     | 0.5545     | 0.5545     |   0.0 | 60.94
+Neigh   | 0.25395    | 0.25395    | 0.25395    |   0.0 | 27.91
+Comm    | 0.014314   | 0.014314   | 0.014314   |   0.0 |  1.57
+Output  | 6.7959e-06 | 6.7959e-06 | 6.7959e-06 |   0.0 |  0.00
+Modify  | 0.081959   | 0.081959   | 0.081959   |   0.0 |  9.01
+Other   |            | 0.005147   |            |       |  0.57
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3803 ave 3803 max 3803 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77325 ave 77325 max 77325 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77325
+Ave neighs/atom = 37.7563
+Neighbor list builds = 115
+Dangerous builds = 0
+print           "FRAME 4 PE=$(pe:%.8f)"
+FRAME 4 PE=-5.22945718
+write_dump      all custom frame_4.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+    9000   0.73475285   -5.2294572   0.97365277    -4.127866 
+   10000   0.72993315    -5.250082   0.86542802   -4.1557169 
+Loop time of 0.905673 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 476993.092 tau/day, 1104.151 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.55479    | 0.55479    | 0.55479    |   0.0 | 61.26
+Neigh   | 0.24937    | 0.24937    | 0.24937    |   0.0 | 27.53
+Comm    | 0.01436    | 0.01436    | 0.01436    |   0.0 |  1.59
+Output  | 9.4883e-06 | 9.4883e-06 | 9.4883e-06 |   0.0 |  0.00
+Modify  | 0.081984   | 0.081984   | 0.081984   |   0.0 |  9.05
+Other   |            | 0.005155   |            |       |  0.57
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3801 ave 3801 max 3801 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77415 ave 77415 max 77415 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77415
+Ave neighs/atom = 37.8003
+Neighbor list builds = 113
+Dangerous builds = 0
+print           "FRAME 5 PE=$(pe:%.8f)"
+FRAME 5 PE=-5.25008205
+write_dump      all custom frame_5.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+   10000   0.72993315    -5.250082   0.86542802   -4.1557169 
+   11000   0.71621231    -5.220916    1.0032266   -4.1471221 
+Loop time of 0.902025 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 478922.353 tau/day, 1108.617 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.55379    | 0.55379    | 0.55379    |   0.0 | 61.39
+Neigh   | 0.24693    | 0.24693    | 0.24693    |   0.0 | 27.38
+Comm    | 0.014175   | 0.014175   | 0.014175   |   0.0 |  1.57
+Output  | 7.038e-06  | 7.038e-06  | 7.038e-06  |   0.0 |  0.00
+Modify  | 0.081961   | 0.081961   | 0.081961   |   0.0 |  9.09
+Other   |            | 0.005161   |            |       |  0.57
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3789 ave 3789 max 3789 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77316 ave 77316 max 77316 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77316
+Ave neighs/atom = 37.752
+Neighbor list builds = 112
+Dangerous builds = 0
+print           "FRAME 6 PE=$(pe:%.8f)"
+FRAME 6 PE=-5.22091603
+write_dump      all custom frame_6.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+   11000   0.71621231    -5.220916    1.0032266   -4.1471221 
+   12000     0.718697   -5.1975912    1.1634919   -4.1200721 
+Loop time of 0.90283 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 478495.367 tau/day, 1107.628 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.55485    | 0.55485    | 0.55485    |   0.0 | 61.46
+Neigh   | 0.24681    | 0.24681    | 0.24681    |   0.0 | 27.34
+Comm    | 0.014013   | 0.014013   | 0.014013   |   0.0 |  1.55
+Output  | 6.93e-06   | 6.93e-06   | 6.93e-06   |   0.0 |  0.00
+Modify  | 0.081987   | 0.081987   | 0.081987   |   0.0 |  9.08
+Other   |            | 0.005165   |            |       |  0.57
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3811 ave 3811 max 3811 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77520 ave 77520 max 77520 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77520
+Ave neighs/atom = 37.8516
+Neighbor list builds = 112
+Dangerous builds = 0
+print           "FRAME 7 PE=$(pe:%.8f)"
+FRAME 7 PE=-5.19759122
+write_dump      all custom frame_7.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+   12000     0.718697   -5.1975912    1.1634919   -4.1200721 
+   13000   0.73446924   -5.2380313   0.93119533   -4.1368653 
+Loop time of 0.910118 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 474663.872 tau/day, 1098.759 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.55444    | 0.55444    | 0.55444    |   0.0 | 60.92
+Neigh   | 0.25433    | 0.25433    | 0.25433    |   0.0 | 27.94
+Comm    | 0.014242   | 0.014242   | 0.014242   |   0.0 |  1.56
+Output  | 7.3118e-06 | 7.3118e-06 | 7.3118e-06 |   0.0 |  0.00
+Modify  | 0.081959   | 0.081959   | 0.081959   |   0.0 |  9.01
+Other   |            | 0.005143   |            |       |  0.57
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3760 ave 3760 max 3760 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77145 ave 77145 max 77145 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77145
+Ave neighs/atom = 37.6685
+Neighbor list builds = 115
+Dangerous builds = 0
+print           "FRAME 8 PE=$(pe:%.8f)"
+FRAME 8 PE=-5.23803127
+write_dump      all custom frame_8.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+   13000   0.73446924   -5.2380313   0.93119533   -4.1368653 
+   14000     0.713297   -5.2349326   0.98622469   -4.1655096 
+Loop time of 0.906749 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 476427.290 tau/day, 1102.841 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.55426    | 0.55426    | 0.55426    |   0.0 | 61.13
+Neigh   | 0.25106    | 0.25106    | 0.25106    |   0.0 | 27.69
+Comm    | 0.014286   | 0.014286   | 0.014286   |   0.0 |  1.58
+Output  | 7.2978e-06 | 7.2978e-06 | 7.2978e-06 |   0.0 |  0.00
+Modify  | 0.082008   | 0.082008   | 0.082008   |   0.0 |  9.04
+Other   |            | 0.005129   |            |       |  0.57
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3800 ave 3800 max 3800 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77468 ave 77468 max 77468 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77468
+Ave neighs/atom = 37.8262
+Neighbor list builds = 114
+Dangerous builds = 0
+print           "FRAME 9 PE=$(pe:%.8f)"
+FRAME 9 PE=-5.23493263
+write_dump      all custom frame_9.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+   14000     0.713297   -5.2349326   0.98622469   -4.1655096 
+   15000   0.72922445   -5.2381885   0.93019351   -4.1448859 
+Loop time of 0.905663 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 476998.809 tau/day, 1104.164 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.55517    | 0.55517    | 0.55517    |   0.0 | 61.30
+Neigh   | 0.24915    | 0.24915    | 0.24915    |   0.0 | 27.51
+Comm    | 0.01417    | 0.01417    | 0.01417    |   0.0 |  1.56
+Output  | 9.222e-06  | 9.222e-06  | 9.222e-06  |   0.0 |  0.00
+Modify  | 0.081952   | 0.081952   | 0.081952   |   0.0 |  9.05
+Other   |            | 0.005211   |            |       |  0.58
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3768 ave 3768 max 3768 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77343 ave 77343 max 77343 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77343
+Ave neighs/atom = 37.7651
+Neighbor list builds = 113
+Dangerous builds = 0
+print           "FRAME 10 PE=$(pe:%.8f)"
+FRAME 10 PE=-5.23818852
+write_dump      all custom frame_10.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+   15000   0.72922445   -5.2381885   0.93019351   -4.1448859 
+   16000   0.69527998    -5.231755   0.89066152   -4.1893442 
+Loop time of 0.90168 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 479105.536 tau/day, 1109.041 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.55353    | 0.55353    | 0.55353    |   0.0 | 61.39
+Neigh   | 0.24707    | 0.24707    | 0.24707    |   0.0 | 27.40
+Comm    | 0.014025   | 0.014025   | 0.014025   |   0.0 |  1.56
+Output  | 6.7698e-06 | 6.7698e-06 | 6.7698e-06 |   0.0 |  0.00
+Modify  | 0.08192    | 0.08192    | 0.08192    |   0.0 |  9.09
+Other   |            | 0.005137   |            |       |  0.57
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3816 ave 3816 max 3816 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77322 ave 77322 max 77322 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77322
+Ave neighs/atom = 37.7549
+Neighbor list builds = 112
+Dangerous builds = 0
+print           "FRAME 11 PE=$(pe:%.8f)"
+FRAME 11 PE=-5.23175497
+write_dump      all custom frame_11.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+   16000   0.69527998    -5.231755   0.89066152   -4.1893442 
+   17000   0.70054363   -5.2417682   0.88255272   -4.1914658 
+Loop time of 0.896244 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 482011.755 tau/day, 1115.768 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.55318    | 0.55318    | 0.55318    |   0.0 | 61.72
+Neigh   | 0.24179    | 0.24179    | 0.24179    |   0.0 | 26.98
+Comm    | 0.014151   | 0.014151   | 0.014151   |   0.0 |  1.58
+Output  | 7.4934e-06 | 7.4934e-06 | 7.4934e-06 |   0.0 |  0.00
+Modify  | 0.081933   | 0.081933   | 0.081933   |   0.0 |  9.14
+Other   |            | 0.005184   |            |       |  0.58
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3754 ave 3754 max 3754 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77392 ave 77392 max 77392 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77392
+Ave neighs/atom = 37.7891
+Neighbor list builds = 110
+Dangerous builds = 0
+print           "FRAME 12 PE=$(pe:%.8f)"
+FRAME 12 PE=-5.24176817
+write_dump      all custom frame_12.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+   17000   0.70054363   -5.2417682   0.88255272   -4.1914658 
+   18000   0.72088075   -5.2191642     1.021299   -4.1383711 
+Loop time of 0.903948 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 477903.762 tau/day, 1106.259 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.55341    | 0.55341    | 0.55341    |   0.0 | 61.22
+Neigh   | 0.24929    | 0.24929    | 0.24929    |   0.0 | 27.58
+Comm    | 0.014137   | 0.014137   | 0.014137   |   0.0 |  1.56
+Output  | 7.1358e-06 | 7.1358e-06 | 7.1358e-06 |   0.0 |  0.00
+Modify  | 0.081973   | 0.081973   | 0.081973   |   0.0 |  9.07
+Other   |            | 0.005124   |            |       |  0.57
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3805 ave 3805 max 3805 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77254 ave 77254 max 77254 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77254
+Ave neighs/atom = 37.7217
+Neighbor list builds = 113
+Dangerous builds = 0
+print           "FRAME 13 PE=$(pe:%.8f)"
+FRAME 13 PE=-5.21916420
+write_dump      all custom frame_13.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+   18000   0.72088075   -5.2191642     1.021299   -4.1383711 
+   19000   0.70084117   -5.2189794    1.0069631   -4.1682309 
+Loop time of 0.91181 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 473782.832 tau/day, 1096.720 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.55439    | 0.55439    | 0.55439    |   0.0 | 60.80
+Neigh   | 0.2561     | 0.2561     | 0.2561     |   0.0 | 28.09
+Comm    | 0.014221   | 0.014221   | 0.014221   |   0.0 |  1.56
+Output  | 8.0317e-06 | 8.0317e-06 | 8.0317e-06 |   0.0 |  0.00
+Modify  | 0.081956   | 0.081956   | 0.081956   |   0.0 |  8.99
+Other   |            | 0.00514    |            |       |  0.56
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3816 ave 3816 max 3816 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77348 ave 77348 max 77348 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77348
+Ave neighs/atom = 37.7676
+Neighbor list builds = 116
+Dangerous builds = 0
+print           "FRAME 14 PE=$(pe:%.8f)"
+FRAME 14 PE=-5.21897939
+write_dump      all custom frame_14.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+   19000   0.70084117   -5.2189794    1.0069631   -4.1682309 
+   20000   0.73166418   -5.2224029   0.96600989   -4.1254425 
+Loop time of 0.910851 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 474281.619 tau/day, 1097.874 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.55517    | 0.55517    | 0.55517    |   0.0 | 60.95
+Neigh   | 0.25432    | 0.25432    | 0.25432    |   0.0 | 27.92
+Comm    | 0.014294   | 0.014294   | 0.014294   |   0.0 |  1.57
+Output  | 7.0678e-06 | 7.0678e-06 | 7.0678e-06 |   0.0 |  0.00
+Modify  | 0.081912   | 0.081912   | 0.081912   |   0.0 |  8.99
+Other   |            | 0.005153   |            |       |  0.57
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3792 ave 3792 max 3792 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77296 ave 77296 max 77296 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77296
+Ave neighs/atom = 37.7422
+Neighbor list builds = 115
+Dangerous builds = 0
+print           "FRAME 15 PE=$(pe:%.8f)"
+FRAME 15 PE=-5.22240290
+write_dump      all custom frame_15.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+   20000   0.73166418   -5.2224029   0.96600989   -4.1254425 
+   21000   0.73232006   -5.2241802    1.0278985   -4.1262365 
+Loop time of 0.899834 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 480088.345 tau/day, 1111.316 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.55417    | 0.55417    | 0.55417    |   0.0 | 61.59
+Neigh   | 0.24451    | 0.24451    | 0.24451    |   0.0 | 27.17
+Comm    | 0.014032   | 0.014032   | 0.014032   |   0.0 |  1.56
+Output  | 7.2224e-06 | 7.2224e-06 | 7.2224e-06 |   0.0 |  0.00
+Modify  | 0.081932   | 0.081932   | 0.081932   |   0.0 |  9.11
+Other   |            | 0.005181   |            |       |  0.58
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3775 ave 3775 max 3775 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77359 ave 77359 max 77359 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77359
+Ave neighs/atom = 37.7729
+Neighbor list builds = 111
+Dangerous builds = 0
+print           "FRAME 16 PE=$(pe:%.8f)"
+FRAME 16 PE=-5.22418023
+write_dump      all custom frame_16.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+   21000   0.73232006   -5.2241802    1.0278985   -4.1262365 
+   22000   0.71285729   -5.2238831    0.9940872   -4.1551193 
+Loop time of 0.903449 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 478167.791 tau/day, 1106.870 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.55473    | 0.55473    | 0.55473    |   0.0 | 61.40
+Neigh   | 0.24747    | 0.24747    | 0.24747    |   0.0 | 27.39
+Comm    | 0.014157   | 0.014157   | 0.014157   |   0.0 |  1.57
+Output  | 8.9584e-06 | 8.9584e-06 | 8.9584e-06 |   0.0 |  0.00
+Modify  | 0.081955   | 0.081955   | 0.081955   |   0.0 |  9.07
+Other   |            | 0.005125   |            |       |  0.57
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3764 ave 3764 max 3764 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77316 ave 77316 max 77316 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77316
+Ave neighs/atom = 37.752
+Neighbor list builds = 112
+Dangerous builds = 0
+print           "FRAME 17 PE=$(pe:%.8f)"
+FRAME 17 PE=-5.22388308
+write_dump      all custom frame_17.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+   22000   0.71285729   -5.2238831    0.9940872   -4.1551193 
+   23000    0.7150878   -5.2296363   0.99474058   -4.1575283 
+Loop time of 0.90536 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 477158.230 tau/day, 1104.533 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.55613    | 0.55613    | 0.55613    |   0.0 | 61.43
+Neigh   | 0.24794    | 0.24794    | 0.24794    |   0.0 | 27.39
+Comm    | 0.014151   | 0.014151   | 0.014151   |   0.0 |  1.56
+Output  | 6.8201e-06 | 6.8201e-06 | 6.8201e-06 |   0.0 |  0.00
+Modify  | 0.08194    | 0.08194    | 0.08194    |   0.0 |  9.05
+Other   |            | 0.005192   |            |       |  0.57
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3803 ave 3803 max 3803 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77309 ave 77309 max 77309 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77309
+Ave neighs/atom = 37.7485
+Neighbor list builds = 112
+Dangerous builds = 0
+print           "FRAME 18 PE=$(pe:%.8f)"
+FRAME 18 PE=-5.22963630
+write_dump      all custom frame_18.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+   23000    0.7150878   -5.2296363   0.99474058   -4.1575283 
+   24000   0.70248458   -5.2224078    1.0151802   -4.1691954 
+Loop time of 0.90604 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 476800.002 tau/day, 1103.704 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.55345    | 0.55345    | 0.55345    |   0.0 | 61.08
+Neigh   | 0.25125    | 0.25125    | 0.25125    |   0.0 | 27.73
+Comm    | 0.014148   | 0.014148   | 0.014148   |   0.0 |  1.56
+Output  | 7.0836e-06 | 7.0836e-06 | 7.0836e-06 |   0.0 |  0.00
+Modify  | 0.081987   | 0.081987   | 0.081987   |   0.0 |  9.05
+Other   |            | 0.005195   |            |       |  0.57
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3769 ave 3769 max 3769 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77412 ave 77412 max 77412 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77412
+Ave neighs/atom = 37.7988
+Neighbor list builds = 114
+Dangerous builds = 0
+print           "FRAME 19 PE=$(pe:%.8f)"
+FRAME 19 PE=-5.22240776
+write_dump      all custom frame_19.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+   24000   0.70248458   -5.2224078    1.0151802   -4.1691954 
+   25000   0.73518977   -5.1806654    1.1835768   -4.0784193 
+Loop time of 0.907004 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 476293.120 tau/day, 1102.530 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.5549     | 0.5549     | 0.5549     |   0.0 | 61.18
+Neigh   | 0.25077    | 0.25077    | 0.25077    |   0.0 | 27.65
+Comm    | 0.014196   | 0.014196   | 0.014196   |   0.0 |  1.57
+Output  | 7.1824e-06 | 7.1824e-06 | 7.1824e-06 |   0.0 |  0.00
+Modify  | 0.081995   | 0.081995   | 0.081995   |   0.0 |  9.04
+Other   |            | 0.005138   |            |       |  0.57
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3790 ave 3790 max 3790 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77325 ave 77325 max 77325 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77325
+Ave neighs/atom = 37.7563
+Neighbor list builds = 114
+Dangerous builds = 0
+print           "FRAME 20 PE=$(pe:%.8f)"
+FRAME 20 PE=-5.18066543
+write_dump      all custom frame_20.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+   25000   0.73518977   -5.1806654    1.1835768   -4.0784193 
+   26000   0.70929492    -5.215288    1.0441763   -4.1518651 
+Loop time of 0.903059 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 478374.222 tau/day, 1107.348 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.55468    | 0.55468    | 0.55468    |   0.0 | 61.42
+Neigh   | 0.24703    | 0.24703    | 0.24703    |   0.0 | 27.35
+Comm    | 0.014181   | 0.014181   | 0.014181   |   0.0 |  1.57
+Output  | 6.834e-06  | 6.834e-06  | 6.834e-06  |   0.0 |  0.00
+Modify  | 0.081966   | 0.081966   | 0.081966   |   0.0 |  9.08
+Other   |            | 0.005195   |            |       |  0.58
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3827 ave 3827 max 3827 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77378 ave 77378 max 77378 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77378
+Ave neighs/atom = 37.7822
+Neighbor list builds = 112
+Dangerous builds = 0
+print           "FRAME 21 PE=$(pe:%.8f)"
+FRAME 21 PE=-5.21528801
+write_dump      all custom frame_21.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+   26000   0.70929492    -5.215288    1.0441763   -4.1518651 
+   27000   0.72250485   -5.1854312    1.2103583   -4.1022031 
+Loop time of 0.904787 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 477460.529 tau/day, 1105.233 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.55444    | 0.55444    | 0.55444    |   0.0 | 61.28
+Neigh   | 0.24897    | 0.24897    | 0.24897    |   0.0 | 27.52
+Comm    | 0.014263   | 0.014263   | 0.014263   |   0.0 |  1.58
+Output  | 7.0138e-06 | 7.0138e-06 | 7.0138e-06 |   0.0 |  0.00
+Modify  | 0.081924   | 0.081924   | 0.081924   |   0.0 |  9.05
+Other   |            | 0.00519    |            |       |  0.57
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3794 ave 3794 max 3794 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77443 ave 77443 max 77443 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77443
+Ave neighs/atom = 37.814
+Neighbor list builds = 113
+Dangerous builds = 0
+print           "FRAME 22 PE=$(pe:%.8f)"
+FRAME 22 PE=-5.18543119
+write_dump      all custom frame_22.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+   27000   0.72250485   -5.1854312    1.2103583   -4.1022031 
+   28000    0.7272085   -5.2242196    1.0273792   -4.1339395 
+Loop time of 0.908269 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 475630.092 tau/day, 1100.996 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.55416    | 0.55416    | 0.55416    |   0.0 | 61.01
+Neigh   | 0.25278    | 0.25278    | 0.25278    |   0.0 | 27.83
+Comm    | 0.014252   | 0.014252   | 0.014252   |   0.0 |  1.57
+Output  | 7.0725e-06 | 7.0725e-06 | 7.0725e-06 |   0.0 |  0.00
+Modify  | 0.081907   | 0.081907   | 0.081907   |   0.0 |  9.02
+Other   |            | 0.005163   |            |       |  0.57
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3774 ave 3774 max 3774 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77213 ave 77213 max 77213 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77213
+Ave neighs/atom = 37.7017
+Neighbor list builds = 115
+Dangerous builds = 0
+print           "FRAME 23 PE=$(pe:%.8f)"
+FRAME 23 PE=-5.22421960
+write_dump      all custom frame_23.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+   28000    0.7272085   -5.2242196    1.0273792   -4.1339395 
+   29000   0.71406027   -5.2198071   0.99379783   -4.1492397 
+Loop time of 0.905053 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 477320.114 tau/day, 1104.908 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.55363    | 0.55363    | 0.55363    |   0.0 | 61.17
+Neigh   | 0.2502     | 0.2502     | 0.2502     |   0.0 | 27.65
+Comm    | 0.01413    | 0.01413    | 0.01413    |   0.0 |  1.56
+Output  | 6.8676e-06 | 6.8676e-06 | 6.8676e-06 |   0.0 |  0.00
+Modify  | 0.08192    | 0.08192    | 0.08192    |   0.0 |  9.05
+Other   |            | 0.005157   |            |       |  0.57
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3821 ave 3821 max 3821 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77313 ave 77313 max 77313 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77313
+Ave neighs/atom = 37.7505
+Neighbor list builds = 114
+Dangerous builds = 0
+print           "FRAME 24 PE=$(pe:%.8f)"
+FRAME 24 PE=-5.21980706
+write_dump      all custom frame_24.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+   29000   0.71406027   -5.2198071   0.99379783   -4.1492397 
+   30000   0.72680899   -5.2169146    1.0174011   -4.1272334 
+Loop time of 0.903073 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 478366.798 tau/day, 1107.331 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.55486    | 0.55486    | 0.55486    |   0.0 | 61.44
+Neigh   | 0.24682    | 0.24682    | 0.24682    |   0.0 | 27.33
+Comm    | 0.014216   | 0.014216   | 0.014216   |   0.0 |  1.57
+Output  | 1.3204e-05 | 1.3204e-05 | 1.3204e-05 |   0.0 |  0.00
+Modify  | 0.081963   | 0.081963   | 0.081963   |   0.0 |  9.08
+Other   |            | 0.005199   |            |       |  0.58
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3773 ave 3773 max 3773 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77366 ave 77366 max 77366 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77366
+Ave neighs/atom = 37.7764
+Neighbor list builds = 112
+Dangerous builds = 0
+print           "FRAME 25 PE=$(pe:%.8f)"
+FRAME 25 PE=-5.21691457
+write_dump      all custom frame_25.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+   30000   0.72680899   -5.2169146    1.0174011   -4.1272334 
+   31000   0.71644171   -5.2083295    1.1134471   -4.1341916 
+Loop time of 0.900112 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 479940.210 tau/day, 1110.973 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.55431    | 0.55431    | 0.55431    |   0.0 | 61.58
+Neigh   | 0.24457    | 0.24457    | 0.24457    |   0.0 | 27.17
+Comm    | 0.014112   | 0.014112   | 0.014112   |   0.0 |  1.57
+Output  | 7.4692e-06 | 7.4692e-06 | 7.4692e-06 |   0.0 |  0.00
+Modify  | 0.081935   | 0.081935   | 0.081935   |   0.0 |  9.10
+Other   |            | 0.005176   |            |       |  0.58
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3795 ave 3795 max 3795 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77363 ave 77363 max 77363 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77363
+Ave neighs/atom = 37.7749
+Neighbor list builds = 111
+Dangerous builds = 0
+print           "FRAME 26 PE=$(pe:%.8f)"
+FRAME 26 PE=-5.20832947
+write_dump      all custom frame_26.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+   31000   0.71644171   -5.2083295    1.1134471   -4.1341916 
+   32000   0.74823082   -5.2377229   0.95395702   -4.1159247 
+Loop time of 0.904154 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 477794.900 tau/day, 1106.007 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.55338    | 0.55338    | 0.55338    |   0.0 | 61.20
+Neigh   | 0.24952    | 0.24952    | 0.24952    |   0.0 | 27.60
+Comm    | 0.01418    | 0.01418    | 0.01418    |   0.0 |  1.57
+Output  | 7.8622e-06 | 7.8622e-06 | 7.8622e-06 |   0.0 |  0.00
+Modify  | 0.081943   | 0.081943   | 0.081943   |   0.0 |  9.06
+Other   |            | 0.005125   |            |       |  0.57
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3806 ave 3806 max 3806 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77351 ave 77351 max 77351 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77351
+Ave neighs/atom = 37.769
+Neighbor list builds = 113
+Dangerous builds = 0
+print           "FRAME 27 PE=$(pe:%.8f)"
+FRAME 27 PE=-5.23772288
+write_dump      all custom frame_27.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+   32000   0.74823082   -5.2377229   0.95395702   -4.1159247 
+   33000    0.7135551   -5.2363267   0.91564589   -4.1665166 
+Loop time of 0.907715 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 475920.440 tau/day, 1101.668 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.55432    | 0.55432    | 0.55432    |   0.0 | 61.07
+Neigh   | 0.25207    | 0.25207    | 0.25207    |   0.0 | 27.77
+Comm    | 0.014187   | 0.014187   | 0.014187   |   0.0 |  1.56
+Output  | 7.038e-06  | 7.038e-06  | 7.038e-06  |   0.0 |  0.00
+Modify  | 0.081931   | 0.081931   | 0.081931   |   0.0 |  9.03
+Other   |            | 0.005199   |            |       |  0.57
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3770 ave 3770 max 3770 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77279 ave 77279 max 77279 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77279
+Ave neighs/atom = 37.7339
+Neighbor list builds = 114
+Dangerous builds = 0
+print           "FRAME 28 PE=$(pe:%.8f)"
+FRAME 28 PE=-5.23632668
+write_dump      all custom frame_28.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+   33000    0.7135551   -5.2363267   0.91564589   -4.1665166 
+   34000   0.70041611   -5.2066007    1.0931762   -4.1564895 
+Loop time of 0.902351 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 478749.257 tau/day, 1108.216 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.55412    | 0.55412    | 0.55412    |   0.0 | 61.41
+Neigh   | 0.24705    | 0.24705    | 0.24705    |   0.0 | 27.38
+Comm    | 0.014021   | 0.014021   | 0.014021   |   0.0 |  1.55
+Output  | 7.0035e-06 | 7.0035e-06 | 7.0035e-06 |   0.0 |  0.00
+Modify  | 0.082013   | 0.082013   | 0.082013   |   0.0 |  9.09
+Other   |            | 0.005139   |            |       |  0.57
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3758 ave 3758 max 3758 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77350 ave 77350 max 77350 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77350
+Ave neighs/atom = 37.7686
+Neighbor list builds = 112
+Dangerous builds = 0
+print           "FRAME 29 PE=$(pe:%.8f)"
+FRAME 29 PE=-5.20660070
+write_dump      all custom frame_29.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+   34000   0.70041611   -5.2066007    1.0931762   -4.1564895 
+   35000   0.70996285   -5.2156971    1.0264212   -4.1512728 
+Loop time of 0.903762 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 478002.023 tau/day, 1106.486 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.55319    | 0.55319    | 0.55319    |   0.0 | 61.21
+Neigh   | 0.24947    | 0.24947    | 0.24947    |   0.0 | 27.60
+Comm    | 0.013956   | 0.013956   | 0.013956   |   0.0 |  1.54
+Output  | 6.8974e-06 | 6.8974e-06 | 6.8974e-06 |   0.0 |  0.00
+Modify  | 0.081968   | 0.081968   | 0.081968   |   0.0 |  9.07
+Other   |            | 0.005163   |            |       |  0.57
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3781 ave 3781 max 3781 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77388 ave 77388 max 77388 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77388
+Ave neighs/atom = 37.7871
+Neighbor list builds = 113
+Dangerous builds = 0
+print           "FRAME 30 PE=$(pe:%.8f)"
+FRAME 30 PE=-5.21569710
+write_dump      all custom frame_30.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+   35000   0.70996285   -5.2156971    1.0264212   -4.1512728 
+   36000   0.68612707   -5.2173776   0.97072457   -4.1886895 
+Loop time of 0.903597 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 478088.977 tau/day, 1106.687 timesteps/s
+99.8% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.55328    | 0.55328    | 0.55328    |   0.0 | 61.23
+Neigh   | 0.24928    | 0.24928    | 0.24928    |   0.0 | 27.59
+Comm    | 0.013994   | 0.013994   | 0.013994   |   0.0 |  1.55
+Output  | 8.1416e-06 | 8.1416e-06 | 8.1416e-06 |   0.0 |  0.00
+Modify  | 0.081909   | 0.081909   | 0.081909   |   0.0 |  9.06
+Other   |            | 0.005123   |            |       |  0.57
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3770 ave 3770 max 3770 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77326 ave 77326 max 77326 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77326
+Ave neighs/atom = 37.7568
+Neighbor list builds = 113
+Dangerous builds = 0
+print           "FRAME 31 PE=$(pe:%.8f)"
+FRAME 31 PE=-5.21737757
+write_dump      all custom frame_31.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+   36000   0.68612707   -5.2173776   0.97072457   -4.1886895 
+   37000   0.74645325   -5.2585616   0.82540025   -4.1394284 
+Loop time of 0.897227 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 481483.542 tau/day, 1114.545 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.55257    | 0.55257    | 0.55257    |   0.0 | 61.59
+Neigh   | 0.24355    | 0.24355    | 0.24355    |   0.0 | 27.14
+Comm    | 0.01404    | 0.01404    | 0.01404    |   0.0 |  1.56
+Output  | 7.9107e-06 | 7.9107e-06 | 7.9107e-06 |   0.0 |  0.00
+Modify  | 0.081912   | 0.081912   | 0.081912   |   0.0 |  9.13
+Other   |            | 0.005148   |            |       |  0.57
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3815 ave 3815 max 3815 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77304 ave 77304 max 77304 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77304
+Ave neighs/atom = 37.7461
+Neighbor list builds = 111
+Dangerous builds = 0
+print           "FRAME 32 PE=$(pe:%.8f)"
+FRAME 32 PE=-5.25856159
+write_dump      all custom frame_32.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+   37000   0.74645325   -5.2585616   0.82540025   -4.1394284 
+   38000   0.72416401   -5.1996715    1.1490779   -4.1139559 
+Loop time of 0.902817 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 478502.415 tau/day, 1107.644 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.55432    | 0.55432    | 0.55432    |   0.0 | 61.40
+Neigh   | 0.24737    | 0.24737    | 0.24737    |   0.0 | 27.40
+Comm    | 0.014059   | 0.014059   | 0.014059   |   0.0 |  1.56
+Output  | 7.024e-06  | 7.024e-06  | 7.024e-06  |   0.0 |  0.00
+Modify  | 0.081906   | 0.081906   | 0.081906   |   0.0 |  9.07
+Other   |            | 0.005151   |            |       |  0.57
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3749 ave 3749 max 3749 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77339 ave 77339 max 77339 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77339
+Ave neighs/atom = 37.7632
+Neighbor list builds = 112
+Dangerous builds = 0
+print           "FRAME 33 PE=$(pe:%.8f)"
+FRAME 33 PE=-5.19967149
+write_dump      all custom frame_33.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+   38000   0.72416401   -5.1996715    1.1490779   -4.1139559 
+   39000   0.74302498   -5.2318799   0.99794659   -4.1178866 
+Loop time of 0.90379 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 477987.249 tau/day, 1106.452 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.55365    | 0.55365    | 0.55365    |   0.0 | 61.26
+Neigh   | 0.24897    | 0.24897    | 0.24897    |   0.0 | 27.55
+Comm    | 0.014059   | 0.014059   | 0.014059   |   0.0 |  1.56
+Output  | 7.1377e-06 | 7.1377e-06 | 7.1377e-06 |   0.0 |  0.00
+Modify  | 0.08198    | 0.08198    | 0.08198    |   0.0 |  9.07
+Other   |            | 0.005119   |            |       |  0.57
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3794 ave 3794 max 3794 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77330 ave 77330 max 77330 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77330
+Ave neighs/atom = 37.7588
+Neighbor list builds = 113
+Dangerous builds = 0
+print           "FRAME 34 PE=$(pe:%.8f)"
+FRAME 34 PE=-5.23187988
+write_dump      all custom frame_34.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+   39000   0.74302498   -5.2318799   0.99794659   -4.1178866 
+   40000    0.7058039   -5.2080459    1.0612025    -4.149857 
+Loop time of 0.902046 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 478911.275 tau/day, 1108.591 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.55465    | 0.55465    | 0.55465    |   0.0 | 61.49
+Neigh   | 0.24623    | 0.24623    | 0.24623    |   0.0 | 27.30
+Comm    | 0.014114   | 0.014114   | 0.014114   |   0.0 |  1.56
+Output  | 8.6827e-06 | 8.6827e-06 | 8.6827e-06 |   0.0 |  0.00
+Modify  | 0.081927   | 0.081927   | 0.081927   |   0.0 |  9.08
+Other   |            | 0.00512    |            |       |  0.57
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3769 ave 3769 max 3769 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77305 ave 77305 max 77305 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77305
+Ave neighs/atom = 37.7466
+Neighbor list builds = 112
+Dangerous builds = 0
+print           "FRAME 35 PE=$(pe:%.8f)"
+FRAME 35 PE=-5.20804586
+write_dump      all custom frame_35.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+   40000    0.7058039   -5.2080459    1.0612025    -4.149857 
+   41000   0.71558854   -5.2303344   0.95717398   -4.1574757 
+Loop time of 0.905291 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 477194.424 tau/day, 1104.617 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.55293    | 0.55293    | 0.55293    |   0.0 | 61.08
+Neigh   | 0.25118    | 0.25118    | 0.25118    |   0.0 | 27.75
+Comm    | 0.014135   | 0.014135   | 0.014135   |   0.0 |  1.56
+Output  | 6.1197e-06 | 6.1197e-06 | 6.1197e-06 |   0.0 |  0.00
+Modify  | 0.081913   | 0.081913   | 0.081913   |   0.0 |  9.05
+Other   |            | 0.005126   |            |       |  0.57
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3807 ave 3807 max 3807 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77322 ave 77322 max 77322 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77322
+Ave neighs/atom = 37.7549
+Neighbor list builds = 114
+Dangerous builds = 0
+print           "FRAME 36 PE=$(pe:%.8f)"
+FRAME 36 PE=-5.23033440
+write_dump      all custom frame_36.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+   41000   0.71558854   -5.2303344   0.95717398   -4.1574757 
+   42000   0.70222042   -5.2128727    1.0564614   -4.1600564 
+Loop time of 0.90316 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 478320.504 tau/day, 1107.223 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.5528     | 0.5528     | 0.5528     |   0.0 | 61.21
+Neigh   | 0.24915    | 0.24915    | 0.24915    |   0.0 | 27.59
+Comm    | 0.014124   | 0.014124   | 0.014124   |   0.0 |  1.56
+Output  | 6.9439e-06 | 6.9439e-06 | 6.9439e-06 |   0.0 |  0.00
+Modify  | 0.081976   | 0.081976   | 0.081976   |   0.0 |  9.08
+Other   |            | 0.005104   |            |       |  0.57
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3748 ave 3748 max 3748 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77376 ave 77376 max 77376 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77376
+Ave neighs/atom = 37.7812
+Neighbor list builds = 113
+Dangerous builds = 0
+print           "FRAME 37 PE=$(pe:%.8f)"
+FRAME 37 PE=-5.21287274
+write_dump      all custom frame_37.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+   42000   0.70222042   -5.2128727    1.0564614   -4.1600564 
+   43000    0.7201478   -5.1937318    1.1536041   -4.1140376 
+Loop time of 0.907098 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 476243.867 tau/day, 1102.416 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.55526    | 0.55526    | 0.55526    |   0.0 | 61.21
+Neigh   | 0.25059    | 0.25059    | 0.25059    |   0.0 | 27.63
+Comm    | 0.014107   | 0.014107   | 0.014107   |   0.0 |  1.56
+Output  | 7.2308e-06 | 7.2308e-06 | 7.2308e-06 |   0.0 |  0.00
+Modify  | 0.081945   | 0.081945   | 0.081945   |   0.0 |  9.03
+Other   |            | 0.005189   |            |       |  0.57
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3728 ave 3728 max 3728 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77366 ave 77366 max 77366 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77366
+Ave neighs/atom = 37.7764
+Neighbor list builds = 114
+Dangerous builds = 0
+print           "FRAME 38 PE=$(pe:%.8f)"
+FRAME 38 PE=-5.19373185
+write_dump      all custom frame_38.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+   43000    0.7201478   -5.1937318    1.1536041   -4.1140376 
+   44000   0.70431973   -5.2265934   0.96027775   -4.1706297 
+Loop time of 0.911992 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 473688.552 tau/day, 1096.501 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.55561    | 0.55561    | 0.55561    |   0.0 | 60.92
+Neigh   | 0.25509    | 0.25509    | 0.25509    |   0.0 | 27.97
+Comm    | 0.014214   | 0.014214   | 0.014214   |   0.0 |  1.56
+Output  | 7.0417e-06 | 7.0417e-06 | 7.0417e-06 |   0.0 |  0.00
+Modify  | 0.081931   | 0.081931   | 0.081931   |   0.0 |  8.98
+Other   |            | 0.005141   |            |       |  0.56
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3788 ave 3788 max 3788 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77380 ave 77380 max 77380 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77380
+Ave neighs/atom = 37.7832
+Neighbor list builds = 116
+Dangerous builds = 0
+print           "FRAME 39 PE=$(pe:%.8f)"
+FRAME 39 PE=-5.22659344
+write_dump      all custom frame_39.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+   44000   0.70431973   -5.2265934   0.96027775   -4.1706297 
+   45000   0.71994003   -5.2425155   0.87556491   -4.1631327 
+Loop time of 0.90895 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 475273.482 tau/day, 1100.170 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.55411    | 0.55411    | 0.55411    |   0.0 | 60.96
+Neigh   | 0.2534     | 0.2534     | 0.2534     |   0.0 | 27.88
+Comm    | 0.014309   | 0.014309   | 0.014309   |   0.0 |  1.57
+Output  | 7.648e-06  | 7.648e-06  | 7.648e-06  |   0.0 |  0.00
+Modify  | 0.081984   | 0.081984   | 0.081984   |   0.0 |  9.02
+Other   |            | 0.005134   |            |       |  0.56
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3754 ave 3754 max 3754 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77299 ave 77299 max 77299 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77299
+Ave neighs/atom = 37.7437
+Neighbor list builds = 115
+Dangerous builds = 0
+print           "FRAME 40 PE=$(pe:%.8f)"
+FRAME 40 PE=-5.24251550
+write_dump      all custom frame_40.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+   45000   0.71994003   -5.2425155   0.87556491   -4.1631327 
+   46000   0.72763578   -5.2054649    1.0922664   -4.1145442 
+Loop time of 0.904972 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 477363.088 tau/day, 1105.007 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.55514    | 0.55514    | 0.55514    |   0.0 | 61.34
+Neigh   | 0.24856    | 0.24856    | 0.24856    |   0.0 | 27.47
+Comm    | 0.014125   | 0.014125   | 0.014125   |   0.0 |  1.56
+Output  | 6.8862e-06 | 6.8862e-06 | 6.8862e-06 |   0.0 |  0.00
+Modify  | 0.081999   | 0.081999   | 0.081999   |   0.0 |  9.06
+Other   |            | 0.005139   |            |       |  0.57
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3758 ave 3758 max 3758 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77372 ave 77372 max 77372 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77372
+Ave neighs/atom = 37.7793
+Neighbor list builds = 113
+Dangerous builds = 0
+print           "FRAME 41 PE=$(pe:%.8f)"
+FRAME 41 PE=-5.20546490
+write_dump      all custom frame_41.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+   46000   0.72763578   -5.2054649    1.0922664   -4.1145442 
+   47000   0.72184925   -5.2326142   0.97733787    -4.150369 
+Loop time of 0.904071 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 477838.446 tau/day, 1106.108 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.5559     | 0.5559     | 0.5559     |   0.0 | 61.49
+Neigh   | 0.24703    | 0.24703    | 0.24703    |   0.0 | 27.32
+Comm    | 0.014024   | 0.014024   | 0.014024   |   0.0 |  1.55
+Output  | 7.0883e-06 | 7.0883e-06 | 7.0883e-06 |   0.0 |  0.00
+Modify  | 0.081953   | 0.081953   | 0.081953   |   0.0 |  9.06
+Other   |            | 0.005159   |            |       |  0.57
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3822 ave 3822 max 3822 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77474 ave 77474 max 77474 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77474
+Ave neighs/atom = 37.8291
+Neighbor list builds = 112
+Dangerous builds = 0
+print           "FRAME 42 PE=$(pe:%.8f)"
+FRAME 42 PE=-5.23261420
+write_dump      all custom frame_42.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+   47000   0.72184925   -5.2326142   0.97733787    -4.150369 
+   48000   0.73166296   -5.2012215    1.1278488    -4.104263 
+Loop time of 0.908753 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 475376.723 tau/day, 1100.409 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.55588    | 0.55588    | 0.55588    |   0.0 | 61.17
+Neigh   | 0.25147    | 0.25147    | 0.25147    |   0.0 | 27.67
+Comm    | 0.014308   | 0.014308   | 0.014308   |   0.0 |  1.57
+Output  | 8.4257e-06 | 8.4257e-06 | 8.4257e-06 |   0.0 |  0.00
+Modify  | 0.081957   | 0.081957   | 0.081957   |   0.0 |  9.02
+Other   |            | 0.005137   |            |       |  0.57
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3827 ave 3827 max 3827 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77339 ave 77339 max 77339 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77339
+Ave neighs/atom = 37.7632
+Neighbor list builds = 114
+Dangerous builds = 0
+print           "FRAME 43 PE=$(pe:%.8f)"
+FRAME 43 PE=-5.20122153
+write_dump      all custom frame_43.lammpstrj id type x y z modify sort id
+run             1000
+Per MPI rank memory allocation (min/avg/max) = 3.247 | 3.247 | 3.247 Mbytes
+Step Temp PotEng Press TotEng 
+   48000   0.73166296   -5.2012215    1.1278488    -4.104263 
+   49000   0.71834376   -5.2329482    0.9211189   -4.1559587 
+Loop time of 0.903272 on 1 procs for 1000 steps with 2048 atoms
+
+Performance: 478261.030 tau/day, 1107.086 timesteps/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.55258    | 0.55258    | 0.55258    |   0.0 | 61.18
+Neigh   | 0.24952    | 0.24952    | 0.24952    |   0.0 | 27.62
+Comm    | 0.01413    | 0.01413    | 0.01413    |   0.0 |  1.56
+Output  | 7.3956e-06 | 7.3956e-06 | 7.3956e-06 |   0.0 |  0.00
+Modify  | 0.081876   | 0.081876   | 0.081876   |   0.0 |  9.06
+Other   |            | 0.00516    |            |       |  0.57
+
+Nlocal:    2048 ave 2048 max 2048 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3811 ave 3811 max 3811 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    77282 ave 77282 max 77282 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 77282
+Ave neighs/atom = 37.7354
+Neighbor list builds = 113
+Dangerous builds = 0
+print           "FRAME 44 PE=$(pe:%.8f)"
+FRAME 44 PE=-5.23294822
+write_dump      all custom frame_44.lammpstrj id type x y z modify sort id
+unfix           bath
+unfix           int
+print           "RUN_END T*=$(temp:%.4f) PE=$(pe:%.8f)"
+RUN_END T*=0.7183 PE=-5.23294822
+Total wall time: 0:00:44
