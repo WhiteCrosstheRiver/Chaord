@@ -1,0 +1,55 @@
+{
+  "cf16_b2": {
+    "name": "cf16_b2",
+    "cnt_chirality": [
+      16,
+      16
+    ],
+    "cnt_diameter_A": 21.7003,
+    "cnt_length_A": 98.4,
+    "cnt_atoms": 2560,
+    "R_pack_A": 7.950152661900868,
+    "box": [
+      -20.8502,
+      20.8502,
+      -20.8502,
+      20.8502,
+      0.0,
+      98.4
+    ],
+    "composition": {
+      "n_EC": 74,
+      "n_EMC": 48,
+      "n_LiPF6": 12
+    },
+    "n_atoms_total": 4116,
+    "n_bonds": 1484,
+    "V_pore_geom_nm3": 36.3929,
+    "V_pore_vdw_nm3": 18.0919,
+    "molarity_M_vdw_volume": 1.101,
+    "ec_ring_angles": {
+      "OS_CO_OS": 113.2,
+      "CO_OC": 0.0,
+      "C_O_C": 109.31,
+      "O_CH2_CH2": 104.09,
+      "OC_CO_OS": 123.4
+    },
+    "initial_min_atom_gap_A": 2.004,
+    "initial_min_wall_gap_A": 2.478,
+    "build_seed": 20273002,
+    "packer": "rejection + pack-then-relax (W8-style push-apart, 2026-10-14): strict floor = max(2.0 A, 2.2 A with H, 0.85 x LB-mixed sigma) inter-body and wall; tolerant insert >= 0.70 x floor then relaxed back above floor",
+    "n_tolerant_inserts": 29,
+    "final_relax_converged_sweep": null,
+    "guard": {
+      "min_intermolecular_A": 2.004,
+      "min_mol_tube_A": 2.491,
+      "max_molecule_split_A": 0.0,
+      "max_raw_bond_A": 1.606,
+      "floor_ratio": 0.95,
+      "checked_pairs": "all, min image"
+    },
+    "velocity_seed": 20273502,
+    "ncell": 40,
+    "composition_source": "pilot 37/24/6 x2 for the same molarity at 2x pore volume (PLAN.md section 6)"
+  }
+}
