@@ -1,0 +1,126 @@
+# LAMMPS input: sb16L_e20_b4  (Z3 confirmatory set, D41/PLAN.md: field e20)
+# Engine: LAMMPS 3 Mar 2020 (cluster module lammps/3Mar20-icc.2022, ime001;
+#   8-rank MPI). ALL 18 confirmatory jobs run on this ONE build (D41).
+#   Local smoke validation only: 22 Jul 2025 Update 4, lmp -var smoke 1.
+# Model: pilot model (owner_inputs.md D37 note): OPLS-AA-based rigid
+#   molecules from Nutakki 2023 Tables II-III, Werder sp2-C tube carbons,
+#   Lorentz-Berthelot mixing (recorded deviation), full +-1 ion charges.
+# System: cf16_cf16_b4 -- armchair (16,16) CNT, 98.4 A (ncell 40, twice the
+#   pilot tube), packed pore filling 74 EC / 48 EMC / 12 LiPF6 = 1.101 M
+#   (pilot composition x2 for the same molarity; PLAN.md sections 4/6).
+# Thermostat: ONE Langevin scheme for every mobile atom, damping 1 ps:
+#   fix rigid/nve molecule langevin (multi-atom bodies, NON-distributed
+#   variant per f9cae3f) + fix nve + fix langevin (Li+); no Nose-Hoover.
+# Protocol (PLAN.md section 3; stage_b_plan.md section 2 verbatim from the
+#   settle on): fresh packed build -> 100 ps 10->300 K ramp (zero
+#   field) + 900 ps zero-field equilibration [per-build seeds:
+#   the build's three field jobs reach the IDENTICAL ladder-t=0 state]
+#   -> field on at ladder t = 0, 1000 ps settle (dump every 10 ps)
+#   -> 2 x 6000 ps production blocks dumped every 1 ps (one
+#   continuous trajectory; block A = 0-6000 ps, block B =
+#   6000-12000 ps, split in the analysis) -> write_data
+#   final.data. 13 ns of ladder protocol + 1 ns thermalization = 14 ns.
+#   Block length 6 ns = 2 x tau_M(cnt16 @0.01 V/A) = 2 x 3.01 ns
+#   (Stage A measurement, stageA/analysis/summary.json).
+# Seeds (PLAN.md section 5): velocity create 20273504; ramp 20273681/20273682;
+#   equil 20273683/20273684 (per-build); ladder 20276041/20276042 (per-job).
+# Dumps: every 1 ps (settle: every 10 ps), dump_modify format float
+#   %.10g, with image flags. Thermo: every 1 ps, flushed.
+# Z3 confirmatory pre-registration: the D39 analysis call and the 0.01 V/A
+# decision rule are fixed in confirmatory/PLAN.md (written before any job ran).
+#
+
+units           real
+atom_style      full
+boundary        p p p
+
+read_data       system.data
+
+pair_style      lj/cut/coul/long 12.0
+pair_modify     mix arithmetic tail no
+kspace_style    pppm 0.0001
+pair_coeff      1 1 0.085300 3.4000
+pair_coeff      2 2 0.104995 3.7500
+pair_coeff      3 3 0.170005 3.0000
+pair_coeff      4 4 0.065989 3.5000
+pair_coeff      5 5 0.209990 2.9600
+pair_coeff      6 6 0.015010 2.4200
+pair_coeff      7 7 0.029995 2.5000
+pair_coeff      8 8 0.066000 3.5000
+pair_coeff      9 9 0.165057 1.5100
+pair_coeff      10 10 0.200000 3.7400
+pair_coeff      11 11 0.060994 3.1180
+
+bond_style       harmonic
+bond_coeff      1 0.0 1.0
+special_bonds   lj/coul 0.0 0.0 0.0
+
+neighbor        2.0 bin
+neigh_modify    every 1 delay 0 check yes exclude molecule/intra all
+
+group           tube type 1
+group           mobile subtract all tube
+group           li type 9
+group           bodies subtract mobile li
+fix             frz tube setforce 0.0 0.0 0.0
+
+# honest mobile-subsystem temperature: 2*KE/(DOF*kB), real units
+# (the default thermo temp is diluted by the frozen tube atoms)
+compute         keb bodies ke
+compute         keli li ke
+variable        Tmob equal 2.0*(c_keb+c_keli)/(837*0.0019872041)
+
+timestep        1.0
+
+# smoke self-test:  lmp -var smoke 1 -in in.lammps
+variable        smoke index 0
+if "${smoke} == 1" then "variable nramp equal 500" "variable nequil equal 500" "variable nsettle equal 500" "variable nblockA equal 500" "variable nblockB equal 500" &
+else "variable nramp equal 100000" "variable nequil equal 900000" "variable nsettle equal 1000000" "variable nblockA equal 6000000" "variable nblockB equal 6000000"
+
+thermo          1000
+thermo_style    custom step atoms v_Tmob temp pe etotal press vol
+thermo_modify   flush yes
+
+velocity        mobile create 10.0 20273504 mom yes rot yes dist gaussian
+
+# --- stage 1: 100 ps ramp 10 -> 300 K, zero field (Stage A ramp;
+#     per-build seeds -> identical thermalization across the build's jobs)
+fix             thb bodies rigid/nve molecule langevin 10.0 300.0 1000 20273681
+fix             thl li nve
+fix             thla li langevin 10.0 300.0 1000 20273682
+run             ${nramp}
+
+# --- stage 2: 900 ps equilibration at 300 K, zero field
+unfix           thb
+unfix           thl
+unfix           thla
+fix             thb bodies rigid/nve molecule langevin 300.0 300.0 1000 20273683
+fix             thl li nve
+fix             thla li langevin 300.0 300.0 1000 20273684
+run             ${nequil}
+
+# --- ladder protocol starts here (stage_b_plan.md section 2, verbatim):
+#     external field along +z switched ON at ladder t = 0 (V/A, real units)
+fix             efield mobile efield 0.0 0.0 0.02
+# velocities continue from the thermalized state (no re-draw)
+fix             thb bodies rigid/nve molecule langevin 300.0 300.0 1000 20276041
+fix             thl li nve
+fix             thla li langevin 300.0 300.0 1000 20276042
+
+# --- stage 3: 1000 ps settle (field already on), dump every 10 ps
+dump            ed all custom 10000 equil.dump id mol type q x y z ix iy iz
+dump_modify     ed sort id format float %.10g
+run             ${nsettle}
+undump          ed
+
+# --- stage 4: 2 x 6000 ps production blocks, dump every 1 ps
+#     (one continuous trajectory; block A = 0-6000 ps,
+#      block B = 6000-12000 ps, split in the analysis)
+reset_timestep  0
+dump            pd all custom 1000 prod.dump id mol type q x y z ix iy iz
+dump_modify     pd sort id format float %.10g
+run             ${nblockA}
+run             ${nblockB}
+
+write_data      final.data nocoeff
+
