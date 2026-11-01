@@ -47,6 +47,21 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  commit-claims:
+    # D50 (Review 12): a commit message may only name files the commit
+    # contains. tools/check_commit_claims.py fails on over-claiming messages;
+    # known pre-check offenders live in docs/records/corrections.md.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0        # the check walks the last N commits
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: D50 commit-message claims check (last 5 commits)
+        run: python tools/check_commit_claims.py --last 5
+
   nightly:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest

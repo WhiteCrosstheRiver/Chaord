@@ -5,6 +5,22 @@ looks like a repo file path must exist in that commit's tree. Over-claiming
 messages (naming evidence the commit does not carry) fail -- the known
 offenders are listed in docs/records/corrections.md and predate this check.
 
+Two token classes are checked:
+1. slash paths (``research/.../final.data``): must exist in the tree, or a
+   tracked path starts with them (a named directory), or -- for elided
+   ``...``-prefixed tokens -- a tracked path ends with the tail.
+2. bare evidence basenames (``final.data``, ``log.lammps``, ``equil.dump``,
+   ``prod.dump``, ``prod_thinned.dump``, ``system.data``, ``in.lammps``,
+   ``manifest.json``, ``series_manifest.json``,
+   ``fill_series_manifest.json``, ``prod_series_manifest.json``,
+   ``jobs_index.json``): the motivating case is b994426's "Per job:
+   final.data + log.lammps committed", which carries no slash. Such a token
+   must exist somewhere in the commit's tree. Known limitation (recorded in
+   docs/records/corrections.md): both classes cannot see WHERE a basename
+   lives, so b994426 itself passes (stageA evidence of the same basenames
+   was already tracked); the check deters new over-claims, the corrections
+   record carries the exact history.
+
 Run:  python tools/check_commit_claims.py [--range A..B] [--last N]
 CI usage: python tools/check_commit_claims.py --last 1
 """
@@ -21,6 +37,19 @@ ROOT = Path(__file__).resolve().parents[1]
 PATH_TOKEN = re.compile(
     r"(?:[\w.-]+/)+[\w.-]+\.(?:data|lammps|dump|json|md|py|yaml|yml|txt|csv|npz)")
 
+# bare evidence basenames: a message naming one of these without any
+# directory prefix (the b994426 over-claim form) must still find the file
+# somewhere in the commit's tree
+BARE_BASENAMES = (
+    "final.data", "log.lammps", "equil.dump", "prod.dump",
+    "prod_thinned.dump", "system.data", "in.lammps", "manifest.json",
+    "series_manifest.json", "fill_series_manifest.json",
+    "prod_series_manifest.json", "jobs_index.json",
+)
+BARE_TOKEN = re.compile(
+    r"(?<![\w.-])(" + "|".join(re.escape(b) for b in BARE_BASENAMES) +
+    r")(?![\w.-])")
+
 
 def commit_tree_paths(commit):
     out = subprocess.run(["git", "ls-tree", "-r", "--name-only", commit],
@@ -33,6 +62,8 @@ def check(commit, end_tree=None):
     msg = subprocess.run(["git", "log", "-1", "--format=%B", commit],
                          capture_output=True, text=True, cwd=ROOT).stdout
     tree = commit_tree_paths(commit)
+    tree_basenames = {p.rsplit("/", 1)[-1] for p in tree}
+    end_basenames = {p.rsplit("/", 1)[-1] for p in end_tree}
     over_claims = []
     for token in sorted(set(PATH_TOKEN.findall(msg))):
         # prose like "final.data/equil/prod.dump" is not a path: skip tokens
@@ -51,6 +82,12 @@ def check(commit, end_tree=None):
             continue
         if token.startswith("...") and any(
                 p.endswith(token[3:]) for p in end_tree):
+            continue
+        over_claims.append(token)
+    for token in sorted(set(BARE_TOKEN.findall(msg))):
+        if token in tree_basenames:
+            continue
+        if token in end_basenames:      # same forward-reference allowance
             continue
         over_claims.append(token)
     return msg, over_claims
