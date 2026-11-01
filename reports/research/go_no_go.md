@@ -423,3 +423,149 @@ primary, saturation caveat). Tranche-1 record:
 `analysis/y8_block_analysis.py` + `tranche1_results.json` (its cnt10
 e10/e50 numbers reproduce here at the 12-ps cadence: +0.034 ± 0.119 and
 +0.171 ± 0.020 vs tranche-1's +0.036 ± 0.120 and +0.173 ± 0.021).
+
+## 13. Confirmatory set — the 0.01 V/Å decision (Review 11, Z3 + Z4)
+
+**VERDICT: 0.01 V/Å is CONFIRMED — Welch p = 0.0246 < 0.05 on the
+confirmatory set alone (shift +0.107, t = 2.85, df = 7.0, n = 6 per
+group).** This closes the decision D40 left open. It is the
+PRE-REGISTERED SINGLE TEST: the run list and the D39 call were committed
+in `research/cnt_electrolyte/confirmatory/PLAN.md` on 2026-10-31, before
+any confirmatory job was built, run or submitted ("0.01 V/A is CONFIRMED
+iff its Welch p < 0.05 on the confirmatory set alone … No other test is
+added after seeing the data"); Z4 ran exactly that call and reports the
+result it produced, with no post-hoc additions.
+
+Analysis stream Z4, Review 11, run 2026-11-01 by
+`research/cnt_electrolyte/analysis/confirmatory_z4.py` (deterministic,
+per-job checkpointed); every number lands in
+`research/cnt_electrolyte/analysis/confirmatory_results.json`.
+
+### 13.1 What was analysed
+
+The 18 jobs of PLAN.md section 1, fixed in advance: fields
+0 / 0.01 / 0.02 V/Å × 6 fresh packed builds `cf16_b1..b6` — armchair
+(16,16) tubes of 98.4 Å, 74 EC / 48 EMC / 12 LiPF6 = 1.101 M (4,116
+atoms) — each job 1 ns in-job zero-field thermalization + 1 ns settle +
+2 × 6 ns production blocks on the ONE cluster LAMMPS build (3 Mar 2020,
+8 ranks), thinned record of 1,001 frames at 12 ps per job.
+
+- **Dense lifting, stated and measured:** every frame of the committed
+  record is lifted — 18,018 blind lifts (1,001 per job: 500 in block A,
+  501 in block B), no analysis subsampling beyond the record's own
+  thinning. Measured cost 0.32 s/lift at 4,116 atoms (3.1 lifts/s) —
+  ≈ 96 min of lift wall on this box (the work order priced 0.10–0.17
+  s/lift from the 2,058-atom Stage-B frames; the confirmatory frames
+  are twice the atoms and the measured rate is stated, not assumed).
+  The run was interrupted externally once at 10/18 jobs and resumed
+  from its per-job checkpoint without recomputation.
+- **Verification on every one of the 18,018 frames:** atom count 4,116,
+  cell neutrality, molecular census (EC 74, EMC 48, PF6 12, Li 12 + the
+  3,200-C tube) — zero failures. Blocks verified against the dump
+  timesteps: 0 … 12,000,000 at exactly 12,000-step (12 ps) spacing in
+  every job; block A = t < 6,000 ps, block B = t ≥ 6,000 ps.
+- **Arms as on the full ladder (D32):** arm 1 = the blind Chaord lift
+  (`lift_frame(mode="auto")`, no `field=` kwarg, T = 300, one
+  composition dialect for all frames — the Y8 machinery, imported
+  unchanged); arm 2 = direct P1 without chaord (numpy, molecules by mol
+  id, minimum-image offsets, the dump's own charges). The D39 test runs
+  on the DIRECT arm's per-job `direct_p1_blocks`, exactly as PLAN
+  section 2's committed script reads them.
+
+### 13.2 Fidelity
+
+Max |P1(statement text) − P1(direct)| over all 18,018 lifted frames:
+**5.00e-04 — the statement's 3-decimal print half-quantum** (per-job
+maxima 4.989e-4 … 4.9997e-4), exactly as on the 42,042-frame full
+ladder (§3). The blind statement and the direct quantity are the same
+measurement to print precision; **zero failed static checks** on any
+lifted frame, and every lifted program's non-moving statements
+(chirality (16,16), length 98.4 Å, cell, census) are identical across
+each job's 1,001 lifts.
+
+### 13.3 The pre-registered D39 call and the verdict
+
+Zero-field side: the 6 e0 run means (blocks A and B averaged, per the
+committed script). Field-on side: each field's 6 block-B values.
+Welch's t, two-sided, α = 0.05, n = 6 per group (D39; runs are the
+units).
+
+| group | per-run values | mean ± sem |
+|---|---|---|
+| 0 V/Å, run means (A+B averaged) | −0.0289, −0.0519, +0.0361, −0.0624, +0.0166, −0.0180 | −0.0181 ± 0.0157 |
+| 0.01 V/Å, block B | +0.2209, +0.0107, +0.0706, +0.0985, −0.0042, +0.1387 | +0.0892 ± 0.0342 |
+| 0.02 V/Å, block B | +0.0976, +0.1785, +0.1428, +0.1862, +0.2194, +0.1913 | +0.1693 ± 0.0175 |
+
+| contrast | shift | t | df | p | role |
+|---|---|---|---|---|---|
+| **0.01 vs 0** | **+0.1073** | **2.85** | **7.0** | **0.0246** | **THE GATE — p < 0.05 → CONFIRMED** |
+| 0.02 vs 0 | +0.1874 | 7.97 | 9.9 | 1.3e-05 | secondary (dose-response context), computed by the same pre-registered call |
+
+Reading, honestly: the gate passes with 5 of 6 field-on runs positive
+(one run at −0.0042 sits on the zero-field side of zero, and the df 7.0
+reflects the field-on run's wider spread); the 0.02 point is decisive
+(all six runs positive) and consistent with Stage B's n = 3 detection
+of 0.02 at p = 0.0109 and its block-B values (+0.089 ± 0.034 and
++0.169 ± 0.018 here vs +0.075 ± 0.012 and +0.193 ± 0.021 on Stage B) —
+the dose-response context corroborates, but does NOT substitute for,
+the registered rule. The verdict follows from the rule and the
+registered p-value alone.
+
+### 13.4 Build-paired contrast (secondary, never the gate) — with the chaining caveat
+
+Per build, field-on block B minus that build's e0 all-block mean
+(PLAN section 2's registered secondary view): 0.01 V/Å **+0.1073 ±
+0.0406** (z 2.6; per-build +0.250, +0.063, +0.035, +0.161, −0.021,
++0.157); 0.02 V/Å +0.1874 ± 0.0235 (z 8.0). Secondary — reported
+because PLAN pre-registered it, never the gate — and read with the
+caveat of §13.5: for 6 of the 18 jobs the "identical ladder-t=0 state
+across a build's three field jobs" premise does not hold bit-wise, so
+these paired deltas are not a clean paired contrast.
+
+### 13.5 The cross-build chaining check — a disclosed non-determinism (PLAN section 3)
+
+PLAN section 3 pre-registered this check and its handling in advance:
+on the one LAMMPS build, a build's three field jobs share the
+thermalization seeds, so their end-of-stage-2 thermo (step 1,000,000)
+"must [be] IDENTICAL …; a mismatch means a non-deterministic path and
+is reported, not silently absorbed." **It mismatched — reported:**
+
+- Every build splits into exactly two bit-identical chain groups:
+  b1–b3 {e0, e10} vs {e20}; b4–b6 {e10, e20} vs {e0}. In each build,
+  two of the three jobs chain exactly; the third diverged.
+- The divergence begins in the SHARED ZERO-FIELD stage-1 ramp (the
+  step-100,000 thermo already differs), with stage-1/2 inputs verified
+  byte-identical across each build's three jobs (diffed in the
+  repository), the same LAMMPS binary, the same 8-rank layout, and
+  clean single-shot logs (no restart, no crash). This is a
+  non-deterministic floating-point path on the cluster (node/library
+  dispatch level), amplified to macroscopic trajectory divergence by
+  1 ns of chaotic Langevin MD — the same class of cross-build
+  divergence the full ladder disclosed in §3, here within one binary.
+- Consequences, stated: all 18 runs remain valid realizations of the
+  registered zero-field thermalization protocol (ramp-end Tmob values
+  all in the normal 285–331 K band); the PRIMARY D39 gate is unpaired
+  (runs are the units) and is NOT affected; the build-paired secondary
+  contrast of §13.4 loses its exact-pairing premise for the 6 divergent
+  jobs, as noted there. Per PLAN, nothing was re-run, patched or
+  absorbed.
+
+### 13.6 Reproduce
+
+    python research/cnt_electrolyte/analysis/confirmatory_z4.py
+
+reads the 18 canonical jobs (18,018 frames dense, both arms), lifts
+18,018 frames blind, and writes
+`research/cnt_electrolyte/analysis/confirmatory_results.json` (per-job
+direct/statement blocks, both series, fidelity, the Welch call with the
+group arrays, the build-paired secondary, the chaining check with the
+chain groups and ramp-end rows, provenance). Per-job progress is
+checkpointed to `confirmatory_z4_checkpoint.jsonl` (one JSON line per
+job), so an interrupted run resumes. `--smoke JOBS FRAMES` is a
+pipeline test (never for the record); `--fresh` ignores the checkpoint.
+Provenance chain per job: `confirmatory/manifests` were not completed by
+the Z3 stream (the download landed in `confirmatory/sb16L_<name>/`, not
+`cluster_results/<name>/`); per-job identity here rests on the job's
+own `log.lammps` (LAMMPS 3 Mar 2020, Total wall time), `final.data`,
+`in.lammps` + `system.data` under `confirmatory/jobs/<name>/`, and the
+verified thinned-series timesteps.
