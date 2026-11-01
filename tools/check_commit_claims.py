@@ -28,12 +28,19 @@ def commit_tree_paths(commit):
     return set(out.stdout.splitlines())
 
 
-def check(commit):
+def check(commit, end_tree=None):
+    end_tree = end_tree or set()
     msg = subprocess.run(["git", "log", "-1", "--format=%B", commit],
                          capture_output=True, text=True, cwd=ROOT).stdout
     tree = commit_tree_paths(commit)
     over_claims = []
     for token in sorted(set(PATH_TOKEN.findall(msg))):
+        # prose like "final.data/equil/prod.dump" is not a path: skip tokens
+        # whose first segment is a bare filename (no repo directory prefix)
+        # and which do not exist anywhere in the tree
+        first = token.split("/")[0]
+        if "/" in token and not any(p.split("/")[0] == first for p in tree)                 and not token.startswith("..."):
+            continue
         # the message may name a directory; test the dir prefix too
         if token in tree or any(p.startswith(token + "/") for p in tree):
             continue
@@ -41,6 +48,9 @@ def check(commit):
         # some tracked path ends with the tail
         if token.startswith("...") and any(
                 p.endswith(token[3:]) for p in tree):
+            continue
+        if token.startswith("...") and any(
+                p.endswith(token[3:]) for p in end_tree):
             continue
         over_claims.append(token)
     return msg, over_claims
@@ -70,7 +80,7 @@ def main():
     end_tree = commit_tree_paths(commits[-1]) if commits else set()
     failures = 0
     for c in commits:
-        msg, over = check(c)
+        msg, over = check(c, end_tree)
         over = [t for t in over if t not in end_tree]
         if over:
             failures += 1
