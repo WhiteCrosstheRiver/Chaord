@@ -9,4 +9,12 @@ screen.log
 DONE
 queue.out
 queue.err
+queue_log.jsonl
 research/cnt_electrolyte/stageA/.gitignore.bak
+# scratch that carries D50-class evidence files Q1 deliberately did not
+# add: the fill-repair smoke runs and the settle-verification run (their
+# final.data/log.lammps are smoke/verify artifacts, superseded by the
+# cluster fills in fills_cluster/); also the pre-regeneration hash scratch
+_smoke_fill_*/
+verify_fill_*/
+_pre_regen_hashes.json
