@@ -14,3 +14,7 @@
 !stageB_queue.py
 !jobs_index.json
 !README*.md
+# D50: the thinned prod series stay local-only (sha256 in
+# prod_series_manifest.json) and move to the D50 release archive (Q4);
+# '!cluster_results/**' above must not un-ignore them.
+cluster_results/**/prod_thinned.dump

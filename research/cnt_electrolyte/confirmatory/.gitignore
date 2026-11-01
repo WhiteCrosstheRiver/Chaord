@@ -1,7 +1,19 @@
-# Confirmatory outputs (D37 只算不存, amended Review 12 D50): the oversized
-# series stay local-only, but the per-job EVIDENCE (final.data + log.lammps
-# + equil.dump) is tracked per D50; raw prod dumps, staged data and smoke
-# scratch stay out.
+# Confirmatory outputs (D37 只算不存, amended Review 12 D50): the per-job
+# small evidence is tracked -- final.data + log.lammps per job. Layout after
+# the Q1 evidence commits: jobs/sb16L_*/ holds the 6f889bd smoke-era
+# inputs+outputs (in.lammps, system.data, smoke prod.dump/equil.dump/
+# final.data) plus the retrieved RUN log.lammps (c2daf75); the retrieved RUN
+# final.data live in sb16L_*/ (retrieval location) and are tracked. The
+# oversized series -- sb16L_*/equil.dump (~20 MB each, the run's own
+# equilibration dump), sb16L_*/prod_thinned.dump (~200 MB each, the 1/12
+# series) and the transfer bundle confirmatory_results.tar.gz (~980 MB) --
+# stay local-only and move to the D50 release archive (Q4), which carries
+# their sha256 manifest. sb16L_*/log.lammps is fenced as a byte-identical
+# duplicate of the committed jobs/ copy. NOTE (Q1 finding): the committed
+# series_manifest.json pins, 54/54 exactly, the SMOKE-era jobs/ artifacts
+# (its sb16L_e0_b1/equil.dump record is the 0-byte empty-file hash), not the
+# retrieved run series -- the run artifacts were sha256-pinned nowhere until
+# the Q4 archive manifest.
 jobs/*
 !jobs/.gitkeep
 !jobs/*/
@@ -9,3 +21,7 @@ jobs/*/*
 !jobs/*/final.data
 !jobs/*/log.lammps
 !jobs/*/equil.dump
+sb16L_*/equil.dump
+sb16L_*/log.lammps
+sb16L_*/prod_thinned.dump
+confirmatory_results.tar.gz
