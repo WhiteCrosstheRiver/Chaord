@@ -1,11 +1,12 @@
-# Stage A outputs (D37/Y6): raw trajectories, logs and staged data stay
-# out of git; job inputs (in.lammps), jobs_index.json, manifests/ and the
-# analysis outputs are tracked.
-*.dump
-*.data
-log.lammps
+# Stage A outputs (D37/Y6, amended by Review 12 D50): job evidence
+# (final.data + log.lammps per job) is tracked; raw trajectories
+# (*.dump), staged data (*.data), screen logs and queue scratch stay out.
+prod.dump
+equil.dump
+*.thinned.dump
+system.data
 screen.log
 DONE
 queue.out
 queue.err
-queue_log.jsonl
+research/cnt_electrolyte/stageA/.gitignore.bak

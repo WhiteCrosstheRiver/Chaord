@@ -1,0 +1,165 @@
+LAMMPS (22 Jul 2025 - Update 4)
+OMP_NUM_THREADS environment is not set. Defaulting to 1 thread.
+  using 1 OpenMP thread(s) per MPI task
+# LAMMPS input: fill_cnt10  (Stage A / Y6: filling: open CNT in a bulk 1M LiPF6/EC:EMC bath; staged decompression: 50 ps 10 K NVT settle + 100 ps 10->300 K NVT warm-up (fixed volume), then a 5000 -> 1000 -> 100 -> 1 atm stepped NPT descent (650 ps total, Pdamp 25000 fs), then 5 ns NPT 1 atm 300 K; tube starts empty (imbibition))
+# Engine: LAMMPS 22 Jul 2025 Update 4. Units: real (A, kcal/mol, fs, V/A).
+# Model: pilot model (owner_inputs.md D37 note): OPLS-AA-based rigid
+#   molecules from Nutakki 2023 Tables II-III, Werder sp2-C tube carbons,
+#   Lorentz-Berthelot mixing (recorded deviation), full +-1 ion charges.
+# Thermostat: ONE Langevin scheme for every mobile atom, damping 1 ps:
+#   fix rigid/nve molecule langevin (multi-atom bodies) + fix nve +
+#   fix langevin (Li+); no Nose-Hoover anywhere (Y6 settings).
+#   NOTE rigid/nve (not the /small variant): the local conda build's
+#   fix rigid/nve/small molecule corrupted body data at the first
+#   integration step for 3 of 4 cnt16 fresh builds (heap-layout
+#   dependent; atoms teleported out of the PPPM brick at step 1 with
+#   sane step-0 forces/velocities - see stageA_plan.md addendum
+#   2026-10-16). Same Langevin scheme, same damping, deterministic
+#   body bookkeeping.
+# Dumps: every 1 ps, dump_modify format float %.10g, with image flags.
+# Thermo: every 1 ps.
+#
+
+units           real
+atom_style      full
+boundary        p p p
+
+read_data       system.data
+Reading data file ...
+  orthogonal box = (-21.781345 -21.781345 0) to (21.781345 21.781345 109.2)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  16040 atoms
+  scanning bonds ...
+  6 = max bonds/atom
+  orthogonal box = (-21.781345 -21.781345 0) to (21.781345 21.781345 109.2)
+  1 by 1 by 1 MPI processor grid
+  reading bonds ...
+  14620 bonds
+Finding 1-2 1-3 1-4 neighbors ...
+  special bond factors lj:    0        0        0       
+  special bond factors coul:  0        0        0       
+     6 = max # of 1-2 neighbors
+     5 = max # of 1-3 neighbors
+     9 = max # of 1-4 neighbors
+    11 = max # of special neighbors
+  special bonds CPU = 0.003 seconds
+  read_data CPU = 0.065 seconds
+
+pair_style      lj/cut/coul/long 12.0
+pair_modify     mix arithmetic tail no
+kspace_style    pppm 0.0001
+pair_coeff      1 1 0.085300 3.4000
+pair_coeff      2 2 0.104995 3.7500
+pair_coeff      3 3 0.170005 3.0000
+pair_coeff      4 4 0.065989 3.5000
+pair_coeff      5 5 0.209990 2.9600
+pair_coeff      6 6 0.015010 2.4200
+pair_coeff      7 7 0.029995 2.5000
+pair_coeff      8 8 0.066000 3.5000
+pair_coeff      9 9 0.165057 1.5100
+pair_coeff      10 10 0.200000 3.7400
+pair_coeff      11 11 0.060994 3.1180
+
+bond_style       harmonic
+bond_coeff      1 0.0 1.0
+special_bonds   lj/coul 0.0 0.0 0.0
+
+neighbor        2.0 bin
+neigh_modify    every 1 delay 0 check yes exclude molecule/intra all
+
+group           tube type 1
+800 atoms in group tube
+group           mobile subtract all tube
+15240 atoms in group mobile
+group           li type 9
+100 atoms in group li
+group           bodies subtract mobile li
+15140 atoms in group bodies
+fix             frz tube setforce 0.0 0.0 0.0
+
+# honest mobile-subsystem temperature: 2*KE/(DOF*kB), real units
+# (the default thermo temp is diluted by the frozen tube atoms)
+compute         keb bodies ke
+compute         keli li ke
+variable        Tmob equal 2.0*(c_keb+c_keli)/(8301*0.0019872041)
+
+timestep        1.0
+
+# smoke self-test:  lmp -var smoke 1 -in in.lammps
+variable        smoke index 0
+if "${smoke} == 1" then "variable nsettle equal 500" "variable nwarm equal 500" "variable nbaro1 equal 500" "variable nbaro2 equal 500" "variable nbaro3 equal 500" "variable nbaro4 equal 500" "variable nprodf equal 500" else "variable nsettle equal 50000" "variable nwarm equal 100000" "variable nbaro1 equal 125000" "variable nbaro2 equal 125000" "variable nbaro3 equal 125000" "variable nbaro4 equal 125000" "variable nprodf equal 5000000"
+variable nsettle equal 50000
+variable nwarm equal 100000
+variable nbaro1 equal 125000
+variable nbaro2 equal 125000
+variable nbaro3 equal 125000
+variable nbaro4 equal 125000
+variable nprodf equal 5000000
+
+thermo          1000
+thermo_style    custom step atoms v_Tmob temp pe etotal press vol density
+
+velocity        mobile create 10.0 20265100 mom yes rot yes dist gaussian
+
+# force a log/screen flush at every thermo output: these jobs run for
+# days; without it the redirected screen.log buffers ~4 KB and shows
+# nothing for hours (found while monitoring the 2026-10-20 verification)
+thermo_modify    flush yes
+
+# --- stage 1 (50 ps): NVT settle at 10 K, FIXED volume.
+#     The packed bath is a cold jam carrying ~+20,000 atm of contact
+#     stress (failed-run thermo: P = +20,869 / +11,042 atm at step 0)
+#     because pack-then-relax leaves the contact network AT the packing
+#     floors (0.85 sigma) even though the density is only ~87% of the
+#     CRC target. At fixed volume there is no box degree of freedom to
+#     run away: the Langevin bath (1 ps damping) simply drains the
+#     contact energy released as neighbouring molecules push apart into
+#     local free volume. A Tmob spike like the zf builds' 642 K
+#     step-1000 transient is expected and harmless at fixed V.
+fix             thb bodies rigid/nve molecule langevin 10 10 1000 5100101
+  1334 rigid bodies with 15140 atoms
+fix             thl li nve
+fix             thla li langevin 10 10 1000 5100102
+run             ${nsettle}
+run             50000
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb
+  G vector (1/distance) = 0.20234716
+  grid = 16 16 32
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.036336133
+  estimated relative force accuracy = 0.00010942518
+  using double precision KISS FFT
+  3d grid and FFT values/proc = 16317 8192
+Generated 55 of 55 mixed pair_coeff terms from arithmetic mixing rule
+WARNING: Neighbor exclusions used with KSpace solver may give inconsistent Coulombic energies (C:\Users\runneradmin\AppData\Local\Temp\tmpr04lorxi\build\_deps\lammps-src\src\neighbor.cpp:671)
+Neighbor list info ...
+  update: every = 1 steps, delay = 0 steps, check = yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 14
+  ghost atom cutoff = 14
+  binsize = 7, bins = 7 7 16
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair lj/cut/coul/long, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d
+      bin: standard
+Per MPI rank memory allocation (min/avg/max) = 64.22 | 64.22 | 64.22 Mbytes
+   Step        Atoms        v_Tmob          Temp          PotEng         TotEng         Press          Volume        Density    
+         0       16040   10.034927      7.7843023     -107214.54     -107131.78      20868.851      207229.71      1.1234721    
+      1000       16040   676.87594      525.0668      -128481.23     -122898.43      1414.7916      207229.71      1.1234721    
+      2000       16040   268.38445      208.19142     -132152.78     -129939.17     -1299.0682      207229.71      1.1234721    
+      3000       16040   132.86343      103.06493     -133982.3      -132886.46     -2628.181       207229.71      1.1234721    
+      4000       16040   69.447247      53.871679     -134902.07     -134329.28     -2750.8677      207229.71      1.1234721    
+      5000       16040   39.796812      30.871218     -135375.06     -135046.82     -3216.6636      207229.71      1.1234721    
+      6000       16040   27.902465      21.644524     -135655.84     -135425.7      -3103.1367      207229.71      1.1234721    
+      7000       16040   20.94783       16.249669     -135829.85     -135657.08     -3686.2363      207229.71      1.1234721    
+      8000       16040   16.523496      12.81762      -135937.31     -135801.02     -2296.7936      207229.71      1.1234721    
+      9000       16040   14.727765      11.424635     -136011.64     -135890.17     -2967.2694      207229.71      1.1234721    
+     10000       16040   14.460548      11.217349     -136078.89     -135959.62     -3508.695       207229.71      1.1234721    
+     11000       16040   13.922675      10.80011      -136144.87     -136030.04     -2509.3009      207229.71      1.1234721    
+     12000       16040   13.107946      10.168107     -136194.93     -136086.82     -2871.0012      207229.71      1.1234721    
+     13000       16040   12.344826      9.5761391     -136237.34     -136135.52     -4463.9375      207229.71      1.1234721    
+     14000       16040   12.994873      10.080394     -136285.64     -136178.46     -2248.1892      207229.71      1.1234721    
