@@ -1,0 +1,74 @@
+LAMMPS (22 Jul 2025 - Update 4)
+OMP_NUM_THREADS environment is not set. Defaulting to 1 thread.
+  using 1 OpenMP thread(s) per MPI task
+Reading data file ...
+  orthogonal box = (-25.850153 -25.850153 0) to (25.850153 25.850153 109.2)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  22009 atoms
+  scanning bonds ...
+  6 = max bonds/atom
+  orthogonal box = (-25.850153 -25.850153 0) to (25.850153 25.850153 109.2)
+  1 by 1 by 1 MPI processor grid
+  reading bonds ...
+  19892 bonds
+Finding 1-2 1-3 1-4 neighbors ...
+  special bond factors lj:    0        0        0       
+  special bond factors coul:  0        0        0       
+     6 = max # of 1-2 neighbors
+     5 = max # of 1-3 neighbors
+     9 = max # of 1-4 neighbors
+    11 = max # of special neighbors
+  special bonds CPU = 0.004 seconds
+  read_data CPU = 0.087 seconds
+1280 atoms in group tube
+20729 atoms in group mobile
+143 atoms in group li
+20586 atoms in group bodies
+  1826 rigid bodies with 20586 atoms
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb
+  G vector (1/distance) = 0.20810737
+  grid = 20 20 36
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.02558519
+  estimated relative force accuracy = 7.7049039e-05
+  using double precision KISS FFT
+  3d grid and FFT values/proc = 25625 14400
+Generated 55 of 55 mixed pair_coeff terms from arithmetic mixing rule
+WARNING: Neighbor exclusions used with KSpace solver may give inconsistent Coulombic energies (C:\Users\runneradmin\AppData\Local\Temp\tmpr04lorxi\build\_deps\lammps-src\src\neighbor.cpp:671)
+Neighbor list info ...
+  update: every = 1 steps, delay = 0 steps, check = yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 14
+  ghost atom cutoff = 14
+  binsize = 7, bins = 8 8 16
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair lj/cut/coul/long, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d
+      bin: standard
+Setting up Verlet run ...
+  Unit style    : real
+  Current step  : 0
+  Time step     : 1
+Per MPI rank memory allocation (min/avg/max) = 83.19 | 83.19 | 83.19 Mbytes
+   Step        Atoms        v_Tmob          Temp          PotEng         TotEng         Press          Volume        Density    
+         0       22009   10.163146      7.5993154     -153192.07     -153077.13      11042.057      291883.04      1.1044966    
+      1000       22009   505.5557       378.02046     -175590.03     -169872.61     -906.67178      402418.63      0.8011156    
+      2000       22009   260.2037       194.56278     -178814.21     -175871.52     -1022.4498      478941.08      0.67311796   
+      3000       22009   184.51007      137.96419     -180182.25     -178095.59     -1280.3922      610024.25      0.52847709   
+      4000       22009   155.03215      115.92259     -180116.35     -178363.07     -663.41971      870944.46      0.37015431   
+      5000       22009   164.83382      123.25162     -179393.34     -177529.21     -643.55623      1441007.3      0.22372118   
+      6000       22009   202.36892      151.31783     -178307.3      -176018.67     -25.68048       2985907.4      0.10796846   
+      7000       22009   314.05071      234.82594     -176480.5      -172928.84     -79.283649      9895937.9      0.032577392  
+      8000       22009   1641.6094      1227.4848     -166681.1      -148115.85      3.9309697      4.0252517e+08  0.00080090356
+ERROR on proc 0: Non-numeric box dimensions - simulation unstable
+For more information see https://docs.lammps.org/err0006 (C:\Users\runneradmin\AppData\Local\Temp\tmpr04lorxi\build\_deps\lammps-src\src\KSPACE\pppm.cpp:1798)
+
+job aborted:
+[ranks] message
+
+[0] application aborted
+aborting MPI_COMM_WORLD (comm=0x44000000), error 1, comm rank 0
