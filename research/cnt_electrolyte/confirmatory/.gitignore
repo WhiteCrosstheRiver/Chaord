@@ -1,7 +1,11 @@
-# Confirmatory outputs (D37 只算不存): EVERYTHING in jobs/ (raw dumps, staged
-# data, logs) and the thinned series stay local-only -- the Z4 analysis reads
-# them from this working tree; the repo carries the analysis OUTPUTS and
-# manifests. The thinning manifest (sha256 of every local-only artifact) is
-# committed below.
+# Confirmatory outputs (D37 只算不存, amended Review 12 D50): the oversized
+# series stay local-only, but the per-job EVIDENCE (final.data + log.lammps
+# + equil.dump) is tracked per D50; raw prod dumps, staged data and smoke
+# scratch stay out.
 jobs/*
 !jobs/.gitkeep
+!jobs/*/
+jobs/*/*
+!jobs/*/final.data
+!jobs/*/log.lammps
+!jobs/*/equil.dump
