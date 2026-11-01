@@ -1,0 +1,30 @@
+{
+ "fill_cnt10": {
+  "final.data": {
+   "bytes": 3259061,
+   "sha256": "db9bfbfcf02dee5af6449dfab9b8c5836680c9b45f952523f71640ecacdf2907"
+  },
+  "log.lammps": {
+   "bytes": 646260,
+   "sha256": "d30b3c7a3ff0d91ef141d86c1717c2ac1791277c819b9ab80cbfcb2166308eb4"
+  },
+  "prod_thinned.dump": {
+   "bytes": 959747611,
+   "sha256": "b7bd9fa21de1b3218638d3680d9163b3a9edaf8568be60ad102fad0823e42753"
+  }
+ },
+ "fill_cnt16": {
+  "final.data": {
+   "bytes": 4491548,
+   "sha256": "79f4f8857dcd1c5c5b322bce8752c4080abcc84bb5c640663018405b606f913d"
+  },
+  "log.lammps": {
+   "bytes": 646317,
+   "sha256": "d2570ea78327aeb6ab9d9bfdd7d78dd465429c321d7356a5b171aa557e28ebe8"
+  },
+  "prod_thinned.dump": {
+   "bytes": 1321012835,
+   "sha256": "3997b696ec802ee4a0f7cff641f7cf1d591b7f078462b5ce5a4f86f0866546a7"
+  }
+ }
+}
