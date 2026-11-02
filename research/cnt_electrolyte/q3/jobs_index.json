@@ -1,0 +1,104 @@
+[
+  {
+    "name": "q3_e0_b1",
+    "kind": "q3",
+    "tube": 16,
+    "tube_len_A": 98.4,
+    "build": "q3_b1",
+    "build_k": 1,
+    "field": 0.0,
+    "field_mv": 0,
+    "source": "q3/data/q3_b1.data",
+    "atoms": 4385,
+    "seeds": {
+      "bodies": 202816011,
+      "li": 202816012
+    },
+    "protocol": "Z3 verbatim: 1 ns thermalization + 1 ns settle + 2 x 6 ns blocks, 12 ps thinned record"
+  },
+  {
+    "name": "q3_e0_b2",
+    "kind": "q3",
+    "tube": 16,
+    "tube_len_A": 98.4,
+    "build": "q3_b2",
+    "build_k": 2,
+    "field": 0.0,
+    "field_mv": 0,
+    "source": "q3/data/q3_b2.data",
+    "atoms": 4385,
+    "seeds": {
+      "bodies": 202816021,
+      "li": 202816022
+    },
+    "protocol": "Z3 verbatim: 1 ns thermalization + 1 ns settle + 2 x 6 ns blocks, 12 ps thinned record"
+  },
+  {
+    "name": "q3_e0_b3",
+    "kind": "q3",
+    "tube": 16,
+    "tube_len_A": 98.4,
+    "build": "q3_b3",
+    "build_k": 3,
+    "field": 0.0,
+    "field_mv": 0,
+    "source": "q3/data/q3_b3.data",
+    "atoms": 4385,
+    "seeds": {
+      "bodies": 202816031,
+      "li": 202816032
+    },
+    "protocol": "Z3 verbatim: 1 ns thermalization + 1 ns settle + 2 x 6 ns blocks, 12 ps thinned record"
+  },
+  {
+    "name": "q3_e10_b1",
+    "kind": "q3",
+    "tube": 16,
+    "tube_len_A": 98.4,
+    "build": "q3_b1",
+    "build_k": 1,
+    "field": 0.01,
+    "field_mv": 10,
+    "source": "q3/data/q3_b1.data",
+    "atoms": 4385,
+    "seeds": {
+      "bodies": 202817011,
+      "li": 202817012
+    },
+    "protocol": "Z3 verbatim: 1 ns thermalization + 1 ns settle + 2 x 6 ns blocks, 12 ps thinned record"
+  },
+  {
+    "name": "q3_e10_b2",
+    "kind": "q3",
+    "tube": 16,
+    "tube_len_A": 98.4,
+    "build": "q3_b2",
+    "build_k": 2,
+    "field": 0.01,
+    "field_mv": 10,
+    "source": "q3/data/q3_b2.data",
+    "atoms": 4385,
+    "seeds": {
+      "bodies": 202817021,
+      "li": 202817022
+    },
+    "protocol": "Z3 verbatim: 1 ns thermalization + 1 ns settle + 2 x 6 ns blocks, 12 ps thinned record"
+  },
+  {
+    "name": "q3_e10_b3",
+    "kind": "q3",
+    "tube": 16,
+    "tube_len_A": 98.4,
+    "build": "q3_b3",
+    "build_k": 3,
+    "field": 0.01,
+    "field_mv": 10,
+    "source": "q3/data/q3_b3.data",
+    "atoms": 4385,
+    "seeds": {
+      "bodies": 202817031,
+      "li": 202817032
+    },
+    "protocol": "Z3 verbatim: 1 ns thermalization + 1 ns settle + 2 x 6 ns blocks, 12 ps thinned record"
+  }
+]

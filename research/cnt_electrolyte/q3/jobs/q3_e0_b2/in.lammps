@@ -1,0 +1,80 @@
+# LAMMPS input: q3_e0_b2  (Q3 confirmatory: the RESERVOIR filling
+# (88 EC / 55 EMC / 15 LiPF6 per 98.4 A tube, Q2-measured and neutralized,
+# q3/PLAN.md section 3) at 0.0 V/A -- the D49 filling-sensitivity check
+# of the Z4 verdict. Protocol = Z3's: 1 ns in-job zero-field thermalization
+# + 1 ns settle + 2 x 6 ns production blocks; 12 ps thinned record.
+# One LAMMPS build for all Q3 jobs: module lammps/3Mar20-icc.2022.
+units           real
+atom_style      full
+boundary        p p p
+read_data       system.data
+
+pair_style      lj/cut/coul/long 12.0
+pair_modify     shift yes
+kspace_style    pppm 0.0001
+pair_modify     mix arithmetic tail no
+pair_coeff      1 1 0.085300 3.4000
+pair_coeff      2 2 0.104995 3.7500
+pair_coeff      3 3 0.170005 3.0000
+pair_coeff      4 4 0.065989 3.5000
+pair_coeff      5 5 0.209990 2.9600
+pair_coeff      6 6 0.015010 2.4200
+pair_coeff      7 7 0.029995 2.5000
+pair_coeff      8 8 0.066000 3.5000
+pair_coeff      9 9 0.165057 1.5100
+pair_coeff      10 10 0.200000 3.7400
+pair_coeff      11 11 0.060994 3.1180
+
+bond_style       harmonic
+bond_coeff      1 0.0 1.0
+special_bonds   lj/coul 0.0 0.0 0.0
+
+group           tube type 1
+group           mobile subtract all tube
+group           li type 9
+group           bodies subtract mobile li
+fix             frz tube setforce 0.0 0.0 0.0
+fix             efield mobile efield 0.0 0.0 0.0
+
+compute         keb mobile temp
+compute         keli li temp
+variable        Tmob equal 2.0*(c_keb+c_keli)/(8301*0.0019872041)
+variable        dofequal equal 8301
+
+# ---- 1 ns in-job zero-field thermalization (the build's velocities are
+# fresh; this stage equilibrates the RESERVOIR filling at 300 K).
+# NOTE: no fix ave/time anywhere -- the 3 Mar 2020 build rejects
+# reset_timestep while an ave/time fix is alive (its first output
+# window would be skipped); the stage temperatures come from the
+# regular thermo output instead.
+velocity        mobile create 300.0 202816021 mom yes rot yes dist gaussian
+fix             thb bodies rigid/nve molecule langevin 300.0 300.0 1000 202816021
+fix             thl li nve
+fix             thla li langevin 300.0 300.0 1000 202816022
+timestep        1.0
+run             1000000
+unfix           thb
+unfix           thla
+
+# ---- 1 ns settle (the Z3 stage-2) ----
+run             1000000
+write_data      settle.data nocoeff
+
+# ---- production: 2 x 6 ns blocks, dump every 1 ps, %.10g + image flags ----
+reset_timestep  0
+dump            ed all custom 1000 equil.dump id mol type q x y z ix iy iz
+dump_modify     ed sort id format float %.10g
+dump            pd all custom 1000 prod.dump id mol type q x y z ix iy iz
+dump_modify     pd sort id format float %.10g
+thermo          1000
+thermo_style    custom step atoms v_Tmob temp pe etotal press vol
+run             6000000
+undump          ed
+undump          pd
+write_data      blockA.data nocoeff
+reset_timestep  0
+dump            pd all custom 1000 prod2.dump id mol type q x y z ix iy iz
+dump_modify     pd sort id format float %.10g
+run             6000000
+undump          pd
+write_data      final.data nocoeff

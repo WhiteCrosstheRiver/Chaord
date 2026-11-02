@@ -1,0 +1,147 @@
+LAMMPS (22 Jul 2025 - Update 4)
+OMP_NUM_THREADS environment is not set. Defaulting to 1 thread.
+  using 1 OpenMP thread(s) per MPI task
+Reading data file ...
+  orthogonal box = (-20.850153 -20.850153 0) to (20.850153 20.850153 98.4)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  4385 atoms
+  scanning bonds ...
+  6 = max bonds/atom
+  orthogonal box = (-20.850153 -20.850153 0) to (20.850153 20.850153 98.4)
+  1 by 1 by 1 MPI processor grid
+  reading bonds ...
+  1740 bonds
+Finding 1-2 1-3 1-4 neighbors ...
+  special bond factors lj:    0        0        0       
+  special bond factors coul:  0        0        0       
+     6 = max # of 1-2 neighbors
+     5 = max # of 1-3 neighbors
+     9 = max # of 1-4 neighbors
+    11 = max # of special neighbors
+  special bonds CPU = 0.001 seconds
+  read_data CPU = 0.020 seconds
+2560 atoms in group tube
+1825 atoms in group mobile
+15 atoms in group li
+1810 atoms in group bodies
+  158 rigid bodies with 1810 atoms
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb
+  G vector (1/distance) = 0.18543307
+  grid = 12 12 24
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.024010534
+  estimated relative force accuracy = 7.2307011e-05
+  using double precision KISS FFT
+  3d grid and FFT values/proc = 8381 3456
+Generated 55 of 55 mixed pair_coeff terms from arithmetic mixing rule
+Neighbor list info ...
+  update: every = 1 steps, delay = 0 steps, check = yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 14
+  ghost atom cutoff = 14
+  binsize = 7, bins = 6 6 15
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair lj/cut/coul/long, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d
+      bin: standard
+Setting up Verlet run ...
+  Unit style    : real
+  Current step  : 0
+  Time step     : 1
+Per MPI rank memory allocation (min/avg/max) = 14.54 | 14.54 | 14.54 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+         0   34.329005      46423877       0              46424172       74633024     
+   1000000   34.38547       46420505       0              46420801       74636033     
+Loop time of 14424 on 1 procs for 1000000 steps with 4385 atoms
+
+Performance: 5.990 ns/day, 4.007 hours/ns, 69.329 timesteps/s, 304.007 katom-step/s
+99.8% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 12829      | 12829      | 12829      |   0.0 | 88.94
+Bond    | 14.653     | 14.653     | 14.653     |   0.0 |  0.10
+Kspace  | 1268.1     | 1268.1     | 1268.1     |   0.0 |  8.79
+Neigh   | 141.38     | 141.38     | 141.38     |   0.0 |  0.98
+Comm    | 19.21      | 19.21      | 19.21      |   0.0 |  0.13
+Output  | 1.64e-05   | 1.64e-05   | 1.64e-05   |   0.0 |  0.00
+Modify  | 141.19     | 141.19     | 141.19     |   0.0 |  0.98
+Other   |            | 10.79      |            |       |  0.07
+
+Nlocal:           4385 ave        4385 max        4385 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:           5736 ave        5736 max        5736 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    1.25644e+06 ave 1.25644e+06 max 1.25644e+06 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 1256440
+Ave neighs/atom = 286.53136
+Ave special neighs/atom = 3.1940707
+Neighbor list builds = 12848
+Dangerous builds = 0
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb
+  G vector (1/distance) = 0.18543307
+  grid = 12 12 24
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.024010534
+  estimated relative force accuracy = 7.2307011e-05
+  using double precision KISS FFT
+  3d grid and FFT values/proc = 8381 3456
+Generated 55 of 55 mixed pair_coeff terms from arithmetic mixing rule
+Setting up Verlet run ...
+  Unit style    : real
+  Current step  : 1000000
+  Time step     : 1
+Per MPI rank memory allocation (min/avg/max) = 13.29 | 13.29 | 13.29 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+   1000000   22.667429      46420505       0              46420801       74635649     
+   2000000   22.388646      46420508       0              46420801       74635656     
+Loop time of 18077.5 on 1 procs for 1000000 steps with 4385 atoms
+
+Performance: 4.779 ns/day, 5.022 hours/ns, 55.317 timesteps/s, 242.566 katom-step/s
+99.8% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 16368      | 16368      | 16368      |   0.0 | 90.54
+Bond    | 20.294     | 20.294     | 20.294     |   0.0 |  0.11
+Kspace  | 1594.3     | 1594.3     | 1594.3     |   0.0 |  8.82
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 21.396     | 21.396     | 21.396     |   0.0 |  0.12
+Output  | 2e-05      | 2e-05      | 2e-05      |   0.0 |  0.00
+Modify  | 57.449     | 57.449     | 57.449     |   0.0 |  0.32
+Other   |            | 15.93      |            |       |  0.09
+
+Nlocal:           4385 ave        4385 max        4385 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:           5732 ave        5732 max        5732 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    1.25682e+06 ave 1.25682e+06 max 1.25682e+06 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 1256824
+Ave neighs/atom = 286.61893
+Ave special neighs/atom = 3.1940707
+Neighbor list builds = 0
+Dangerous builds = 0
+System init for write_data ...
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb
+  G vector (1/distance) = 0.18543307
+  grid = 12 12 24
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.024010534
+  estimated relative force accuracy = 7.2307011e-05
+  using double precision KISS FFT
+  3d grid and FFT values/proc = 8381 3456
+Generated 55 of 55 mixed pair_coeff terms from arithmetic mixing rule
+ERROR: Cannot reset timestep with time-dependent fix ave/time defined (C:\Users\runneradmin\AppData\Local\Temp\tmpr04lorxi\build\_deps\lammps-src\src\update.cpp:523)
+Last input line: reset_timestep 0
