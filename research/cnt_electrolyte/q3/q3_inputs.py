@@ -56,6 +56,12 @@ fix             frz tube setforce 0.0 0.0 0.0
 
 compute         keb mobile temp
 compute         keli li temp
+variable        smoke index 0
+if "${smoke} == 1" then "variable nthermal equal 10000" "variable nsettle equal 10000" "variable nblock equal 60000" "jump SELF skip-rest"
+variable        nthermal equal 1000000
+variable        nsettle equal 1000000
+variable        nblock equal 6000000
+label           skip-rest
 variable        Tmob equal 2.0*(c_keb+c_keli)/(8301*0.0019872041)
 variable        dofequal equal 8301
 
@@ -70,12 +76,12 @@ fix             thb bodies rigid/nve molecule langevin 300.0 300.0 1000 {v['bodi
 fix             thl li nve
 fix             thla li langevin 300.0 300.0 1000 {v['li']}
 timestep        1.0
-run             1000000
+run             ${nthermal}
 unfix           thb
 unfix           thla
 
 # ---- 1 ns settle (the Z3 stage-2) ----
-run             1000000
+run             ${nsettle}
 write_data      settle.data nocoeff
 
 # ---- production: 2 x 6 ns blocks, dump every 1 ps, %.10g + image flags ----
@@ -86,14 +92,14 @@ dump            pd all custom 1000 prod.dump id mol type q x y z ix iy iz
 dump_modify     pd sort id format float %.10g
 thermo          1000
 thermo_style    custom step atoms v_Tmob temp pe etotal press vol
-run             6000000
+run             ${nblock}
 undump          ed
 undump          pd
 write_data      blockA.data nocoeff
 reset_timestep  0
 dump            pd all custom 1000 prod2.dump id mol type q x y z ix iy iz
 dump_modify     pd sort id format float %.10g
-run             6000000
+run             ${nblock}
 undump          pd
 write_data      final.data nocoeff
 """
