@@ -110,3 +110,25 @@ EXIT CODE: 1
 bare-basename rule catches the claim.) After both branches were deleted, the
 Q1 chain verifies green: `python tools/check_commit_claims.py --last 6` →
 "commit-claims check: clean (6 commits)", exit 0.
+
+## Q3 void entry (D54, T4, 2026-11-05)
+
+Q3 was built from the uncorrected Q2 draft composition (caf8b78: EC 0.8984/Å,
+EMC 0.5578/Å, Li+ 0.1541/Å), not the corrected reservoir filling (fc8bec2:
+EC 1.2701/Å, EMC 0.5917/Å, Li+ 0.2673/Å, PF6- 0.2127/Å). It therefore tested
+neither the pilot filling nor the reservoir filling, and is VOID as a filling
+test (open_items_v7.md D54). Two results were reported for the same data:
+
+| commit | shift (block B vs zero-field) | p (Welch) | script | data |
+| --- | --- | --- | --- | --- |
+| `36daad6` / go_no_go.md §14 | +0.008 | 0.78 | `p1_fixed.py` | 12-ps thinned dumps |
+| `0f63a06` | +0.035 | 0.1285 | `p1_extract.py` | dense 1-ps dumps |
+
+Both numbers are preserved (with script attribution) in
+`research/cnt_electrolyte/q3/q3_results.json`; the per-job final.data +
+log.lammps + the sha256 `q3_series_manifest.json` (54 artifacts, 1/12-thinned
+series, raw dumps wiped on the cluster 22 G → 1.3 G) are tracked as of
+`841d5bc`. No post-hoc test was added; the pre-registered D39 call
+(q3/PLAN.md, dc2607a) was run exactly as committed on a composition the
+corrected filling analysis had already superseded — the planning defect is the
+record here, not the analysis.

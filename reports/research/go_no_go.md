@@ -426,26 +426,26 @@ e10/e50 numbers reproduce here at the 12-ps cadence: +0.034 ± 0.119 and
 
 
 
-## 14. Q3 — the filling-sensitivity check (Review 12, D49 trigger)
+## 14. Q3 — VOID as a filling test (D54, open_items_v7.md)
 
-Q2 found the reservoir filling differs from the pilot composition by more
-than 5% for all four species in (16,16) (EC +68.9%, EMC +21.3%,
-Li+ +119.2%, PF6- +74.4% per Å). Q3 (pre-registered in
-`research/cnt_electrolyte/q3/PLAN.md`) re-ran the D39 call at the
-RESERVOIR filling: 3 builds x fields {0, 0.01}, 98.4 Å tubes, EC 88 /
-EMC 55 / 15 LiPF6 (Q2-measured, neutralized), one LAMMPS build.
+**VOID: composition from the uncorrected Q2 draft.** Q3 was built at EC
+0.8984/Å, EMC 0.5578/Å, Li+ 0.1541/Å (from the uncorrected Q2 draft,
+caf8b78) — it tested neither the pilot filling (pilot (16,16): 0.596
+g/cm³ over the full tube radius) nor the open-tube reservoir filling
+(middle window: 0.936 g/cm³; corrected per-Å values in fc8bec2). The
+earlier text of this section and of §14b labelled the composition
+"Q2-measured reservoir filling"; that labelling was wrong and is
+corrected here (recorded in docs/records/corrections.md, Q3 void entry).
 
-**Result: 0.01 V/Å is NOT CONFIRMED at the reservoir filling** —
-shift +0.008, t 0.30, p 0.78 on n = 3 per group (the direct-arm
-extraction ran on the cluster; `research/cnt_electrolyte/q3/p1_fixed.py`).
-
-Honest reading: the Z4 detection (p 0.0246) was measured at the PILOT
-filling; at the reservoir filling the same pre-registered call does not
-detect the field at n = 3. Whether this is a power issue (n = 3 vs the
-6-run Z3 set) or a real filling-composition effect is unresolved by this
-data — both results are reported, no post-hoc test added. The go/no-go
-under D40 (E_min Chaord = E_min direct, both arms) is UNCHANGED: the
-fidelity result holds and both arms remain identical at every filling.
+Both reported results are preserved as an audit record in §14b and in
+`research/cnt_electrolyte/q3/q3_results.json` (36daad6: shift +0.008,
+p 0.78 via p1_fixed.py; 0f63a06: shift +0.035, p 0.1285 via
+p1_extract.py). The pre-registered D39 call was run exactly as
+committed on the wrong composition — the defect is the composition
+source, not the analysis. The go/no-go under D40 (E_min Chaord = E_min
+direct, both arms) is UNCHANGED: fidelity holds and both arms remain
+identical at every filling. The reservoir-filling detection question is
+re-opened as T1–T3 (open_items_v7.md D55).
 ## 13. Confirmatory set — the 0.01 V/Å decision (Review 11, Z3 + Z4)
 
 **VERDICT: 0.01 V/Å is CONFIRMED — Welch p = 0.0246 < 0.05 on the
@@ -595,21 +595,29 @@ own `log.lammps` (LAMMPS 3 Mar 2020, Total wall time), `final.data`,
 verified thinned-series timesteps.
 
 
-## 14. Q3 — the filling-sensitivity check (Review 12, D49 triggered)
+## 14b. Q3 — the filling-sensitivity check (Review 12, D49 triggered) — VOID per D54
 
-**0.01 V/Å is NOT CONFIRMED at the reservoir filling** — Welch p = 0.1285
-(shift +0.035, t = 1.94, n = 3 per group), versus p = 0.0246 (shift
-+0.107) at the pilot filling (Z4). The pre-registered D39 call was run
-exactly as committed (PLAN: research/cnt_electrolyte/q3/PLAN.md,
-committed before any job).
+**VOID: composition from the uncorrected Q2 draft** (see §14). The two
+reported results below were computed on that composition and are kept
+only as an audit record; neither tests the pilot nor the reservoir
+filling. Attribution per `research/cnt_electrolyte/q3/q3_results.json`:
+0f63a06's numbers come from p1_extract.py on the dense 1-ps dumps;
+36daad6's from p1_fixed.py on the 12-ps thinned dumps.
 
-### 14.1 What was analysed
+**0.01 V/Å is NOT CONFIRMED at the Q3 composition** — Welch p = 0.1285
+(shift +0.035, t = 1.94, n = 3 per group; 0f63a06), versus p = 0.78
+(shift +0.008, t = 0.30) on the thinned-dump extraction (36daad6); the
+pilot-filling Z4 result was p = 0.0246 (shift +0.107). The
+pre-registered D39 call was run exactly as committed (PLAN:
+research/cnt_electrolyte/q3/PLAN.md, committed before any job).
+
+### 14b.1 What was analysed
 
 The 6 Q3 jobs (q3_e0_b{1..3}, q3_e10_b{1..3}): (16,16) 98.4 Å tubes at
-the RESERVOIR filling measured by Q2 (88 EC / 55 EMC / 15 LiPF6 per
-98.4 Å — 4385 atoms each, ~26% more Li+ than the pilot). Same Z3
-protocol (1 ns thermalization + 1 ns settle + 2 × 6 ns blocks), one
-LAMMPS build. Cluster: 3 Mar 2020 build, 8 ranks each.
+the composition from the uncorrected Q2 draft (EC 88 / EMC 55 / 15
+LiPF6 per 98.4 Å — 4385 atoms each). Same Z3 protocol (1 ns
+thermalization + 1 ns settle + 2 × 6 ns blocks), one LAMMPS build.
+Cluster: 3 Mar 2020 build, 8 ranks each.
 
 Block-B P1 means (direct arm, cluster p1_blocks.json):
 
@@ -621,24 +629,21 @@ Block-B P1 means (direct arm, cluster p1_blocks.json):
 Shift +0.0353, t = 1.94, p = 0.1285 — NOT significant at n = 3. The
 0.02 V/Å point was not run in Q3 (D49 scope: fields 0 and 0.01 only).
 
-### 14.2 Reading
+### 14b.2 Reading
 
-The pilot-filling Z4 verdict (0.01 CONFIRMED, p = 0.0246) does not
-transfer to the reservoir filling at n = 3. Possible causes, honestly
-stated: (a) the reservoir filling carries ~26% more Li⁺ per Å, so the
-same field acts on a different ion population; (b) n = 3 gives low
-power against the wide zero-field spread (run means −0.037 to +0.047);
-(c) the field response at 0.01 V/Å may genuinely be smaller at the
-reservoir filling. Distinguishing (b) from (c) needs more runs — out of
-scope for the pre-registered Q3 (D49: fields 0 and 0.01 only, 3 builds).
+Because the composition matches no filling of record, these numbers
+cannot support any filling claim — neither "the Z4 detection does not
+transfer" nor its negation. The reservoir-filling question is
+re-opened as the pre-registered T1–T3 re-run (open_items_v7.md D55),
+at the corrected reservoir filling (EC 125 / EMC 58 / 24 LiPF6 per
+98.4 Å).
 
-### 14.3 D40 verdict update
+### 14b.3 D40 verdict update
 
-E_min under D39 at the RESERVOIR filling: > 0.01 V/Å (0.01 not
-confirmed). The instrument GO (fidelity met, E_min Chaord = E_min
-direct) stands — the instrument faithfully reports what the physics
-does. The field-detection claim narrows to: 0.02 V/Å at the pilot
-filling (n = 3, p = 0.011 on the full ladder); 0.01 V/Å confirmed only
-at the pilot filling (Z4, p = 0.0246) and not confirmed at the
-reservoir filling (Q3, p = 0.1285). All numbers from committed scripts;
+E_min Chaord = E_min direct stands at every filling tested (both arms
+identical in all 60,060 lifts); the instrument GO is unaffected by the
+void. The field-detection claim, standing after D54: 0.02 V/Å confirmed
+at the pilot filling (n = 3, p = 0.011 on the full ladder); 0.01 V/Å
+confirmed only at the pilot filling (Z4, p = 0.0246); no reservoir- or
+Q3-composition claim stands. All numbers from committed scripts;
 nothing post-hoc.
