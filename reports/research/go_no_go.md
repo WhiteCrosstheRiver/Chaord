@@ -424,6 +424,28 @@ primary, saturation caveat). Tranche-1 record:
 e10/e50 numbers reproduce here at the 12-ps cadence: +0.034 ± 0.119 and
 +0.171 ± 0.020 vs tranche-1's +0.036 ± 0.120 and +0.173 ± 0.021).
 
+
+
+## 14. Q3 — the filling-sensitivity check (Review 12, D49 trigger)
+
+Q2 found the reservoir filling differs from the pilot composition by more
+than 5% for all four species in (16,16) (EC +68.9%, EMC +21.3%,
+Li+ +119.2%, PF6- +74.4% per Å). Q3 (pre-registered in
+`research/cnt_electrolyte/q3/PLAN.md`) re-ran the D39 call at the
+RESERVOIR filling: 3 builds x fields {0, 0.01}, 98.4 Å tubes, EC 88 /
+EMC 55 / 15 LiPF6 (Q2-measured, neutralized), one LAMMPS build.
+
+**Result: 0.01 V/Å is NOT CONFIRMED at the reservoir filling** —
+shift +0.008, t 0.30, p 0.78 on n = 3 per group (the direct-arm
+extraction ran on the cluster; `research/cnt_electrolyte/q3/p1_fixed.py`).
+
+Honest reading: the Z4 detection (p 0.0246) was measured at the PILOT
+filling; at the reservoir filling the same pre-registered call does not
+detect the field at n = 3. Whether this is a power issue (n = 3 vs the
+6-run Z3 set) or a real filling-composition effect is unresolved by this
+data — both results are reported, no post-hoc test added. The go/no-go
+under D40 (E_min Chaord = E_min direct, both arms) is UNCHANGED: the
+fidelity result holds and both arms remain identical at every filling.
 ## 13. Confirmatory set — the 0.01 V/Å decision (Review 11, Z3 + Z4)
 
 **VERDICT: 0.01 V/Å is CONFIRMED — Welch p = 0.0246 < 0.05 on the
