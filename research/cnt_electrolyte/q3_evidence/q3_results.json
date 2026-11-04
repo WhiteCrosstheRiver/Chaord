@@ -1,0 +1,7 @@
+{
+ "comment": "Q3 filling-sensitivity test (Review 12, D49). VOID as a filling test per Review 13 D54: the composition came from the uncorrected Q2 draft (caf8b78), testing neither the pilot nor the reservoir filling. Both reported results preserved with their scripts. Two block-B P1 readings existed because two different block-boundary conventions were used by the two extraction passes (12-ps thinned series vs 1-ps dense record half-splits).",
+ "result_36daad6": {"shift": 0.008, "t": 0.30, "p": 0.78, "script": "p1_fixed.py (cluster login-node extraction, 12-ps thinned dumps)"},
+ "result_0f63a06": {"shift": 0.035, "t": 1.94, "p": 0.1285, "script": "p1_extract.py (dense 1-ps dumps, block-B means)"},
+ "filling_used": "uncorrected Q2 draft: EC 0.8984/A, EMC 0.5578/A, Li+ 0.1541/A (caf8b78)",
+ "correct_filling": "EC 1.2701/A, EMC 0.5917/A, Li+ 0.2673/A, PF6- 0.2127/A (fc8bec2, Review 13-verified)"
+}
