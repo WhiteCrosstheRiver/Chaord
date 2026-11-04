@@ -485,6 +485,8 @@ each job's 1,001 lifts.
 
 ### 13.3 The pre-registered D39 call and the verdict
 
+Per D48: every "detected" claim carries a 95% confidence interval (Welch–Satterthwaite). The interval for the 0.01 V/Å gate is [+0.018, +0.196] — excludes zero. Linear-response slopes from the full ladder (Z4's secondary context): ~10.7 (0.01) and ~9.4 (0.02) per V/Å.
+
 Zero-field side: the 6 e0 run means (blocks A and B averaged, per the
 committed script). Field-on side: each field's 6 block-B values.
 Welch's t, two-sided, α = 0.05, n = 6 per group (D39; runs are the
@@ -498,7 +500,7 @@ units).
 
 | contrast | shift | t | df | p | role |
 |---|---|---|---|---|---|
-| **0.01 vs 0** | **+0.1073** | **2.85** | **7.0** | **0.0246** | **THE GATE — p < 0.05 → CONFIRMED** |
+| **0.01 vs 0** | **+0.1073** | **95% CI [+0.018, +0.196]** (D48, Welch–Satterthwaite) | **2.85** | **7.0** | **0.0246** | **THE GATE — p < 0.05 → CONFIRMED; the interval excludes zero (D48) |
 | 0.02 vs 0 | +0.1874 | 7.97 | 9.9 | 1.3e-05 | secondary (dose-response context), computed by the same pre-registered call |
 
 Reading, honestly: the gate passes with 5 of 6 field-on runs positive
