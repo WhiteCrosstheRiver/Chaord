@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "C:\Users\ZemengFeng\Desktop\codes\Chaord\research\cnt_electrolyte\analysis\y8_full_ladder.py", line 925, in <module>
+    main()
+    ~~~~^^
+  File "C:\Users\ZemengFeng\Desktop\codes\Chaord\research\cnt_electrolyte\analysis\y8_full_ladder.py", line 919, in main
+    res = run(smoke=args.smoke, fresh=args.fresh)
+  File "C:\Users\ZemengFeng\Desktop\codes\Chaord\research\cnt_electrolyte\analysis\y8_full_ladder.py", line 726, in run
+    jobs = discover_jobs()
+  File "C:\Users\ZemengFeng\Desktop\codes\Chaord\research\cnt_electrolyte\analysis\y8_full_ladder.py", line 204, in discover_jobs
+    assert n_local == 12, n_local          # e0/e10/e50/e100 x 3, cnt10
+           ^^^^^^^^^^^^^
+AssertionError: 15
+EXIT=1

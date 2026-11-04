@@ -593,3 +593,52 @@ the Z3 stream (the download landed in `confirmatory/sb16L_<name>/`, not
 own `log.lammps` (LAMMPS 3 Mar 2020, Total wall time), `final.data`,
 `in.lammps` + `system.data` under `confirmatory/jobs/<name>/`, and the
 verified thinned-series timesteps.
+
+
+## 14. Q3 — the filling-sensitivity check (Review 12, D49 triggered)
+
+**0.01 V/Å is NOT CONFIRMED at the reservoir filling** — Welch p = 0.1285
+(shift +0.035, t = 1.94, n = 3 per group), versus p = 0.0246 (shift
++0.107) at the pilot filling (Z4). The pre-registered D39 call was run
+exactly as committed (PLAN: research/cnt_electrolyte/q3/PLAN.md,
+committed before any job).
+
+### 14.1 What was analysed
+
+The 6 Q3 jobs (q3_e0_b{1..3}, q3_e10_b{1..3}): (16,16) 98.4 Å tubes at
+the RESERVOIR filling measured by Q2 (88 EC / 55 EMC / 15 LiPF6 per
+98.4 Å — 4385 atoms each, ~26% more Li+ than the pilot). Same Z3
+protocol (1 ns thermalization + 1 ns settle + 2 × 6 ns blocks), one
+LAMMPS build. Cluster: 3 Mar 2020 build, 8 ranks each.
+
+Block-B P1 means (direct arm, cluster p1_blocks.json):
+
+| group | per-run block-B P1 | mean |
+|---|---|---|
+| 0 V/Å run means (A+B avg) | +0.0371, +0.0469, −0.0003 | +0.0279 |
+| 0.01 V/Å block B | +0.0795, +0.0680, +0.0421 | +0.0632 |
+
+Shift +0.0353, t = 1.94, p = 0.1285 — NOT significant at n = 3. The
+0.02 V/Å point was not run in Q3 (D49 scope: fields 0 and 0.01 only).
+
+### 14.2 Reading
+
+The pilot-filling Z4 verdict (0.01 CONFIRMED, p = 0.0246) does not
+transfer to the reservoir filling at n = 3. Possible causes, honestly
+stated: (a) the reservoir filling carries ~26% more Li⁺ per Å, so the
+same field acts on a different ion population; (b) n = 3 gives low
+power against the wide zero-field spread (run means −0.037 to +0.047);
+(c) the field response at 0.01 V/Å may genuinely be smaller at the
+reservoir filling. Distinguishing (b) from (c) needs more runs — out of
+scope for the pre-registered Q3 (D49: fields 0 and 0.01 only, 3 builds).
+
+### 14.3 D40 verdict update
+
+E_min under D39 at the RESERVOIR filling: > 0.01 V/Å (0.01 not
+confirmed). The instrument GO (fidelity met, E_min Chaord = E_min
+direct) stands — the instrument faithfully reports what the physics
+does. The field-detection claim narrows to: 0.02 V/Å at the pilot
+filling (n = 3, p = 0.011 on the full ladder); 0.01 V/Å confirmed only
+at the pilot filling (Z4, p = 0.0246) and not confirmed at the
+reservoir filling (Q3, p = 0.1285). All numbers from committed scripts;
+nothing post-hoc.
