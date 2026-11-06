@@ -15,7 +15,8 @@ import os
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 JOBS = os.path.join(HERE, "jobs")
-CLUSTER = "/vol02/hdd1/ime001/chaord_r13"     # $HOME = /vol02/hdd1/ime001
+CLUSTER = "/vol02/hdd1/ime001/zmfeng/chaord_r13/code/r13"     # group rule: zmfeng, compute only
+PY = "/vol02/hdd1/ime001/software/anaconda3/bin/python3"     # absolute: the lammps module puts Intel Python first on PATH
 HOST = "172.28.191.241"
 
 SBATCH = """\
@@ -32,7 +33,7 @@ mpirun lmp_mpi -in in.lammps
 RC=$?
 if [ $RC -eq 0 ] && [ -f final.data ]; then
   # 只算不存: thin the 1-ps record to the 12-ps series, then raw dies here
-  python3 {cluster}/thin_prod.py . >> thin.log 2>&1
+  {py} {cluster}/thin_prod.py . >> thin.log 2>&1
   if [ -f THIN_DONE ]; then
     rm -f prod.dump
     echo "prod.dump thinned (12 ps series) and deleted on cluster (只算不存)"
@@ -58,7 +59,7 @@ def main():
         jobdir = f"{CLUSTER}/jobs/{j['name']}"
         with open(os.path.join(JOBS, j["name"], "sbatch.sh"), "w",
                   encoding="utf-8", newline="\n") as f:
-            f.write(SBATCH.format(jobdir=jobdir, name=j["name"],
+            f.write(SBATCH.format(jobdir=jobdir, name=j["name"], py=PY,
                                   cluster=CLUSTER))
     print(f"[make-sbatch] wrote {len(index)} sbatch.sh files")
 
@@ -71,7 +72,7 @@ def main():
 # each running job holds a ~2.9 GB raw 1-ps prod.dump until it self-thins.
 # Usage: ./submit.sh wave1 | wave2 | status | done
 set -e
-cd "$HOME/chaord_r13/jobs"
+cd "{CLUSTER}/jobs"
 case "${{1:-status}}" in
   wave1)
     echo "[submit] wave 1 (9 jobs): {w1}"
