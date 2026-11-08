@@ -26,8 +26,9 @@ def test_all_seven_examples():
     # brine water-model example (10), the nanotube-field example (11), the
     # lifted slab with residual atoms + provenance (12), the Si(001)
     # reconstruction (13), graphite stacking (14) and nanotube chirality
-    # (15) -- the last four close A14's example-less keys (X9)
-    assert len(EXAMPLES) == 15
+    # (15) -- the last four close A14's example-less keys (X9) -- and the
+    # fluid restraints `constrain cn` / `constrain gr_peak` (16)
+    assert len(EXAMPLES) == 16
 
 
 def test_sketch_check_still_passes():

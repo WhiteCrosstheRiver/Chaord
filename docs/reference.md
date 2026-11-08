@@ -76,6 +76,8 @@ statement carries a kind: **build** (no keyword), **state**, **constrain**,
 | `state T` / `state P` | `state T 300 K` | equilibrium state metadata |
 | `constrain strain` | `constrain strain zz +0.9 % +- 0.2` | held deformation |
 | `constrain sro` | `constrain sro alpha1 Cr-Cr +0.10 +- 0.02` | Warren-Cowley first shell |
+| `constrain cn` | `constrain cn 12.0 +- 0.3 cutoff 1.50` | atomic fluid region: mean coordination held by reverse Monte Carlo after packing (and after the physics prior), on the lift's own `_cn_stats` definition; tolerance defaults to `rmc_cn_tolerance`; an unmet target refuses the build |
+| `constrain gr_peak` | `constrain gr_peak 1.10 height 3.00 +- 0.20` | atomic fluid region: first g(r) peak position (within one bin) and height on the lift's `gr_rmax_fluid` / `gr_bins_fluid` grid; molecular fluids are refused (their lift measures molecule centres) |
 | `history` | `history melt 3000 K for 20 ps -> quench to 300 K at 1 K/ps -> anneal 300 K for 50 ps` | protocol = shortest description |
 | | `history melt 1.2 for 300 -> deposit X 20 for 400 -> anneal 0.01 for 200` | growth: insert atoms during the run |
 | `assert cn` | `assert cn 4.0 +- 0.1 cutoff 2.85 A` / `assert cn 11.39 +- 0.3 cutoff 1.40 pair A-A` | measured, never enforced; in a multi-species amorphous region the partial asserts are per unordered pair at that pair's FIRST-MINIMUM cutoff (D27; a model's measured cutoffs live in its lj_mixtures entry), and no bare all-pair total is printed (one radius cannot stand for per-pair minima) |

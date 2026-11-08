@@ -67,9 +67,25 @@ def _temperature_K(system) -> float | None:
 
 
 def build_fluid(program: Program, dialect, rng, physics=True, md_steps=None) -> Frame:
+    """Pack, optionally relax with the physics prior, then apply any
+    `constrain` restraints (build.restrain) and verify them."""
     regions = [b for b in program.blocks if b.t == "region"]
     if len(regions) != 1:
         raise ChaordError("fluid builder expects exactly one region")
+    from .restrain import apply_fluid_restraints, fluid_constraints
+    cons = fluid_constraints(regions[0], dialect)
+    if cons and _molecule_counts(regions[0]):
+        raise ChaordError(
+            "constrain on a fluid region applies to atomic fluids only; a "
+            "molecular fluid's lift measures molecule centres (not restrained yet)")
+    frame = _build_fluid_frame(program, dialect, rng, physics=physics,
+                               md_steps=md_steps)
+    return apply_fluid_restraints(frame, cons, dialect, rng)
+
+
+def _build_fluid_frame(program: Program, dialect, rng, physics=True,
+                       md_steps=None) -> Frame:
+    regions = [b for b in program.blocks if b.t == "region"]
     region = regions[0]
     system = {}
     for b in program.blocks:

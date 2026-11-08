@@ -82,6 +82,14 @@ thresholds:
   gr_rmax_fluid: 2.5
   gr_bins_fluid: 60
   fluid_rsa_dmin: 0.90
+  # --- fluid restraints (build.restrain: constrain cn / gr_peak, reverse MC) ---
+  rmc_max_sweeps: 400               # sweeps of N single-atom moves before refusing
+  rmc_step: 0.12                    # maximum displacement per move component, sigma
+  rmc_T_start: 1.0                  # annealing temperature on the cost scale, start
+  rmc_T_end: 0.001                  # ... and end (geometric schedule)
+  rmc_hard_core: 0.80               # no move may bring a pair closer (AGENTS.md 0.8 sigma)
+  rmc_cn_tolerance: 0.2             # default tolerance when constrain cn states none
+  rmc_gr_height_tolerance: 0.15     # default tolerance on a constrained g(r) peak height
   fluid_solid_fraction_max: 0.20    # above this solid fraction it is not one phase
   restrain_max_iter: 20            # density-restraint box-relaxation iterations
   quench_max_steps: 20000          # refusal bound, NOT a truncation (X5/D19b)

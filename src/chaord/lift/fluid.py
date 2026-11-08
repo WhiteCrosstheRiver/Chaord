@@ -130,10 +130,13 @@ def _cn_stats_centers(frame: Frame, centers, dialect):
     return float(counts.mean()), float(counts.std()), rc
 
 
-def _cn_stats(frame: Frame, dialect):
+def _cn_stats(frame: Frame, dialect, rc=None):
+    """Mean/sd coordination at the dialect's fluid cutoff (or a stated one:
+    the build's `constrain cn ... cutoff` restraint is verified here, so the
+    printed, the restrained and the checked quantity share one definition)."""
     from scipy.spatial import cKDTree
     L = frame.cell_diag
-    rc = float(dialect.threshold("cn_cutoff_fluid"))
+    rc = float(rc if rc is not None else dialect.threshold("cn_cutoff_fluid"))
     pos = np.mod(frame.pos, L)
     tree = cKDTree(pos, boxsize=L)
     counts = np.array([len(x) - 1 for x in tree.query_ball_point(pos, rc)])

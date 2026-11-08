@@ -63,6 +63,12 @@ def q6_mean(frame: Frame, dialect, cutoff=None) -> float:
     return float(q6.mean())
 
 
+def fluid_restrain(frame: Frame, dialect, constraints, rng):
+    """Build-side restraint for cn / gr_peak on atomic fluids (build.restrain)."""
+    from ..build.restrain import apply_fluid_restraints
+    return apply_fluid_restraints(frame, constraints, dialect, rng)
+
+
 def solid_like_fraction(frame: Frame, dialect, cutoff=None) -> float:
     from ..lift.passes import qbar
     rc = float(cutoff if cutoff is not None else dialect.threshold("q6_cutoff"))
@@ -72,7 +78,7 @@ def solid_like_fraction(frame: Frame, dialect, cutoff=None) -> float:
 
 
 register("cn", None, "mean coordination number at the dialect's first-shell cutoff",
-         thresholds=("cn_cutoff",), measure=cn_mean)
+         thresholds=("cn_cutoff",), measure=cn_mean, restrain=fluid_restrain)
 register("density", None, "number density (1/volume units of the system)", measure=number_density)
 register("angle_mean", "deg", "mean bond angle over bonded triples",
          thresholds=("cn_cutoff",), measure=angle_mean)
@@ -82,7 +88,7 @@ register("solid_like", None, "fraction of atoms with q6 above the dialect's soli
          thresholds=("q6_cutoff", "q6_solid"), dialect="lj", measure=solid_like_fraction)
 register("gr_peak", None, "first g(r) peak position and height (M3)",
          thresholds=("gr_rmax", "gr_bins", "cn_cutoff"), dialect="lj",
-         measure=missing_measure("gr_peak", None))
+         measure=missing_measure("gr_peak", None), restrain=fluid_restrain)
 register("sites_matched", "%", "fraction of crystal sites occupied within tolerance (M1)",
          thresholds=("site_match_tolerance",),
          measure=missing_measure("sites_matched", None))
