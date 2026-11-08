@@ -1,0 +1,21 @@
+[curve] 54 rebuilds on 27 processes
+[curve] lj_liquid P0 S0: len 201 gr x13.38 cn x5.47 angle_tv 0.1038  -> FAIL
+[curve] lj_liquid P0 S1: len 240 gr x13.38 cn x5.47 angle_tv 0.1038  -> FAIL
+[curve] lj_liquid P0 S2: len 277 gr x13.42 cn x6.49 angle_tv 0.1130  -> FAIL
+[curve] lj_liquid P1 S0: len 201 gr x1.21 cn x1.17 angle_tv 0.0097  -> PASS
+[curve] lj_liquid P1 S1: len 240 gr x1.21 cn x1.17 angle_tv 0.0097  -> PASS
+[curve] lj_liquid P1 S2: len 277 gr x4.72 cn x2.76 angle_tv 0.0443  -> FAIL
+[curve] lj_liquid P2 S0: len 201 gr x0.94 cn x0.46 angle_tv 0.0059  -> PASS
+[curve] lj_liquid P2 S1: len 240 gr x0.94 cn x0.46 angle_tv 0.0059  -> PASS
+[curve] lj_liquid P2 S2: len 277 gr x9.15 cn x4.51 angle_tv 0.0775  -> FAIL
+[curve] lj_liquid_large P0 S0: len 205 gr x18.72 cn x13.64 angle_tv 0.1012  -> FAIL
+[curve] lj_liquid_large P0 S1: len 244 gr x18.72 cn x13.64 angle_tv 0.1012  -> FAIL
+[curve] lj_liquid_large P0 S2: len 281 gr x19.50 cn x17.45 angle_tv 0.1177  -> FAIL
+[curve] lj_liquid_large P1 S0: len 205 gr x1.27 cn x1.17 angle_tv 0.0090  -> PASS
+[curve] lj_liquid_large P1 S1: len 244 gr x1.27 cn x1.17 angle_tv 0.0090  -> PASS
+[curve] lj_liquid_large P1 S2: len 281 gr x6.98 cn x6.13 angle_tv 0.0434  -> FAIL
+[curve] lj_liquid_large P2 S0: len 205 gr x0.59 cn x0.65 angle_tv 0.0037  -> PASS
+[curve] lj_liquid_large P2 S1: len 244 gr x0.59 cn x0.65 angle_tv 0.0037  -> PASS
+[curve] lj_liquid_large P2 S2: len 281 gr x19.25 cn x17.45 angle_tv 0.1161  -> FAIL
+{"lj_liquid": {"P0": {"level": "none", "length": null}, "P1": {"level": "S0", "length": 201}, "P2": {"level": "S0", "length": 201}}, "lj_liquid_large": {"P0": {"level": "none", "length": null}, "P1": {"level": "S0", "length": 205}, "P2": {"level": "S0", "length": 205}}}
+[curve] decision: SUPPORTED

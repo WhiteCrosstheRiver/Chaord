@@ -1,0 +1,511 @@
+{
+ "plan": "research/program_length/PLAN.md (registered 5b434b8)",
+ "commit": "ea65781",
+ "smoke": false,
+ "seeds": [
+  7,
+  13,
+  29
+ ],
+ "gate": 1.5,
+ "programs": {
+  "lj_liquid": {
+   "S0": "chaord 0.1\ndialect core + lj\n\nsystem {\n  cell 8.379 8.379 8.379\n  pbc xyz\n  state T 0.72\n  conserve atoms X 500\n}\n\nphysics {\n  backend lj\n}\n\nliquid fluid : all {\n  state density 0.850\n}\n\nresidual none\n",
+   "S1": "chaord 0.1\ndialect core + lj\n\nsystem {\n  cell 8.379 8.379 8.379\n  pbc xyz\n  state T 0.72\n  conserve atoms X 500\n}\n\nphysics {\n  backend lj\n}\n\nliquid fluid : all {\n  state density 0.850\n  constrain cn 12.0 +- 1.1 cutoff 1.50\n}\n\nresidual none\n",
+   "S2": "chaord 0.1\ndialect core + lj\n\nsystem {\n  cell 8.379 8.379 8.379\n  pbc xyz\n  state T 0.72\n  conserve atoms X 500\n}\n\nphysics {\n  backend lj\n}\n\nliquid fluid : all {\n  state density 0.850\n  constrain cn 12.0 +- 1.1 cutoff 1.50\n  constrain gr_peak 1.10 height 3.04\n}\n\nresidual none\n"
+  },
+  "lj_liquid_large": {
+   "S0": "chaord 0.1\ndialect core + lj\n\nsystem {\n  cell 13.406 13.406 13.406\n  pbc xyz\n  state T 0.72\n  conserve atoms X 2048\n}\n\nphysics {\n  backend lj\n}\n\nliquid fluid : all {\n  state density 0.850\n}\n\nresidual none\n",
+   "S1": "chaord 0.1\ndialect core + lj\n\nsystem {\n  cell 13.406 13.406 13.406\n  pbc xyz\n  state T 0.72\n  conserve atoms X 2048\n}\n\nphysics {\n  backend lj\n}\n\nliquid fluid : all {\n  state density 0.850\n  constrain cn 12.0 +- 1.2 cutoff 1.50\n}\n\nresidual none\n",
+   "S2": "chaord 0.1\ndialect core + lj\n\nsystem {\n  cell 13.406 13.406 13.406\n  pbc xyz\n  state T 0.72\n  conserve atoms X 2048\n}\n\nphysics {\n  backend lj\n}\n\nliquid fluid : all {\n  state density 0.850\n  constrain cn 12.0 +- 1.2 cutoff 1.50\n  constrain gr_peak 1.06 height 2.96\n}\n\nresidual none\n"
+  }
+ },
+ "floors": {
+  "lj_liquid": {
+   "gr_rms": 0.04719710950407094,
+   "cn_tv": 0.04120000000000006
+  },
+  "lj_liquid_large": {
+   "gr_rms": 0.033492860710001834,
+   "cn_tv": 0.016682942708333346
+  }
+ },
+ "cells": {
+  "lj_liquid|P0|S0": {
+   "case": "lj_liquid",
+   "physics": "P0",
+   "program": "S0",
+   "length": 201,
+   "md_steps": 0,
+   "seconds": 6.2,
+   "distance": {
+    "gr_rms": 0.6314843679998837,
+    "cn_tv": 0.22519999999999996
+   },
+   "floor": {
+    "gr_rms": 0.04719710950407094,
+    "cn_tv": 0.04120000000000006
+   },
+   "ratio": {
+    "gr_rms": 13.37972546698894,
+    "cn_tv": 5.466019417475719
+   },
+   "passed": false,
+   "angle_tv": 0.10377603857487847,
+   "refusals": [],
+   "angle_tv_rel_P2S0": 17.646902072209386
+  },
+  "lj_liquid|P0|S1": {
+   "case": "lj_liquid",
+   "physics": "P0",
+   "program": "S1",
+   "length": 240,
+   "md_steps": 0,
+   "seconds": 6.8,
+   "distance": {
+    "gr_rms": 0.6314843679998837,
+    "cn_tv": 0.22519999999999996
+   },
+   "floor": {
+    "gr_rms": 0.04719710950407094,
+    "cn_tv": 0.04120000000000006
+   },
+   "ratio": {
+    "gr_rms": 13.37972546698894,
+    "cn_tv": 5.466019417475719
+   },
+   "passed": false,
+   "angle_tv": 0.10377603857487847,
+   "refusals": [],
+   "angle_tv_rel_P2S0": 17.646902072209386
+  },
+  "lj_liquid|P0|S2": {
+   "case": "lj_liquid",
+   "physics": "P0",
+   "program": "S2",
+   "length": 277,
+   "md_steps": 0,
+   "seconds": 21.7,
+   "distance": {
+    "gr_rms": 0.633334886645309,
+    "cn_tv": 0.26739999999999997
+   },
+   "floor": {
+    "gr_rms": 0.04719710950407094,
+    "cn_tv": 0.04120000000000006
+   },
+   "ratio": {
+    "gr_rms": 13.418933771583646,
+    "cn_tv": 6.490291262135912
+   },
+   "passed": false,
+   "angle_tv": 0.11299417653733379,
+   "refusals": [],
+   "angle_tv_rel_P2S0": 19.214427486991827
+  },
+  "lj_liquid|P1|S0": {
+   "case": "lj_liquid",
+   "physics": "P1",
+   "program": "S0",
+   "length": 201,
+   "md_steps": 700,
+   "seconds": 12.1,
+   "distance": {
+    "gr_rms": 0.056875296542923746,
+    "cn_tv": 0.04819999999999999
+   },
+   "floor": {
+    "gr_rms": 0.04719710950407094,
+    "cn_tv": 0.04120000000000006
+   },
+   "ratio": {
+    "gr_rms": 1.205058893236206,
+    "cn_tv": 1.1699029126213574
+   },
+   "passed": true,
+   "angle_tv": 0.009707485162631481,
+   "refusals": [],
+   "angle_tv_rel_P2S0": 1.650737900433332
+  },
+  "lj_liquid|P1|S1": {
+   "case": "lj_liquid",
+   "physics": "P1",
+   "program": "S1",
+   "length": 240,
+   "md_steps": 700,
+   "seconds": 11.9,
+   "distance": {
+    "gr_rms": 0.056875296542923746,
+    "cn_tv": 0.04819999999999999
+   },
+   "floor": {
+    "gr_rms": 0.04719710950407094,
+    "cn_tv": 0.04120000000000006
+   },
+   "ratio": {
+    "gr_rms": 1.205058893236206,
+    "cn_tv": 1.1699029126213574
+   },
+   "passed": true,
+   "angle_tv": 0.009707485162631481,
+   "refusals": [],
+   "angle_tv_rel_P2S0": 1.650737900433332
+  },
+  "lj_liquid|P1|S2": {
+   "case": "lj_liquid",
+   "physics": "P1",
+   "program": "S2",
+   "length": 277,
+   "md_steps": 700,
+   "seconds": 17.4,
+   "distance": {
+    "gr_rms": 0.22253656242606043,
+    "cn_tv": 0.11386666666666664
+   },
+   "floor": {
+    "gr_rms": 0.04719710950407094,
+    "cn_tv": 0.04120000000000006
+   },
+   "ratio": {
+    "gr_rms": 4.715046424757554,
+    "cn_tv": 2.7637540453074387
+   },
+   "passed": false,
+   "angle_tv": 0.044273040641991425,
+   "refusals": [],
+   "angle_tv_rel_P2S0": 7.528539568259231
+  },
+  "lj_liquid|P2|S0": {
+   "case": "lj_liquid",
+   "physics": "P2",
+   "program": "S0",
+   "length": 201,
+   "md_steps": 7000,
+   "seconds": 47.7,
+   "distance": {
+    "gr_rms": 0.044538917637490454,
+    "cn_tv": 0.019066666666666697
+   },
+   "floor": {
+    "gr_rms": 0.04719710950407094,
+    "cn_tv": 0.04120000000000006
+   },
+   "ratio": {
+    "gr_rms": 0.9436789266437766,
+    "cn_tv": 0.46278317152103565
+   },
+   "passed": true,
+   "angle_tv": 0.005880694421617864,
+   "refusals": [],
+   "angle_tv_rel_P2S0": 1.0
+  },
+  "lj_liquid|P2|S1": {
+   "case": "lj_liquid",
+   "physics": "P2",
+   "program": "S1",
+   "length": 240,
+   "md_steps": 7000,
+   "seconds": 48.6,
+   "distance": {
+    "gr_rms": 0.044538917637490454,
+    "cn_tv": 0.019066666666666697
+   },
+   "floor": {
+    "gr_rms": 0.04719710950407094,
+    "cn_tv": 0.04120000000000006
+   },
+   "ratio": {
+    "gr_rms": 0.9436789266437766,
+    "cn_tv": 0.46278317152103565
+   },
+   "passed": true,
+   "angle_tv": 0.005880694421617864,
+   "refusals": [],
+   "angle_tv_rel_P2S0": 1.0
+  },
+  "lj_liquid|P2|S2": {
+   "case": "lj_liquid",
+   "physics": "P2",
+   "program": "S2",
+   "length": 277,
+   "md_steps": 7000,
+   "seconds": 57.6,
+   "distance": {
+    "gr_rms": 0.4320224947638435,
+    "cn_tv": 0.1857333333333333
+   },
+   "floor": {
+    "gr_rms": 0.04719710950407094,
+    "cn_tv": 0.04120000000000006
+   },
+   "ratio": {
+    "gr_rms": 9.153579515851069,
+    "cn_tv": 4.508090614886724
+   },
+   "passed": false,
+   "angle_tv": 0.07749652417800171,
+   "refusals": [],
+   "angle_tv_rel_P2S0": 13.178124660434454
+  },
+  "lj_liquid_large|P0|S0": {
+   "case": "lj_liquid_large",
+   "physics": "P0",
+   "program": "S0",
+   "length": 205,
+   "md_steps": 0,
+   "seconds": 22.5,
+   "distance": {
+    "gr_rms": 0.6269173022572774,
+    "cn_tv": 0.22755533854166668
+   },
+   "floor": {
+    "gr_rms": 0.033492860710001834,
+    "cn_tv": 0.016682942708333346
+   },
+   "ratio": {
+    "gr_rms": 18.717938359623716,
+    "cn_tv": 13.63999999999999
+   },
+   "passed": false,
+   "angle_tv": 0.10118155424305873,
+   "refusals": [],
+   "angle_tv_rel_P2S0": 27.535824317328306
+  },
+  "lj_liquid_large|P0|S1": {
+   "case": "lj_liquid_large",
+   "physics": "P0",
+   "program": "S1",
+   "length": 244,
+   "md_steps": 0,
+   "seconds": 22.9,
+   "distance": {
+    "gr_rms": 0.6269173022572774,
+    "cn_tv": 0.22755533854166668
+   },
+   "floor": {
+    "gr_rms": 0.033492860710001834,
+    "cn_tv": 0.016682942708333346
+   },
+   "ratio": {
+    "gr_rms": 18.717938359623716,
+    "cn_tv": 13.63999999999999
+   },
+   "passed": false,
+   "angle_tv": 0.10118155424305873,
+   "refusals": [],
+   "angle_tv_rel_P2S0": 27.535824317328306
+  },
+  "lj_liquid_large|P0|S2": {
+   "case": "lj_liquid_large",
+   "physics": "P0",
+   "program": "S2",
+   "length": 281,
+   "md_steps": 0,
+   "seconds": 214.9,
+   "distance": {
+    "gr_rms": 0.653260562979276,
+    "cn_tv": 0.2911783854166667
+   },
+   "floor": {
+    "gr_rms": 0.033492860710001834,
+    "cn_tv": 0.016682942708333346
+   },
+   "ratio": {
+    "gr_rms": 19.504471971968506,
+    "cn_tv": 17.453658536585355
+   },
+   "passed": false,
+   "angle_tv": 0.11774230939179607,
+   "refusals": [],
+   "angle_tv_rel_P2S0": 32.042713421269944
+  },
+  "lj_liquid_large|P1|S0": {
+   "case": "lj_liquid_large",
+   "physics": "P1",
+   "program": "S0",
+   "length": 205,
+   "md_steps": 700,
+   "seconds": 50.5,
+   "distance": {
+    "gr_rms": 0.0424031499111485,
+    "cn_tv": 0.019596354166666677
+   },
+   "floor": {
+    "gr_rms": 0.033492860710001834,
+    "cn_tv": 0.016682942708333346
+   },
+   "ratio": {
+    "gr_rms": 1.2660354777782783,
+    "cn_tv": 1.1746341463414631
+   },
+   "passed": true,
+   "angle_tv": 0.009006337325699226,
+   "refusals": [],
+   "angle_tv_rel_P2S0": 2.4510092199939044
+  },
+  "lj_liquid_large|P1|S1": {
+   "case": "lj_liquid_large",
+   "physics": "P1",
+   "program": "S1",
+   "length": 244,
+   "md_steps": 700,
+   "seconds": 53.0,
+   "distance": {
+    "gr_rms": 0.0424031499111485,
+    "cn_tv": 0.019596354166666677
+   },
+   "floor": {
+    "gr_rms": 0.033492860710001834,
+    "cn_tv": 0.016682942708333346
+   },
+   "ratio": {
+    "gr_rms": 1.2660354777782783,
+    "cn_tv": 1.1746341463414631
+   },
+   "passed": true,
+   "angle_tv": 0.009006337325699226,
+   "refusals": [],
+   "angle_tv_rel_P2S0": 2.4510092199939044
+  },
+  "lj_liquid_large|P1|S2": {
+   "case": "lj_liquid_large",
+   "physics": "P1",
+   "program": "S2",
+   "length": 281,
+   "md_steps": 700,
+   "seconds": 116.7,
+   "distance": {
+    "gr_rms": 0.23363349387367835,
+    "cn_tv": 0.10221354166666666
+   },
+   "floor": {
+    "gr_rms": 0.033492860710001834,
+    "cn_tv": 0.016682942708333346
+   },
+   "ratio": {
+    "gr_rms": 6.975620741882742,
+    "cn_tv": 6.126829268292678
+   },
+   "passed": false,
+   "angle_tv": 0.043415886733622226,
+   "refusals": [],
+   "angle_tv_rel_P2S0": 11.815317906722703
+  },
+  "lj_liquid_large|P2|S0": {
+   "case": "lj_liquid_large",
+   "physics": "P2",
+   "program": "S0",
+   "length": 205,
+   "md_steps": 7000,
+   "seconds": 212.5,
+   "distance": {
+    "gr_rms": 0.019913176094469423,
+    "cn_tv": 0.010856119791666686
+   },
+   "floor": {
+    "gr_rms": 0.033492860710001834,
+    "cn_tv": 0.016682942708333346
+   },
+   "ratio": {
+    "gr_rms": 0.5945498733860866,
+    "cn_tv": 0.6507317073170739
+   },
+   "passed": true,
+   "angle_tv": 0.0036745424098084886,
+   "refusals": [],
+   "angle_tv_rel_P2S0": 1.0
+  },
+  "lj_liquid_large|P2|S1": {
+   "case": "lj_liquid_large",
+   "physics": "P2",
+   "program": "S1",
+   "length": 244,
+   "md_steps": 7000,
+   "seconds": 211.6,
+   "distance": {
+    "gr_rms": 0.019913176094469423,
+    "cn_tv": 0.010856119791666686
+   },
+   "floor": {
+    "gr_rms": 0.033492860710001834,
+    "cn_tv": 0.016682942708333346
+   },
+   "ratio": {
+    "gr_rms": 0.5945498733860866,
+    "cn_tv": 0.6507317073170739
+   },
+   "passed": true,
+   "angle_tv": 0.0036745424098084886,
+   "refusals": [],
+   "angle_tv_rel_P2S0": 1.0
+  },
+  "lj_liquid_large|P2|S2": {
+   "case": "lj_liquid_large",
+   "physics": "P2",
+   "program": "S2",
+   "length": 281,
+   "md_steps": 7000,
+   "seconds": 414.1,
+   "distance": {
+    "gr_rms": 0.6447823979613435,
+    "cn_tv": 0.2911783854166667
+   },
+   "floor": {
+    "gr_rms": 0.033492860710001834,
+    "cn_tv": 0.016682942708333346
+   },
+   "ratio": {
+    "gr_rms": 19.251338473121073,
+    "cn_tv": 17.453658536585355
+   },
+   "passed": false,
+   "angle_tv": 0.11611252457498215,
+   "refusals": [],
+   "angle_tv_rel_P2S0": 31.599179333198595
+  }
+ },
+ "shortest_passing": {
+  "lj_liquid": {
+   "P0": {
+    "level": "none",
+    "length": null
+   },
+   "P1": {
+    "level": "S0",
+    "length": 201
+   },
+   "P2": {
+    "level": "S0",
+    "length": 201
+   }
+  },
+  "lj_liquid_large": {
+   "P0": {
+    "level": "none",
+    "length": null
+   },
+   "P1": {
+    "level": "S0",
+    "length": 205
+   },
+   "P2": {
+    "level": "S0",
+    "length": 205
+   }
+  }
+ },
+ "decision": {
+  "per_case": {
+   "lj_liquid": {
+    "non_increasing": true,
+    "some_level_longer_than_P2": true
+   },
+   "lj_liquid_large": {
+    "non_increasing": true,
+    "some_level_longer_than_P2": true
+   }
+  },
+  "verdict": "SUPPORTED"
+ },
+ "wall_seconds": 155.7
+}
