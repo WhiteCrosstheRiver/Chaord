@@ -1,0 +1,27 @@
+chaord 0.1
+dialect core + lj
+
+system {
+  cell 8.379 8.379 8.379
+  pbc xyz
+  state T 0.72
+  conserve atoms X 500
+}
+
+physics {
+  backend lj
+}
+
+liquid fluid : all {
+  state density 0.850
+  assert cn 12.0 +- 1.1 cutoff 1.50
+  assert gr_peak 1.10 height 3.04
+  assert solid_clusters 0
+}
+
+residual none
+
+provenance {
+  dialects "core 0.1.0 + lj 0.1.0"
+  lift_version "0.1.0"
+}

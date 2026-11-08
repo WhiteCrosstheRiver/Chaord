@@ -1,0 +1,34 @@
+chaord 0.1
+dialect core + glass + lj_mixtures
+
+system {
+  cell 11.856 11.856 11.856
+  pbc xyz
+  conserve atoms A 1600 B 400
+}
+
+physics {
+  backend lj
+  model kob_andersen
+}
+
+amorphous glass : all {
+  composition A 1600 B 400
+  state density 1.2000
+  history melt 2 for 2000 -> quench to 0.1 at 0.095 -> anneal 0.1 for 4000
+  assert gr_peak 1.06 +- 0.05 height 5.42 +- 0.20 pair A-A
+  assert cn 11.39 +- 0.30 cutoff 1.40 pair A-A
+  assert gr_peak 0.90 +- 0.05 height 7.80 +- 0.70 pair A-B
+  assert cn 2.00 +- 0.30 cutoff 1.17 pair A-B
+  assert gr_peak 1.44 +- 0.15 height 1.62 +- 0.45 pair B-B
+  assert cn 7.20 +- 0.30 cutoff 1.94 pair B-B
+}
+
+residual none
+
+provenance {
+  dialects "core 0.1.0 + glass 0.1.0 + lj_mixtures 0.1.0"
+  lift_version "0.1.0"
+  note "assumed default protocol from dialect"
+  note "model kob_andersen assumed: inferred from composition A 0.800 B 0.200 and partial g(r) first-peak ratio r_AB/r_AA 0.84 vs sigma_AB/sigma_AA 0.80 (the potential itself is never measurable from one frame)"
+}

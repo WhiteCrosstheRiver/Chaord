@@ -1,0 +1,28 @@
+chaord 0.1
+dialect core + molecular
+
+system {
+  cell 19.731 19.731 19.731
+  pbc xyz
+  conserve atoms H 512 O 256
+}
+
+physics {
+  backend classical
+  model tip4p
+}
+
+liquid fluid : all {
+  molecules H2O 256
+  state density 0.997 g/cm3
+  assert cn 3.6 +- 1.0 cutoff 3.10 A
+  assert gr_peak 2.85 A height 2.64
+}
+
+residual none
+
+provenance {
+  dialects "core 0.1.0 + molecular 0.1.0"
+  lift_version "0.1.0"
+  note "water model tip4p assumed from r_OH median 0.9572 A (geometry cannot distinguish models sharing this bond length, e.g. TIP3P/TIP4P/TIP4P-2005)"
+}

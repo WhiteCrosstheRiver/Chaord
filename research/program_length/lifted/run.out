@@ -1,0 +1,6 @@
+ka_glass ['core', 'glass', 'lj_mixtures'] 2000 atoms 1012 chars T 0.09999998224484388
+lj_liquid ['core', 'lj'] 500 atoms 371 chars T 0.7200000100401613
+lj_liquid_large ['core', 'lj'] 2048 atoms 375 chars T 0.7200000100401613
+lj_solid_liquid ['core', 'lj'] 2304 atoms 692 chars T 0.6499999707647887
+nacl_aq ['core', 'molecular'] 1640 atoms 609 chars T None
+water_tip4p ['core', 'molecular'] 768 atoms 555 chars T None

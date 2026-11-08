@@ -1,0 +1,49 @@
+chaord 0.1
+dialect core + lj
+
+system {
+  units lj
+  cell 9.65 9.65 27.50
+  pbc xyz
+  state T 0.65
+  conserve atoms X 2304
+}
+
+physics {
+  backend lj
+  epsilon 1
+  sigma 1
+  cutoff 2.5
+}
+
+crystal A : slab z 25.5 .. 11.5 {  # wraps through z = 0
+  lattice fcc
+  a 1.609
+  orient <100> z <001>
+  constrain strain zz -0.1 % +- 0.2
+  assert sites_matched 100.0 %
+}
+
+liquid B : slab z 11.5 .. 25.5 {
+  state density 0.849
+  assert cn 12.2 +- 1.1 cutoff 1.50
+  assert gr_peak 1.09 height 3.20
+  assert solid_clusters 0
+}
+
+interface A | B {
+  at z 11.5
+  width 1.9
+}
+
+interface B | A {
+  at z 25.5
+  width 1.5
+}
+
+residual none
+
+provenance {
+  dialects "core 0.1.0 + lj 0.1.0"
+  lift_version "0.1.0"
+}
