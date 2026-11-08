@@ -1,7 +1,8 @@
 # Chaord: a compiled language for molecular simulation — round-trip fidelity and pre-registered blind field tests in a confined electrolyte
 
 *Working draft. Status: methods and all field results drafted (T5b, T5c); R13
-reported from `reports/research/go_no_go.md` section 15. Markers: **[VERIFY]**
+reported from `reports/research/go_no_go.md` section 15; the program-length
+curve from `research/program_length/RESULTS.md` (section 7). Markers: **[VERIFY]**
 is not yet traced to source; **[CITE]** needs a full reference. Numbers come
 from `assets/paper_numbers.json` unless a file is named.*
 
@@ -24,7 +25,11 @@ nanotubes without being told a field is present: a pre-registered test confirmed
 uptake. At the measured uptake, a second pre-registered test did not confirm
 0.01 V/Å (p = 0.59), and 0.02 V/Å narrowly missed (p = 0.054): the statements
 stayed exact, but the response was smaller and the spread between builds as
-large as the response. We state the limits: a pilot force field, packed fillings
+large as the response. A pre-registered test of whether a longer program can
+stand in for physics found that, with the compiler's two fluid restraints, it
+cannot: on two liquids every rebuild that passed did so through physics, and the
+restraint that met its g(r)-peak target moved the rest of the structure away from
+the reference. We state the limits: a pilot force field, packed fillings
 and six runs per field.
 
 ## 1. Introduction
@@ -53,7 +58,9 @@ language's measured fidelity. We then use the instrument on a blind problem:
 detecting field-aligned dipole order in a LiPF6 electrolyte confined in carbon
 nanotubes, where the lift is never told the field. If the text could not see what
 a field does to the liquid, it could not be used to choose training frames; that
-it can is necessary for that use but does not establish it.
+it can is necessary for that use but does not establish it. Finally, we test a
+claim from the original design, that a program stating more about a fluid should
+need less simulation to reproduce it.
 
 **Related work.** Builders are one-directional. Packmol packs molecules into
 regions and moltemplate generates topologies [5,6]; neither reads a snapshot back
@@ -226,7 +233,59 @@ Taken together, the field claim that stands is narrow: detection at the pilot
 filling (0.02 V/Å decisively, 0.01 V/Å modestly) and no confirmed detection at
 the measured uptake with this design.
 
-## 7. What the language adds
+## 7. Program length against physics
+
+The compiler restrains two fluid statements, mean coordination
+(`constrain cn`) and the height of the first g(r) peak (`constrain gr_peak`), by
+reverse Monte Carlo after packing and again after any physics stage. If programs
+can trade length for physics, a richer program should pass with less simulation.
+We pre-registered the test before any grid data existed
+(`research/program_length/PLAN.md`, commit `5b434b8`). It uses two
+Lennard-Jones liquids (`lj_liquid`, `lj_liquid_large`) and three physics levels:
+P0 packing only, P1 700 MD steps (10% of the dialect default) and P2 the default
+7,000. Each liquid's lifted program, with its assertions removed, gives three
+programs: S0 as lifted, S1 adding the coordination restraint copied from the
+lifted assertion, and S2 adding the g(r)-peak restraint as well (201, 240 and 277
+characters for `lj_liquid`). Every cell was rebuilt with three seeds and scored
+by the A5 gate: averaged g(r) and coordination distances each at most 1.5 times
+the measured floor. A bond-angle distance, which no level restrains, was the
+held-out check.
+
+**Table 2.** Program-length grid. Pass or fail on the A5 gate, and the g(r)
+distance as a multiple of its floor, as the range over the two liquids
+(`research/program_length/results.json`).
+
+| Program | P0, packing only | P1, 700 steps | P2, 7,000 steps |
+| --- | --- | --- | --- |
+| S0, lifted | fail, 13.4–18.7 | pass, 1.21–1.27 | pass, 0.59–0.94 |
+| S1, + coordination | fail, 13.4–18.7 | pass, 1.21–1.27 | pass, 0.59–0.94 |
+| S2, + g(r) peak | fail, 13.4–19.5 | fail, 4.7–7.0 | fail, 9.2–19.3 |
+
+Every pass came from physics. With MD on, the shortest program passed on both
+liquids; with packing alone, nothing in the ladder passed. No restraint turned a
+failing cell into a passing one. S1 changed nothing, by construction: the copied
+tolerance (12.0 ± 1.1 and 12.0 ± 1.2) is the per-atom spread of coordination, not a tolerance
+on its mean, so a random packing already satisfies it and the restraint never
+moves. S2 made things worse, most of all after full MD. It met its g(r)-peak
+target but pulled the rest of the structure away from the reference: the g(r)
+distance rose from 0.59–0.94 to 9.2–19.3 times its floor, and the held-out angle
+distance rose 13- to 32-fold against S0. The held-out check caught what the
+targeted statement could not.
+
+The registered rule does not settle a label. It asks that the shortest passing
+program not grow with physics, and that at least one level need a strictly
+longer program than P2. It does not say how "no passing program" at P0 compares
+with a length. Counted as the longest, the rule returns SUPPORTED; counted as no
+length, NOT SUPPORTED. The analysis code chose the first ordering after
+registration, though before any data, so we report the verdict as undetermined
+and rest on the substance. These data do not show that program length can
+replace physics: the compiler's two restraints either do nothing as stated or
+damage the structure. One by-product is that 700 MD steps already pass the gate,
+at 1.17–1.27 times the floor. Restraints that act on whole distributions, or a
+tolerance on the mean taken from the measured floor, would be the next test, and
+it would have to be pre-registered as new work.
+
+## 8. What the language adds
 
 The field was detected through lifted programs, never from coordinates with field
 knowledge. Conservation and residual accounting are falsifiable statements rather
@@ -249,7 +308,7 @@ model (`src/chaord/integrations.py`, 320-token budget), tested for exact round
 trips. That codec is plumbing. No decision model has been trained or run on
 Chaord text in this work.
 
-## 8. Limitations
+## 9. Limitations
 
 1. Pilot force field (rigid OPLS-AA-based molecules, Werder carbon, LB mixing),
    with no DFT anchor yet.
@@ -264,15 +323,17 @@ Chaord text in this work.
    reservoir filling the between-build spread is as large as the 0.02 V/Å
    response. A larger set, or a design that removes build-to-build variance from
    the primary test, would be needed to resolve it; neither was registered here.
-6. Program length against physics fidelity, proposed in the original design as a
-   measurable claim, is not yet measured. The compiler now restrains fluid
-   coordination and g(r) peaks (`constrain cn`, `constrain gr_peak`), and the
-   measurement is pre-registered (`research/program_length/PLAN.md`) for two
-   atomic liquids only; slab, glass and molecular systems have no restraint path.
+6. Program length against physics was measured for two atomic liquids and two
+   scalar restraints only, and its registered verdict is undetermined (section
+   7). The negative finding bears on these restraints as specified, not on
+   richer ones. Slab, glass and molecular systems have no restraint path.
 
 ## Figures
 
 - **Table 1 / Figure 1.** Acceptance A1–A14 (`assets/table1_acceptance.md`).
+- **Table 2.** Program-length grid, in section 7
+  (`research/program_length/RESULTS.md`, `assets/paper_numbers.json` key
+  `program_length`).
 - **Figure 2.** `figures/fig2_blind_p1_vs_field.pdf`. Blind P1 against field. (a)
   Stage B, mean ± s.e.m. over three builds. (b) (16,16): Stage B and Z4, both
   packed below open-tube uptake, and R13 at the measured uptake; markers are

@@ -88,6 +88,15 @@ rows are filled from `r13_results.json` (r13/PLAN.md, pre-registered
 - Q3's two void results reported for completeness with attribution
   (go_no_go.md §14/§14b).
 
+## 7b. Program length against physics (results IV; added after the curve)
+
+- Table 2: 2 LJ liquids x P0/P1/P2 x S0/S1/S2, A5 gate, held-out angle_tv.
+  Evidence: `research/program_length/results.json`, `RESULTS.md`
+  (PLAN registered 5b434b8; results 7612053).
+- Physics alone explains every pass; S1 inert (per-atom spread copied as
+  tolerance); S2 harmful (gr x9.2-19.3 at P2, angle 13-32x). Verdict
+  undetermined between readings A and B; reported as such.
+
 ## 8. What the language adds beyond the physics (discussion)
 
 - Lift as an instrument: the field was detected through the lifted

@@ -22,6 +22,7 @@ OUT = "docs/paper/assets/"
 FIG = "docs/paper/figures/"
 BLUE, ORANGE, AQUA, VIOLET = "#2a78d6", "#eb6834", "#1baf7a", "#7a4fd0"
 R13 = "research/cnt_electrolyte/r13/r13_results.json"
+CURVE = "research/program_length/results.json"
 INK, MUTED, GRID = "#0b0b0b", "#52514e", "#e6e5e0"
 FIELD_MV = {0.01: "0.01", 0.02: "0.02"}
 
@@ -99,6 +100,72 @@ def r13_numbers(r):
     if (out["fields"]["0.01"]["p"] < 0.05) != (out["decision"] == "CONFIRMED"):
         raise RuntimeError("R13 stored verdict disagrees with the recomputed p")
     return out
+
+
+def curve_numbers(r):
+    """Program-length curve (research/program_length, PLAN registered 5b434b8):
+    recompute pass/fail from the stored ratios, the shortest passing level per
+    physics level, and the decision under both readings of "none" (RESULTS.md).
+    Fails closed against the stored pass flags, shortest_passing and verdict."""
+    gate, cells = r["gate"], r["cells"]
+    for k, c in cells.items():
+        ok = all(c["ratio"][m] <= gate for m in ("gr_rms", "cn_tv"))
+        if ok != c["passed"] or c["refusals"]:
+            raise RuntimeError(f"curve cell {k}: pass flag or refusal mismatch")
+    cases, phys, prog = ("lj_liquid", "lj_liquid_large"), ("P0", "P1", "P2"), ("S0", "S1", "S2")
+    short = {}
+    for case in cases:
+        short[case] = {}
+        for p in phys:
+            ok = [s for s in prog if cells[f"{case}|{p}|{s}"]["passed"]]
+            short[case][p] = ok[0] if ok else "none"
+            if short[case][p] != r["shortest_passing"][case][p]["level"]:
+                raise RuntimeError(f"curve shortest {case} {p} disagrees")
+    def verdict(none_is_longest):
+        for case in cases:
+            L = [r["shortest_passing"][case][p]["length"] for p in phys]
+            if none_is_longest:
+                L = [float("inf") if x is None else x for x in L]
+            else:
+                if L[2] is None:
+                    return "NOT SUPPORTED"
+                L = [x for x in L if x is not None]
+                if not all(a >= b for a, b in zip(L, L[1:])) or max(L) <= L[-1]:
+                    return "NOT SUPPORTED"
+                continue
+            if not (L[0] >= L[1] >= L[2] and max(L[0], L[1]) > L[2]):
+                return "NOT SUPPORTED"
+        return "SUPPORTED"
+    a, b = verdict(True), verdict(False)
+    if a != r["decision"]["verdict"]:
+        raise RuntimeError("curve stored verdict disagrees with reading A")
+    rng = lambda xs: [float(min(xs)), float(max(xs))]
+    sel = lambda p, s, m: [cells[f"{c}|{p}|{s}"][m] if m == "angle_tv_rel_P2S0"
+                           else cells[f"{c}|{p}|{s}"]["ratio"][m] for c in cases]
+    s1_inert = all(cells[f"{c}|{p}|S1"]["ratio"] == cells[f"{c}|{p}|S0"]["ratio"]
+                   for c in cases for p in phys)
+    grid = {p: {s: dict(passed=[cells[f"{c}|{p}|{s}"]["passed"] for c in cases],
+                        gr=rng([cells[f"{c}|{p}|{s}"]["ratio"]["gr_rms"] for c in cases]),
+                        cn=rng([cells[f"{c}|{p}|{s}"]["ratio"]["cn_tv"] for c in cases]))
+                for s in prog} for p in phys}
+    return dict(commit=r["commit"], seeds=r["seeds"], gate=gate, grid=grid,
+                shortest=short, verdict_reading_A=a, verdict_reading_B=b,
+                s1_identical_to_s0=s1_inert,
+                lengths={c: {s: cells[f"{c}|P0|{s}"]["length"] for s in prog}
+                         for c in cases},
+                p1_md_steps=cells["lj_liquid|P1|S0"]["md_steps"],
+                p2_md_steps=cells["lj_liquid|P2|S0"]["md_steps"],
+                p1_s0_gr=rng(sel("P1", "S0", "gr_rms")),
+                p1_s0_cn=rng(sel("P1", "S0", "cn_tv")),
+                p2_s0_gr=rng(sel("P2", "S0", "gr_rms")),
+                p2_s0_cn=rng(sel("P2", "S0", "cn_tv")),
+                p0_s0_gr=rng(sel("P0", "S0", "gr_rms")),
+                p2_s2_gr=rng(sel("P2", "S2", "gr_rms")),
+                p2_s2_cn=rng(sel("P2", "S2", "cn_tv")),
+                p2_s2_angle_rel=rng(sel("P2", "S2", "angle_tv_rel_P2S0")),
+                s2_angle_rel_all=rng([cells[f"{c}|{p}|S2"]["angle_tv_rel_P2S0"]
+                                      for c in cases for p in phys]),
+                wall_seconds=r["wall_seconds"])
 
 
 def fidelity(c, l, r):
@@ -274,7 +341,7 @@ def main():
     acc = load("reports/acceptance.json")
     r = load(R13)
     N = dict(acceptance=acceptance_table(acc), z4=z4_numbers(c),
-             r13=r13_numbers(r),
+             r13=r13_numbers(r), program_length=curve_numbers(load(CURVE)),
              fidelity=fidelity(c, l, r), filling=filling(f),
              e_min={t: l["per_tube"][t]["e_min"] for t in ("16", "10")},
              stage_b_p1={t: {k: v for k, v in
@@ -302,6 +369,7 @@ def main():
     fd = N["fidelity"]
     print("lifts", fd["total_lifts"], "max", fd["max_all"],
           "residual", fd["max_abs_residual_recomputed"])
+    print("curve", N["program_length"])
     print("per 98.4", {k: round(v, 2) for k, v in
                        N["filling"]["reservoir_per_98p4A"].items()})
 

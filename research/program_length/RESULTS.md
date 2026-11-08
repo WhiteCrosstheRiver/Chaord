@@ -66,7 +66,8 @@ label, that we report.**
    physics, is not demonstrated: no restraint level ever turned a failing
    cell into a passing one.
 2. **S1 is inert by construction.** The ladder copies the lifted
-   `assert cn 12.0 +- 1.1` verbatim, and the printed ±1.1 is the per-atom
+   `assert cn 12.0 +- 1.1` (lj_liquid; `+- 1.2` for lj_liquid_large)
+   verbatim, and the printed tolerance is the per-atom
    spread of coordination, not a tolerance on its mean. A random packing
    already satisfies it, so the restraint stops before its first move and
    S1 reproduces S0 exactly in all six physics cells.
