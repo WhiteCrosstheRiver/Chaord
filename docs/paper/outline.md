@@ -1,21 +1,21 @@
 # Paper outline (T5a, D57 — due 2026-11-06)
 
 Working title: **"Chaord: a compiled language for molecular simulation —
-round-trip fidelity and blind field detection in a confined electrolyte"**
+round-trip fidelity and pre-registered blind field tests in a confined electrolyte"**
 (title final at draft stage). Every number below is printed by a committed
-script (D59); the claims table maps claim → evidence file → script. Field
-rows marked **[T3 pending]** are placeholders filled by `r13_results.json`
-(r13/PLAN.md, pre-registered 9e305de before any R13 job).
+script (D59); the claims table maps claim → evidence file → script. The R13
+rows are filled from `r13_results.json` (r13/PLAN.md, pre-registered
+9e305de before any R13 job; T3 run 2026-11-07, commit 4f3db73).
 
 ## 1. Abstract
 
 - The instrument claim: a domain language (program → coordinates via
   `build`; coordinates → program via `lift`) with measured round-trip
-  fidelity ~5e-4 over 60,060 lifts.
+  fidelity 5.00e-4 (the print half-quantum) over 78,078 lifts.
 - The physics claim: in field-aligned dipole order of a confined LiPF6
   electrolyte, detected blind (lift never told the field) at pre-registered
   Welch tests; filling dependence handled honestly (pilot vs open-tube
-  uptake; Q3 voided; R13 [T3 pending]).
+  uptake; Q3 voided; R13 at the measured uptake NOT CONFIRMED, p 0.59).
 - Limits stated up front: pilot force field, packing-based fillings,
   narrow-tube non-ergodicity, cluster FP non-reproducibility, n = 6/field.
 
@@ -44,8 +44,8 @@ rows marked **[T3 pending]** are placeholders filled by `r13_results.json`
   `tools/gen_gate_report.py --check`), CI runs ba6b594 14/14.
 - Fidelity: Figure 3 (fidelity: Chaord statement vs direct calculation,
   all lifts) — evidence: `analysis/confirmatory_results.json` `meta` +
-  `go_no_go.md` §10-13 (5.00e-4 over 18,018 confirmatory lifts; 60,060
-  total across Stage A/B/confirmatory).
+  `go_no_go.md` §10-13 (5.00e-4 over 18,018 confirmatory lifts; 78,078
+  total across the full ladder, Z4 and R13; R13 in go_no_go.md section 15).
 - Blind P1 pipeline: `analysis/y8_full_ladder.py`, `y8_block_analysis.py`.
 
 ## 5. The physical system (methods II)
@@ -81,9 +81,10 @@ rows marked **[T3 pending]** are placeholders filled by `r13_results.json`
   `y8_full_ladder.py`), confirmatory Z4 (`analysis/confirmatory_results.json`,
   `confirmatory_z4.py` — pilot filling: 0.01 V/Å CONFIRMED, shift +0.107,
   t 2.85, df 7.0, p 0.0246; 0.02 V/Å p 1.3e-05), R13 reservoir filling
-  **[T3 pending]** (`r13_results.json`, the committed PLAN §7 script).
+  (`r13_results.json`, the committed PLAN §7 script run verbatim): 0.01 V/Å
+  NOT CONFIRMED, shift +0.020, CI [-0.064, +0.105], p 0.5935; 0.02 V/Å p 0.0540.
 - E_min: 0.02 V/Å (16,16) at the pilot filling; 0.1 V/Å (10,10);
-  R13 decides the reservoir-filling 0.01 point [T3 pending].
+  no field confirmed at the reservoir filling (R13).
 - Q3's two void results reported for completeness with attribution
   (go_no_go.md §14/§14b).
 

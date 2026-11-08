@@ -1,14 +1,31 @@
-# Chaord: a compiled language for molecular simulation — round-trip fidelity and blind field detection in a confined electrolyte
+# Chaord: a compiled language for molecular simulation — round-trip fidelity and pre-registered blind field tests in a confined electrolyte
 
-*Working draft. Status: methods and filling-independent results drafted (T5b);
-the reservoir-filling field result is pending (T3). Markers: **[T3 pending]**
-waits for R13; **[VERIFY]** is not yet traced to source; **[CITE]** needs a full
-reference. Numbers come from `assets/paper_numbers.json` unless a file is named.*
+*Working draft. Status: methods and all field results drafted (T5b, T5c); R13
+reported from `reports/research/go_no_go.md` section 15. Markers: **[VERIFY]**
+is not yet traced to source; **[CITE]** needs a full reference. Numbers come
+from `assets/paper_numbers.json` unless a file is named.*
 
 ## Abstract
 
-**[Write last.]** Three points must survive: the fidelity figure, the blind
-field detection with its filling label, and the limits stated up front.
+Atomistic simulation has no shared language for what a configuration is. Inputs
+are built by one-off scripts, and existing snapshots can be analysed but not
+written back as a description. We introduce Chaord, a language in which a program
+is a macrostate: exact where a system is ordered, statistical where it is not,
+across crystals, glasses, liquids, gases and interfaces. A compiler samples
+coordinates from a program and a decompiler lifts a snapshot back to one. We make
+the round trip the correctness test: decompile, rebuild, and compare observables
+the program never stated against the frame-to-frame noise floor. Chaord passes
+14 acceptance criteria, each guarded by an injected error that must make it fail,
+and over 78,078 blind lifts its printed statements match an independent
+calculation to the precision of the print. Used as an instrument, its text alone
+detects field-induced dipole order in a LiPF6 electrolyte confined in carbon
+nanotubes without being told a field is present: a pre-registered test confirmed
+0.01 V/Å (p = 0.025, n = 6 runs per group) in tubes packed below their open-tube
+uptake. At the measured uptake, a second pre-registered test did not confirm
+0.01 V/Å (p = 0.59), and 0.02 V/Å narrowly missed (p = 0.054): the statements
+stayed exact, but the response was smaller and the spread between builds as
+large as the response. We state the limits: a pilot force field, packed fillings
+and six runs per field.
 
 ## 1. Introduction
 
@@ -19,10 +36,36 @@ configurations, and a coordinate file is one microstate of it. A compiler
 (`chaord build`) realizes coordinates from a program, and a decompiler
 (`chaord lift`) produces a program from coordinates.
 
-We make the instrument claim first, because a physics claim made through a
-language is only as good as that language's measured fidelity. We then use the
-instrument on a blind problem: detecting field-aligned dipole order in a LiPF6
-electrolyte confined in carbon nanotubes, where the lift is never told the field.
+The project began with a practical question. Fast decision models read text, and
+training a machine-learned potential needs repeated decisions about which
+configurations deserve an expensive DFT label. Raw coordinates are the assembly
+language of an atomic system: complete, but unreadable to such a model. That
+turned the problem into a language problem, and the language turned out to be the
+harder and more general contribution. It must be exact where a system is ordered
+and statistical where it is not, across crystals, glasses, liquids, gases and
+reactive interfaces.
+
+This paper does not test that decision loop, and it makes no claim about DFT
+labels (D53). It tests the prerequisite: whether the text faithfully carries a
+physical signal, without being told it is there. We make the instrument claim
+first, because a physics claim made through a language is only as good as that
+language's measured fidelity. We then use the instrument on a blind problem:
+detecting field-aligned dipole order in a LiPF6 electrolyte confined in carbon
+nanotubes, where the lift is never told the field. If the text could not see what
+a field does to the liquid, it could not be used to choose training frames; that
+it can is necessary for that use but does not establish it.
+
+**Related work.** Builders are one-directional. Packmol packs molecules into
+regions and moltemplate generates topologies [5,6]; neither reads a snapshot back
+into a description. ATLAS composes structures from natural language through a
+JSON component graph and analyses existing structures into components, but
+reports minimal support for amorphous and statistically disordered phases [7].
+Text encodings of crystals have been benchmarked for language models, which were
+found to rely on local rather than geometric information [8]. Chaord differs in
+three ways: a program denotes an ensemble rather than one structure; build and
+lift share one definition of every statistical quantity; and correctness is
+defined by the round trip against a measured noise floor. **[VERIFY: read [7] and
+[8] in full before submission; this paragraph rests on abstracts.]**
 
 ## 2. The language and the compiler
 
@@ -39,8 +82,11 @@ names a dipole species, `dipole_p1` is measured unconditionally, and passing a
 `field=` argument adds only a `state field` line. No lift in this work received
 that argument.
 
-**Figure 4.** Example program for a tube frame. **[Pending: run lift on a cited
-frame; `spec/examples/11_nanotube_field.chaord` is the starting template.]**
+**Figure 4.** A program lifted blind from a (16,16) frame of the early 49.2 Å pilot
+at zero field (`figures/fig4_example_program.chaord`, taken verbatim from
+`research/cnt_electrolyte/runs/first_result_summary.json`, key `cnt16_field0#0`).
+**[Annotate. It predates the final lift pipeline; re-lift a Z4 frame before
+submission if an environment with Chaord's dependencies is available.]**
 
 ## 3. Instrument validation
 
@@ -48,21 +94,26 @@ frame; `spec/examples/11_nanotube_field.chaord` is the starting template.]**
 (`assets/table1_acceptance.md`; Table 1). The criteria carry mutation tests: the
 most likely real error for a criterion is injected and must make it fail. An
 independent verifier with no code authorship reproduced the set
-(`reports/verification_2026-10-08.md`). **[VERIFY: quote the CI run id from the
-artifact itself before submission.]**
+(`reports/verification_2026-10-08.md`), and clean CI on both operating systems
+passed at commit `ba6b594` (run 37868981153; `reports/gate_a_prime.md`). The
+benchmark covers crystals, defects, liquids, glasses, solutions, surfaces,
+interfaces and gases, with disordered references taken from independent MD.
+**[VERIFY: confirm that family list against `bench/` and name the case count.]**
 
-**Fidelity.** Across all 60,060 blind lifts (42,042 on the full ladder and 18,018
-confirmatory), the largest difference between the statement `dipole_p1` and an
-independent direct calculation was 5.00 × 10⁻⁴, which is the half-quantum of the
-statement's three-decimal print (Figure 3). The residual is flat across that
-interval, as rounding predicts, so the statement and the direct quantity agree
-to print precision. There were no failed static checks on any confirmatory frame.
+**Fidelity.** Across all 78,078 blind lifts (42,042 on the full ladder, 18,018 in
+the pilot-filling confirmatory set and 18,018 at the reservoir filling), the
+largest difference between the statement `dipole_p1` and an independent direct
+calculation was 5.00 × 10⁻⁴, which is the half-quantum of the statement's
+three-decimal print (Figure 3). The residual is flat across that interval, as
+rounding predicts, so the statement and the direct quantity agree to print
+precision. There were no failed static checks on any frame of either
+confirmatory set; the denser reservoir filling, at 4,872 atoms, did not degrade
+the print.
 
 ## 4. The physical system
 
 **Model.** LiPF6 in EC:EMC in armchair carbon nanotubes, with rigid OPLS-AA-based
-molecules (Nutakki 2023 **[CITE]**), Werder sp²-carbon parameters (Werder 2003
-**[CITE]**) and Lorentz–Berthelot mixing, which is a recorded deviation. Tubes
+molecules [1,2], Werder sp²-carbon parameters [3] and Lorentz–Berthelot mixing, which is a recorded deviation. Tubes
 are frozen and uncharged. We use PPPM (relative accuracy 10⁻⁴), a 12 Å cut-off, a
 1 fs timestep and a single Langevin scheme with 1 ps damping for all mobile
 atoms.
@@ -88,7 +139,11 @@ stiffened and the threshold left alone; the result has minimum pair/floor 1.098
 and wall/floor 1.028 (`r13/data/build_manifest_r13_b1.json`). Starting production
 from this state releases residual strain: the mobile temperature spikes to about
 880 K within the first picosecond and is gone within 5 ps, well before any
-analysed data (`r13/evidence/smoke/`). **[T3 pending: statistics for builds 2–6.]**
+analysed data (`r13/evidence/smoke/`). That transient was measured on `r13_b1`
+only. All six builds pass the same gate (minimum pair/floor 1.097–1.100,
+wall/floor 1.024–1.031; `r13/data/build_manifest.json`). Builds 1 and 6 were
+inserted at 0.80 × the floor. Builds 2–5 jammed there on an EC insertion and were
+inserted at 0.75 ×; every jam is recorded and no count was changed.
 
 ## 5. Filling is a state variable
 
@@ -137,17 +192,62 @@ on the cluster, so exact pairing does not hold for them. The primary test is
 unpaired and is not affected.
 
 **Reservoir filling (R13).** Same design at the corrected uptake, 125 EC, 58 EMC
-and 24 LiPF6 per 98.4 Å, pre-registered in `r13/PLAN.md` before any build. The
-decision rule is that 0.01 V/Å is confirmed at this filling only if Welch p < 0.05
-on this set alone. **[T3 pending: result, reported either way.]**
+and 24 LiPF6 per 98.4 Å (4,872 atoms), pre-registered in `r13/PLAN.md` before any
+build. The decision rule was that 0.01 V/Å is confirmed at this filling only if
+Welch p < 0.05 on this set alone. The analysis imports the Z4 code unchanged and
+runs the plan's own test code verbatim. **0.01 V/Å is not confirmed at the
+reservoir filling.**
+
+| Contrast | Shift | 95% CI | t | df | p | Runs positive |
+| --- | --- | --- | --- | --- | --- | --- |
+| 0.01 vs 0 V/Å (gate) | +0.020 | [−0.064, +0.105] | 0.56 | 8.0 | 0.59 | 4 of 6 |
+| 0.02 vs 0 V/Å | +0.051 | [−0.001, +0.103] | 2.21 | 9.3 | 0.054 | 5 of 6 |
+
+The measurement is not what failed: the statements matched the direct
+calculation to print precision on all 18,018 frames. Two things changed against
+the pilot filling (Figure 2b). The 0.02 V/Å response is about a quarter as large
+(block-B mean +0.041 against +0.169 for Z4), and the zero-field runs spread from
+−0.080 to +0.028 between builds, the same order as that response. With six runs
+per group, an unpaired test cannot separate the two. The build-paired contrast,
+registered as secondary, removes the between-build spread and shows a consistent
+0.02 V/Å shift (+0.051 ± 0.013, positive in 5 of 6 builds), but it does not
+change the verdict, and we do not promote it. Whether the smaller response
+reflects a denser, more constrained pore liquid or the pilot force field, this
+design cannot say; we make no physical claim either way.
+
+The chaining check found 2 of 18 jobs diverging from their siblings during the
+shared zero-field ramp, and these are exactly the two jobs the scheduler placed
+on a second compute node; the other 16 ran on one node with the same binary,
+rank layout and seeds. This turns the floating-point non-reproducibility seen in
+Z4 from an inference into an observation for R13. The primary test is unpaired
+and unaffected; the paired view loses exact pairing for those two builds.
+
+Taken together, the field claim that stands is narrow: detection at the pilot
+filling (0.02 V/Å decisively, 0.01 V/Å modestly) and no confirmed detection at
+the measured uptake with this design.
 
 ## 7. What the language adds
 
 The field was detected through lifted programs, never from coordinates with field
 knowledge. Conservation and residual accounting are falsifiable statements rather
-than conventions: dropping one atom must fail. **[VERIFY: the KA-glass and
-LJ-liquid measurement-error results in the outline, §8, are not yet traced to
-`research/ka_convergence/` and `research/x7_liquid/`.]**
+than conventions: dropping one atom must fail.
+
+The measured noise floors behind these comparisons were themselves tested. Thirty
+independent Kob–Andersen quenches [4] at three rates a decade apart show that
+inherent-structure energy separates adjacent rates decisively, by 0.023–0.040
+ε per atom, or 6–10 times the cross-quench spread. Structure does not: at one
+decade, g(r) and coordination differences stay within 0.5–1.0 times their
+cross-quench floor (`reports/convergence/ka_rates.md`). So a Chaord statement of
+structure alone would not distinguish these glasses, and that is a limit of the
+observable, not of the print. Re-grounding the liquid floors on at least 132
+averaged pairs changed most of them little. The largest move was the
+`lj_liquid_large` averaged coordination floor, which widened by a factor of 1.57,
+a sampling effect in the original 21 pairs (`reports/convergence/liquid_floors.md`).
+
+**The decision loop.** Chaord ships a line-diff state codec for a text decision
+model (`src/chaord/integrations.py`, 320-token budget), tested for exact round
+trips. That codec is plumbing. No decision model has been trained or run on
+Chaord text in this work.
 
 ## 8. Limitations
 
@@ -157,20 +257,50 @@ LJ-liquid measurement-error results in the outline, §8, are not yet traced to
    not a grand-canonical ensemble, and it neutralizes a measured ion imbalance.
 3. Narrow-tube non-ergodicity: (10,10) is glassy-slow, and the block protocol may
    under-sample it.
-4. Cluster floating-point non-reproducibility: reruns are not bit-reproducible,
-   and it affected 6 of 18 jobs in Z3.
-5. Six runs per field: power against small shifts is limited.
+4. Cluster floating-point non-reproducibility: reruns are not bit-reproducible
+   across nodes. It affected 6 of 18 jobs in Z3 and 2 of 18 in R13, where the two
+   are exactly the jobs run on a second node.
+5. Six runs per field: power against small shifts is limited, and at the
+   reservoir filling the between-build spread is as large as the 0.02 V/Å
+   response. A larger set, or a design that removes build-to-build variance from
+   the primary test, would be needed to resolve it; neither was registered here.
+6. Program length against physics fidelity, proposed in the original design as a
+   measurable claim, is not yet measured. The compiler now restrains fluid
+   coordination and g(r) peaks (`constrain cn`, `constrain gr_peak`), and the
+   measurement is pre-registered (`research/program_length/PLAN.md`) for two
+   atomic liquids only; slab, glass and molecular systems have no restraint path.
 
 ## Figures
 
 - **Table 1 / Figure 1.** Acceptance A1–A14 (`assets/table1_acceptance.md`).
 - **Figure 2.** `figures/fig2_blind_p1_vs_field.pdf`. Blind P1 against field. (a)
-  Stage B, mean ± s.e.m. over three builds. (b) (16,16) Stage B and Z4; dots are
-  individual Z4 runs. Both sets are packed below open-tube uptake. **[T3 pending:
-  add R13 points.]**
+  Stage B, mean ± s.e.m. over three builds. (b) (16,16): Stage B and Z4, both
+  packed below open-tube uptake, and R13 at the measured uptake; markers are
+  means ± s.e.m., dots individual Z4 and R13 runs, series offset horizontally
+  for legibility.
 - **Figure 3.** `figures/fig3_fidelity.pdf`. Chaord statement against direct
   calculation on 18,018 confirmatory frames, and the residual, bounded by the
   print half-quantum.
-- **Figure 4.** Annotated example program. **[Pending.]**
+- **Figure 4.** `figures/fig4_example_program.chaord`. Lifted program for a pilot frame.
 - **Figure 5.** `figures/fig5_filling.pdf`. Pilot packing against open-tube uptake
   per species and tube.
+
+## References
+
+1. J. S. C. Nutakki, *Molecular Modelling of Lithium Salts in the Binary Mixtures
+   of Ethylene and Ethyl Methyl Carbonates*, M.S. thesis, University of Illinois
+   Chicago (2023). https://indigo.uic.edu/articles/thesis/25392199
+2. W. L. Jorgensen, D. S. Maxwell, J. Tirado-Rives, J. Am. Chem. Soc. 118, 11225
+   (1996).
+3. T. Werder, J. H. Walther, R. L. Jaffe, T. Halicioglu, P. Koumoutsakos, J. Phys.
+   Chem. B 107, 1345 (2003).
+4. W. Kob, H. C. Andersen, Phys. Rev. E 51, 4626 (1995).
+5. L. Martínez, R. Andrade, E. G. Birgin, J. M. Martínez, J. Comput. Chem. 30,
+   2157 (2009). (Packmol) **[VERIFY]**
+6. A. I. Jewett et al., J. Mol. Biol. 433, 166841 (2021). (moltemplate) **[VERIFY]**
+7. ATLAS: Atomic Translation & Language for Automated Structures, arXiv:2609.29595
+   (2026). **[VERIFY authors]**
+8. N. Alampara, S. Miret, K. M. Jablonka, MatText: Do Language Models Need More
+   than Text & Scale for Materials Modeling?, arXiv:2406.17295 (2024).
+
+**[CITE: LAMMPS, PPPM and any related-work references still to add.]**

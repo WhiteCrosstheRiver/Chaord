@@ -21,4 +21,3 @@ script stops if a recomputed statistic disagrees with the stored one):
 
 Rule (D59): every number in `draft.md` comes from `paper_numbers.json` or a
 named committed file. Text in **[VERIFY]** has not been traced to source yet.
-Text in **[T3 pending]** waits for the R13 runs.

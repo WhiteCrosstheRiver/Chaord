@@ -20,7 +20,8 @@ import matplotlib.pyplot as plt
 A = "research/cnt_electrolyte/analysis/"
 OUT = "docs/paper/assets/"
 FIG = "docs/paper/figures/"
-BLUE, ORANGE, AQUA = "#2a78d6", "#eb6834", "#1baf7a"
+BLUE, ORANGE, AQUA, VIOLET = "#2a78d6", "#eb6834", "#1baf7a", "#7a4fd0"
+R13 = "research/cnt_electrolyte/r13/r13_results.json"
 INK, MUTED, GRID = "#0b0b0b", "#52514e", "#e6e5e0"
 FIELD_MV = {0.01: "0.01", 0.02: "0.02"}
 
@@ -72,16 +73,48 @@ def z4_numbers(c):
     return out
 
 
-def fidelity(c, l):
+def r13_numbers(r):
+    """R13 (reservoir filling): the same Welch call as Z4, recomputed from the
+    per-job blocks and checked against r13_results.json's stored d39."""
+    J = r["jobs"]
+    off = [np.mean([j["direct_p1_blocks"]["A"], j["direct_p1_blocks"]["B"]])
+           for j in J.values() if j["field"] == 0]
+    out = dict(off_per_run=[float(x) for x in off], off_mean=float(np.mean(off)),
+               off_sem=float(np.std(off, ddof=1) / np.sqrt(len(off))), fields={},
+               decision=r["decision"]["verdict"],
+               section7_output=r["section7_output"],
+               paired=r["build_paired_secondary"],
+               chaining={b: v["identical_at_step_1000000"]
+                         for b, v in r["chaining_check"].items()})
+    for E, key in FIELD_MV.items():
+        on = [j["direct_p1_blocks"]["B"] for j in J.values() if j["field"] == E]
+        w = welch(on, off)
+        s = r["d39"]["fields"][key]
+        for k in ("shift", "t", "p", "df"):
+            close(w[k], s[k], f"R13 {key} {k}", 1e-6)
+        w.update(on_per_run=[float(x) for x in on], on_mean=float(np.mean(on)),
+                 on_sem=float(np.std(on, ddof=1) / np.sqrt(len(on))),
+                 n_positive=int(sum(x > 0 for x in on)))
+        out["fields"][key] = w
+    if (out["fields"]["0.01"]["p"] < 0.05) != (out["decision"] == "CONFIRMED"):
+        raise RuntimeError("R13 stored verdict disagrees with the recomputed p")
+    return out
+
+
+def fidelity(c, l, r):
     cj = [j["p1_text_vs_direct_max_abs"] for j in c["jobs"].values()]
     lj = [j["p1_text_vs_direct_max_abs"] for j in l["jobs"].values()]
+    rj = [j["p1_text_vs_direct_max_abs"] for j in r["jobs"].values()]
     conf = int(c["meta"]["lift_coverage"]["lifts_total"])
     full = int(l["meta"]["lift_subsampling"]["lifts_total"])
-    return dict(confirmatory_lifts=conf, ladder_lifts=full,
-                total_lifts=conf + full, max_confirmatory=max(cj),
-                max_ladder=max(lj), max_all=max(cj + lj),
+    res = sum(int(j["n_lifted"]) for j in r["jobs"].values())
+    return dict(confirmatory_lifts=conf, ladder_lifts=full, r13_lifts=res,
+                total_lifts=conf + full + res, max_confirmatory=max(cj),
+                max_ladder=max(lj), max_r13=max(rj), max_all=max(cj + lj + rj),
                 failed_checks_confirmatory=c["meta"]["failed_static_checks_total"],
-                per_job_confirmatory=cj, per_job_ladder=lj)
+                failed_checks_r13=sum(len(j["failed_checks"])
+                                      for j in r["jobs"].values()),
+                per_job_confirmatory=cj, per_job_ladder=lj, per_job_r13=rj)
 
 
 def filling(f):
@@ -119,7 +152,7 @@ def save(fig, stem):
     plt.close(fig)
 
 
-def fig2(l, z):
+def fig2(l, z, r13):
     fig, (a, b) = plt.subplots(1, 2, figsize=(7.2, 3.0),
                                gridspec_kw=dict(width_ratios=[1.25, 1]))
     style = {"16": (BLUE, "o", "(16,16), Stage B"),
@@ -146,24 +179,36 @@ def fig2(l, z):
     cur = l["per_tube"]["16"]["p1_curve"]["chaord_dipole_p1"]
     E = [0.0, 0.01, 0.02]
     k = {0.0: "0", 0.01: "0.01", 0.02: "0.02"}
-    b.errorbar(np.array(E) - 0.0006, [cur[k[e]]["mean"] for e in E],
+    b.errorbar(np.array(E) - 0.0012, [cur[k[e]]["mean"] for e in E],
                yerr=[cur[k[e]]["sem"] for e in E], color=BLUE, marker="o",
-               ms=4.5, lw=1.4, capsize=2, label="Stage B (n = 3)")
+               ms=4.5, lw=1.4, capsize=2, label="Stage B, pilot (n = 3)")
     zm = [z["off_mean"], z["fields"]["0.01"]["on_mean"], z["fields"]["0.02"]["on_mean"]]
     zs = [z["off_sem"], z["fields"]["0.01"]["on_sem"], z["fields"]["0.02"]["on_sem"]]
-    b.errorbar(np.array(E) + 0.0006, zm, yerr=zs, color=AQUA, marker="D", ms=4.5,
-               lw=1.4, capsize=2, label="Z4 (n = 6)")
+    b.errorbar(np.array(E) + 0.0002, zm, yerr=zs, color=AQUA, marker="D", ms=4.5,
+               lw=1.4, capsize=2, label="Z4, pilot (n = 6)")
     rng = np.random.default_rng(20261106)
     for e, vals in ((0.0, z["off_per_run"]),
                     (0.01, z["fields"]["0.01"]["on_per_run"]),
                     (0.02, z["fields"]["0.02"]["on_per_run"])):
-        x = e + 0.0006 + rng.uniform(0.0002, 0.0012, len(vals))
+        x = e + rng.uniform(0.0004, 0.0010, len(vals))
         b.scatter(x, vals, s=11, color=AQUA, alpha=0.45, lw=0, zorder=1)
+    rm = [r13["off_mean"], r13["fields"]["0.01"]["on_mean"],
+          r13["fields"]["0.02"]["on_mean"]]
+    rs = [r13["off_sem"], r13["fields"]["0.01"]["on_sem"],
+          r13["fields"]["0.02"]["on_sem"]]
+    b.errorbar(np.array(E) + 0.0016, rm, yerr=rs, color=VIOLET, marker="^",
+               ms=5, lw=1.4, capsize=2, label="R13, reservoir (n = 6)")
+    for e, vals in ((0.0, r13["off_per_run"]),
+                    (0.01, r13["fields"]["0.01"]["on_per_run"]),
+                    (0.02, r13["fields"]["0.02"]["on_per_run"])):
+        x = e + rng.uniform(0.0018, 0.0024, len(vals))
+        b.scatter(x, vals, s=11, color=VIOLET, alpha=0.45, lw=0, zorder=1)
     b.set_xticks(E)
     b.set_xticklabels(["0", ".01", ".02"])
     b.set(xlabel="Field (V/Å)", ylabel="Blind P1")
-    b.set_title("b  (16,16), packed below open-tube uptake", loc="left", fontsize=9)
-    b.legend(loc="lower right", fontsize=8)
+    b.set_title("b  (16,16): pilot filling vs reservoir filling", loc="left",
+                fontsize=9)
+    b.legend(loc="upper center", bbox_to_anchor=(0.5, -0.2), ncol=3, fontsize=7, handlelength=1.5, columnspacing=1.0)
     fig.tight_layout()
     save(fig, "fig2_blind_p1_vs_field")
 
@@ -227,14 +272,16 @@ def main():
     l = load(A + "full_ladder_results.json")
     f = load(A + "filling_results.json")
     acc = load("reports/acceptance.json")
+    r = load(R13)
     N = dict(acceptance=acceptance_table(acc), z4=z4_numbers(c),
-             fidelity=fidelity(c, l), filling=filling(f),
+             r13=r13_numbers(r),
+             fidelity=fidelity(c, l, r), filling=filling(f),
              e_min={t: l["per_tube"][t]["e_min"] for t in ("16", "10")},
              stage_b_p1={t: {k: v for k, v in
                              l["per_tube"][t]["p1_curve"]["chaord_dipole_p1"].items()}
                          for t in ("16", "10")},
              q3=load("research/cnt_electrolyte/q3_evidence/q3_results.json"))
-    fig2(l, N["z4"])
+    fig2(l, N["z4"], N["r13"])
     N["fidelity"].update(fig3(c, N["fidelity"]))
     fig5(N["filling"])
     with open(OUT + "paper_numbers.json", "w", encoding="utf-8",
@@ -246,6 +293,12 @@ def main():
           [round(v, 3) for v in z["0.01"]["ci95"]], "positive", z["0.01"]["n_positive"])
     print("Z4 0.02", {k: round(z["0.02"][k], 6) for k in ("shift", "t", "df", "p")},
           [round(v, 3) for v in z["0.02"]["ci95"]], "positive", z["0.02"]["n_positive"])
+    rz = N["r13"]["fields"]
+    for key in ("0.01", "0.02"):
+        print("R13", key, {k: round(rz[key][k], 4) for k in ("shift", "t", "df", "p")},
+              [round(v, 4) for v in rz[key]["ci95"]], "positive",
+              rz[key]["n_positive"])
+    print("R13 decision", N["r13"]["decision"], "chaining", N["r13"]["chaining"])
     fd = N["fidelity"]
     print("lifts", fd["total_lifts"], "max", fd["max_all"],
           "residual", fd["max_abs_residual_recomputed"])
