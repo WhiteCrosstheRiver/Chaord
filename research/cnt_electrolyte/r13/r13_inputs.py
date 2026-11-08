@@ -9,7 +9,7 @@ committed Z3 protocol verbatim.
 Jobs (18 = 3 fields x 6 builds), name r13_e<fieldmV>_b<buildK>.
 
 Seed plan (PLAN.md section 5): velocity-create + thermalization pairs per
-BUILD (20291151+K; ramp 20291200+20K+1/+2, equil +3/+4 -> identical
+BUILD (20291150+K; ramp 20291200+20K+1/+2, equil +3/+4 -> identical
 ladder-t=0 state per build); ladder pair per JOB
 (20291400 + field_mv*100 + 10*K, +1/+2).
 
@@ -52,7 +52,7 @@ def field_tag(field):
 def seeds(build_k, field_mv):
     tb = 20291200 + 20 * build_k
     lb = 20291400 + field_mv * 100 + 10 * build_k
-    return (20291151 + build_k, tb + 1, tb + 2, tb + 3, tb + 4,
+    return (20291150 + build_k, tb + 1, tb + 2, tb + 3, tb + 4,
             lb + 1, lb + 2)
 
 

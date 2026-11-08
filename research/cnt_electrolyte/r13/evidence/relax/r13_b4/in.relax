@@ -1,0 +1,157 @@
+# r13_b4: rigid-body overlap removal (r13_staged.py). No charges, no LJ.
+units           real
+atom_style      full
+boundary        p p p
+read_data       ../../prepack/data/r13_b4.data
+
+pair_style      soft 3.6200
+pair_coeff      1 1 1.0 3.2368
+pair_coeff      1 2 1.0 3.4034
+pair_coeff      1 3 1.0 3.0464
+pair_coeff      1 4 1.0 3.2844
+pair_coeff      1 5 1.0 3.0274
+pair_coeff      1 6 1.0 2.7703
+pair_coeff      1 7 1.0 2.8084
+pair_coeff      1 8 1.0 3.2844
+pair_coeff      1 9 1.0 2.3372
+pair_coeff      1 10 1.0 3.3986
+pair_coeff      1 11 1.0 3.1026
+pair_coeff      2 2 1.0 3.5700
+pair_coeff      2 3 1.0 3.2130
+pair_coeff      2 4 1.0 3.4510
+pair_coeff      2 5 1.0 3.1940
+pair_coeff      2 6 1.0 2.9369
+pair_coeff      2 7 1.0 2.9750
+pair_coeff      2 8 1.0 3.4510
+pair_coeff      2 9 1.0 2.5038
+pair_coeff      2 10 1.0 3.5652
+pair_coeff      2 11 1.0 3.2692
+pair_coeff      3 3 1.0 2.8560
+pair_coeff      3 4 1.0 3.0940
+pair_coeff      3 5 1.0 2.8370
+pair_coeff      3 6 1.0 2.5799
+pair_coeff      3 7 1.0 2.6180
+pair_coeff      3 8 1.0 3.0940
+pair_coeff      3 9 1.0 2.2400
+pair_coeff      3 10 1.0 3.2082
+pair_coeff      3 11 1.0 2.9122
+pair_coeff      4 4 1.0 3.3320
+pair_coeff      4 5 1.0 3.0750
+pair_coeff      4 6 1.0 2.8179
+pair_coeff      4 7 1.0 2.8560
+pair_coeff      4 8 1.0 3.3320
+pair_coeff      4 9 1.0 2.3848
+pair_coeff      4 10 1.0 3.4462
+pair_coeff      4 11 1.0 3.1502
+pair_coeff      5 5 1.0 2.8179
+pair_coeff      5 6 1.0 2.5609
+pair_coeff      5 7 1.0 2.5990
+pair_coeff      5 8 1.0 3.0750
+pair_coeff      5 9 1.0 2.2400
+pair_coeff      5 10 1.0 3.1892
+pair_coeff      5 11 1.0 2.8931
+pair_coeff      6 6 1.0 2.4640
+pair_coeff      6 7 1.0 2.4640
+pair_coeff      6 8 1.0 2.8179
+pair_coeff      6 9 1.0 2.4640
+pair_coeff      6 10 1.0 2.9322
+pair_coeff      6 11 1.0 2.6361
+pair_coeff      7 7 1.0 2.4640
+pair_coeff      7 8 1.0 2.8560
+pair_coeff      7 9 1.0 2.4640
+pair_coeff      7 10 1.0 2.9702
+pair_coeff      7 11 1.0 2.6742
+pair_coeff      8 8 1.0 3.3320
+pair_coeff      8 9 1.0 2.3848
+pair_coeff      8 10 1.0 3.4462
+pair_coeff      8 11 1.0 3.1502
+pair_coeff      9 9 1.0 2.2400
+pair_coeff      9 10 1.0 2.4990
+pair_coeff      9 11 1.0 2.2400
+pair_coeff      10 10 1.0 3.5605
+pair_coeff      10 11 1.0 3.2644
+pair_coeff      11 11 1.0 2.9683
+bond_style      harmonic
+bond_coeff      1 0.0 1.0
+special_bonds   lj/coul 0.0 0.0 0.0
+neighbor        2.0 bin
+neigh_modify    every 1 delay 0 check yes exclude molecule/intra all
+
+group           tube type 1
+group           mobile subtract all tube
+group           li type 9
+group           bodies subtract mobile li
+fix             frz tube setforce 0.0 0.0 0.0
+
+region          pore cylinder z 0.0 0.0 10.850153 INF INF side in
+group           w2 type 2
+fix             w2 w2 wall/region pore harmonic 60 1.0 3.1603
+group           w3 type 3
+fix             w3 w3 wall/region pore harmonic 60 1.0 2.8288
+group           w4 type 4
+fix             w4 w4 wall/region pore harmonic 60 1.0 3.0498
+group           w5 type 5
+fix             w5 w5 wall/region pore harmonic 60 1.0 2.8111
+group           w6 type 6
+fix             w6 w6 wall/region pore harmonic 60 1.0 2.5724
+group           w7 type 7
+fix             w7 w7 wall/region pore harmonic 60 1.0 2.6078
+group           w8 type 8
+fix             w8 w8 wall/region pore harmonic 60 1.0 3.0498
+group           w9 type 9
+fix             w9 w9 wall/region pore harmonic 60 1.0 2.1702
+group           w10 type 10
+fix             w10 w10 wall/region pore harmonic 60 1.0 3.1559
+group           w11 type 11
+fix             w11 w11 wall/region pore harmonic 60 1.0 2.8810
+timestep        0.5
+thermo          2000
+thermo_style    custom step temp pe ke press
+thermo_modify   flush yes
+velocity        mobile create 50.0 20293104 mom yes rot yes dist gaussian
+
+# stage 1: 20 ps, amplitude 1 -> 30, 300 K (rotations unlock the rings)
+variable        A1 equal ramp(1.0,30.0)
+fix             ad all adapt 1 pair soft a * * v_A1
+fix             thb bodies rigid/nve molecule langevin 300.0 300.0 100.0 20293114
+fix             thl li nve
+fix             thla li langevin 300.0 300.0 100.0 20293124
+run             40000
+unfix           ad
+unfix           thb
+unfix           thl
+unfix           thla
+
+# stage 2: 20 ps hold at amplitude 30, 300 K
+variable        A2 equal 30.0
+fix             ad all adapt 1 pair soft a * * v_A2
+fix             thb bodies rigid/nve molecule langevin 300.0 300.0 100.0 20293134
+fix             thl li nve
+fix             thla li langevin 300.0 300.0 100.0 20293144
+run             40000
+unfix           ad
+unfix           thb
+unfix           thl
+unfix           thla
+
+# stage 3: 40 ps, amplitude 30 -> 100, 300 -> 20 K
+variable        A3 equal ramp(30.0,100)
+fix             ad all adapt 1 pair soft a * * v_A3
+fix             thb bodies rigid/nve molecule langevin 300.0 20.0 100.0 20293114
+fix             thl li nve
+fix             thla li langevin 300.0 20.0 100.0 20293124
+run             80000
+unfix           ad
+unfix           thb
+unfix           thl
+unfix           thla
+
+# stage 4: 10 ps quench at amplitude 100, 20 K
+variable        A4 equal 100
+fix             ad all adapt 1 pair soft a * * v_A4
+fix             thb bodies rigid/nve molecule langevin 20.0 20.0 100.0 20293134
+fix             thl li nve
+fix             thla li langevin 20.0 20.0 100.0 20293144
+run             20000
+
+write_dump      all custom relaxed.dump id mol type q xu yu zu modify sort id format float %.10g

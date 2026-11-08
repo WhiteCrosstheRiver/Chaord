@@ -1,0 +1,3 @@
+/vol02/hdd1/ime001/zmfeng/chaord_r13/code/build_systems.py:474: RuntimeWarning: invalid value encountered in true_divide
+  ratios = np.sqrt(d2 / MIN_ALLOWED[tt][:, self.typ] ** 2)
+slurmstepd: error: *** JOB 233755 ON node05 CANCELLED AT 2026-11-06T03:38:38 ***

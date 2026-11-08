@@ -1,0 +1,29 @@
+[z4] chaining r13_b1: IDENTICAL at step 1000000 (groups [['r13_e0_b1', 'r13_e10_b1', 'r13_e20_b1']]; ramp-end groups [['r13_e0_b1', 'r13_e10_b1', 'r13_e20_b1']])
+[z4] chaining r13_b2: IDENTICAL at step 1000000 (groups [['r13_e0_b2', 'r13_e10_b2', 'r13_e20_b2']]; ramp-end groups [['r13_e0_b2', 'r13_e10_b2', 'r13_e20_b2']])
+[z4] chaining r13_b3: IDENTICAL at step 1000000 (groups [['r13_e0_b3', 'r13_e10_b3', 'r13_e20_b3']]; ramp-end groups [['r13_e0_b3', 'r13_e10_b3', 'r13_e20_b3']])
+[z4] chaining r13_b4: IDENTICAL at step 1000000 (groups [['r13_e0_b4', 'r13_e10_b4', 'r13_e20_b4']]; ramp-end groups [['r13_e0_b4', 'r13_e10_b4', 'r13_e20_b4']])
+[z4] chaining r13_b5: MISMATCH at step 1000000 (groups [['r13_e0_b5', 'r13_e10_b5'], ['r13_e20_b5']]; ramp-end groups [['r13_e0_b5', 'r13_e10_b5'], ['r13_e20_b5']])
+[z4] chaining r13_b6: MISMATCH at step 1000000 (groups [['r13_e0_b6', 'r13_e10_b6'], ['r13_e20_b6']]; ramp-end groups [['r13_e0_b6', 'r13_e10_b6'], ['r13_e20_b6']])
+[r13] r13_e20_b1: A -0.0363 B -0.0083  fidelity 4.99e-04  726s
+[r13] r13_e0_b4: A +0.0251 B +0.0124  fidelity 5.00e-04  728s
+[r13] r13_e0_b5: A +0.0122 B +0.0221  fidelity 5.00e-04  733s
+[r13] r13_e20_b4: A +0.0773 B +0.0796  fidelity 5.00e-04  735s
+[r13] r13_e10_b1: A -0.0671 B -0.0623  fidelity 5.00e-04  735s
+[r13] r13_e20_b2: A +0.0794 B +0.0728  fidelity 5.00e-04  735s
+[r13] r13_e0_b1: A -0.0819 B -0.0786  fidelity 5.00e-04  735s
+[r13] r13_e10_b6: A +0.1302 B +0.1220  fidelity 5.00e-04  735s
+[r13] r13_e20_b6: A +0.0239 B +0.0518  fidelity 5.00e-04  736s
+[r13] r13_e10_b5: A +0.0271 B +0.0097  fidelity 5.00e-04  736s
+[r13] r13_e20_b3: A +0.0297 B +0.0352  fidelity 4.99e-04  737s
+[r13] r13_e10_b3: A -0.0751 B -0.0902  fidelity 4.99e-04  737s
+[r13] r13_e10_b4: A +0.0719 B +0.0365  fidelity 4.98e-04  737s
+[r13] r13_e0_b3: A -0.0448 B -0.0605  fidelity 5.00e-04  737s
+[r13] r13_e0_b2: A +0.0175 B +0.0379  fidelity 5.00e-04  738s
+[r13] r13_e20_b5: A +0.0253 B +0.0161  fidelity 5.00e-04  738s
+[r13] r13_e0_b6: A +0.0102 B +0.0131  fidelity 4.99e-04  739s
+[r13] r13_e10_b2: A +0.0649 B +0.0486  fidelity 5.00e-04  742s
+(16,16) 0.01: shift +0.020  t  0.6  p 0.5935
+(16,16) 0.02: shift +0.051  t  2.2  p 0.0540
+(16,16) reservoir 0.01: shift +0.0203  t 0.56  p 0.5935  CI95 [-0.0640, +0.1047]
+(16,16) reservoir 0.02: shift +0.0508  t 2.21  p 0.0540  CI95 [-0.0011, +0.1027]
+[r13] decision: NOT CONFIRMED (p 0.5935)

@@ -62,3 +62,34 @@
 - Local LAMMPS for smoke tests: conda 22Jul2025 build; use
   `fix rigid/nve molecule` (the /small variant corrupts stacks there too —
   see f9cae3f), no fix ave/time after reset_timestep.
+
+## Update, 2026-11-06: T2 unblocked, production running
+
+- Route: r13_staged.py (insert at a reduced floor, rigid-body soft relaxation in
+  LAMMPS, unmodified strict gate). All six builds pass; see data/build_manifest.json.
+  Builds 1 and 6 used floor scale 0.80; builds 2-5 jammed at 0.80 and used 0.75.
+- Cluster working directory is now /vol02/hdd1/ime001/zmfeng/chaord_r13/code/r13
+  (group rule: jobs under zmfeng, compute only, no persistent storage). The older
+  path above is superseded. Clear this directory after retrieval.
+- 18 jobs submitted from jobs/: wave 1 234324-234332, wave 2 234333-234341
+  (wave 2 held by afterany on wave 1). About 10 h per job at 8 ranks.
+- Seeds. r13_inputs.py had velocity seeds off by one against PLAN.md section 5
+  and was fixed before submission. Ladder seeds follow PLAN's formula and reach
+  20293462, but PLAN's range table ends at 20292062: PLAN contradicts itself; the
+  formula was kept. Relaxation seeds 20293101-20293146 are not in PLAN.
+- After the runs: check the chaining rule (identical thermo at step 1000000 per
+  build), retrieve final.data, log.lammps, thinned series and manifests, run T3.
+- Trap: module load lammps puts Intel Python 3.9 first on PATH and sbatch exports
+  the environment. Use the absolute anaconda python path.
+
+## Update 2026-11-07 (later): T2 done, T3 done
+
+- All 18 production jobs COMPLETED (exit 0); series retrieved and verified
+  18/18 against the cluster's sha256 records (`runs_manifest.json` pins all
+  198 retrieved files), then `zmfeng/chaord_r13` was deleted on ime001.
+- Chaining check: b1-b4 identical; b5, b6 diverge at e20 -- exactly the two
+  jobs that ran on node09 (all others node07). Reported, not absorbed.
+- T3 (`r13_analysis.py`, Z4 machinery unchanged, PLAN section 7 run
+  verbatim): **0.01 V/A NOT CONFIRMED at the reservoir filling (p 0.5935)**;
+  0.02 V/A p 0.0540. Written up in `reports/research/go_no_go.md` section 15.
+- Next: T5c (field section of the paper) from section 15.

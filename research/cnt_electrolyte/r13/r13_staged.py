@@ -33,7 +33,11 @@ sys.path.insert(0, HERE)
 import r13_build as R       # noqa: E402
 B, P = R.B, R.P
 
-FLOOR_SCALE = 0.80                # lowest-effort scale that inserts everything
+FLOOR_SCALES = (0.80, 0.75, 0.70)  # the recorded ladder's insertable rungs
+# Builds that jammed on an EC insertion at 0.80 (slurm job, see evidence/logs);
+# their prepack starts at 0.75 and the failure is carried into the manifest.
+JAMMED_080 = {"r13_b2": 234018, "r13_b3": 234020, "r13_b4": 234022,
+              "r13_b5": 234024}
 PREPACK_FINAL_SWEEPS = 300        # best effort only; MD does the real relaxing
 RC_OVER_FLOOR = 1.12              # soft-pair range / true floor
 WALL_OVER_FLOOR = 1.04            # radial wall onset / true wall floor
@@ -82,17 +86,31 @@ def prepack(name):
                          velocity=R.VELOCITY_SEEDS[name])
     B.HERE = os.path.join(HERE, "prepack")
     R._TRUE_MATRIX = B.MIN_ALLOWED
-    R._SCALED_MATRIX = B.MIN_ALLOWED * FLOOR_SCALE
     B.Packer._ok = R._ok_staged
     B.Packer._candidate = R._candidate_staged
     B.Packer.RELAX_SWEEPS_FINAL = PREPACK_FINAL_SWEEPS
     B.Packer.verify = lambda self: True     # deferred: `finish` is the gate
-    info, path = B.build_system(name)
+    tried = []
+    if name in JAMMED_080:
+        tried.append(dict(floor_scale=0.80, outcome="jam on an EC insertion",
+                          slurm_job=JAMMED_080[name]))
+    for scale in FLOOR_SCALES:
+        if name in JAMMED_080 and scale == 0.80:
+            continue
+        R._SCALED_MATRIX = B.MIN_ALLOWED * scale
+        try:
+            info, path = B.build_system(name)
+            break
+        except RuntimeError as exc:
+            tried.append(dict(floor_scale=scale, outcome=f"jam: {exc}"))
+            print(f"[prepack] {name}: jam at {scale}: {exc}", flush=True)
+    else:
+        raise RuntimeError(f"{name}: jammed at every scale; counts NOT lowered")
     stats = B.validate_data_file(path, floor_ratio=0.0)
     out = os.path.join(HERE, "prepack", f"{name}.json")
     with open(out, "w", encoding="utf-8") as f:
-        json.dump(dict(info=info, stats=stats, floor_scale=FLOOR_SCALE), f,
-                  indent=2)
+        json.dump(dict(info=info, stats=stats, floor_scale=scale,
+                       jammed_scales=tried), f, indent=2)
     print(f"[prepack] {name}: {info['n_tolerant_inserts']} tolerant inserts, "
           f"min_inter {stats['min_intermolecular_A']} A, "
           f"min_tube {stats['min_mol_tube_A']} A -> {path}", flush=True)
@@ -309,15 +327,17 @@ def finish(name):
               encoding="utf-8") as f:
         pp = json.load(f)
     attempts = list(PRIOR_B1_ATTEMPTS) if name == "r13_b1" else []
+    attempts += pp.get("jammed_scales", [])
+    used = pp.get("floor_scale")
     attempts.append(dict(
-        floor_scale=FLOOR_SCALE, route="T1 staged: rigid soft relaxation",
+        floor_scale=used, route="T1 staged: rigid soft relaxation",
         outcome="true floors cleared", min_pair_over_floor=round(min_pair_ratio, 4),
         min_wall_over_floor=round(min_wall_ratio, 4)))
     entry = dict(
         pp["info"], guard=guard, velocity_seed=R.VELOCITY_SEEDS[name],
         ncell=R.NCELL, packing_attempts=attempts,
         prepack_stats=pp["stats"],
-        jam_policy="T1 staged packing: insert at 0.80 x MIN_ALLOWED, then "
+        jam_policy="T1 staged packing: insert at reduced MIN_ALLOWED, then "
                    "LAMMPS rigid-body (translation + rotation) relaxation "
                    "under a soft repulsion ranged on the true floors, then "
                    "strict floor gate; counts never lowered",

@@ -1,0 +1,8 @@
+{
+  "prod_thinned_bytes": 246573761,
+  "prod_thinned_sha256": "08da210f383c7b2438bccfc9095ee2a2e24aa25a1fc78a00a4814aae0054305b",
+  "stride": 12,
+  "frames": 1001,
+  "last_timestep": 12000000,
+  "source": "prod.dump (1 ps) -> every 12th frame (12 ps)"
+}

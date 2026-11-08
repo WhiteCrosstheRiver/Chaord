@@ -647,3 +647,126 @@ at the pilot filling (n = 3, p = 0.011 on the full ladder); 0.01 V/Å
 confirmed only at the pilot filling (Z4, p = 0.0246); no reservoir- or
 Q3-composition claim stands. All numbers from committed scripts;
 nothing post-hoc.
+
+
+## 15. R13 — the 0.01 V/Å decision at the reservoir filling (T3)
+
+**VERDICT: 0.01 V/Å is NOT CONFIRMED at the reservoir filling — Welch
+p = 0.594 (shift +0.020, 95% CI [−0.064, +0.105], t = 0.56, df = 8.0,
+n = 6 per group).** This is the pre-registered single test of
+`research/cnt_electrolyte/r13/PLAN.md` §3, committed before any R13 job
+was built ("0.01 V/A is CONFIRMED AT THE RESERVOIR FILLING iff its Welch
+p < 0.05 on this set alone … No other test is added after seeing the
+data"). The 0.02 V/Å consistency point, computed by the same call, also
+misses α = 0.05: **p = 0.054, shift +0.051, CI [−0.001, +0.103]**. §13's
+pilot-filling result stands as it was; it does not carry over to the
+reservoir filling.
+
+Run 2026-11-07 by `research/cnt_electrolyte/r13/r13_analysis.py` on one
+gerui compute node (job 113575, 18 processes; the data streamed to
+node-local /tmp and deleted after). Every number lands in
+`research/cnt_electrolyte/r13/r13_results.json`; the screen log is
+`r13/evidence/logs/r13_T3_gerui_113575.out`.
+
+### 15.1 What was analysed
+
+The 18 jobs of PLAN §2: fields 0 / 0.01 / 0.02 V/Å × 6 staged-packed
+builds `r13_b1..b6` — (16,16) tubes of 98.4 Å holding 125 EC / 58 EMC /
+24 LiPF6 (4,872 atoms, the corrected open-tube uptake, ~1.7× the pilot
+filling of §13), on the one cluster LAMMPS build (3 Mar 2020, 8 ranks),
+14 ns per job, thinned record of 1,001 frames at 12 ps.
+
+- **Same machinery as §13, imported unchanged:** `r13_analysis.py`
+  imports `analysis/confirmatory_z4.py` (both arms, `job_record` with its
+  fidelity assert, `chaining_check`, `d39_welch`,
+  `build_paired_secondary`) and sets only the R13 atom count, census and
+  paths. The test itself is PLAN §7's code block, read out of PLAN.md and
+  executed verbatim against the written JSON; its two printed lines are
+  stored in `section7_output`.
+- **Data identity:** the 18 thinned series match, byte count and sha256,
+  the records the cluster wrote at thinning time (18/18), and each job's
+  `system.data` is byte-identical to its committed build
+  `r13/data/r13_b<k>.data`. Every retrieved file is pinned in
+  `r13/runs_manifest.json`; the cluster copy was then deleted.
+- **Verification on every one of the 18,018 frames:** atom count 4,872,
+  cell neutrality, census EC 125 / EMC 58 / PF6 24 / Li 24, timesteps
+  0 … 12,000,000 at 12,000-step spacing (blocks A = 500, B = 501
+  frames) — zero failures. Lift cost 0.68–0.69 s/lift at 4,872 atoms
+  (1.45–1.48 lifts/s per process).
+
+### 15.2 Fidelity
+
+Max |P1(statement text) − P1(direct)| over all 18,018 frames:
+**5.00e-04, the print half-quantum** (per-job maxima 4.98e-4 … 5.00e-4),
+as in §13.2. Zero failed static checks; every job's non-moving
+statements (chirality (16,16), length 98.4 Å, cell 41.7 × 41.7 × 98.4,
+molecules C3H4O3 125 / C4H8O3 58 / F6P 24 / Li+ 24) are identical
+across its 1,001 lifts. The instrument reads the reservoir filling as
+faithfully as the pilot filling; the null result is about the effect
+size against run-to-run spread, not about the measurement.
+
+### 15.3 The pre-registered call
+
+| group | per-run values | mean ± sem |
+|---|---|---|
+| 0 V/Å, run means (A+B averaged) | −0.0803, +0.0277, −0.0526, +0.0187, +0.0172, +0.0116 | −0.0096 ± 0.0184 |
+| 0.01 V/Å, block B | −0.0623, +0.0486, −0.0902, +0.0365, +0.0097, +0.1220 | +0.0107 ± 0.0316 |
+| 0.02 V/Å, block B | −0.0083, +0.0728, +0.0352, +0.0796, +0.0161, +0.0518 | +0.0412 ± 0.0138 |
+
+| contrast | shift | 95% CI (D48) | t | df | p | role |
+|---|---|---|---|---|---|---|
+| **0.01 vs 0** | **+0.0203** | **[−0.0640, +0.1047]** | **0.56** | **8.0** | **0.594** | **THE GATE — p ≥ 0.05 → NOT CONFIRMED** |
+| 0.02 vs 0 | +0.0508 | [−0.0011, +0.1027] | 2.21 | 9.3 | 0.054 | consistency point, same call |
+
+Reading, descriptively and without a physics claim: at this filling the
+zero-field runs spread over −0.080 … +0.028 between builds, the same
+order as the 0.02 V/Å response; the 0.02 V/Å block-B mean (+0.041) is
+about a quarter of the pilot filling's (+0.169, §13.3). Whether that is
+reduced orientational response in the denser pore or a pilot-force-field
+artifact is not something this set can decide, and no such claim is
+made.
+
+### 15.4 Build-paired contrast (secondary, never the gate)
+
+Per build, field-on block B minus that build's e0 all-block mean:
+0.01 V/Å +0.0203 ± 0.0202 (z 1.0; per build +0.018, +0.021, −0.038,
++0.018, −0.007, +0.110); 0.02 V/Å **+0.0508 ± 0.0126 (z 4.0**; +0.072,
++0.045, +0.088, +0.061, −0.001, +0.040). The paired view removes the
+between-build spread and shows a consistent 0.02 V/Å shift in 5 of 6
+builds. It is registered as secondary and does not change the verdict;
+for builds b5 and b6 its pairing premise is weakened (§15.5).
+
+### 15.5 The chaining check — mismatch in 2 of 18 jobs, attributed
+
+Builds b1–b4: the three field jobs are **IDENTICAL** at step 1,000,000.
+Builds b5 and b6: {e0, e10} chain exactly, e20 diverges, already at the
+end of the stage-1 ramp (step 100,000). **The two divergent jobs are
+exactly the two that ran on a different node:** Slurm accounting puts
+`r13_e20_b5` and `r13_e20_b6` on node09 and all 16 other jobs on node07
+(same LAMMPS binary, same 8-rank layout, same seeds, clean single-shot
+logs). This places §13.5's "node/library dispatch level" explanation on
+direct evidence for R13: floating-point results differ across nodes and
+1 ns of chaotic Langevin MD amplifies the difference. (Whether Z3's 6
+divergent jobs also map onto node boundaries was not checked here.)
+Consequences as in §13.5: all 18 runs are valid realizations of the
+registered protocol; the primary unpaired gate is unaffected; the
+paired secondary loses exact pairing for b5 and b6 at 0.02 V/Å. Nothing
+was re-run, patched or absorbed.
+
+### 15.6 Standing claim after R13
+
+0.02 V/Å detected at the pilot filling (full ladder p = 0.011, n = 3; Z4
+p = 1.3e-5); 0.01 V/Å confirmed at the pilot filling only (Z4,
+p = 0.0246); **at the reservoir filling neither field reaches α = 0.05
+on the registered test** (0.01: p = 0.594; 0.02: p = 0.054). The
+instrument claim, faithful blind measurement to the print half-quantum,
+holds at both fillings.
+
+### 15.7 Reproduce
+
+    python research/cnt_electrolyte/r13/r13_analysis.py [--procs N]
+
+needs `r13/runs/r13_e*_b*/` (the thinned series are local-only, pinned
+by `r13/runs_manifest.json`; the tracked per-job files carry the rest)
+and writes `r13/r13_results.json`. On gerui: `r13/gerui_t3.sh` under
+`salloc`, with the bundle streamed on stdin.

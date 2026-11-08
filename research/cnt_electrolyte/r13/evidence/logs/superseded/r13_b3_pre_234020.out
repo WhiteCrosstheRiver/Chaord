@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/vol02/hdd1/ime001/zmfeng/chaord_r13/code/r13/r13_staged.py", line 346, in <module>
+    main()
+  File "/vol02/hdd1/ime001/zmfeng/chaord_r13/code/r13/r13_staged.py", line 341, in main
+    {"prepack": prepack, "input": write_input,
+  File "/vol02/hdd1/ime001/zmfeng/chaord_r13/code/r13/r13_staged.py", line 90, in prepack
+    info, path = B.build_system(name)
+                 ^^^^^^^^^^^^^^^^^^^^
+  File "/vol02/hdd1/ime001/zmfeng/chaord_r13/code/build_systems.py", line 897, in build_system
+    raise RuntimeError(f"{name}: packing failed for a molecule "
+RuntimeError: r13_b3: packing failed for a molecule (CO)

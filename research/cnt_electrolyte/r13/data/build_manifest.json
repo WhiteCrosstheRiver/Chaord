@@ -1,0 +1,545 @@
+{
+  "r13_b1": {
+    "name": "r13_b1",
+    "cnt_chirality": [
+      16,
+      16
+    ],
+    "cnt_diameter_A": 21.7003,
+    "cnt_length_A": 98.4,
+    "cnt_atoms": 2560,
+    "R_pack_A": 7.950152661900868,
+    "box": [
+      -20.8502,
+      20.8502,
+      -20.8502,
+      20.8502,
+      0.0,
+      98.4
+    ],
+    "composition": {
+      "n_EC": 125,
+      "n_EMC": 58,
+      "n_LiPF6": 24
+    },
+    "n_atoms_total": 4872,
+    "n_bonds": 2206,
+    "V_pore_geom_nm3": 36.3929,
+    "V_pore_vdw_nm3": 18.0919,
+    "molarity_M_vdw_volume": 2.203,
+    "ec_ring_angles": {
+      "OS_CO_OS": 113.2,
+      "CO_OC": 0.0,
+      "C_O_C": 109.31,
+      "O_CH2_CH2": 104.09,
+      "OC_CO_OS": 123.4
+    },
+    "initial_min_atom_gap_A": 1.956,
+    "initial_min_wall_gap_A": 2.09,
+    "build_seed": 20291101,
+    "packer": "rejection + pack-then-relax (W8-style push-apart, 2026-10-14): strict floor = max(2.0 A, 2.2 A with H, 0.85 x LB-mixed sigma) inter-body and wall; tolerant insert >= 0.70 x floor then relaxed back above floor",
+    "n_tolerant_inserts": 45,
+    "final_relax_converged_sweep": null,
+    "guard": {
+      "min_intermolecular_A": 2.228,
+      "min_mol_tube_A": 2.323,
+      "max_molecule_split_A": 0.0,
+      "max_raw_bond_A": 1.606,
+      "floor_ratio": 0.95,
+      "checked_pairs": "all, min image"
+    },
+    "velocity_seed": 20291151,
+    "ncell": 40,
+    "packing_attempts": [
+      {
+        "floor_scale": 1.0,
+        "outcome": "jam on an EC insertion",
+        "source": "r13/HANDOFF.md"
+      },
+      {
+        "floor_scale": 0.9,
+        "outcome": "jam on an EC insertion",
+        "source": "r13/HANDOFF.md"
+      },
+      {
+        "floor_scale": 0.85,
+        "outcome": "jam on an EC insertion",
+        "source": "r13/HANDOFF.md"
+      },
+      {
+        "floor_scale": 0.8,
+        "outcome": "inserted; translation-only relax() could not clear the true floors",
+        "source": "r13/HANDOFF.md"
+      },
+      {
+        "floor_scale": 0.75,
+        "outcome": "inserted; translation-only relax() could not clear the true floors",
+        "source": "r13/HANDOFF.md"
+      },
+      {
+        "floor_scale": 0.7,
+        "outcome": "inserted; translation-only relax() could not clear the true floors",
+        "source": "r13/HANDOFF.md"
+      },
+      {
+        "floor_scale": 0.8,
+        "route": "T1 staged: rigid soft relaxation",
+        "wall_over_floor": 1.01,
+        "wall_k": 20.0,
+        "outcome": "wall gate failed: min pair/floor 1.1005, min wall/floor 0.9985 (threshold 0.999), slurm 233779; threshold kept, wall stiffened"
+      },
+      {
+        "floor_scale": 0.8,
+        "route": "T1 staged: rigid soft relaxation",
+        "outcome": "true floors cleared",
+        "min_pair_over_floor": 1.098,
+        "min_wall_over_floor": 1.028
+      }
+    ],
+    "prepack_stats": {
+      "min_intermolecular_A": 1.956,
+      "min_mol_tube_A": 2.184,
+      "max_molecule_split_A": 0.0,
+      "max_raw_bond_A": 1.606,
+      "floor_ratio": 0.0,
+      "checked_pairs": "all, min image"
+    },
+    "jam_policy": "T1 staged packing: insert at 0.80 x MIN_ALLOWED, then LAMMPS rigid-body (translation + rotation) relaxation under a soft repulsion ranged on the true floors, then strict floor gate; counts never lowered",
+    "relax": {
+      "engine": "LAMMPS 3 Mar 2020 (lammps/3Mar20-icc.2022)",
+      "seed": 20293101,
+      "input": "relax/r13_b1/in.relax",
+      "rc_over_floor": 1.12,
+      "a_end": 100.0,
+      "dt_fs": 0.5,
+      "ps": 90,
+      "rigid_drift_A": 4.544206966272668e-08
+    },
+    "composition_source": "corrected open-tube uptake (fc8bec2) x 98.4 A: EC 125 / EMC 58 / 24 LiPF6 (PLAN.md section 1)"
+  },
+  "r13_b2": {
+    "name": "r13_b2",
+    "cnt_chirality": [
+      16,
+      16
+    ],
+    "cnt_diameter_A": 21.7003,
+    "cnt_length_A": 98.4,
+    "cnt_atoms": 2560,
+    "R_pack_A": 7.950152661900868,
+    "box": [
+      -20.8502,
+      20.8502,
+      -20.8502,
+      20.8502,
+      0.0,
+      98.4
+    ],
+    "composition": {
+      "n_EC": 125,
+      "n_EMC": 58,
+      "n_LiPF6": 24
+    },
+    "n_atoms_total": 4872,
+    "n_bonds": 2206,
+    "V_pore_geom_nm3": 36.3929,
+    "V_pore_vdw_nm3": 18.0919,
+    "molarity_M_vdw_volume": 2.203,
+    "ec_ring_angles": {
+      "OS_CO_OS": 113.2,
+      "CO_OC": 0.0,
+      "C_O_C": 109.31,
+      "O_CH2_CH2": 104.09,
+      "OC_CO_OS": 123.4
+    },
+    "initial_min_atom_gap_A": 1.867,
+    "initial_min_wall_gap_A": 2.172,
+    "build_seed": 20291102,
+    "packer": "rejection + pack-then-relax (W8-style push-apart, 2026-10-14): strict floor = max(2.0 A, 2.2 A with H, 0.85 x LB-mixed sigma) inter-body and wall; tolerant insert >= 0.70 x floor then relaxed back above floor",
+    "n_tolerant_inserts": 31,
+    "final_relax_converged_sweep": null,
+    "guard": {
+      "min_intermolecular_A": 2.233,
+      "min_mol_tube_A": 2.327,
+      "max_molecule_split_A": 0.0,
+      "max_raw_bond_A": 1.606,
+      "floor_ratio": 0.95,
+      "checked_pairs": "all, min image"
+    },
+    "velocity_seed": 20291152,
+    "ncell": 40,
+    "packing_attempts": [
+      {
+        "floor_scale": 0.8,
+        "outcome": "jam on an EC insertion",
+        "slurm_job": 234018
+      },
+      {
+        "floor_scale": 0.75,
+        "route": "T1 staged: rigid soft relaxation",
+        "outcome": "true floors cleared",
+        "min_pair_over_floor": 1.0972,
+        "min_wall_over_floor": 1.0309
+      }
+    ],
+    "prepack_stats": {
+      "min_intermolecular_A": 1.867,
+      "min_mol_tube_A": 2.295,
+      "max_molecule_split_A": 0.0,
+      "max_raw_bond_A": 1.606,
+      "floor_ratio": 0.0,
+      "checked_pairs": "all, min image"
+    },
+    "jam_policy": "T1 staged packing: insert at reduced MIN_ALLOWED, then LAMMPS rigid-body (translation + rotation) relaxation under a soft repulsion ranged on the true floors, then strict floor gate; counts never lowered",
+    "relax": {
+      "engine": "LAMMPS 3 Mar 2020 (lammps/3Mar20-icc.2022)",
+      "seed": 20293102,
+      "input": "relax/r13_b2/in.relax",
+      "rc_over_floor": 1.12,
+      "a_end": 100.0,
+      "dt_fs": 0.5,
+      "ps": 90,
+      "rigid_drift_A": 4.53945285805446e-08
+    },
+    "composition_source": "corrected open-tube uptake (fc8bec2) x 98.4 A: EC 125 / EMC 58 / 24 LiPF6 (PLAN.md section 1)"
+  },
+  "r13_b3": {
+    "name": "r13_b3",
+    "cnt_chirality": [
+      16,
+      16
+    ],
+    "cnt_diameter_A": 21.7003,
+    "cnt_length_A": 98.4,
+    "cnt_atoms": 2560,
+    "R_pack_A": 7.950152661900868,
+    "box": [
+      -20.8502,
+      20.8502,
+      -20.8502,
+      20.8502,
+      0.0,
+      98.4
+    ],
+    "composition": {
+      "n_EC": 125,
+      "n_EMC": 58,
+      "n_LiPF6": 24
+    },
+    "n_atoms_total": 4872,
+    "n_bonds": 2206,
+    "V_pore_geom_nm3": 36.3929,
+    "V_pore_vdw_nm3": 18.0919,
+    "molarity_M_vdw_volume": 2.203,
+    "ec_ring_angles": {
+      "OS_CO_OS": 113.2,
+      "CO_OC": 0.0,
+      "C_O_C": 109.31,
+      "O_CH2_CH2": 104.09,
+      "OC_CO_OS": 123.4
+    },
+    "initial_min_atom_gap_A": 1.981,
+    "initial_min_wall_gap_A": 2.078,
+    "build_seed": 20291103,
+    "packer": "rejection + pack-then-relax (W8-style push-apart, 2026-10-14): strict floor = max(2.0 A, 2.2 A with H, 0.85 x LB-mixed sigma) inter-body and wall; tolerant insert >= 0.70 x floor then relaxed back above floor",
+    "n_tolerant_inserts": 34,
+    "final_relax_converged_sweep": null,
+    "guard": {
+      "min_intermolecular_A": 2.205,
+      "min_mol_tube_A": 2.347,
+      "max_molecule_split_A": 0.0,
+      "max_raw_bond_A": 1.606,
+      "floor_ratio": 0.95,
+      "checked_pairs": "all, min image"
+    },
+    "velocity_seed": 20291153,
+    "ncell": 40,
+    "packing_attempts": [
+      {
+        "floor_scale": 0.8,
+        "outcome": "jam on an EC insertion",
+        "slurm_job": 234020
+      },
+      {
+        "floor_scale": 0.75,
+        "route": "T1 staged: rigid soft relaxation",
+        "outcome": "true floors cleared",
+        "min_pair_over_floor": 1.0983,
+        "min_wall_over_floor": 1.0307
+      }
+    ],
+    "prepack_stats": {
+      "min_intermolecular_A": 1.981,
+      "min_mol_tube_A": 2.134,
+      "max_molecule_split_A": 0.0,
+      "max_raw_bond_A": 1.606,
+      "floor_ratio": 0.0,
+      "checked_pairs": "all, min image"
+    },
+    "jam_policy": "T1 staged packing: insert at reduced MIN_ALLOWED, then LAMMPS rigid-body (translation + rotation) relaxation under a soft repulsion ranged on the true floors, then strict floor gate; counts never lowered",
+    "relax": {
+      "engine": "LAMMPS 3 Mar 2020 (lammps/3Mar20-icc.2022)",
+      "seed": 20293103,
+      "input": "relax/r13_b3/in.relax",
+      "rc_over_floor": 1.12,
+      "a_end": 100.0,
+      "dt_fs": 0.5,
+      "ps": 90,
+      "rigid_drift_A": 9.262768330131621e-09
+    },
+    "composition_source": "corrected open-tube uptake (fc8bec2) x 98.4 A: EC 125 / EMC 58 / 24 LiPF6 (PLAN.md section 1)"
+  },
+  "r13_b4": {
+    "name": "r13_b4",
+    "cnt_chirality": [
+      16,
+      16
+    ],
+    "cnt_diameter_A": 21.7003,
+    "cnt_length_A": 98.4,
+    "cnt_atoms": 2560,
+    "R_pack_A": 7.950152661900868,
+    "box": [
+      -20.8502,
+      20.8502,
+      -20.8502,
+      20.8502,
+      0.0,
+      98.4
+    ],
+    "composition": {
+      "n_EC": 125,
+      "n_EMC": 58,
+      "n_LiPF6": 24
+    },
+    "n_atoms_total": 4872,
+    "n_bonds": 2206,
+    "V_pore_geom_nm3": 36.3929,
+    "V_pore_vdw_nm3": 18.0919,
+    "molarity_M_vdw_volume": 2.203,
+    "ec_ring_angles": {
+      "OS_CO_OS": 113.2,
+      "CO_OC": 0.0,
+      "C_O_C": 109.31,
+      "O_CH2_CH2": 104.09,
+      "OC_CO_OS": 123.4
+    },
+    "initial_min_atom_gap_A": 1.997,
+    "initial_min_wall_gap_A": 2.091,
+    "build_seed": 20291104,
+    "packer": "rejection + pack-then-relax (W8-style push-apart, 2026-10-14): strict floor = max(2.0 A, 2.2 A with H, 0.85 x LB-mixed sigma) inter-body and wall; tolerant insert >= 0.70 x floor then relaxed back above floor",
+    "n_tolerant_inserts": 30,
+    "final_relax_converged_sweep": null,
+    "guard": {
+      "min_intermolecular_A": 2.215,
+      "min_mol_tube_A": 2.315,
+      "max_molecule_split_A": 0.0,
+      "max_raw_bond_A": 1.606,
+      "floor_ratio": 0.95,
+      "checked_pairs": "all, min image"
+    },
+    "velocity_seed": 20291154,
+    "ncell": 40,
+    "packing_attempts": [
+      {
+        "floor_scale": 0.8,
+        "outcome": "jam on an EC insertion",
+        "slurm_job": 234022
+      },
+      {
+        "floor_scale": 0.75,
+        "route": "T1 staged: rigid soft relaxation",
+        "outcome": "true floors cleared",
+        "min_pair_over_floor": 1.1002,
+        "min_wall_over_floor": 1.0302
+      }
+    ],
+    "prepack_stats": {
+      "min_intermolecular_A": 1.997,
+      "min_mol_tube_A": 2.266,
+      "max_molecule_split_A": 0.0,
+      "max_raw_bond_A": 1.606,
+      "floor_ratio": 0.0,
+      "checked_pairs": "all, min image"
+    },
+    "jam_policy": "T1 staged packing: insert at reduced MIN_ALLOWED, then LAMMPS rigid-body (translation + rotation) relaxation under a soft repulsion ranged on the true floors, then strict floor gate; counts never lowered",
+    "relax": {
+      "engine": "LAMMPS 3 Mar 2020 (lammps/3Mar20-icc.2022)",
+      "seed": 20293104,
+      "input": "relax/r13_b4/in.relax",
+      "rc_over_floor": 1.12,
+      "a_end": 100.0,
+      "dt_fs": 0.5,
+      "ps": 90,
+      "rigid_drift_A": 9.449773852310273e-09
+    },
+    "composition_source": "corrected open-tube uptake (fc8bec2) x 98.4 A: EC 125 / EMC 58 / 24 LiPF6 (PLAN.md section 1)"
+  },
+  "r13_b5": {
+    "name": "r13_b5",
+    "cnt_chirality": [
+      16,
+      16
+    ],
+    "cnt_diameter_A": 21.7003,
+    "cnt_length_A": 98.4,
+    "cnt_atoms": 2560,
+    "R_pack_A": 7.950152661900868,
+    "box": [
+      -20.8502,
+      20.8502,
+      -20.8502,
+      20.8502,
+      0.0,
+      98.4
+    ],
+    "composition": {
+      "n_EC": 125,
+      "n_EMC": 58,
+      "n_LiPF6": 24
+    },
+    "n_atoms_total": 4872,
+    "n_bonds": 2206,
+    "V_pore_geom_nm3": 36.3929,
+    "V_pore_vdw_nm3": 18.0919,
+    "molarity_M_vdw_volume": 2.203,
+    "ec_ring_angles": {
+      "OS_CO_OS": 113.2,
+      "CO_OC": 0.0,
+      "C_O_C": 109.31,
+      "O_CH2_CH2": 104.09,
+      "OC_CO_OS": 123.4
+    },
+    "initial_min_atom_gap_A": 1.796,
+    "initial_min_wall_gap_A": 2.09,
+    "build_seed": 20291105,
+    "packer": "rejection + pack-then-relax (W8-style push-apart, 2026-10-14): strict floor = max(2.0 A, 2.2 A with H, 0.85 x LB-mixed sigma) inter-body and wall; tolerant insert >= 0.70 x floor then relaxed back above floor",
+    "n_tolerant_inserts": 34,
+    "final_relax_converged_sweep": null,
+    "guard": {
+      "min_intermolecular_A": 2.234,
+      "min_mol_tube_A": 2.318,
+      "max_molecule_split_A": 0.0,
+      "max_raw_bond_A": 1.606,
+      "floor_ratio": 0.95,
+      "checked_pairs": "all, min image"
+    },
+    "velocity_seed": 20291155,
+    "ncell": 40,
+    "packing_attempts": [
+      {
+        "floor_scale": 0.8,
+        "outcome": "jam on an EC insertion",
+        "slurm_job": 234024
+      },
+      {
+        "floor_scale": 0.75,
+        "route": "T1 staged: rigid soft relaxation",
+        "outcome": "true floors cleared",
+        "min_pair_over_floor": 1.097,
+        "min_wall_over_floor": 1.0236
+      }
+    ],
+    "prepack_stats": {
+      "min_intermolecular_A": 1.796,
+      "min_mol_tube_A": 2.164,
+      "max_molecule_split_A": 0.0,
+      "max_raw_bond_A": 1.606,
+      "floor_ratio": 0.0,
+      "checked_pairs": "all, min image"
+    },
+    "jam_policy": "T1 staged packing: insert at reduced MIN_ALLOWED, then LAMMPS rigid-body (translation + rotation) relaxation under a soft repulsion ranged on the true floors, then strict floor gate; counts never lowered",
+    "relax": {
+      "engine": "LAMMPS 3 Mar 2020 (lammps/3Mar20-icc.2022)",
+      "seed": 20293105,
+      "input": "relax/r13_b5/in.relax",
+      "rc_over_floor": 1.12,
+      "a_end": 100.0,
+      "dt_fs": 0.5,
+      "ps": 90,
+      "rigid_drift_A": 7.716380645561571e-08
+    },
+    "composition_source": "corrected open-tube uptake (fc8bec2) x 98.4 A: EC 125 / EMC 58 / 24 LiPF6 (PLAN.md section 1)"
+  },
+  "r13_b6": {
+    "name": "r13_b6",
+    "cnt_chirality": [
+      16,
+      16
+    ],
+    "cnt_diameter_A": 21.7003,
+    "cnt_length_A": 98.4,
+    "cnt_atoms": 2560,
+    "R_pack_A": 7.950152661900868,
+    "box": [
+      -20.8502,
+      20.8502,
+      -20.8502,
+      20.8502,
+      0.0,
+      98.4
+    ],
+    "composition": {
+      "n_EC": 125,
+      "n_EMC": 58,
+      "n_LiPF6": 24
+    },
+    "n_atoms_total": 4872,
+    "n_bonds": 2206,
+    "V_pore_geom_nm3": 36.3929,
+    "V_pore_vdw_nm3": 18.0919,
+    "molarity_M_vdw_volume": 2.203,
+    "ec_ring_angles": {
+      "OS_CO_OS": 113.2,
+      "CO_OC": 0.0,
+      "C_O_C": 109.31,
+      "O_CH2_CH2": 104.09,
+      "OC_CO_OS": 123.4
+    },
+    "initial_min_atom_gap_A": 1.937,
+    "initial_min_wall_gap_A": 2.066,
+    "build_seed": 20291106,
+    "packer": "rejection + pack-then-relax (W8-style push-apart, 2026-10-14): strict floor = max(2.0 A, 2.2 A with H, 0.85 x LB-mixed sigma) inter-body and wall; tolerant insert >= 0.70 x floor then relaxed back above floor",
+    "n_tolerant_inserts": 47,
+    "final_relax_converged_sweep": null,
+    "guard": {
+      "min_intermolecular_A": 2.229,
+      "min_mol_tube_A": 2.354,
+      "max_molecule_split_A": 0.0,
+      "max_raw_bond_A": 1.606,
+      "floor_ratio": 0.95,
+      "checked_pairs": "all, min image"
+    },
+    "velocity_seed": 20291156,
+    "ncell": 40,
+    "packing_attempts": [
+      {
+        "floor_scale": 0.8,
+        "route": "T1 staged: rigid soft relaxation",
+        "outcome": "true floors cleared",
+        "min_pair_over_floor": 1.1001,
+        "min_wall_over_floor": 1.0277
+      }
+    ],
+    "prepack_stats": {
+      "min_intermolecular_A": 1.937,
+      "min_mol_tube_A": 2.139,
+      "max_molecule_split_A": 0.0,
+      "max_raw_bond_A": 1.606,
+      "floor_ratio": 0.0,
+      "checked_pairs": "all, min image"
+    },
+    "jam_policy": "T1 staged packing: insert at 0.80 x MIN_ALLOWED, then LAMMPS rigid-body (translation + rotation) relaxation under a soft repulsion ranged on the true floors, then strict floor gate; counts never lowered",
+    "relax": {
+      "engine": "LAMMPS 3 Mar 2020 (lammps/3Mar20-icc.2022)",
+      "seed": 20293106,
+      "input": "relax/r13_b6/in.relax",
+      "rc_over_floor": 1.12,
+      "a_end": 100.0,
+      "dt_fs": 0.5,
+      "ps": 90,
+      "rigid_drift_A": 8.163463571797536e-08
+    },
+    "composition_source": "corrected open-tube uptake (fc8bec2) x 98.4 A: EC 125 / EMC 58 / 24 LiPF6 (PLAN.md section 1)"
+  }
+}

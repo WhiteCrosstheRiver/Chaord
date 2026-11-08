@@ -1,0 +1,11 @@
+# R13 run outputs (owner policy: compute on cluster, retrieve essential
+# evidence only). Tracked per job: final.data, log.lammps, in.lammps,
+# sbatch.sh, system.data, thin.log, prod_thinned.sha256. Local-only (for the
+# release archive): prod_thinned.dump (~246 MB), equil.dump (~25 MB), the
+# Slurm stdout <jobid>.out (a copy of the screen log). Every file, tracked or
+# not, is pinned by sha256 in runs_manifest.json.
+runs/*/prod_thinned.dump
+runs/*/equil.dump
+runs/*/*.out
+runs/*/THIN_DONE
+cluster_snapshot/
