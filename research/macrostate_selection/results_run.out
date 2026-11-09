@@ -1,0 +1,16 @@
+floors {"liquid": {"gr_rms": 0.00965850436154242, "cn_tv": 0.01460404829545456, "cna_tv": 0.00013316761363635858}, "fcc": {"gr_rms": 0.010370381514890361, "cn_tv": 0.013378906249999975, "cna_tv": 0.012695312499999997}, "hcp": {"gr_rms": 0.009854180185803358, "cn_tv": 0.008482142857142917, "cna_tv": 0.012003968253968295}, "coex": {"gr_rms": 0.009913621879740825, "cn_tv": 0.014069264069264066, "cna_tv": 0.013979076479076417}}
+--- full: rows source, columns reference; max ratio over metrics
+            liquid       fcc       hcp      coex
+liquid        0.4*     17.5      21.9       7.4 
+fcc        1240.6       0.7*     14.9      12.4 
+hcp        1161.5      14.1       1.4*     12.7 
+coex        362.0      13.4      19.2       2.5 
+--- control: rows source, columns reference; max ratio over metrics
+            liquid       fcc       hcp      coex
+liquid        0.9*     17.5      21.7       7.5 
+fcc           0.5*     17.5      21.3       7.4 
+hcp           0.5*     17.4      22.2       7.4 
+coex          0.4*     17.5      21.6       7.4 
+problems []
+checks {"no_refusals": true, "references_valid": true, "diagonal": false, "off_diagonal": true, "control_liquid": true, "control_not_source": true}
+verdict NOT SUPPORTED wall 1900.3

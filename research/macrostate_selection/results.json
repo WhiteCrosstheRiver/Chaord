@@ -1,0 +1,781 @@
+{
+ "plan": "research/macrostate_selection/PLAN.md",
+ "pilot": false,
+ "T": 0.75,
+ "rho": 0.9,
+ "gate": 1.5,
+ "seeds": {
+  "reference": 1001,
+  "build": 2001
+ },
+ "programs": {
+  "liquid|0": {
+   "full": "chaord 0.1\ndialect core + lj\n\nsystem {\n  cell 13.153 13.153 13.153\n  pbc xyz\n  state T 0.75\n  conserve atoms X 2048\n}\n\nphysics {\n  backend lj\n}\n\nliquid fluid : all {\n  state density 0.900\n  assert cn 12.5 +- 1.1 cutoff 1.50\n  assert gr_peak 1.06 height 3.07\n  assert solid_clusters 0\n}\n\nresidual none\n\nprovenance {\n  dialects \"core 0.1.0 + lj 0.1.0\"\n  lift_version \"0.1.0\"\n}\n",
+   "control": "chaord 0.1\ndialect core + lj\n\nsystem {\n  cell 13.153 13.153 13.153\n  pbc xyz\n  state T 0.75\n  conserve atoms X 2048\n}\n\nphysics {\n  backend lj\n}\n\nliquid fluid : all {\n  state density 0.900\n}\n\nresidual none\n"
+  },
+  "liquid|1": {
+   "full": "chaord 0.1\ndialect core + lj\n\nsystem {\n  cell 13.153 13.153 13.153\n  pbc xyz\n  state T 0.75\n  conserve atoms X 2048\n}\n\nphysics {\n  backend lj\n}\n\nliquid fluid : all {\n  state density 0.900\n  assert cn 12.5 +- 1.1 cutoff 1.50\n  assert gr_peak 1.06 height 3.21\n  assert solid_clusters 0\n}\n\nresidual none\n\nprovenance {\n  dialects \"core 0.1.0 + lj 0.1.0\"\n  lift_version \"0.1.0\"\n}\n",
+   "control": "chaord 0.1\ndialect core + lj\n\nsystem {\n  cell 13.153 13.153 13.153\n  pbc xyz\n  state T 0.75\n  conserve atoms X 2048\n}\n\nphysics {\n  backend lj\n}\n\nliquid fluid : all {\n  state density 0.900\n}\n\nresidual none\n"
+  },
+  "liquid|2": {
+   "full": "chaord 0.1\ndialect core + lj\n\nsystem {\n  cell 13.153 13.153 13.153\n  pbc xyz\n  state T 0.75\n  conserve atoms X 2048\n}\n\nphysics {\n  backend lj\n}\n\nliquid fluid : all {\n  state density 0.900\n  assert cn 12.5 +- 1.1 cutoff 1.50\n  assert gr_peak 1.06 height 3.20\n  assert solid_clusters 0\n}\n\nresidual none\n\nprovenance {\n  dialects \"core 0.1.0 + lj 0.1.0\"\n  lift_version \"0.1.0\"\n}\n",
+   "control": "chaord 0.1\ndialect core + lj\n\nsystem {\n  cell 13.153 13.153 13.153\n  pbc xyz\n  state T 0.75\n  conserve atoms X 2048\n}\n\nphysics {\n  backend lj\n}\n\nliquid fluid : all {\n  state density 0.900\n}\n\nresidual none\n"
+  },
+  "fcc|0": {
+   "full": "chaord 0.1\ndialect core + lj\n\nsystem {\n  cell 13.153 13.153 13.153\n  pbc xyz\n  conserve atoms X 2048\n}\n\nphysics {\n  backend eam\n}\n\ncrystal bulk : all {\n  lattice fcc\n  a 1.644 A\n  orient x [100] y [010] z [001]\n  defect frenkel_pair count 19\n  assert sites_matched 99.1 %\n}\n\nresidual none\n\nprovenance {\n  dialects \"core 0.1.0 + lj 0.1.0\"\n  lift_version \"0.1.0\"\n}\n",
+   "control": "chaord 0.1\ndialect core + lj\n\nsystem {\n  cell 13.153 13.153 13.153\n  pbc xyz\n  state T 0.75\n  conserve atoms X 2048\n}\n\nphysics {\n  backend lj\n}\n\nliquid fluid : all {\n  state density 0.900\n}\n\nresidual none\n"
+  },
+  "fcc|1": {
+   "full": "chaord 0.1\ndialect core + lj\n\nsystem {\n  cell 13.153 13.153 13.153\n  pbc xyz\n  conserve atoms X 2048\n}\n\nphysics {\n  backend eam\n}\n\ncrystal bulk : all {\n  lattice fcc\n  a 1.644 A\n  orient x [100] y [010] z [001]\n  defect frenkel_pair count 13\n  assert sites_matched 99.4 %\n}\n\nresidual none\n\nprovenance {\n  dialects \"core 0.1.0 + lj 0.1.0\"\n  lift_version \"0.1.0\"\n}\n",
+   "control": "chaord 0.1\ndialect core + lj\n\nsystem {\n  cell 13.153 13.153 13.153\n  pbc xyz\n  state T 0.75\n  conserve atoms X 2048\n}\n\nphysics {\n  backend lj\n}\n\nliquid fluid : all {\n  state density 0.900\n}\n\nresidual none\n"
+  },
+  "fcc|2": {
+   "full": "chaord 0.1\ndialect core + lj\n\nsystem {\n  cell 13.153 13.153 13.153\n  pbc xyz\n  conserve atoms X 2048\n}\n\nphysics {\n  backend eam\n}\n\ncrystal bulk : all {\n  lattice fcc\n  a 1.644 A\n  orient x [100] y [010] z [001]\n  defect frenkel_pair count 17\n  assert sites_matched 99.2 %\n}\n\nresidual none\n\nprovenance {\n  dialects \"core 0.1.0 + lj 0.1.0\"\n  lift_version \"0.1.0\"\n}\n",
+   "control": "chaord 0.1\ndialect core + lj\n\nsystem {\n  cell 13.153 13.153 13.153\n  pbc xyz\n  state T 0.75\n  conserve atoms X 2048\n}\n\nphysics {\n  backend lj\n}\n\nliquid fluid : all {\n  state density 0.900\n}\n\nresidual none\n"
+  },
+  "hcp|0": {
+   "full": "chaord 0.1\ndialect core + lj\n\nsystem {\n  cell 14.096 13.951 11.391\n  pbc xyz\n  conserve atoms X 2016\n}\n\nphysics {\n  backend eam\n}\n\ncrystal bulk : all {\n  lattice hcp\n  a 1.163 A\n  c 1.899 A\n  orient x [100] y [1 2 0] z [001]\n  assert sites_matched 99.5 %\n}\n\nresidual none\n\nprovenance {\n  dialects \"core 0.1.0 + lj 0.1.0\"\n  lift_version \"0.1.0\"\n}\n",
+   "control": "chaord 0.1\ndialect core + lj\n\nsystem {\n  cell 13.951 14.096 11.391\n  pbc xyz\n  state T 0.75\n  conserve atoms X 2016\n}\n\nphysics {\n  backend lj\n}\n\nliquid fluid : all {\n  state density 0.900\n}\n\nresidual none\n"
+  },
+  "hcp|1": {
+   "full": "chaord 0.1\ndialect core + lj\n\nsystem {\n  cell 14.096 13.951 11.391\n  pbc xyz\n  conserve atoms X 2016\n}\n\nphysics {\n  backend eam\n}\n\ncrystal bulk : all {\n  lattice hcp\n  a 1.163 A\n  c 1.899 A\n  orient x [100] y [1 2 0] z [001]\n  assert sites_matched 99.4 %\n}\n\nresidual none\n\nprovenance {\n  dialects \"core 0.1.0 + lj 0.1.0\"\n  lift_version \"0.1.0\"\n}\n",
+   "control": "chaord 0.1\ndialect core + lj\n\nsystem {\n  cell 13.951 14.096 11.391\n  pbc xyz\n  state T 0.75\n  conserve atoms X 2016\n}\n\nphysics {\n  backend lj\n}\n\nliquid fluid : all {\n  state density 0.900\n}\n\nresidual none\n"
+  },
+  "hcp|2": {
+   "full": "chaord 0.1\ndialect core + lj\n\nsystem {\n  cell 14.096 13.951 11.391\n  pbc xyz\n  conserve atoms X 2016\n}\n\nphysics {\n  backend eam\n}\n\ncrystal bulk : all {\n  lattice hcp\n  a 1.163 A\n  c 1.899 A\n  orient x [100] y [1 2 0] z [001]\n  assert sites_matched 99.3 %\n}\n\nresidual none\n\nprovenance {\n  dialects \"core 0.1.0 + lj 0.1.0\"\n  lift_version \"0.1.0\"\n}\n",
+   "control": "chaord 0.1\ndialect core + lj\n\nsystem {\n  cell 13.951 14.096 11.391\n  pbc xyz\n  state T 0.75\n  conserve atoms X 2016\n}\n\nphysics {\n  backend lj\n}\n\nliquid fluid : all {\n  state density 0.900\n}\n\nresidual none\n"
+  },
+  "coex|0": {
+   "full": "chaord 0.1\ndialect core + lj\n\nsystem {\n  units lj\n  cell 9.86 9.86 46.04\n  pbc xyz\n  state T 0.75\n  conserve atoms X 4032\n}\n\nphysics {\n  backend lj\n  epsilon 1\n  sigma 1\n  cutoff 2.5\n}\n\ncrystal A : slab z 0.2 .. 18.2 {\n  lattice fcc\n  a 1.644\n  orient <100> z <001>\n  constrain strain zz -5.1 % +- 0.2\n  assert sites_matched 100.0 %\n}\n\nliquid B : slab z 18.2 .. 0.2 {  # wraps through z = 0\n  state density 0.866\n  assert cn 12.2 +- 1.1 cutoff 1.50\n  assert gr_peak 1.06 height 3.25\n  assert solid_clusters 0\n}\n\ninterface A | B {\n  at z 18.2\n  width 1.8\n}\n\ninterface B | A {\n  at z 0.2\n  width 1.5\n}\n\nresidual none\n\nprovenance {\n  dialects \"core 0.1.0 + lj 0.1.0\"\n  lift_version \"0.1.0\"\n}\n",
+   "control": "chaord 0.1\ndialect core + lj\n\nsystem {\n  cell 9.865 9.865 46.036\n  pbc xyz\n  state T 0.75\n  conserve atoms X 4032\n}\n\nphysics {\n  backend lj\n}\n\nliquid fluid : all {\n  state density 0.900\n}\n\nresidual none\n"
+  },
+  "coex|1": {
+   "full": "chaord 0.1\ndialect core + lj\n\nsystem {\n  units lj\n  cell 9.86 9.86 46.04\n  pbc xyz\n  state T 0.75\n  conserve atoms X 4032\n}\n\nphysics {\n  backend lj\n  epsilon 1\n  sigma 1\n  cutoff 2.5\n}\n\ncrystal A : slab z 44.1 .. 13.7 {  # wraps through z = 0\n  lattice fcc\n  a 1.644\n  orient <100> z <001>\n  constrain strain zz -5.4 % +- 0.2\n  defect vacancy count 1 depth 6.4\n  assert sites_matched 99.8 %\n}\n\nliquid B : slab z 13.7 .. 44.1 {\n  state density 0.875\n  assert cn 12.3 +- 1.1 cutoff 1.50\n  assert gr_peak 1.09 height 3.12\n  assert solid_clusters 0\n}\n\ninterface A | B {\n  at z 13.7\n  width 2.8\n}\n\ninterface B | A {\n  at z 44.1\n  width 1.3\n}\n\nresidual none\n\nprovenance {\n  dialects \"core 0.1.0 + lj 0.1.0\"\n  lift_version \"0.1.0\"\n}\n",
+   "control": "chaord 0.1\ndialect core + lj\n\nsystem {\n  cell 9.865 9.865 46.036\n  pbc xyz\n  state T 0.75\n  conserve atoms X 4032\n}\n\nphysics {\n  backend lj\n}\n\nliquid fluid : all {\n  state density 0.900\n}\n\nresidual none\n"
+  },
+  "coex|2": {
+   "full": "chaord 0.1\ndialect core + lj\n\nsystem {\n  cell 9.865 9.865 46.036\n  pbc xyz\n  state T 0.75\n  conserve atoms X 4032\n}\n\nphysics {\n  backend lj\n}\n\nliquid fluid : all {\n  state density 0.900\n  assert cn 12.6 +- 1.1 cutoff 1.50\n  assert gr_peak 1.10 height 3.14\n  assert solid_clusters 0\n}\n\nresidual none\n\nprovenance {\n  dialects \"core 0.1.0 + lj 0.1.0\"\n  lift_version \"0.1.0\"\n}\n",
+   "control": "chaord 0.1\ndialect core + lj\n\nsystem {\n  cell 9.865 9.865 46.036\n  pbc xyz\n  state T 0.75\n  conserve atoms X 4032\n}\n\nphysics {\n  backend lj\n}\n\nliquid fluid : all {\n  state density 0.900\n}\n\nresidual none\n"
+  }
+ },
+ "floor": {
+  "liquid": {
+   "gr_rms": 0.00965850436154242,
+   "cn_tv": 0.01460404829545456,
+   "cna_tv": 0.00013316761363635858
+  },
+  "fcc": {
+   "gr_rms": 0.010370381514890361,
+   "cn_tv": 0.013378906249999975,
+   "cna_tv": 0.012695312499999997
+  },
+  "hcp": {
+   "gr_rms": 0.009854180185803358,
+   "cn_tv": 0.008482142857142917,
+   "cna_tv": 0.012003968253968295
+  },
+  "coex": {
+   "gr_rms": 0.009913621879740825,
+   "cn_tv": 0.014069264069264066,
+   "cna_tv": 0.013979076479076417
+  }
+ },
+ "cells": {
+  "liquid|full|liquid": {
+   "distance": {
+    "gr_rms": 0.003674724681772133,
+    "cn_tv": 0.002567175662878797,
+    "cna_tv": 3.995028409094643e-05
+   },
+   "ratio": {
+    "gr_rms": 0.38046518842025934,
+    "cn_tv": 0.17578520770010178,
+    "cna_tv": 0.30000000000029176
+   },
+   "match": true
+  },
+  "liquid|full|fcc": {
+   "distance": {
+    "gr_rms": 0.18104154701912786,
+    "cn_tv": 0.1879231770833333,
+    "cna_tv": 0.1569091796875
+   },
+   "ratio": {
+    "gr_rms": 17.4575589875048,
+    "cn_tv": 14.046228710462312,
+    "cna_tv": 12.359615384615388
+   },
+   "match": false
+  },
+  "liquid|full|hcp": {
+   "distance": {
+    "gr_rms": 0.15983459535884076,
+    "cn_tv": 0.18574735449735444,
+    "cna_tv": 0.1671482308201058
+   },
+   "ratio": {
+    "gr_rms": 16.219978967820175,
+    "cn_tv": 21.898635477582683,
+    "cna_tv": 13.924414600550914
+   },
+   "match": false
+  },
+  "liquid|full|coex": {
+   "distance": {
+    "gr_rms": 0.07352228666618685,
+    "cn_tv": 0.04496586493656803,
+    "cna_tv": 0.07536432028619525
+   },
+   "ratio": {
+    "gr_rms": 7.416289178472174,
+    "cn_tv": 3.1960353231837595,
+    "cna_tv": 5.391223118279591
+   },
+   "match": false
+  },
+  "liquid|control|liquid": {
+   "distance": {
+    "gr_rms": 0.0051033393400745745,
+    "cn_tv": 0.00333362926136366,
+    "cna_tv": 0.00012133049242424277
+   },
+   "ratio": {
+    "gr_rms": 0.528377805614988,
+    "cn_tv": 0.22826747720364882,
+    "cna_tv": 0.9111111111111483
+   },
+   "match": true
+  },
+  "liquid|control|fcc": {
+   "distance": {
+    "gr_rms": 0.18135333839989112,
+    "cn_tv": 0.18605143229166665,
+    "cna_tv": 0.15695800781249997
+   },
+   "ratio": {
+    "gr_rms": 17.48762455262558,
+    "cn_tv": 13.906326034063285,
+    "cna_tv": 12.36346153846154
+   },
+   "match": false
+  },
+  "liquid|control|hcp": {
+   "distance": {
+    "gr_rms": 0.16010379647265308,
+    "cn_tv": 0.1838756097056878,
+    "cna_tv": 0.16722961102843908
+   },
+   "ratio": {
+    "gr_rms": 16.24729743660565,
+    "cn_tv": 21.677966617933567,
+    "cna_tv": 13.931194042699671
+   },
+   "match": false
+  },
+  "liquid|control|coex": {
+   "distance": {
+    "gr_rms": 0.07396689772647669,
+    "cn_tv": 0.047179406603234726,
+    "cna_tv": 0.07544570049452855
+   },
+   "ratio": {
+    "gr_rms": 7.46113767740458,
+    "cn_tv": 3.353367053952992,
+    "cna_tv": 5.397044690860234
+   },
+   "match": false
+  },
+  "fcc|full|liquid": {
+   "distance": {
+    "gr_rms": 0.18330214188661267,
+    "cn_tv": 0.19091500946969694,
+    "cna_tv": 0.16520626183712117
+   },
+   "ratio": {
+    "gr_rms": 18.978315381465556,
+    "cn_tv": 13.072745694022275,
+    "cna_tv": 1240.5888888889356
+   },
+   "match": false
+  },
+  "fcc|full|fcc": {
+   "distance": {
+    "gr_rms": 0.0048948278354553456,
+    "cn_tv": 0.008463541666666673,
+    "cna_tv": 0.008308919270833326
+   },
+   "ratio": {
+    "gr_rms": 0.4720007483260943,
+    "cn_tv": 0.6326034063260357,
+    "cna_tv": 0.654487179487179
+   },
+   "match": true
+  },
+  "fcc|full|hcp": {
+   "distance": {
+    "gr_rms": 0.14653303058171147,
+    "cn_tv": 0.014304573826058244,
+    "cna_tv": 0.1671719990079365
+   },
+   "ratio": {
+    "gr_rms": 14.870139150978538,
+    "cn_tv": 1.6864339668615915,
+    "cna_tv": 13.926394628099127
+   },
+   "match": false
+  },
+  "fcc|full|coex": {
+   "distance": {
+    "gr_rms": 0.12274646569235623,
+    "cn_tv": 0.15689972643097638,
+    "cna_tv": 0.08991019288870855
+   },
+   "ratio": {
+    "gr_rms": 12.381596472142755,
+    "cn_tv": 11.151949786324785,
+    "cna_tv": 6.431769153225837
+   },
+   "match": false
+  },
+  "fcc|control|liquid": {
+   "distance": {
+    "gr_rms": 0.004442401645603651,
+    "cn_tv": 0.006458629261363625,
+    "cna_tv": 7.250236742432048e-05
+   },
+   "ratio": {
+    "gr_rms": 0.4599471594475958,
+    "cn_tv": 0.44224924012157935,
+    "cna_tv": 0.5444444444450512
+   },
+   "match": true
+  },
+  "fcc|control|fcc": {
+   "distance": {
+    "gr_rms": 0.181181407488954,
+    "cn_tv": 0.18253580729166669,
+    "cna_tv": 0.15692545572916672
+   },
+   "ratio": {
+    "gr_rms": 17.47104551831616,
+    "cn_tv": 13.64355231143555,
+    "cna_tv": 12.360897435897444
+   },
+   "match": false
+  },
+  "fcc|control|hcp": {
+   "distance": {
+    "gr_rms": 0.15951199477490474,
+    "cn_tv": 0.18035998470568781,
+    "cna_tv": 0.16718078290343916
+   },
+   "ratio": {
+    "gr_rms": 16.18724153275675,
+    "cn_tv": 21.263492933723043,
+    "cna_tv": 13.92712637741042
+   },
+   "match": false
+  },
+  "fcc|control|coex": {
+   "distance": {
+    "gr_rms": 0.07361036939391104,
+    "cn_tv": 0.04421716701990139,
+    "cna_tv": 0.07539687236952862
+   },
+   "ratio": {
+    "gr_rms": 7.4251741983763715,
+    "cn_tv": 3.1428201789529915,
+    "cna_tv": 5.393551747311852
+   },
+   "match": false
+  },
+  "hcp|full|liquid": {
+   "distance": {
+    "gr_rms": 0.1537450117966969,
+    "cn_tv": 0.17589764835858582,
+    "cna_tv": 0.1546692041320947
+   },
+   "ratio": {
+    "gr_rms": 15.918097258294814,
+    "cn_tv": 12.04444444444443,
+    "cna_tv": 1161.4626102293205
+   },
+   "match": false
+  },
+  "hcp|full|fcc": {
+   "distance": {
+    "gr_rms": 0.14590749499841854,
+    "cn_tv": 0.019468600157076705,
+    "cna_tv": 0.15692519737929894
+   },
+   "ratio": {
+    "gr_rms": 14.069636183482409,
+    "cn_tv": 1.455171281813619,
+    "cna_tv": 12.360877085877089
+   },
+   "match": false
+  },
+  "hcp|full|hcp": {
+   "distance": {
+    "gr_rms": 0.0077506168861776435,
+    "cn_tv": 0.012293320105820172,
+    "cna_tv": 0.01246693121693121
+   },
+   "ratio": {
+    "gr_rms": 0.7865308671079245,
+    "cn_tv": 1.4493177387914205,
+    "cna_tv": 1.0385674931129436
+   },
+   "match": true
+  },
+  "hcp|full|coex": {
+   "distance": {
+    "gr_rms": 0.12619352907917142,
+    "cn_tv": 0.14188236531986526,
+    "cna_tv": 0.15464090307840309
+   },
+   "ratio": {
+    "gr_rms": 12.729306262634111,
+    "cn_tv": 10.084561965811963,
+    "cna_tv": 11.06231182795704
+   },
+   "match": false
+  },
+  "hcp|control|liquid": {
+   "distance": {
+    "gr_rms": 0.005268180382421326,
+    "cn_tv": 0.006627120347823438,
+    "cna_tv": 3.788348514916254e-05
+   },
+   "ratio": {
+    "gr_rms": 0.5454447381519867,
+    "cn_tv": 0.4537865264309005,
+    "cna_tv": 0.2844797178134553
+   },
+   "match": true
+  },
+  "hcp|control|fcc": {
+   "distance": {
+    "gr_rms": 0.18046536688864864,
+    "cn_tv": 0.19006438078703705,
+    "cna_tv": 0.15692519737929894
+   },
+   "ratio": {
+    "gr_rms": 17.401998820344904,
+    "cn_tv": 14.20627196539608,
+    "cna_tv": 12.360877085877089
+   },
+   "match": false
+  },
+  "hcp|control|hcp": {
+   "distance": {
+    "gr_rms": 0.15862800704962765,
+    "cn_tv": 0.1878885582010582,
+    "cna_tv": 0.167146164021164
+   },
+   "ratio": {
+    "gr_rms": 16.097534656222198,
+    "cn_tv": 22.15107212475618,
+    "cna_tv": 13.924242424242376
+   },
+   "match": false
+  },
+  "hcp|control|coex": {
+   "distance": {
+    "gr_rms": 0.07306098525456813,
+    "cn_tv": 0.04368987493987494,
+    "cna_tv": 0.07536225348725346
+   },
+   "ratio": {
+    "gr_rms": 7.36975710198039,
+    "cn_tv": 3.105341880341881,
+    "cna_tv": 5.391075268817226
+   },
+   "match": false
+  },
+  "coex|full|liquid": {
+   "distance": {
+    "gr_rms": 0.048477749835510606,
+    "cn_tv": 0.0335121584145021,
+    "cna_tv": 0.04820120381643815
+   },
+   "ratio": {
+    "gr_rms": 5.019177713325475,
+    "cn_tv": 2.294717035750464,
+    "cna_tv": 361.9589065255866
+   },
+   "match": false
+  },
+  "coex|full|fcc": {
+   "distance": {
+    "gr_rms": 0.1390625476065597,
+    "cn_tv": 0.16495690724206352,
+    "cna_tv": 0.10870264446924603
+   },
+   "ratio": {
+    "gr_rms": 13.409588394302185,
+    "cn_tv": 12.329625767581998,
+    "cna_tv": 8.56242368742369
+   },
+   "match": false
+  },
+  "coex|full|hcp": {
+   "distance": {
+    "gr_rms": 0.13531412444366114,
+    "cn_tv": 0.16278108465608468,
+    "cna_tv": 0.167104828042328
+   },
+   "ratio": {
+    "gr_rms": 13.731647066754922,
+    "cn_tv": 19.191033138401426,
+    "cna_tv": 13.920798898071576
+   },
+   "match": false
+  },
+  "coex|full|coex": {
+   "distance": {
+    "gr_rms": 0.024659760516124125,
+    "cn_tv": 0.013671687109187147,
+    "cna_tv": 0.02712316618566615
+   },
+   "ratio": {
+    "gr_rms": 2.4874622832365696,
+    "cn_tv": 0.9717414529914559,
+    "cna_tv": 1.940268817204307
+   },
+   "match": false
+  },
+  "coex|control|liquid": {
+   "distance": {
+    "gr_rms": 0.003488788884885315,
+    "cn_tv": 0.003888658722643122,
+    "cna_tv": 3.130730669790698e-05
+   },
+   "ratio": {
+    "gr_rms": 0.36121419572752267,
+    "cn_tv": 0.2662726556343592,
+    "cna_tv": 0.23509700176349171
+   },
+   "match": true
+  },
+  "coex|control|fcc": {
+   "distance": {
+    "gr_rms": 0.18144457258112306,
+    "cn_tv": 0.18515366650132273,
+    "cna_tv": 0.15691693018353173
+   },
+   "ratio": {
+    "gr_rms": 17.49642212493292,
+    "cn_tv": 13.839222956011302,
+    "cna_tv": 12.360225885225887
+   },
+   "match": false
+  },
+  "coex|control|hcp": {
+   "distance": {
+    "gr_rms": 0.15977688480992797,
+    "cn_tv": 0.18297784391534386,
+    "cna_tv": 0.16709656084656083
+   },
+   "ratio": {
+    "gr_rms": 16.21412251423148,
+    "cn_tv": 21.57212475633512,
+    "cna_tv": 13.920110192837416
+   },
+   "match": false
+  },
+  "coex|control|coex": {
+   "distance": {
+    "gr_rms": 0.07365466334744067,
+    "cn_tv": 0.04584385521885525,
+    "cna_tv": 0.07531565656565652
+   },
+   "ratio": {
+    "gr_rms": 7.429642187378469,
+    "cn_tv": 3.258440170940174,
+    "cna_tv": 5.387741935483891
+   },
+   "match": false
+  }
+ },
+ "problems": [],
+ "reference_final_cna": {
+  "liquid": [
+   [
+    0.0,
+    0.0,
+    1.0
+   ],
+   [
+    0.0,
+    0.0,
+    1.0
+   ],
+   [
+    0.0,
+    0.0,
+    1.0
+   ],
+   [
+    0.0,
+    0.0,
+    1.0
+   ],
+   [
+    0.0,
+    0.0,
+    1.0
+   ],
+   [
+    0.0,
+    0.00048828125,
+    0.99951171875
+   ]
+  ],
+  "fcc": [
+   [
+    0.14990234375,
+    0.0,
+    0.85009765625
+   ],
+   [
+    0.1640625,
+    0.0,
+    0.8359375
+   ],
+   [
+    0.1513671875,
+    0.0,
+    0.8486328125
+   ],
+   [
+    0.14794921875,
+    0.0,
+    0.85205078125
+   ],
+   [
+    0.1689453125,
+    0.0,
+    0.8310546875
+   ],
+   [
+    0.12744140625,
+    0.0,
+    0.87255859375
+   ]
+  ],
+  "hcp": [
+   [
+    0.0,
+    0.1636904761904762,
+    0.8363095238095238
+   ],
+   [
+    0.0,
+    0.14434523809523808,
+    0.8556547619047619
+   ],
+   [
+    0.0,
+    0.13938492063492064,
+    0.8606150793650794
+   ],
+   [
+    0.0,
+    0.19692460317460317,
+    0.8030753968253969
+   ],
+   [
+    0.0,
+    0.2003968253968254,
+    0.7996031746031746
+   ],
+   [
+    0.0,
+    0.15773809523809523,
+    0.8422619047619048
+   ]
+  ],
+  "coex": [
+   [
+    0.09895833333333333,
+    0.000248015873015873,
+    0.9007936507936508
+   ],
+   [
+    0.0763888888888889,
+    0.000248015873015873,
+    0.9233630952380952
+   ],
+   [
+    0.04712301587301587,
+    0.0,
+    0.9528769841269841
+   ],
+   [
+    0.09275793650793651,
+    0.000248015873015873,
+    0.9069940476190477
+   ],
+   [
+    0.07093253968253968,
+    0.0,
+    0.9290674603174603
+   ],
+   [
+    0.0716765873015873,
+    0.0,
+    0.9283234126984127
+   ]
+  ]
+ },
+ "rebuild_final_cna": {
+  "liquid|full": [
+   [
+    0.0,
+    0.0,
+    1.0
+   ],
+   [
+    0.0,
+    0.0,
+    1.0
+   ],
+   [
+    0.0,
+    0.0,
+    1.0
+   ]
+  ],
+  "liquid|control": [
+   [
+    0.0,
+    0.0,
+    1.0
+   ],
+   [
+    0.0,
+    0.0,
+    1.0
+   ],
+   [
+    0.0,
+    0.0,
+    1.0
+   ]
+  ],
+  "fcc|full": [
+   [
+    0.15478515625,
+    0.0,
+    0.84521484375
+   ],
+   [
+    0.134765625,
+    0.0,
+    0.865234375
+   ],
+   [
+    0.158203125,
+    0.00048828125,
+    0.84130859375
+   ]
+  ],
+  "fcc|control": [
+   [
+    0.0,
+    0.0,
+    1.0
+   ],
+   [
+    0.0,
+    0.00048828125,
+    0.99951171875
+   ],
+   [
+    0.0,
+    0.0,
+    1.0
+   ]
+  ],
+  "hcp|full": [
+   [
+    0.0,
+    0.13740079365079366,
+    0.8625992063492064
+   ],
+   [
+    0.0,
+    0.15079365079365079,
+    0.8492063492063492
+   ],
+   [
+    0.0,
+    0.14831349206349206,
+    0.8516865079365079
+   ]
+  ],
+  "hcp|control": [
+   [
+    0.0,
+    0.0,
+    1.0
+   ],
+   [
+    0.0,
+    0.0,
+    1.0
+   ],
+   [
+    0.0,
+    0.000496031746031746,
+    0.9995039682539683
+   ]
+  ],
+  "coex|full": [
+   [
+    0.08878968253968254,
+    0.0,
+    0.9112103174603174
+   ],
+   [
+    0.06498015873015874,
+    0.000744047619047619,
+    0.9342757936507936
+   ],
+   [
+    0.0,
+    0.000248015873015873,
+    0.9997519841269841
+   ]
+  ],
+  "coex|control": [
+   [
+    0.0,
+    0.0,
+    1.0
+   ],
+   [
+    0.000248015873015873,
+    0.0,
+    0.9997519841269841
+   ],
+   [
+    0.0,
+    0.0,
+    1.0
+   ]
+  ]
+ },
+ "checks": {
+  "no_refusals": true,
+  "references_valid": true,
+  "diagonal": false,
+  "off_diagonal": true,
+  "control_liquid": true,
+  "control_not_source": true
+ },
+ "verdict": "NOT SUPPORTED",
+ "lammps": "PyPI wheel lammps 2024.8.29.3.0, serial",
+ "wall_seconds": 1900.3
+}
