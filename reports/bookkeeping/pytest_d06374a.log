@@ -1,0 +1,37 @@
+........................................................................ [  5%]
+........................................................................ [ 10%]
+........................................................................ [ 15%]
+........................................................................ [ 21%]
+.....................s.................................................. [ 26%]
+........................................................................ [ 31%]
+........................................................................ [ 37%]
+................................................................s....... [ 42%]
+........................................................................ [ 47%]
+........................................................................ [ 53%]
+........................................................................ [ 58%]
+........................................................................ [ 63%]
+........................................................................ [ 69%]
+........................................................................ [ 74%]
+........................................................................ [ 79%]
+........................................................................ [ 85%]
+........................................................................ [ 90%]
+........................................................................ [ 95%]
+..........FFF..........................................                  [100%]
+=================================== FAILURES ===================================
+______ test_structure_matcher_default_primitive_reduction_is_the_blocker _______
+tests/acceptance/test_o2_o3.py:163: in test_structure_matcher_default_primitive_reduction_is_the_blocker
+    from pymatgen.analysis.structure_matcher import StructureMatcher
+E   ModuleNotFoundError: No module named 'pymatgen'
+____ test_structure_matcher_primitive_cell_false_fits_small_thermal_frames _____
+tests/acceptance/test_o2_o3.py:179: in test_structure_matcher_primitive_cell_false_fits_small_thermal_frames
+    from pymatgen.analysis.structure_matcher import StructureMatcher
+E   ModuleNotFoundError: No module named 'pymatgen'
+______________ test_a3_displace_mutation_power_on_the_canary_case ______________
+tests/acceptance/test_o2_o3.py:217: in test_a3_displace_mutation_power_on_the_canary_case
+    from pymatgen.analysis.structure_matcher import StructureMatcher
+E   ModuleNotFoundError: No module named 'pymatgen'
+=========================== short test summary info ============================
+FAILED tests/acceptance/test_o2_o3.py::test_structure_matcher_default_primitive_reduction_is_the_blocker
+FAILED tests/acceptance/test_o2_o3.py::test_structure_matcher_primitive_cell_false_fits_small_thermal_frames
+FAILED tests/acceptance/test_o2_o3.py::test_a3_displace_mutation_power_on_the_canary_case
+3 failed, 1346 passed, 2 skipped, 270 deselected in 7618.14s (2:06:58)

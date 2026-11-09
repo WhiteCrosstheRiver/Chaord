@@ -125,7 +125,7 @@ test (open_items_v7.md D54). Two results were reported for the same data:
 | `0f63a06` | +0.035 | 0.1285 | `p1_extract.py` | dense 1-ps dumps |
 
 Both numbers are preserved (with script attribution) in
-`research/cnt_electrolyte/q3/q3_results.json`; the per-job final.data +
+`research/cnt_electrolyte/q3_evidence/q3_results.json`; the per-job final.data +
 log.lammps + the sha256 `q3_series_manifest.json` (54 artifacts, 1/12-thinned
 series, raw dumps wiped on the cluster 22 G → 1.3 G) are tracked as of
 `841d5bc`. No post-hoc test was added; the pre-registered D39 call

@@ -10,8 +10,9 @@ referees would ask, and what this repository can answer today.
   related-work search found no tool doing both directions with statistical
   meanings (`draft.md`, related work; to be confirmed against full texts).
 - **Unusually strong verification culture.** 14/14 acceptance criteria with
-  mutation tests, independent verifier, clean CI, pre-registered tests, and a
-  public corrections record. Referees rarely see this; it should be visible.
+  mutation tests, independent verifier, clean CI at `ba6b594` (the clean-machine
+  acceptance job has failed since 2026-10-16; see owner decisions), pre-registered
+  tests, and a public corrections record. Referees rarely see this; it should be visible.
 - **A blind physics demonstration, honestly bounded.** Field detection through
   the text, never told the field, under pre-registered rules: confirmed at the
   pilot filling, NOT confirmed at the measured uptake (R13, p = 0.59; 0.02 V/Å
@@ -39,6 +40,11 @@ referees would ask, and what this repository can answer today.
 6. Internal review by an agent that wrote none of the text, against this table.
 
 ## Owner decisions open
+
+- Find out why the clean-machine acceptance job has failed since 2026-10-16 (open
+  the log of any run after that date; it needs a GitHub sign-in), then dispatch it on
+  the submission commit. The 14/14 at `d06374a` is a self-run and cannot be cited
+  (`reports/bookkeeping/README.md`).
 
 - Labelled DFT set: yes or no (D53, due 2026-11-06).
 - Framing after R13: instrument-first paper with the field tests as a bounded

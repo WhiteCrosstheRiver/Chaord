@@ -125,12 +125,18 @@ interfaces, 689 characters for 4,032 atoms.
 
 ## 3. Instrument validation
 
-**Acceptance.** All 14 of 14 acceptance criteria (A1–A14) pass
-(`assets/table1_acceptance.md`; Table 2). The criteria carry mutation tests: the
+**Acceptance.** All 14 acceptance criteria (A1–A14) passed on a clean machine at
+commit `ba6b594` (`assets/table1_acceptance.md`; Table 2). The criteria carry mutation tests: the
 most likely real error for a criterion is injected and must make it fail. An
-independent verifier with no code authorship reproduced the set
+independent verifier with no code authorship reproduced the set at `f90e988`
 (`reports/verification_2026-10-08.md`), and clean CI on both operating systems
-passed at commit `ba6b594` (run 37868981153; `reports/gate_a_prime.md`). The
+passed at commit `ba6b594` (run 37868981153; `reports/gate_a_prime.md`). That is
+the last clean-machine pass. **[Resolve before submission: the scheduled
+clean-machine acceptance job failed on every run from 16 October to 9 November 2026,
+on later commits, and the failing criterion has not been established.]** At commit
+`d06374a`, which includes the corrections described below, a self-run on our cluster
+gave 14 of 14 (`reports/bookkeeping/`); under the project's own rule that is
+bookkeeping and not clean-machine evidence. The
 benchmark covers crystals, defects, liquids, glasses, solutions, surfaces,
 interfaces and gases: 25 cases in `bench/data` (eight crystals, three defect
 sets, three solutions, and fluids, gases, glasses, surfaces, interfaces and a
@@ -143,7 +149,8 @@ and six are scored. All six pass the A5 gate, both distances within 1.5 times th
 floor. `lj_glass` was retired from A5 in favour of `ka_glass`, and
 `cu_solid_liquid` is recorded as a known limitation.
 
-**Table 3.** A5 distance as a multiple of the noise floor (`reports/acceptance_details.md`).
+**Table 3.** A5 distance as a multiple of the noise floor (`reports/acceptance_details.md`;
+clean-machine artifact at `ba6b594`, which predates the corrections in section 8).
 
 | Case | Family | g(r) | Coordination |
 | --- | --- | --- | --- |
@@ -254,7 +261,7 @@ on the cluster, so exact pairing does not hold for them. The primary test is
 unpaired and is not affected.
 
 **Second confirmatory test, at the reservoir filling.** Same design at the corrected uptake, 125 EC, 58 EMC
-and 24 LiPF6 per 98.4 Å (4,872 atoms), pre-registered in `r13/PLAN.md` before any
+and 24 LiPF6 per 98.4 Å (4,872 atoms), pre-registered in `research/cnt_electrolyte/r13/PLAN.md` before any
 build. The decision rule was that 0.01 V/Å is confirmed at this filling only if
 Welch p < 0.05 on this set alone. The analysis imports the code of the first confirmatory test unchanged and
 runs the plan's own test code verbatim. **0.01 V/Å is not confirmed at the
@@ -475,12 +482,12 @@ potential ranged on the true floors and a radial wall, with no charges or LJ
 terms. A build is accepted only if it clears the unmodified floors. The first
 attempt on `r13_b1` missed the wall floor (0.9985 against 0.999), so the wall was
 stiffened and the threshold left alone; the result has minimum pair/floor 1.098
-and wall/floor 1.028 (`r13/data/build_manifest_r13_b1.json`). Starting production
+and wall/floor 1.028 (`research/cnt_electrolyte/r13/data/build_manifest_r13_b1.json`). Starting production
 from this state releases residual strain: the mobile temperature spikes to about
 880 K within the first picosecond and is gone within 5 ps, well before any
-analysed data (`r13/evidence/smoke/`). That transient was measured on `r13_b1`
+analysed data (`research/cnt_electrolyte/r13/evidence/smoke/`). That transient was measured on `r13_b1`
 only. All six builds pass the same gate (minimum pair/floor 1.097–1.100,
-wall/floor 1.024–1.031; `r13/data/build_manifest.json`). Builds 1 and 6 were
+wall/floor 1.024–1.031; `research/cnt_electrolyte/r13/data/build_manifest.json`). Builds 1 and 6 were
 inserted at 0.80 × the floor. Builds 2–5 jammed there on an EC insertion and were
 inserted at 0.75 ×; every jam is recorded and no count was changed.
 

@@ -1,0 +1,98 @@
+{
+  "criteria": [
+    {
+      "id": "A1",
+      "name": "parse and format",
+      "passed": true,
+      "evidence": "16/16 spec examples parse; property laws (parse==IR and fmt idempotent) hold on 10000 generated programs"
+    },
+    {
+      "id": "A2",
+      "name": "canonical invariance",
+      "passed": true,
+      "evidence": "9/9 crystal + random-solution cases; 180/180 rigid transforms (rotation + translation + re-imaging + re-ordering; 20 draws per case, D21) lift to byte-identical text"
+    },
+    {
+      "id": "A3",
+      "name": "exact round trip (ordered)",
+      "passed": true,
+      "evidence": "9/9 lift-build-lift texts byte-identical; 9/9 structure fits original vs rebuilt ON THE STORED THERMAL FRAMES (GATE as applied: translation-aligned optimal assignment, displaced mass beyond 0.25 d_NN <= 5%); PLAN's pymatgen StructureMatcher is not the gate -- default primitive reduction fits 0/9 thermal-vs-rebuild, primitive_cell=False misses l12_ni3al (committed measurements, pending decision D6); species arrangement for random solutions still judged by Warren-Cowley alpha vs the relabel noise floor)"
+    },
+    {
+      "id": "A4",
+      "name": "defect recovery",
+      "passed": true,
+      "evidence": "26 host x defect-type x temperature cells (3 hosts, all four K-V kinds plus one mixed-kind cell on fcc-Cu and L12-NiAl); interstitials planted at real octahedral (fcc-family) / tetrahedral (rocksalt) interstices, planted events >= 2 d_NN apart, every planted frame >= 0.8 x its contact floor on the minimum-pair sanity check; precision >= 0.95 in 26/26, recall >= 0.95 in 26/26; worst precision 1.00 (fcc-Cu/vacancy/room), worst recall 1.00 (fcc-Cu/vacancy/room)"
+    },
+    {
+      "id": "A5",
+      "name": "statistical round trip",
+      "passed": true,
+      "evidence": "pass rate 6/6-with-floor; fluid: 4/4 (target >= 90%); interface: 1/1 (target >= 90%); glass: 1/1 (target >= 80%); 6 cases without a floor on record: no-floor: skipped (synthetic frame); floor provenance: floor = mean over the cross-quench frame pairs (last two, most-annealed frames of each of the 3 independent quenches, identical protocol, distinct seeds), on the legacy keys AND the partial g(r) rms of every species pair (W7 step 6); within-one-quench pairs (intra_quench below) share the anneal basin and sit closer (Review 2)..; floor = mean over frame pairs at lag >= 4 (the decorrelated half; 21 of 45 pairs, residual short-lag correlation must not shrink the floor).; floor = pooled decorrelated frame pairs of 2 independent trajectories (within-trajectory lag >= 2 plus cross pairs of the decorrelated halves; cross sits only +1%/+10% above within -- an equilibrated liquid carries no preparation memory, unlike the glass quenches; the second trajectory supplies the independent pairs the floor's upper quantile needs).; floor = mean over frame pairs at lag >= 4 (the decorrelated half; 21 of 45 pairs, residual short-lag correlation must not shrink the floor); frames spaced 5 ps (beyond the water structural relaxation time, Review 2): the floor is not shrunk by residual inter-frame correlation. (full notes: details rows / noise_floors.json)"
+    },
+    {
+      "id": "A6",
+      "name": "conservation",
+      "passed": true,
+      "evidence": "126 lifts checked: frame count == conserve line on 126/126; verifier's own region arithmetic (composition/occupancy/molecules/defect net/residual) pins or cross-checks 81 programs (non-derivable shapes check two-way); charge consistent on 126/126"
+    },
+    {
+      "id": "A7",
+      "name": "phase segmentation",
+      "passed": true,
+      "evidence": "10/10 interface frames (2 cases x 5 frames; interface band of 2 x d_NN excluded around every interface plane, d_NN = verifier's median nearest-neighbour distance) labelled >= 95% correct; worst 0.982 (interface/lj_solid_liquid frame 3); judged fraction disclosed per frame -- interfaces/cu_water: judged 0.854-0.874 of atoms (core-scope gate >= 90% x geometry-implied availability held); interface/lj_solid_liquid: judged 0.355-0.430 of atoms (core-scope gate >= 90% x geometry-implied availability held)"
+    },
+    {
+      "id": "A8",
+      "name": "reactive census",
+      "passed": true,
+      "evidence": "plan 0: census {'H2O': 40, 'HO': 9, 'H': 9} == planted {'H2O': 40, 'HO': 9, 'H': 9} (147 atoms, coordinates written directly in numpy); plan 1: census {'H2O': 25, 'HO': 5, 'H': 7} == planted {'H2O': 25, 'HO': 5, 'H': 7} (92 atoms, coordinates written directly in numpy); adsorption sites 100% correct over 20 draws x 20 random translations (400 frames, 3200 adsorbates; claims {'bridge': 1200, 'top': 2000} vs planted {'bridge': 1200, 'top': 2000} on raw-numpy Pt(111) slabs; PLAN gate >= 90%); clean-slab false positives 0 of 120 (Pt(111) + Pt(100) at 0.05,0.08,0.1 A, 20 draws each; X1 class)"
+    },
+    {
+      "id": "A9",
+      "name": "compression",
+      "passed": true,
+      "evidence": "5 measured systems with >= 1,000 atoms (bench frames + independent-MD reference frames); worst ratio 0.69% (reference/nacl_aq, 1640 atoms); worst crystal-class 0.50% (crystals/l12_ni3al, 1372 atoms); worst heterogeneous-class 0.69% (reference/nacl_aq, 1640 atoms); the >= 1,000-atom gate is evidenced on heterogeneous systems (2 of 5 gated measurements); per-case table in details"
+    },
+    {
+      "id": "A10",
+      "name": "determinism",
+      "passed": true,
+      "evidence": "repeated lift of bench defect frame byte-identical: True; same-seed builds identical coordinates: True"
+    },
+    {
+      "id": "A11",
+      "name": "speed",
+      "passed": true,
+      "evidence": "per-arm lift wall-time at 100,000/10,000 atoms (crystal/defects on a Cu fcc host, surface Pt(111), slab a solid-liquid interface, amorphous a Si diamond block at 0.55 A disorder, fluid the PLAN frame): crystal 3318.6 s/7.8 s; defects 5289.6 s/118.8 s; surface 2.6 s/0.5 s; slab 181.7 s/2.1 s; fluid 5.5 s/0.5 s; amorphous 6407.1 s/290.9 s; PLAN gate (<= 120 s on 100,000 atoms, one core) judged on the fluid arm: 5.5 s; fluid input = fcc lattice at rho 0.85 with 0.10 x a jitter (thermally disordered, not equilibrated MD); program states the exact count: yes; single wall-clock draws, no CPU pinning -- the Review-10 local numbers were measured with a LAMMPS queue running concurrently, so read them as upper bounds (the clean-runner run replaces them)"
+    },
+    {
+      "id": "A12",
+      "name": "static checks",
+      "passed": true,
+      "evidence": "lattice_mismatch: caught; impossible_density: caught; charge_imbalance: caught; overlap_0.1sigma: caught"
+    },
+    {
+      "id": "A13",
+      "name": "no crashes",
+      "passed": true,
+      "evidence": "125/125 bench frames lift without any exception; 0 atoms placed in residual blocks across successful lifts; 60 frames carry routing diagnostics (recorded lift_mode refused or names a bench category; lifted auto)"
+    },
+    {
+      "id": "A14",
+      "name": "documentation",
+      "passed": true,
+      "evidence": "41 distinct keys across dialect YAMLs; reference.md covers 41/41 with structured entries (code span / heading / table row + an actual spec/examples line cited; prose is not coverage); example citation gated for 41/41 keys (0 keys have no example anywhere in spec/examples/ -- reported, nothing to cite: none); sketch_check pass; generated docs/reference_generated.md"
+    }
+  ],
+  "passed": 14,
+  "total": 14,
+  "provenance": {
+    "commit": "",
+    "working_tree_dirty": false,
+    "runner": "Linux 3.10.0-1160.el7.x86_64",
+    "run_kind": "local (bookkeeping per AGENTS.md; citable evidence is the clean-runner artifact)",
+    "run_url": null,
+    "timestamp": "2026-11-10T07:17:12+0800"
+  }
+}

@@ -94,8 +94,8 @@ rows are filled from `r13_results.json` (r13/PLAN.md, pre-registered
   Evidence: `research/program_length/results.json`, `RESULTS.md`
   (PLAN registered 5b434b8; results 7612053).
 - Physics alone explains every pass; S1 inert (per-atom spread copied as
-  tolerance); S2 harmful (gr x9.2-19.3 at P2, angle 13-32x). Verdict
-  undetermined between readings A and B; reported as such.
+  tolerance); S2 harmful (gr x9.2-19.3 at P2, angle 13-32x). Registered
+  verdict NOT SUPPORTED (corrected from "undetermined"; see `RESULTS.md`).
 
 ## 7c. The text selects the macrostate (results V; added after macrostate selection)
 
