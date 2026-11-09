@@ -97,6 +97,12 @@ rows are filled from `r13_results.json` (r13/PLAN.md, pre-registered
   tolerance); S2 harmful (gr x9.2-19.3 at P2, angle 13-32x). Verdict
   undetermined between readings A and B; reported as such.
 
+## 7c. The text selects the macrostate (results V; added after macrostate selection)
+
+- Figure 6: 4 LJ macrostates x full/control programs, identical MD, Chaord-free
+  scoring. Evidence: `research/macrostate_selection/results.json`, `RESULTS.md`
+  (PLAN registered 8deeff2; results 8c81b59). Verdict NOT SUPPORTED (slab 2.5 vs 1.5).
+
 ## 8. What the language adds beyond the physics (discussion)
 
 - Lift as an instrument: the field was detected through the lifted

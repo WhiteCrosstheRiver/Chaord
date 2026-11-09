@@ -1,38 +1,49 @@
 chaord 0.1
-dialect core + molecular + carbon + research
+dialect core + lj
 
 system {
-  cell 41.700 41.700 49.200
+  units lj
+  cell 9.86 9.86 46.04
   pbc xyz
-  state T 300.00
-  assert dipole_p1 0.176 +- 0.128 along z
-  conserve atoms C 1487 F 36 H 340 Li 6 O 183 P 6
+  state T 0.75
+  conserve atoms X 4032
 }
 
 physics {
-  backend classical
+  backend lj
+  epsilon 1
+  sigma 1
+  cutoff 2.5
 }
 
-crystal tube : cylinder axis z center 20.850 20.850 24.600 radius 10.850 A length 49.200 A {
-  nanotube (16,16) length 49.200 A
+crystal A : slab z 0.2 .. 18.2 {
+  lattice fcc
+  a 1.644
+  orient <100> z <001>
+  constrain strain zz -5.1 % +- 0.2
+  assert sites_matched 100.0 %
 }
 
-liquid fluid : cylinder axis z center 20.850 20.850 24.600 radius 10.850 A length 49.200 A {
-  molecules C3H4O3 37
-  molecules C4H8O3 24
-  molecules F6P 6
-  molecules Li+ 6
-  state density 0.609 g/cm3
-  assert cn 0.0 +- 0.2 cutoff 3.10 A
-  assert gr_peak 4.55 A height 3.94
+liquid B : slab z 18.2 .. 0.2 {  # wraps through z = 0
+  state density 0.866
+  assert cn 12.2 +- 1.1 cutoff 1.50
+  assert gr_peak 1.06 height 3.25
+  assert solid_clusters 0
+}
+
+interface A | B {
+  at z 18.2
+  width 1.8
+}
+
+interface B | A {
+  at z 0.2
+  width 1.5
 }
 
 residual none
 
 provenance {
-  dialects "core 0.1.0 + molecular 0.1.0 + carbon 0.2.0 + research 0.1.0"
+  dialects "core 0.1.0 + lj 0.1.0"
   lift_version "0.1.0"
-  note "composed tube-plus-liquid program (D35, docs/reviews/open_items_v4.md Y3): all-carbon three-coordinated components lifted through the chirality inference as crystal tube regions; atoms inside each cylinder as the confined fluid region; atoms outside as their own region"
-  note "fluid density and g(r) referred to the tube-interior region volume (pipeline._fit_fluid_region's rule: a sub-region is not the box)"
-  note "dipole P1 measured from the frame's own per-atom charges (n = 61 molecules, axis z); tol = 1/sqrt(n) = 0.128 is the a-priori standard-error bound of a mean of n cosines (Popoviciu, Mathematica (Cluj) 9, 129 (1935): variance <= 1 for a variable on [-1,1]), not an empirical floor"
 }

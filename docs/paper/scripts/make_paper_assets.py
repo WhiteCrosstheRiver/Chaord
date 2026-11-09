@@ -15,6 +15,7 @@ import re
 import numpy as np
 from scipy import stats
 import matplotlib
+import matplotlib.colors
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
@@ -24,6 +25,7 @@ FIG = "docs/paper/figures/"
 BLUE, ORANGE, AQUA, VIOLET = "#2a78d6", "#eb6834", "#1baf7a", "#7a4fd0"
 R13 = "research/cnt_electrolyte/r13/r13_results.json"
 CURVE = "research/program_length/results.json"
+MACRO = "research/macrostate_selection/results.json"
 INK, MUTED, GRID = "#0b0b0b", "#52514e", "#e6e5e0"
 FIELD_MV = {0.01: "0.01", 0.02: "0.02"}
 
@@ -216,6 +218,74 @@ def filling(f):
     return out
 
 
+def macrostate_numbers(r):
+    """Macrostate selection (PLAN registered 8deeff2): recompute every match and
+    the six registered conditions from the stored ratios; fails closed."""
+    S, gate, cells = ("liquid", "fcc", "hcp", "coex"), r["gate"], r["cells"]
+    for k, c in cells.items():
+        if all(v <= gate for v in c["ratio"].values()) != c["match"]:
+            raise RuntimeError(f"macrostate cell {k}: stored match disagrees")
+    m = lambda i, kind, j: cells[f"{i}|{kind}|{j}"]["match"]
+    checks = dict(no_refusals=not r["problems"],
+                  references_valid=r["checks"]["references_valid"],
+                  diagonal=all(m(s, "full", s) for s in S),
+                  off_diagonal=not any(m(s, "full", j) for s in S for j in S if j != s),
+                  control_liquid=all(m(s, "control", "liquid") for s in S),
+                  control_not_source=not any(m(s, "control", s) for s in S[1:]))
+    if checks != r["checks"]:
+        raise RuntimeError("macrostate conditions disagree with the stored ones")
+    verdict = "SUPPORTED" if all(checks.values()) else "NOT SUPPORTED"
+    if verdict != r["verdict"]:
+        raise RuntimeError("macrostate verdict disagrees")
+    grid = {kind: {i: {j: max(cells[f"{i}|{kind}|{j}"]["ratio"].values()) for j in S}
+                   for i in S} for kind in ("full", "control")}
+    off = [grid["full"][i][j] for i in S for j in S if i != j]
+    return dict(verdict=verdict, checks=checks, grid=grid, gate=gate, T=r["T"], rho=r["rho"],
+                diagonal={s: grid["full"][s][s] for s in S}, off_min=min(off), off_max=max(off),
+                control_to_liquid=[grid["control"][s]["liquid"] for s in S],
+                coex_ratio=cells["coex|full|coex"]["ratio"],
+                coex_control=grid["control"]["coex"]["coex"],
+                hcp_ratio=cells["hcp|full|hcp"]["ratio"],
+                lengths={s: [len(r["programs"][f"{s}|{i}"]["full"]) for i in range(3)] for s in S},
+                control_lengths=[len(r["programs"][f"{s}|0"]["control"]) for s in S],
+                coex_rebuild_fcc=[x[0] for x in r["rebuild_final_cna"]["coex|full"]],
+                coex_reference_fcc=[x[0] for x in r["reference_final_cna"]["coex"]])
+
+
+def fig6(mac):
+    """Macrostate matrix: rows source program, columns reference, one hue on a
+    log scale; outlined cells pass the gate, every cell carries its number."""
+    S = ("liquid", "fcc", "hcp", "coex")
+    labels = ("liquid", "fcc", "hcp", "slab")
+    fig, axes = plt.subplots(1, 2, figsize=(7.2, 3.2), constrained_layout=True)
+    norm = matplotlib.colors.LogNorm(vmin=0.3, vmax=1300)
+    for ax, kind, title in zip(axes, ("full", "control"),
+                               ("(a) Lifted program", "(b) Control: cell, T, N, density only")):
+        g = np.array([[mac["grid"][kind][i][j] for j in S] for i in S])
+        im = ax.imshow(g, cmap="Blues", norm=norm)
+        ax.grid(False)
+        ax.set_xticks(range(4), labels)
+        ax.set_yticks(range(4), labels)
+        ax.tick_params(length=0)
+        for sp in ax.spines.values():
+            sp.set_visible(False)
+        ax.set_xlabel("Reference state")
+        ax.set_title(title, fontsize=9, color=INK, loc="left")
+        for y in range(4):
+            for x in range(4):
+                v = g[y, x]
+                ax.text(x, y, f"{v:.1f}" if v < 100 else f"{v:.0f}", ha="center", va="center",
+                        fontsize=8.5, color="white" if v > 40 else INK)
+                if v <= mac["gate"]:
+                    ax.add_patch(plt.Rectangle((x - .46, y - .46), .92, .92, fill=False,
+                                               ec=ORANGE, lw=2))
+    axes[0].set_ylabel("Source of program")
+    cb = fig.colorbar(im, ax=axes, shrink=.85, pad=.02)
+    cb.set_label("Largest distance / noise floor")
+    cb.outline.set_visible(False)
+    save(fig, "fig6_macrostate_matrix")
+
+
 def a5_cases():
     """Per-case A5 ratios as tools/acceptance.py printed them (one decimal),
     and the cases it skipped for lack of a measured floor."""
@@ -377,6 +447,7 @@ def main():
     r = load(R13)
     N = dict(acceptance=acceptance_table(acc), a5_cases=a5_cases(), z4=z4_numbers(c),
              r13=r13_numbers(r), program_length=curve_numbers(load(CURVE)),
+             macrostate=macrostate_numbers(load(MACRO)),
              fidelity=fidelity(c, l, r), filling=filling(f),
              e_min={t: l["per_tube"][t]["e_min"] for t in ("16", "10")},
              stage_b_p1={t: {k: v for k, v in
@@ -386,6 +457,7 @@ def main():
     fig2(l, N["z4"], N["r13"])
     N["fidelity"].update(fig3(c, N["fidelity"]))
     fig5(N["filling"])
+    fig6(N["macrostate"])
     with open(OUT + "paper_numbers.json", "w", encoding="utf-8",
               newline="\n") as fh:
         json.dump(N, fh, indent=1)
