@@ -17,8 +17,8 @@ coordinates from a program and a decompiler lifts a snapshot back to one. We mak
 the round trip the correctness test: decompile, rebuild, and compare observables
 the program never stated against the frame-to-frame noise floor. Chaord passes
 14 acceptance criteria, each guarded by an injected error that must make it fail,
-and over 78,078 blind lifts its printed statements match an independent
-calculation to the precision of the print. Used as an instrument, its text alone
+and over 78,078 blind lifts its printed dipole-order statement matches an
+independent calculation to the precision of the print. Used as an instrument, its text alone
 detects field-induced dipole order in a LiPF6 electrolyte confined in carbon
 nanotubes without being told a field is present: a pre-registered test confirmed
 0.01 V/Å (p = 0.025, n = 6 runs per group) in tubes packed below their open-tube
@@ -104,8 +104,33 @@ independent verifier with no code authorship reproduced the set
 (`reports/verification_2026-10-08.md`), and clean CI on both operating systems
 passed at commit `ba6b594` (run 37868981153; `reports/gate_a_prime.md`). The
 benchmark covers crystals, defects, liquids, glasses, solutions, surfaces,
-interfaces and gases, with disordered references taken from independent MD.
-**[VERIFY: confirm that family list against `bench/` and name the case count.]**
+interfaces and gases: 25 cases in `bench/data` (eight crystals, three defect
+sets, three solutions, and fluids, gases, glasses, surfaces, interfaces and a
+reactive system), five frames each, plus MD references from an independent
+engine. The criteria are the authors' own, and several (A10 determinism, A13 no
+crashes, A14 documentation) are software quality rather than science, so we do
+not read 14/14 as evidence of physical fidelity.
+
+**Statistical round trip.** Six MD reference cases have a measured noise floor,
+and all six pass the A5 gate, both distances within 1.5 times the floor.
+
+**Table 3.** A5 distance as a multiple of the noise floor (`reports/acceptance_details.md`).
+
+| Case | Family | g(r) | Coordination |
+| --- | --- | --- | --- |
+| Kob–Andersen glass | glass | 0.9 | 0.3 |
+| LJ liquid, 500 atoms | fluid | 1.2 | 0.6 |
+| LJ liquid, 2,048 atoms | fluid | 0.7 | 1.1 |
+| LJ solid–liquid slab | interface | 1.1 | 0.4 |
+| NaCl(aq) | fluid | 1.3 | 1.1 |
+| TIP4P water | fluid | 1.2 | 0.7 |
+
+Six further cases are synthetic frames with no measured floor, and A5 does not
+score them. Two qualifications matter. The ordered gate (A3) as applied is an
+optimal-assignment fit on the stored thermal frames, because the planned
+StructureMatcher, with default primitive reduction, matched 0 of 9 thermal
+frames against their rebuilds. And for fluids a pass largely verifies the
+physics stage rather than the text, as section 7 shows.
 
 **Fidelity.** Across all 78,078 blind lifts (42,042 on the full ladder, 18,018 in
 the pilot-filling confirmatory set and 18,018 at the reservoir filling), the
@@ -192,7 +217,10 @@ run means against field-on block B). The registered gate passed.
 
 The 0.01 V/Å result is a modest detection: its interval nearly reaches zero and
 one run sits on the zero-field side. It should not be read as more than the
-registered rule says. The build-paired contrast is secondary and weakened: a
+registered rule says. The registered statistic is the direct calculation. The
+same contrast run on the printed statement instead, which is secondary and was
+not registered, gives the same result (0.01 V/Å: p = 0.0246; R13 below: p = 0.594),
+so the text carries the detection. The build-paired contrast is secondary and weakened: a
 pre-registered chaining check found that 6 of the 18 jobs diverged from their
 siblings during the shared zero-field ramp, a floating-point non-reproducibility
 on the cluster, so exact pairing does not hold for them. The primary test is
@@ -317,7 +345,7 @@ Chaord text in this work.
 3. Narrow-tube non-ergodicity: (10,10) is glassy-slow, and the block protocol may
    under-sample it.
 4. Cluster floating-point non-reproducibility: reruns are not bit-reproducible
-   across nodes. It affected 6 of 18 jobs in Z3 and 2 of 18 in R13, where the two
+   across nodes. It affected 6 of 18 jobs in Z4 and 2 of 18 in R13, where the two
    are exactly the jobs run on a second node.
 5. Six runs per field: power against small shifts is limited, and at the
    reservoir filling the between-build spread is as large as the 0.02 V/Å

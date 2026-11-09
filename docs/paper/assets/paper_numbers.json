@@ -3,6 +3,48 @@
   "passed": 14,
   "total": 14
  },
+ "a5_cases": {
+  "scored": {
+   "reference/ka_glass": {
+    "category": "glass",
+    "cn_tv": 0.3,
+    "gr_rms": 0.9
+   },
+   "reference/lj_liquid": {
+    "category": "fluid",
+    "cn_tv": 0.6,
+    "gr_rms": 1.2
+   },
+   "reference/lj_liquid_large": {
+    "category": "fluid",
+    "cn_tv": 1.1,
+    "gr_rms": 0.7
+   },
+   "reference/lj_solid_liquid": {
+    "category": "interface",
+    "cn_tv": 0.4,
+    "gr_rms": 1.1
+   },
+   "reference/nacl_aq": {
+    "category": "fluid",
+    "cn_tv": 1.1,
+    "gr_rms": 1.3
+   },
+   "reference/water_tip4p": {
+    "category": "fluid",
+    "cn_tv": 0.7,
+    "gr_rms": 1.2
+   }
+  },
+  "skipped": [
+   "fluid/water_box15",
+   "fluid/ar_gas_box25",
+   "fluid/n2_box22",
+   "glass/lj_glass_rho085",
+   "interface/lj_solid_liquid",
+   "interfaces/cu_water"
+  ]
+ },
  "z4": {
   "off_per_run": [
    -0.0289108574589018,
@@ -57,6 +99,32 @@
     ],
     "on_mean": 0.16930436514908412,
     "on_sem": 0.01752390324020069,
+    "n_positive": 6
+   }
+  },
+  "text_arm": {
+   "0.01": {
+    "shift": 0.10726742880904858,
+    "t": 2.850368237648817,
+    "df": 7.010273638242642,
+    "p": 0.02463697284545505,
+    "ci95": [
+     0.018306351867586723,
+     0.19622850575051043
+    ],
+    "n": 6,
+    "n_positive": 5
+   },
+   "0.02": {
+    "shift": 0.18735758183632734,
+    "t": 7.969968627594778,
+    "df": 9.878583093924572,
+    "p": 1.3102976347466233e-05,
+    "ci95": [
+     0.13489122141526957,
+     0.2398239422573851
+    ],
+    "n": 6,
     "n_positive": 6
    }
   }
@@ -178,6 +246,32 @@
    "r13_b4": true,
    "r13_b5": false,
    "r13_b6": false
+  },
+  "text_arm": {
+   "0.01": {
+    "shift": 0.02033445974717233,
+    "t": 0.5553985845882828,
+    "df": 8.049328858462644,
+    "p": 0.5937175240692076,
+    "ci95": [
+     -0.0640038458625716,
+     0.10467276535691625
+    ],
+    "n": 6,
+    "n_positive": 4
+   },
+   "0.02": {
+    "shift": 0.05080019494344644,
+    "t": 2.206027391713936,
+    "df": 9.256425207253734,
+    "p": 0.05399623045747022,
+    "ci95": [
+     -0.001073399990316505,
+     0.10267378987720938
+    ],
+    "n": 6,
+    "n_positive": 5
+   }
   }
  },
  "program_length": {

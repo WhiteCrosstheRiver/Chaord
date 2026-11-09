@@ -10,6 +10,7 @@ STANDALONE: numpy, scipy, matplotlib; does not import chaord.
 """
 import json
 import os
+import re
 
 import numpy as np
 from scipy import stats
@@ -55,6 +56,19 @@ def close(a, b, what, tol=1e-9):
         raise RuntimeError(f"{what}: recomputed {a} != stored {b}")
 
 
+def text_arm(J):
+    """Secondary, not registered: the same Welch contrast on the means of the
+    printed statement (dipole_p1_blocks) instead of the direct calculation."""
+    off = [np.mean([j["dipole_p1_blocks"]["A"], j["dipole_p1_blocks"]["B"]])
+           for j in J.values() if j["field"] == 0]
+    out = {}
+    for E, key in FIELD_MV.items():
+        on = [j["dipole_p1_blocks"]["B"] for j in J.values() if j["field"] == E]
+        out[key] = welch(on, off)
+        out[key]["n_positive"] = int(sum(x > 0 for x in on))
+    return out
+
+
 def z4_numbers(c):
     J = c["jobs"]
     off = [np.mean([j["direct_p1_blocks"]["A"], j["direct_p1_blocks"]["B"]])
@@ -71,6 +85,7 @@ def z4_numbers(c):
                  on_sem=float(np.std(on, ddof=1) / np.sqrt(len(on))),
                  n_positive=int(sum(x > 0 for x in on)))
         out["fields"][key] = w
+    out["text_arm"] = text_arm(J)
     return out
 
 
@@ -97,6 +112,7 @@ def r13_numbers(r):
                  on_sem=float(np.std(on, ddof=1) / np.sqrt(len(on))),
                  n_positive=int(sum(x > 0 for x in on)))
         out["fields"][key] = w
+    out["text_arm"] = text_arm(J)
     if (out["fields"]["0.01"]["p"] < 0.05) != (out["decision"] == "CONFIRMED"):
         raise RuntimeError("R13 stored verdict disagrees with the recomputed p")
     return out
@@ -198,6 +214,25 @@ def filling(f):
     if round(per98["EC"]) != 125 or round(per98["EMC"]) != 58:
         raise RuntimeError("R13 composition does not follow from Q2 uptake")
     return out
+
+
+def a5_cases():
+    """Per-case A5 ratios as tools/acceptance.py printed them (one decimal),
+    and the cases it skipped for lack of a measured floor."""
+    t = open("reports/acceptance_details.md", encoding="utf-8").read()
+    sec, rows, skipped = t[t.index("## A5"):t.index("## A6")], {}, []
+    for line in sec.splitlines():
+        cells = [x.strip() for x in line.strip("|").split("|")]
+        if len(cells) < 3 or "/" not in cells[0]:
+            continue
+        if cells[2].startswith("pass"):
+            got = re.findall(r"(cn_tv|gr_rms) [0-9.]+ vs floor [0-9.]+ \(x([0-9.]+)", cells[2])
+            rows[cells[0]] = dict(category=cells[1], **{k: float(v) for k, v in got})
+        elif cells[2].startswith("no-floor"):
+            skipped.append(cells[0])
+        else:
+            raise RuntimeError(f"A5 case not pass or skipped: {cells[0]}")
+    return dict(scored=rows, skipped=skipped)
 
 
 def acceptance_table(acc):
@@ -340,7 +375,7 @@ def main():
     f = load(A + "filling_results.json")
     acc = load("reports/acceptance.json")
     r = load(R13)
-    N = dict(acceptance=acceptance_table(acc), z4=z4_numbers(c),
+    N = dict(acceptance=acceptance_table(acc), a5_cases=a5_cases(), z4=z4_numbers(c),
              r13=r13_numbers(r), program_length=curve_numbers(load(CURVE)),
              fidelity=fidelity(c, l, r), filling=filling(f),
              e_min={t: l["per_tube"][t]["e_min"] for t in ("16", "10")},
