@@ -132,3 +132,35 @@ series, raw dumps wiped on the cluster 22 G → 1.3 G) are tracked as of
 (q3/PLAN.md, dc2607a) was run exactly as committed on a composition the
 corrected filling analysis had already superseded — the planning defect is the
 record here, not the analysis.
+
+## Large hcp tilings silently lost atoms (2026-11-09)
+
+Found by the second pilot of `research/macrostate_selection`, not by the
+acceptance suite. `build_conventional` bounded its lattice-translation search by
+box extent over the shortest lattice vector. On a skewed basis the needed integer
+offsets are larger, so the far corner of a large orthohexagonal hcp tiling was
+dropped: a program stating 2,016 atoms built 1,908, with no refusal, and the
+hole melted the crystal under MD. The 32-atom bench case fits inside the old
+safety margin, so A3 passed. No published number used an hcp cell this large.
+
+Fix: bounds now come from the cell corners in conventional coordinates, and the
+tiling refuses if its atom count differs from the cell volume's. Regression test:
+`tests/test_large_hcp_tiling.py`.
+
+## Lift printed a liquid over a thin crystal slab (2026-11-09)
+
+Also found by the macrostate pilots. A frame holding a crystal slab too thin to
+have interior atoms is correctly refused by the slab arm, but the `auto` cascade
+then fell through to `lift_fluid` and printed a homogeneous liquid with
+`assert solid_clusters 0`, although `is_single_phase` had already said the frame
+was not one fluid. For atomic frames it now refuses; bonded (molecular) frames
+keep the fluid lift, since they fail that check on component sizes and it says
+nothing about crystal (`src/chaord/lift/legacy.py`, test
+`tests/test_lift_refuses_unresolved_slab.py`). A slab whose crystal is a small
+enough fraction to pass `is_single_phase` still lifts as a liquid; this is a
+stated limit.
+
+Open, not fixed: the slab arm classifies orientation from a histogram of bond
+directions, and near melting it can print `z <111>` for a crystal grown along
+[001], with a spurious `constrain strain`. `build_slab` does not read `orient`, so
+rebuilds are unaffected, but the printed statement is unreliable there.

@@ -135,11 +135,17 @@ def build_conventional(name: str, params: dict, slots_species: tuple,
     cart_basis = frac @ conv
     inv_cell = np.linalg.inv(cell)
 
-    # conventional-lattice translations covering the (possibly tilted) new cell
-    reach = np.abs(cell).sum(axis=0).max()
-    lmin = np.linalg.norm(conv, axis=1).min()
-    nmax = int(np.ceil(reach / lmin)) + 2
-    grid = np.array(np.meshgrid(*[range(-nmax, nmax + 1)] * 3, indexing="ij")).reshape(3, -1).T
+    # conventional-lattice translations covering the (possibly tilted) new
+    # cell: bounds come from the cell corners in conventional coordinates. A
+    # bound from box extent / shortest vector is too small on a skewed basis:
+    # a hexagonal x = a (n1 - n2/2) needs n1 well past L/a once n2 is large,
+    # and the far corner of a large orthohexagonal tiling was silently lost
+    corners = np.array([[i, j, k] for i in (0, 1) for j in (0, 1) for k in (0, 1)]) @ cell
+    span = corners @ np.linalg.inv(conv)
+    lo = np.floor(span.min(axis=0)).astype(int) - 1  # dialect-exempt: numerical-guard: one-cell margin for the basis offsets
+    hi = np.ceil(span.max(axis=0)).astype(int) + 1  # dialect-exempt: numerical-guard: one-cell margin for the basis offsets
+    grid = np.array(np.meshgrid(*[range(a, b + 1) for a, b in zip(lo, hi)],
+                                indexing="ij")).reshape(3, -1).T
     offsets = grid @ conv
 
     pos_list, sym_list = [], []
@@ -150,6 +156,10 @@ def build_conventional(name: str, params: dict, slots_species: tuple,
         pos_list.append(cand[keep])
         sym_list.extend([s] * int(keep.sum()))
     pos = np.vstack(pos_list)
+    expected = abs(np.linalg.det(cell) / np.linalg.det(conv)) * len(cart_basis)
+    if len(pos) != int(round(expected)):
+        raise ChaordError(f"{name} tiling placed {len(pos)} atoms, the cell holds "
+                          f"{int(round(expected))}; refusing rather than losing atoms")
     # wrap ONLY the rows outside the half-open cell: the keep-window is open
     # at -1e-9, so a basis point on the negative face of a tilted cell (the
     # orthorhombic hcp basis lands at x = -8.9e-17) survives as a tiny-

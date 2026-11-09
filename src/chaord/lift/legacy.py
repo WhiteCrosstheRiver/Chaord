@@ -279,7 +279,18 @@ def legacy_lift(frame, dialect, T=None, mode="auto"):
                 if mode == "slab":
                     raise
                 raise _refusal(e)
-        except NotThisPhase:
-            pass    # no interfaces found: a single-phase fluid after all
+        except NotThisPhase as exc:
+            # an ATOMIC frame reaches here after its crystal-like fraction said
+            # "not one fluid": printing a homogeneous liquid would state
+            # solid_clusters 0 over a crystal the frame contains, so refuse. A
+            # bonded (molecular) frame fails is_single_phase on its component
+            # sizes instead, says nothing about crystal, and keeps the fluid lift
+            from .fluid import _all_elements, is_single_phase
+            from ..build.molecules import bond_graph
+            bonded = _all_elements(frame) and bool(bond_graph(frame, dialect))
+            if mode == "auto" and not bonded and not is_single_phase(frame, dialect):
+                raise ChaordError(
+                    "frame is neither one fluid nor a resolvable slab: "
+                    f"{exc}") from exc
         return lift_fluid(frame, dialect, T=T), 0
     raise ValueError(f"unknown lift mode {mode!r}")
