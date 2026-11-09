@@ -9,14 +9,15 @@ Atomistic simulation has no shared language for what a configuration is. We
 introduce Chaord, in which a program is a macrostate, exact where a system is
 ordered and statistical where it is not. A compiler samples coordinates from a
 program, a decompiler lifts a snapshot back to one, and we test the round trip
-against measured noise floors. For simple liquids the physics does the work and
-structural statements add nothing. For states sharing potential, temperature and
-density, the text carries the choice: in a pre-registered test, rebuilt liquid,
-fcc and hcp states matched only their own references, while a control without
+against measured noise floors. For two simple liquids the physics did the work
+and two fluid restraints added nothing. For Lennard-Jones states sharing potential,
+temperature and density at one state point, rebuilt liquid, fcc and hcp matched
+only their own references in a pre-registered test, while a control without
 structural text always gave the liquid. A crystal–liquid slab missed the gate, so
-the four-state claim was not supported. Applied blind to a LiPF6 electrolyte in
-carbon nanotubes, the text detected field-induced dipole order at a packed filling
-(0.01 V/Å, p = 0.025) but not at the measured uptake (p = 0.59).
+the four-state claim was not supported. In a LiPF6 electrolyte in carbon nanotubes,
+a registered statistic that the printed text reproduces detected field-induced
+dipole order at a pilot packing (0.01 V/Å, p = 0.025) but not at a packing of the
+measured uptake (p = 0.59).
 
 ## 1. Introduction
 
@@ -43,8 +44,8 @@ first, because a physics claim made through a language is only as good as that
 language's measured fidelity. We then use the instrument on a blind problem:
 detecting field-aligned dipole order in a LiPF6 electrolyte confined in carbon
 nanotubes, where the lift is never told the field. If the text could not see what
-a field does to the liquid, it could not be used to choose training frames; that
-it can is necessary for that use but does not establish it. Finally, we test a
+a field does to the liquid, it could not be used to choose training frames. Where
+it can, that is necessary for such use but does not establish it. Finally, we test a
 claim from the original design, that a program stating more about a fluid should
 need less simulation to reproduce it, and then ask where the text carries
 something the physics cannot supply.
@@ -78,40 +79,46 @@ accounts for anything not explained. The language is exact where a system is
 ordered (a lattice, a Kröger–Vink defect count) and statistical where it is not
 (a density, a coordination with its tolerance).
 
-Every statement has one of six kinds, and the kind fixes what the compiler and
-decompiler must do with it (Table 4). The grammar and every statement key are
-specified in `docs/reference.md` and `src/chaord/lang/chaord.lark`.
+Every statement has one of six kinds (Table 1). What the compiler does with a
+statement depends on its kind and on the region's phase; the table states what is
+implemented, which is narrower than the language's intent. A dialect is a versioned
+file of vocabulary and thresholds for a family of materials. The grammar and every
+statement key are specified in `docs/reference.md` and
+`src/chaord/lang/chaord.lark`.
 
-**Table 4.** Statement kinds.
+**Table 1.** Statement kinds, as implemented.
 
 | Kind | Example | Compiler | Decompiler |
 | --- | --- | --- | --- |
-| build | `lattice fcc`, `defect V_Ni count 1`, `molecules H2O 620` | constructs it exactly | infers it from the frame |
-| state | `state density 0.854`, `state T 300 K` | targets it | measures it, or records it as supplied |
-| constrain | `constrain cn 12.0 +- 0.3 cutoff 1.50` | enforces it; an unmet target refuses the build | prints it where a held quantity is found |
-| assert | `assert gr_peak 1.06 height 3.07` | never enforces it; checks only | measures it |
-| history | `history melt 3000 K for 20 ps -> quench to 300 K at 1 K/ps` | runs the protocol | prints it only when it is known |
-| conserve | `conserve atoms Ni 646 Al 217` | exact | exact, and verified against the frame |
+| build | `lattice fcc`, `defect V_Ni count 1`, `molecules H2O 620` | constructs it | infers it from the frame |
+| state | `state density 0.854`, `state T 300 K` | density is targeted in fluid packing; `T` is used by the physics stage and otherwise metadata | measures it, or records it as supplied |
+| constrain | `constrain cn 12.0 +- 0.3 cutoff 1.50` | `cn` and `gr_peak` are restrained by reverse Monte Carlo in atomic fluid regions and an unmet target refuses; `sro` is attempted in solid solutions; `strain` sets the slab lattice | prints it where a held quantity is found |
+| assert | `assert gr_peak 1.06 height 3.07` | ignored by the build; verified by `chaord check` | measures it |
+| history | `history melt 3000 K for 20 ps -> quench to 300 K at 1 K/ps` | run only by the amorphous builder | prints it only when it is known |
+| conserve | `conserve atoms Ni 646 Al 217` | crystal tilings refuse a wrong atom count; otherwise verified by `chaord check` | exact, and verified against the frame |
 
-Thresholds and cut-offs live only in versioned dialect files, never in a program
-or in code, and every program names its physics backend. **Compilation** dispatches
-on the region phases: crystals are tiled exactly from a prototype table, with
-defects placed by the stated counts; fluids are packed to the stated density and
-then, if physics is on, relaxed under the named backend; slabs combine the two
-across their interfaces; `constrain` statements are applied afterwards by reverse
-Monte Carlo. **Decompilation** tries each phase in turn and accepts only an explicit
-fit, so that a frame no phase can describe is refused rather than forced into a
-program. Counts per species and total charge are conserved: what a lift cannot
-explain goes to a `residual`. Each collective variable is measured, restrained
-and checked by the same code, so a printed statement and its check cannot
+Analysis thresholds live in dialect files, although a statement may print the
+cut-off it was measured with. Lifted programs name a physics backend; for crystals
+this is a default, which a physics-off build does not use. **Compilation** dispatches
+on the region phases: crystals are tiled from a prototype table, with defects
+placed by the stated counts; fluids are packed to the stated density and then, if
+physics is on, relaxed under the named backend; slabs combine the two across their
+interfaces. **Decompilation** tries each phase in turn, and a frame that no phase can
+describe is refused. There are two exceptions: bonded (molecular) frames fall back
+to a fluid description, and a crystal that is too small a fraction of the box to
+fail the single-phase check is lifted as a liquid (section 8). What a lift cannot
+explain goes to a `residual`. For fluid coordination and g(r) peaks, the same code
+measures, restrains and checks the quantity, so the statement and its check cannot
 diverge.
 
-The blind rule is what makes the field test meaningful: when a dialect
-names a dipole species, `dipole_p1` is measured unconditionally, and passing a
-`field=` argument adds only a `state field` line. No lift in this work received
-that argument.
+The blind rule is what makes the field test meaningful. When a dialect names a
+dipole species, the statement `dipole_p1`, the order parameter P1 = ⟨cos θ⟩ between
+each molecular dipole and an analysis axis, is measured unconditionally, and
+passing a `field=` argument adds only a `state field` line. No lift in this work
+received that argument. The blindness covers the field, not the observable: the
+analyst names the species and the axis is the tube axis.
 
-**Figure 4.** A program lifted from a Lennard-Jones crystal–liquid slab, without
+**Figure 1.** A program lifted from a Lennard-Jones crystal–liquid slab, without
 any hint about the state (`figures/fig4_example_program.chaord`, taken verbatim
 from `research/macrostate_selection/results.json`, key `coex|0`). Two regions, two
 interfaces, 689 characters for 4,032 atoms.
@@ -119,7 +126,7 @@ interfaces, 689 characters for 4,032 atoms.
 ## 3. Instrument validation
 
 **Acceptance.** All 14 of 14 acceptance criteria (A1–A14) pass
-(`assets/table1_acceptance.md`; Table 1). The criteria carry mutation tests: the
+(`assets/table1_acceptance.md`; Table 2). The criteria carry mutation tests: the
 most likely real error for a criterion is injected and must make it fail. An
 independent verifier with no code authorship reproduced the set
 (`reports/verification_2026-10-08.md`), and clean CI on both operating systems
@@ -127,13 +134,14 @@ passed at commit `ba6b594` (run 37868981153; `reports/gate_a_prime.md`). The
 benchmark covers crystals, defects, liquids, glasses, solutions, surfaces,
 interfaces and gases: 25 cases in `bench/data` (eight crystals, three defect
 sets, three solutions, and fluids, gases, glasses, surfaces, interfaces and a
-reactive system), five frames each, plus MD references from an independent
-engine. The criteria are the authors' own, and several (A10 determinism, A13 no
+reactive system), five frames each, plus MD references. The criteria are the authors' own, and several (A10 determinism, A13 no
 crashes, A14 documentation) are software quality rather than science, so we do
 not read 14/14 as evidence of physical fidelity.
 
-**Statistical round trip.** Six MD reference cases have a measured noise floor,
-and all six pass the A5 gate, both distances within 1.5 times the floor.
+**Statistical round trip.** Eight MD reference cases have a measured noise floor,
+and six are scored. All six pass the A5 gate, both distances within 1.5 times the
+floor. `lj_glass` was retired from A5 in favour of `ka_glass`, and
+`cu_solid_liquid` is recorded as a known limitation.
 
 **Table 3.** A5 distance as a multiple of the noise floor (`reports/acceptance_details.md`).
 
@@ -151,17 +159,26 @@ score them. Two qualifications matter. The ordered gate (A3) as applied is an
 optimal-assignment fit on the stored thermal frames, because the planned
 StructureMatcher, with default primitive reduction, matched 0 of 9 thermal
 frames against their rebuilds. And for fluids a pass largely verifies the
-physics stage rather than the text, as section 7 shows. Nor is 14/14 a guarantee
-of correctness: the tests in section 8 exposed two defects the acceptance set had
-passed, both corrected and recorded in `docs/records/corrections.md`.
+physics stage rather than the text, as section 7 shows. The gate is also calibrated
+by us. The floor definition, max(mean, P90), was adopted after a clean run rejected
+`lj_liquid_large` at 1.8 times the earlier floor. The molecular relaxation length
+(950 steps) was chosen where the coordination distance to the reference is lowest;
+1,400 steps gives 1.54 times the floor, which would fail. The molecular references
+and the compiler's classical backend both use ASE, with the same friction and
+truncation, so those references are not independent of the compiler's engine.
+
+Nor is 14/14 a guarantee of correctness: the pilots for section 8 exposed a compiler
+defect and a decompiler defect that the acceptance set had passed, both corrected
+and recorded in `docs/records/corrections.md`.
 
 **Fidelity.** Across all 78,078 blind lifts (42,042 on the full ladder, 18,018 in
 the pilot-filling confirmatory set and 18,018 at the reservoir filling), the
 largest difference between the statement `dipole_p1` and an independent direct
 calculation was 5.00 × 10⁻⁴, which is the half-quantum of the statement's
-three-decimal print (Figure 3). The residual is flat across that interval, as
+three-decimal print (Figure 2 shows the 18,018 frames of one set). The residual is flat across that interval, as
 rounding predicts, so the statement and the direct quantity agree to print
-precision. There were no failed static checks on any frame of either
+precision. This is a check that the statement reports the quantity correctly, and
+it says nothing about whether the quantity is informative. There were no failed static checks on any frame of either
 confirmatory set; the denser reservoir filling, at 4,872 atoms, did not degrade
 the print.
 
@@ -175,17 +192,19 @@ atoms.
 
 **Protocol.** Each job runs a 100 ps ramp from 10 to 300 K and 900 ps at 300 K at
 zero field, then applies the field, settles for 1 ns, and records two 6 ns
-production blocks. All jobs in a set use one LAMMPS build (3 Mar 2020).
+production blocks, A and B. Each confirmatory set uses one LAMMPS build (3 Mar 2020).
+In the field ladder, 12 (10,10) jobs ran on the 22 Jul 2025 build and the rest on
+3 Mar 2020.
 
 Tubes are filled by packing molecules to a stated count, at the pilot filling
 or at the measured reservoir uptake. Every build clears the same contact floors;
 the staged packing procedure is given in Methods.
 
-## 5. Filling is a state variable
+## 5. Filling differs from the pilot packing
 
 Open-tube filling runs measure the uptake a packed pore should match. For (16,16)
 the uptake per Å is EC 1.2701, EMC 0.5917, Li⁺ 0.2673 and PF6⁻ 0.2127, above the
-pilot packing by 68.9%, 21.3%, 119.2% and 74.4% (Figure 5). For (10,10), the fill
+pilot packing by 68.9%, 21.3%, 119.2% and 74.4% (Figure 3). For (10,10), the fill
 holds EC and EMC well above the pilot, and no Li⁺ at all in the analysed window.
 The uncertainties are lower bounds: the 1.25 ns blocks are shorter than the
 collective relaxation time of about 3 ns.
@@ -204,7 +223,8 @@ open-tube uptake" throughout.
 ## 6. Blind field detection
 
 **Field ladder.** Seven fields from 0 to 0.2 V/Å, two tubes, three builds each
-(Figure 2a). The smallest detected field depends on the criterion. For (16,16) it
+(Figure 4a). The smallest detected field depends on the criterion: a shift above
+three times the noise floor, or a build-paired shift above 3σ or 2σ. For (16,16) it
 is 0.1 V/Å under the 3× floor rule, 0.02 V/Å under the build-paired 3σ rule and
 0.01 V/Å under paired 2σ. For (10,10) it is 0.1 V/Å on both paired rules, and the
 3× floor rule detects nothing.
@@ -212,20 +232,23 @@ is 0.1 V/Å under the 3× floor rule, 0.02 V/Å under the build-paired 3σ rule 
 **First confirmatory test, packed below open-tube uptake.** Pre-registered before
 any job was built: 18 jobs, (16,16), 98.4 Å, fields 0, 0.01 and 0.02 V/Å, six
 builds, with independent runs as the unit (Welch two-sided, α = 0.05, zero-field
-run means against field-on block B). The registered gate passed.
+run means against field-on block B). The registered gate passed. "Runs positive" counts field-on runs with P1 above
+zero.
+
+**Table 4.** First confirmatory test.
 
 | Contrast | Shift | 95% CI | t | df | p | Runs positive |
 | --- | --- | --- | --- | --- | --- | --- |
 | 0.01 vs 0 V/Å (gate) | +0.107 | [+0.018, +0.196] | 2.85 | 7.0 | 0.0246 | 5 of 6 |
 | 0.02 vs 0 V/Å | +0.187 | [+0.135, +0.240] | 7.97 | 9.9 | 1.3 × 10⁻⁵ | 6 of 6 |
 
-The 0.01 V/Å result is a modest detection: its interval nearly reaches zero and
-one run sits on the zero-field side. It should not be read as more than the
+The 0.01 V/Å result is a modest detection: its interval nearly reaches zero, one run has
+negative P1, and two lie inside the range of the zero-field runs. It should not be read as more than the
 registered rule says. The registered statistic is the direct calculation. The
 same contrast run on the printed statement instead, which is secondary and was
 not registered, gives the same result (0.01 V/Å: p = 0.0246; the second confirmatory test below: p = 0.594),
-so the text carries the detection. The build-paired contrast is secondary and weakened: a
-pre-registered chaining check found that 6 of the 18 jobs diverged from their
+so the printed statement reproduces the registered statistic. The build-paired contrast is secondary and weakened: a
+pre-registered chaining check, which tests that jobs sharing a build stay identical through their shared zero-field ramp, found that 6 of the 18 jobs diverged from their
 siblings during the shared zero-field ramp, a floating-point non-reproducibility
 on the cluster, so exact pairing does not hold for them. The primary test is
 unpaired and is not affected.
@@ -237,14 +260,17 @@ Welch p < 0.05 on this set alone. The analysis imports the code of the first con
 runs the plan's own test code verbatim. **0.01 V/Å is not confirmed at the
 reservoir filling.**
 
+**Table 5.** Second confirmatory test.
+
 | Contrast | Shift | 95% CI | t | df | p | Runs positive |
 | --- | --- | --- | --- | --- | --- | --- |
 | 0.01 vs 0 V/Å (gate) | +0.020 | [−0.064, +0.105] | 0.56 | 8.0 | 0.59 | 4 of 6 |
 | 0.02 vs 0 V/Å | +0.051 | [−0.001, +0.103] | 2.21 | 9.3 | 0.054 | 5 of 6 |
 
-The measurement is not what failed: the statements matched the direct
-calculation to print precision on all 18,018 frames. Two things changed against
-the pilot filling (Figure 2b). The 0.02 V/Å response is about a quarter as large
+The statements matched the direct calculation to print precision on all 18,018
+frames, as they must, so this result concerns the response and not the print. Two
+things changed against
+the pilot filling (Figure 4b). The 0.02 V/Å response is about a quarter as large
 (block-B mean +0.041 against +0.169 for the first test), and the zero-field runs spread from
 −0.080 to +0.028 between builds, the same order as that response. With six runs
 per group, an unpaired test cannot separate the two. The build-paired contrast,
@@ -256,7 +282,7 @@ design cannot say; we make no physical claim either way.
 
 The chaining check found 2 of 18 jobs diverging from their siblings during the
 shared zero-field ramp, and these are exactly the two jobs the scheduler placed
-on a second compute node; the other 16 ran on one node with the same binary,
+on a second compute node (`research/cnt_electrolyte/r13/HANDOFF.md`); the other 16 ran on one node with the same binary,
 rank layout and seeds. This turns the floating-point non-reproducibility seen in
 the first test from an inference into an observation for the second test. The primary test is unpaired
 and unaffected; the paired view loses exact pairing for those two builds.
@@ -274,8 +300,9 @@ can trade length for physics, a richer program should pass with less simulation.
 We pre-registered the test before any grid data existed
 (`research/program_length/PLAN.md`, commit `5b434b8`). It uses two
 Lennard-Jones liquids (`lj_liquid`, `lj_liquid_large`) and three physics levels:
-P0 packing only, P1 700 MD steps (10% of the dialect default) and P2 the default
-7,000. Each liquid's lifted program, with its assertions removed, gives three
+packing only, short MD (700 slow-stage steps, 10% of the dialect default) and full
+MD (the default 7,000). A fixed 400-step fast stage precedes the slow stage whenever
+MD runs. Each liquid's lifted program, with its assertions removed, gives three
 programs: S0 as lifted, S1 adding the coordination restraint copied from the
 lifted assertion, and S2 adding the g(r)-peak restraint as well (201, 240 and 277
 characters for `lj_liquid`). Every cell was rebuilt with three seeds and scored
@@ -283,11 +310,11 @@ by the A5 gate: averaged g(r) and coordination distances each at most 1.5 times
 the measured floor. A bond-angle distance, which no level restrains, was the
 held-out check.
 
-**Table 2.** Program-length grid. Pass or fail on the A5 gate, and the g(r)
+**Table 6.** Program-length grid. Pass or fail on the A5 gate, and the g(r)
 distance as a multiple of its floor, as the range over the two liquids
 (`research/program_length/results.json`).
 
-| Program | P0, packing only | P1, 700 steps | P2, 7,000 steps |
+| Program | Packing only | Short MD | Full MD |
 | --- | --- | --- | --- |
 | S0, lifted | fail, 13.4–18.7 | pass, 1.21–1.27 | pass, 0.59–0.94 |
 | S1, + coordination | fail, 13.4–18.7 | pass, 1.21–1.27 | pass, 0.59–0.94 |
@@ -304,20 +331,22 @@ distance rose from 0.59–0.94 to 9.2–19.3 times its floor, and the held-out a
 distance rose 13- to 32-fold against S0. The held-out check caught what the
 targeted statement could not.
 
-The registered rule does not settle a label. It asks that the shortest passing
-program not grow with physics, and that at least one level need a strictly
-longer program than P2. It does not say how "no passing program" at P0 compares
-with a length. Counted as the longest, the rule returns SUPPORTED; counted as no
-length, NOT SUPPORTED. The analysis code chose the first ordering after
-registration, though before any data, so we report the verdict as undetermined
-and rest on the substance. These data do not show that program length can
-replace physics: the compiler's two restraints either do nothing as stated or
-damage the structure. One by-product is that 700 MD steps already pass the gate,
-at 1.17–1.27 times the floor. Restraints that act on whole distributions, or a
+**The registered verdict is NOT SUPPORTED.** The rule calls the claim supported if
+and only if, for both liquids, the shortest passing program does not grow with
+physics and at least one level needs a strictly longer program than full MD, and
+not supported otherwise. With packing alone no program passes, so no level needs a
+longer program and the second clause is not met. The analysis script instead
+treated "no passing program" as longer than any program, and its stored output
+reads SUPPORTED. That ordering is not in the plan, and the script was committed only
+with the results, so the record cannot show that it preceded the data. We report
+the rule as written. These data do not show that program length can replace
+physics: the two restraints either do nothing as stated or damage the structure.
+One by-product is that short MD already passes the gate, at 1.17–1.27 times the
+floor. Restraints that act on whole distributions, or a
 tolerance on the mean taken from the measured floor, would be the next test, and
 it would have to be pre-registered as new work.
 
-## 8. The text selects the macrostate
+## 8. Testing whether the text selects the macrostate
 
 Section 7 shows that a liquid needs little text. The opposite case is a set of
 states that the potential, temperature and density do not choose among within the
@@ -333,8 +362,8 @@ and common-neighbour classes [14], each within 1.5 times a floor measured betwee
 reference trajectories.
 
 **The registered verdict is NOT SUPPORTED.** Five of six registered conditions
-held. The sixth required every full program to match its own reference, and the
-slab reached 2.5 times its floor (Figure 6a). Of its three programs, two were
+held. The failed condition required every full program to match its own reference, and the
+slab reached 2.5 times its floor (Figure 5a). Of its three programs, two were
 lifted as a slab and rebuilt one; the third came from the frame with the smallest
 crystal (fcc fraction 0.047), which passed the single-phase check and was lifted
 as a homogeneous liquid.
@@ -343,15 +372,19 @@ The rest of the matrix is what a selective language should produce. Liquid, fcc
 and hcp programs matched their own references at 0.4, 0.7 and 1.4 times the floor
 and rejected every other reference, the smallest off-diagonal entry being 7.4.
 The control gave the liquid from all four sources (0.4–0.9 times the floor) and
-matched none of the others (Figure 6b). For these states, a few hundred characters
-(346–375 against 203–205 for the control) decide which macrostate MD stays in. The
-state point was chosen in pilots, disclosed in the plan, and holds for one
-component and one potential.
+matched none of the others (Figure 5b). The hcp match was narrow (coordination 1.45
+times the floor). The programs are 346–375 characters against 203–205 for the
+control, so about 140–170 characters decide which of these states MD stays in.
+
+This came after five pilots, which the plan records: the state point moved three
+times, the slab box was doubled, and two software defects were fixed. The fifth
+pilot passed all six conditions on its own seeds; the registered run, on fresh seeds,
+did not. That difference shows how close the slab is to the lift's detection limit.
 
 ## 9. What the language adds
 
-The field was detected through lifted programs, never from coordinates with field
-knowledge. Conservation and residual accounting are falsifiable statements rather
+The lifts never received the field, and the printed statement reproduces the
+registered field contrasts. Conservation and residual accounting are falsifiable statements rather
 than conventions: dropping one atom must fail.
 
 The measured noise floors behind these comparisons were themselves tested. Thirty
@@ -364,7 +397,7 @@ structure alone would not distinguish these glasses, and that is a limit of the
 observable, not of the print. Re-grounding the liquid floors on at least 132
 averaged pairs changed most of them little. The largest move was the
 `lj_liquid_large` averaged coordination floor, which widened by a factor of 1.57,
-a sampling effect in the original 21 pairs (`reports/convergence/liquid_floors.md`).
+a sampling effect in the original 11 averaged pairs (`reports/convergence/liquid_floors.md`).
 
 **The decision loop.** Chaord ships a line-diff state codec for a text decision
 model (`src/chaord/integrations.py`, 320-token budget), tested for exact round
@@ -387,7 +420,7 @@ Chaord text in this work.
    response. A larger set, or a design that removes build-to-build variance from
    the primary test, would be needed to resolve it; neither was registered here.
 6. Program length against physics was measured for two atomic liquids and two
-   scalar restraints only, and its registered verdict is undetermined (section
+   scalar restraints only, and its registered verdict is NOT SUPPORTED (section
    7). The negative finding bears on these restraints as specified, not on
    richer ones. Slab, glass and molecular systems have no restraint path.
 7. Macrostate selection was tested at one state point, chosen in pilots, for one
@@ -395,33 +428,40 @@ Chaord text in this work.
    that is a small fraction of the box can be lifted as a liquid.
 8. Near melting the slab lift can misstate crystal orientation (`z <111>` for a
    crystal grown along [001]) and print a spurious strain. The slab builder does
-   not read `orient`, so rebuilds are unaffected, but the statement is unreliable
-   there.
+   not read `orient`, but it does use the strain, so a misidentified orientation
+   can alter a rebuilt slab's lattice spacing.
+9. The criteria and the A5 gate are ours and were calibrated on these cases (section
+   3). For fluids a pass mainly shows that MD works.
 
 ## Discussion
 
-Two results bound what a macrostate language contributes. For a simple liquid it
-contributes almost nothing beyond state variables: MD finds the structure, and a
-pass on the round-trip gate mainly verifies the physics stage. For metastable or
-ordered states, the program determines the outcome and a control without structure
-does not. The value of the text therefore lies where a system has a memory of
-how it was prepared or which basin it occupies.
+Two results bound what a macrostate language contributes. For the simple liquids
+tested it contributed almost nothing beyond state variables: MD found the
+structure, and a pass on the round-trip gate mainly verified the physics stage. For
+homogeneous crystals and a liquid at one state point, the lifted program determined
+the outcome and a control without structure did not. This falls short of a language
+advantage. A builder given the word `fcc` could also start a crystal; what the test
+establishes is the loop, from a snapshot with no hint, through text, to a matching
+state. We have no baseline against another representation and no state where the
+text does something a builder cannot. Kob–Andersen glasses show the other limit:
+they keep a memory of their preparation that structural statements do not resolve.
 
 As an instrument, the printed dipole statement agreed with a direct calculation
-and carried the same field contrasts. The physical conclusion is narrow: a
-response at a packed filling, none confirmed at the measured uptake. We do not
-attribute the difference to filling, because composition, neutralization and
+and reproduced the registered field contrasts. The physical conclusion is narrow: a
+response at a pilot packing, none confirmed at a packing of the measured uptake. We
+do not attribute the difference to filling, because composition, neutralization and
 packing protocol changed together.
 
-Pre-registration cost us two claims: the program-length curve has no settled
-verdict, and macrostate selection failed on the slab. It also found two compiler
-defects that passed the acceptance set. No decision model has been trained on
-Chaord text here, and whether the language helps select training configurations
-remains to be tested.
+Testing against pre-registered rules cost us two claims: neither the program-length
+curve nor macrostate selection was supported. The pilots for the latter also found
+a compiler defect and a decompiler defect that had passed the acceptance set. No
+decision model has been trained on Chaord text here, and whether the language helps
+select training configurations remains to be tested.
 
 ## Methods
 
-**Electrolyte packing.** At the pilot filling, a seeded rejection packer places molecules
+**Electrolyte packing.** The pilot filling is 74 EC, 48 EMC and 12 LiPF6 per 98.4 Å.
+A seeded rejection packer places molecules
 against contact floors of max(2.0 Å, 2.2 Å with H, 0.85 σᵢⱼ), and molecules that
 cannot be placed strictly are inserted and pushed apart by translation.
 
@@ -447,40 +487,48 @@ inserted at 0.75 ×; every jam is recorded and no count was changed.
 **Noise floors and the A5 gate.** The reference for each case is the mean of its
 observables over decorrelated frames, and a rebuild is the mean over seeds 7, 13
 and 29. The floor for each observable is the larger of the mean and the 90th
-percentile of the distances between reference frame pairs. A rebuild passes if
+percentile of the distances between pairs of averaged reference observables. A rebuild passes if
 both the g(r) and coordination distances are at most 1.5 times their floors.
 
 **Statistics.** Field contrasts are Welch two-sided tests at α = 0.05 with the
 independent run as the unit. Zero-field values are run means; field-on values are
-production block B. Each analysis was registered in a committed plan before its
-data existed and is run by the committed script.
+production block B. Each decision rule was registered in a committed plan before its data
+existed. The field tests ran from committed scripts; the program-length script was
+committed only with its results.
 
-**Software and reproducibility.** Every number in this paper is printed by
+**Macrostate runs.** Liquid and slab references may hold one more frame than the 10
+planned, because their dump starts on a multiple of the dump interval; frames were
+not retained, so this is inferred. The common-neighbour cut-off is set in
+`research/macrostate_selection/matrix.py`.
+
+**Software and reproducibility.** The statistics in this paper are printed by
 `docs/paper/scripts/make_paper_assets.py` from committed evidence, and the script
-stops if a recomputed statistic disagrees with the stored one. Corrections,
+stops if a recomputed statistic disagrees with the stored one. Other values name
+their source file. Corrections,
 including defects found by the tests reported here, are listed in
 `docs/records/corrections.md`.
 
-## Figures
+## Figures and tables
 
-- **Table 1 / Figure 1.** Acceptance A1–A14 (`assets/table1_acceptance.md`).
-- **Table 2.** Program-length grid, in section 7
-  (`research/program_length/RESULTS.md`, `assets/paper_numbers.json` key
-  `program_length`).
-- **Figure 2.** `figures/fig2_blind_p1_vs_field.pdf`. Blind P1 against field. (a)
-  the field ladder, mean ± s.e.m. over three builds. (b) (16,16): the field ladder and first confirmatory test, both
-  packed below open-tube uptake, and the second confirmatory test at the measured uptake; markers are
-  means ± s.e.m., dots individual runs of the two confirmatory tests, series offset horizontally
-  for legibility.
-- **Figure 3.** `figures/fig3_fidelity.pdf`. Chaord statement against direct
-  calculation on 18,018 confirmatory frames, and the residual, bounded by the
-  print half-quantum.
-- **Figure 4.** `figures/fig4_example_program.chaord`. Lifted program for a
+- **Table 1.** Statement kinds (section 2).
+- **Table 2.** Acceptance A1–A14 (`assets/table1_acceptance.md`).
+- **Table 3.** Per-case A5 distances (section 3).
+- **Tables 4 and 5.** Confirmatory field tests (section 6).
+- **Table 6.** Program-length grid (section 7; `research/program_length/RESULTS.md`).
+- **Figure 1.** `figures/fig4_example_program.chaord`. Lifted program for a
   crystal–liquid slab.
-- **Figure 5.** `figures/fig5_filling.pdf`. Pilot packing against open-tube uptake
+- **Figure 2.** `figures/fig3_fidelity.pdf`. Chaord statement against direct
+  calculation on the 18,018 frames of the first confirmatory set, and the residual,
+  bounded by the print half-quantum.
+- **Figure 3.** `figures/fig5_filling.pdf`. Pilot packing against open-tube uptake
   per species and tube.
-
-- **Figure 6.** `figures/fig6_macrostate_matrix.pdf`. Largest distance over noise
+- **Figure 4.** `figures/fig2_blind_p1_vs_field.pdf`. P1 against field. (a) Field
+  ladder, mean ± s.e.m. over three builds; (10,10) jobs at some fields used a newer
+  LAMMPS build. (b) (16,16): the ladder and first confirmatory test, both packed
+  below open-tube uptake, and the second confirmatory test at a packing of the
+  measured uptake; markers are means ± s.e.m., dots individual runs of the two
+  confirmatory tests, series offset horizontally for legibility.
+- **Figure 5.** `figures/fig6_macrostate_matrix.pdf`. Largest distance over noise
   floor for each rebuild (rows) against each reference (columns). (a) Lifted
   programs. (b) Control programs. Outlined cells pass the 1.5× gate.
 

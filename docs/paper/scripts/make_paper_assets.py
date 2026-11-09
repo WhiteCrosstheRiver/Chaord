@@ -327,8 +327,8 @@ def save(fig, stem):
 def fig2(l, z, r13):
     fig, (a, b) = plt.subplots(1, 2, figsize=(7.2, 3.0),
                                gridspec_kw=dict(width_ratios=[1.25, 1]))
-    style = {"16": (BLUE, "o", "(16,16), Stage B"),
-             "10": (ORANGE, "s", "(10,10), Stage B")}
+    style = {"16": (BLUE, "o", "(16,16)"),
+             "10": (ORANGE, "s", "(10,10)")}
     for tube, (col, mk, lab) in style.items():
         cur = l["per_tube"][tube]["p1_curve"]["chaord_dipole_p1"]
         E = sorted(float(k) for k in cur)
@@ -343,7 +343,7 @@ def fig2(l, z, r13):
                    ha="right" if tube == "16" else "left")
     a.set_xscale("symlog", linthresh=0.005)
     a.set_xticks([0, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2])
-    a.set_xticklabels(["0", ".005", ".01", ".02", ".05", ".1", ".2"])
+    a.set_xticklabels(["0", ".005", ".01", ".02", ".05", ".1", ".2"], rotation=45, fontsize=8)
     a.set(xlabel="Field (V/Å)", ylabel="Blind P1, block B")
     a.set_title("a  Full ladder (n = 3, pilot filling)", loc="left", fontsize=9)
     a.legend(loc="upper left", fontsize=8)
@@ -353,11 +353,11 @@ def fig2(l, z, r13):
     k = {0.0: "0", 0.01: "0.01", 0.02: "0.02"}
     b.errorbar(np.array(E) - 0.0012, [cur[k[e]]["mean"] for e in E],
                yerr=[cur[k[e]]["sem"] for e in E], color=BLUE, marker="o",
-               ms=4.5, lw=1.4, capsize=2, label="Stage B, pilot (n = 3)")
+               ms=4.5, lw=1.4, capsize=2, label="Field ladder (n = 3)")
     zm = [z["off_mean"], z["fields"]["0.01"]["on_mean"], z["fields"]["0.02"]["on_mean"]]
     zs = [z["off_sem"], z["fields"]["0.01"]["on_sem"], z["fields"]["0.02"]["on_sem"]]
     b.errorbar(np.array(E) + 0.0002, zm, yerr=zs, color=AQUA, marker="D", ms=4.5,
-               lw=1.4, capsize=2, label="Z4, pilot (n = 6)")
+               lw=1.4, capsize=2, label="First test, pilot packing (n = 6)")
     rng = np.random.default_rng(20261106)
     for e, vals in ((0.0, z["off_per_run"]),
                     (0.01, z["fields"]["0.01"]["on_per_run"]),
@@ -369,7 +369,7 @@ def fig2(l, z, r13):
     rs = [r13["off_sem"], r13["fields"]["0.01"]["on_sem"],
           r13["fields"]["0.02"]["on_sem"]]
     b.errorbar(np.array(E) + 0.0016, rm, yerr=rs, color=VIOLET, marker="^",
-               ms=5, lw=1.4, capsize=2, label="R13, reservoir (n = 6)")
+               ms=5, lw=1.4, capsize=2, label="Second test, measured uptake (n = 6)")
     for e, vals in ((0.0, r13["off_per_run"]),
                     (0.01, r13["fields"]["0.01"]["on_per_run"]),
                     (0.02, r13["fields"]["0.02"]["on_per_run"])):

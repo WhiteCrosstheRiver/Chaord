@@ -59,6 +59,10 @@ the two slab programs cannot be scored separately from this run, and no such
 score is claimed. This is the limit the plan's pilot record names: a crystal that
 is a small fraction of the box is not detected by the lift.
 
+Liquid and slab references may hold 11 frames rather than the planned 10, because
+their dump starts on a multiple of the dump interval. This is inferred; frames were
+not retained.
+
 ## What the data say
 
 1. **Without structural text, physics gives one answer.** The control matched
@@ -80,6 +84,6 @@ crystals and liquids at this state point. It does not support the registered
 four-state claim. It covers one component, one potential, and one state point
 chosen in pilots, and the test does not address molecular systems.
 
-Pilots found two compiler defects, both fixed before registration
+Pilots found a compiler defect and a decompiler defect, both fixed before registration
 (`docs/records/corrections.md`). A follow-up on slab detection would be new work
 with its own plan; this run is not re-analysed.

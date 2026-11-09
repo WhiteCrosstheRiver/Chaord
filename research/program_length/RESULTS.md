@@ -7,6 +7,16 @@ fixes the grid, the ladder and the A5 gate. Every number below is in
 everything in this file is reporting, and the interpretation section is
 explicitly flagged.
 
+## Correction, 2026-11-09: the registered verdict is NOT SUPPORTED
+
+This file first called the verdict undetermined. An independent review pointed out
+that PLAN.md says "SUPPORTED iff ..." and "Otherwise it is NOT SUPPORTED", so a
+comparison the plan does not define cannot satisfy the "iff", and the registered
+default applies. Reading B below is the registered outcome. `results.json` still
+stores the runner's SUPPORTED, from Reading A. `curve.py` was written before the
+run but committed only with the results, so git cannot show that its ordering
+preceded the data. The text below is kept as first written.
+
 ## The full table (PLAN: reported either way)
 
 Ratio = A5 distance / effective floor (gate: both <= 1.5). angle_tv is the

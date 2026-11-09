@@ -162,5 +162,12 @@ stated limit.
 
 Open, not fixed: the slab arm classifies orientation from a histogram of bond
 directions, and near melting it can print `z <111>` for a crystal grown along
-[001], with a spurious `constrain strain`. `build_slab` does not read `orient`, so
-rebuilds are unaffected, but the printed statement is unreliable there.
+[001], with a spurious `constrain strain`. `build_slab` does not read `orient` but
+does use the strain, so a misidentified orientation can alter a rebuilt slab.
+
+## Program-length verdict corrected to NOT SUPPORTED (2026-11-09)
+
+`research/program_length/RESULTS.md` and the draft first called the verdict
+undetermined. PLAN.md's "iff ... otherwise NOT SUPPORTED" makes NOT SUPPORTED the
+registered outcome when a clause cannot be met. `curve.py` was committed only with
+its results (7612053), not before the run.
